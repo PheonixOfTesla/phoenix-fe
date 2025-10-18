@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phoenix - JARVIS Interface</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'SF Mono', 'Monaco', monospace;
+            background: #000;
+            color: #00ffff;
+            overflow: hidden;
+            position: relative;
+            height: 100vh;
+            user-select: none;
+        }
+        
+        #jarvis-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at center, rgba(0,255,255,0.02) 0%, transparent 70%);
+        }
+        
+        /* Central Reactor */
+        .reactor-core {
+            position: relative;
+            width: 250px;
+            height: 250px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .reactor-core:hover {
+            transform: scale(1.05);
+        }
+        
+        .arc-reactor {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px solid rgba(0,255,255,0.3);
+            border-radius: 50%;
+            animation: rotate 20s linear infinite;
+            box-shadow: 0 0 50px rgba(0,255,255,0.5), inset 0 0 50px rgba(0,255,255,0.2);
+        }
+        
+        .reactor-inner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 80%;
+            border: 1px solid rgba(0,255,255,0.5);
+            border-radius: 50%;
+            animation: rotate-reverse 15s linear infinite;
+        }
+        
+        .reactor-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, #00ffff 0%, rgba(0,255,255,0.3) 70%);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        /* Phoenix Text */
+        .phoenix-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 14px;
+            letter-spacing: 2px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(0,255,255,0.8);
+            pointer-events: none;
+        }
+        
+        /* Welcome Message */
+        .welcome-message {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            opacity: 0;
+            animation: fadeIn 1s 0.5s forwards;
+        }
+        
+        .welcome-message h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            font-weight: 300;
+            letter-spacing: 3px;
+            text-shadow: 0 0 20px rgba(0,255,255,0.5);
+        }
+        
+        .welcome-message p {
+            font-size: 14px;
+            color: rgba(0,255,255,0.7);
+            letter-spacing: 1px;
+        }
+        
+        /* Quick Actions */
+        .quick-actions {
+            position: absolute;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 30px;
+            opacity: 0;
+            animation: slideUp 0.8s 1s forwards;
+        }
+        
+        .action-button {
+            padding: 12px 24px;
+            background: rgba(0,255,255,0.1);
+            border: 1px solid rgba(0,255,255,0.3);
+            color: #00ffff;
+            font-size: 12px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .action-button:hover {
+            background: rgba(0,255,255,0.2);
+            border-color: #00ffff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,255,255,0.3);
+        }
+        
+        .action-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+        
+        .action-button:hover::before {
+            left: 100%;
+        }
+        
+        /* Data Widgets */
+        .data-widget {
+            position: absolute;
+            background: rgba(0,255,255,0.03);
+            border: 1px solid rgba(0,255,255,0.2);
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transition: all 0.3s;
+        }
+        
+        .data-widget.active {
+            opacity: 1;
+        }
+        
+        .widget-header {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            color: rgba(0,255,255,0.5);
+        }
+        
+        .widget-value {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(0,255,255,0.5);
+        }
+        
+        .widget-label {
+            font-size: 11px;
+            color: rgba(0,255,255,0.7);
+        }
+        
+        /* Weather Widget */
+        .weather-widget {
+            top: 60px;
+            left: 60px;
+            animation: fadeSlideIn 0.8s 1.5s forwards;
+        }
+        
+        /* Time Widget */
+        .time-widget {
+            top: 60px;
+            right: 60px;
+            animation: fadeSlideIn 0.8s 1.7s forwards;
+        }
+        
+        /* Goals Widget */
+        .goals-widget {
+            bottom: 180px;
+            left: 60px;
+            animation: fadeSlideIn 0.8s 1.9s forwards;
+        }
+        
+        /* Chat Interface */
+        .chat-interface {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+        
+        .chat-toggle {
+            width: 60px;
+            height: 60px;
+            background: rgba(0,255,255,0.1);
+            border: 2px solid rgba(0,255,255,0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 30px rgba(0,255,255,0.3);
+        }
+        
+        .chat-toggle:hover {
+            background: rgba(0,255,255,0.2);
+            transform: scale(1.1);
+            box-shadow: 0 0 40px rgba(0,255,255,0.5);
+        }
+        
+        .chat-toggle svg {
+            width: 24px;
+            height: 24px;
+            fill: #00ffff;
+        }
+        
+        .chat-box {
+            position: absolute;
+            bottom: 80px;
+            right: 0;
+            width: 350px;
+            height: 450px;
+            background: rgba(0,0,0,0.9);
+            border: 1px solid rgba(0,255,255,0.3);
+            backdrop-filter: blur(10px);
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 0 50px rgba(0,255,255,0.2);
+        }
+        
+        .chat-box.active {
+            display: flex;
+        }
+        
+        .chat-header {
+            padding: 15px;
+            border-bottom: 1px solid rgba(0,255,255,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            animation: messageIn 0.3s;
+        }
+        
+        .message.phoenix {
+            text-align: left;
+        }
+        
+        .message.user {
+            text-align: right;
+        }
+        
+        .message-content {
+            display: inline-block;
+            padding: 10px 15px;
+            background: rgba(0,255,255,0.1);
+            border: 1px solid rgba(0,255,255,0.2);
+            border-radius: 10px;
+            max-width: 80%;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        
+        .message.user .message-content {
+            background: rgba(0,255,255,0.05);
+            border-color: rgba(0,255,255,0.3);
+        }
+        
+        .chat-input {
+            padding: 15px;
+            border-top: 1px solid rgba(0,255,255,0.2);
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chat-input input {
+            flex: 1;
+            background: rgba(0,255,255,0.05);
+            border: 1px solid rgba(0,255,255,0.2);
+            padding: 10px;
+            color: #00ffff;
+            font-family: inherit;
+            font-size: 13px;
+        }
+        
+        .chat-input input:focus {
+            outline: none;
+            border-color: #00ffff;
+            box-shadow: 0 0 10px rgba(0,255,255,0.3);
+        }
+        
+        .chat-input button {
+            background: rgba(0,255,255,0.1);
+            border: 1px solid rgba(0,255,255,0.3);
+            color: #00ffff;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        
+        .chat-input button:hover {
+            background: rgba(0,255,255,0.2);
+            border-color: #00ffff;
+        }
+        
+        /* Holographic Overlay */
+        .holographic-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: none;
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+        
+        .holographic-overlay.active {
+            display: block;
+        }
+        
+        /* Planet System */
+        .planet-system {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80vmin;
+            height: 80vmin;
+        }
+        
+        .planet-orbit {
+            position: absolute;
+            border: 1px solid rgba(0,255,255,0.1);
+            border-radius: 50%;
+            animation: rotate 60s linear infinite;
+        }
+        
+        .planet {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, rgba(0,255,255,0.8), rgba(0,255,255,0.2));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 30px rgba(0,255,255,0.5);
+        }
+        
+        .planet:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 50px rgba(0,255,255,0.8);
+        }
+        
+        /* Animations */
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes rotate-reverse {
+            from { transform: rotate(360deg); }
+            to { transform: rotate(0deg); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+        }
+        
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            to { 
+                opacity: 1;
+                transform: translateX(-50%) translateY(-10px);
+            }
+        }
+        
+        @keyframes fadeSlideIn {
+            to { opacity: 1; }
+        }
+        
+        @keyframes messageIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Scan Lines Effect */
+        .scan-lines::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                transparent 50%,
+                rgba(0,255,255,0.03) 50%
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            animation: scanlines 8s linear infinite;
+        }
+        
+        @keyframes scanlines {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(10px); }
+        }
+    </style>
+</head>
+<body class="scan-lines">
+    <div id="jarvis-container">
+        <!-- Welcome Message -->
+        <div class="welcome-message">
+            <h1>Hey Josh</h1>
+            <p>What are your goals for today?</p>
+        </div>
+        
+        <!-- Central Reactor -->
+        <div class="reactor-core" id="reactor">
+            <div class="arc-reactor"></div>
+            <div class="reactor-inner"></div>
+            <div class="reactor-center"></div>
+            <span class="phoenix-text">PHOENIX</span>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <button class="action-button" id="syncBtn">SYNC WEARABLES</button>
+            <button class="action-button" id="goalsBtn">TODAY'S GOALS</button>
+            <button class="action-button" id="analysisBtn">HEALTH ANALYSIS</button>
+        </div>
+        
+        <!-- Data Widgets -->
+        <div class="data-widget weather-widget active">
+            <div class="widget-header">Weather</div>
+            <div class="widget-value">72°F</div>
+            <div class="widget-label">Clear, Perfect for training</div>
+        </div>
+        
+        <div class="data-widget time-widget active">
+            <div class="widget-header">System Time</div>
+            <div class="widget-value" id="timeDisplay">--:--</div>
+            <div class="widget-label" id="dateDisplay">---</div>
+        </div>
+        
+        <div class="data-widget goals-widget active">
+            <div class="widget-header">Goals Progress</div>
+            <div class="widget-value">3/5</div>
+            <div class="widget-label">60% Complete</div>
+        </div>
+        
+        <!-- Chat Interface -->
+        <div class="chat-interface">
+            <div class="chat-toggle" id="chatToggle">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                </svg>
+            </div>
+            <div class="chat-box" id="chatBox">
+                <div class="chat-header">
+                    <span>PHOENIX AI</span>
+                    <span style="cursor: pointer;" id="closeChat">✕</span>
+                </div>
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message phoenix">
+                        <div class="message-content">
+                            Recovery at 78%. You're ready for moderate training today. Focus on upper body - your legs need another day.
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-input">
+                    <input type="text" id="chatInput" placeholder="Ask Phoenix anything..." />
+                    <button id="sendBtn">SEND</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Holographic Overlay -->
+        <div class="holographic-overlay" id="holoOverlay">
+            <div class="planet-system">
+                <!-- Planets will be added by JavaScript -->
+            </div>
+        </div>
+    </div>
+    
+    <script src="jarvis.js"></script>
+    <script src="reactor.js"></script>
+    <script src="planets.js"></script>
+    <script src="voice.js"></script>
+    <script src="api.js"></script>
+    <script src="shaders.js"></script>
+</body>
+</html>
