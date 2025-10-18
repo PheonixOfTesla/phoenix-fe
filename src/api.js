@@ -1,374 +1,376 @@
-// api.js - Phoenix API Bridge to Railway Backend
+// src/api.js - Production API Integration
+// Connects to Railway Backend: https://pal-backend-production.up.railway.app
 
-class PhoenixAPI {
-    constructor() {
-        this.baseURL = window.location.hostname === 'localhost' 
-            ? 'http://localhost:8080/api' 
-            : 'https://pal-backend-production.up.railway.app/api';
-        this.token = localStorage.getItem('phoenixToken');
-        this.userId = localStorage.getItem('phoenixUserId');
-        this.cache = new Map();
-        this.syncInterval = null;
+const API_BASE_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:5000/api'
+    : 'https://pal-backend-production.up.railway.app/api';
+
+// ========================================
+// AUTHENTICATION
+// ========================================
+
+export const login = async (email, password) => {
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+    });
+    const data = await response.json();
+    if (data.success && data.token) {
+        localStorage.setItem('phoenixToken', data.token);
+        localStorage.setItem('phoenixUser', JSON.stringify(data.user));
     }
+    return data;
+};
 
-    init() {
-        console.log('🔗 Initializing Phoenix API...');
-        
-        // Auto-login for demo if no token
-        if (!this.token) {
-            this.demoLogin();
-        } else {
-            this.validateToken();
-        }
-        
-        // Start periodic sync
-        this.startAutoSync();
+export const register = async (name, email, password) => {
+    const response = await fetch(`${API_BASE_URL}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password, role: 'client' })
+    });
+    const data = await response.json();
+    if (data.success && data.token) {
+        localStorage.setItem('phoenixToken', data.token);
+        localStorage.setItem('phoenixUser', JSON.stringify(data.user));
     }
+    return data;
+};
 
-    async demoLogin() {
-        // Auto-login with demo credentials
-        try {
-            const response = await fetch(`${this.baseURL}/auth/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    email: 'john@client.com',
-                    password: 'password123'
-                })
-            });
-            
-            const data = await response.json();
-            
-            if (data.success && data.token) {
-                this.token = data.token;
-                this.userId = data.user._id;
-                localStorage.setItem('phoenixToken', this.token);
-                localStorage.setItem('phoenixUserId', this.userId);
-                console.log('✅ Demo login successful');
-                
-                // Load initial data
-                this.loadUserData();
-            }
-        } catch (error) {
-            console.error('Demo login failed:', error);
-            // Continue in offline mode
-            this.offlineMode();
-        }
-    }
+export const getAuthHeaders = () => {
+    const token = localStorage.getItem('phoenixToken');
+    return {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+    };
+};
 
-    async validateToken() {
-        try {
-            const response = await this.apiCall('/auth/me', 'GET');
-            if (response.success) {
-                console.log('✅ Token valid');
-                this.loadUserData();
-            } else {
-                this.demoLogin();
-            }
-        } catch (error) {
-            console.error('Token validation failed:', error);
-            this.demoLogin();
-        }
-    }
+// ========================================
+// WORKOUT LOGGING (NEW - FILE MODIFICATION #1)
+// ========================================
 
-    async apiCall(endpoint, method = 'GET', body = null) {
-        const options = {
-            method,
-            headers: {
-                'Content-Type': 'application/json',
-                ...(this.token && { 'Authorization': `Bearer ${this.token}` })
-            }
-        };
-        
-        if (body) {
-            options.body = JSON.stringify(body);
-        }
-        
-        try {
-            const response = await fetch(`${this.baseURL}${endpoint}`, options);
-            const data = await response.json();
-            
-            // Cache successful GET requests
-            if (method === 'GET' && data.success) {
-                this.cache.set(endpoint, {
-                    data,
-                    timestamp: Date.now()
-                });
-            }
-            
-            return data;
-        } catch (error) {
-            console.error(`API call failed: ${endpoint}`, error);
-            
-            // Return cached data if available
-            if (method === 'GET' && this.cache.has(endpoint)) {
-                console.log('📦 Using cached data for', endpoint);
-                return this.cache.get(endpoint).data;
-            }
-            
-            throw error;
-        }
-    }
+export const logWorkout = async (workoutData) => {
+    const response = await fetch(`${API_BASE_URL}/workouts`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+            name: workoutData.name,
+            type: workoutData.type || 'strength',
+            exercises: workoutData.exercises, // [{ name, sets, reps, weight, rpe }]
+            duration: workoutData.duration,
+            notes: workoutData.notes,
+            mood: workoutData.mood
+        })
+    });
+    return await response.json();
+};
 
-    async loadUserData() {
-        console.log('📊 Loading user data...');
-        
-        try {
-            // Load all data in parallel
-            const [
-                intelligence,
-                wearables,
-                workouts,
-                goals,
-                measurements,
-                nutrition
-            ] = await Promise.all([
-                this.getIntelligence(),
-                this.getWearableData(),
-                this.getWorkouts(),
-                this.getGoals(),
-                this.getMeasurements(),
-                this.getNutrition()
-            ]);
-            
-            // Update Phoenix with real data
-            this.updatePhoenixData({
-                intelligence,
-                wearables,
-                workouts,
-                goals,
-                measurements,
-                nutrition
-            });
-            
-            console.log('✅ User data loaded');
-        } catch (error) {
-            console.error('Failed to load user data:', error);
-            this.offlineMode();
-        }
-    }
+export const getRecentWorkouts = async (limit = 10) => {
+    const response = await fetch(`${API_BASE_URL}/workouts/recent?limit=${limit}`, {
+        headers: getAuthHeaders()
+    });
+    return await response.json();
+};
 
-    updatePhoenixData(data) {
-        if (!window.Phoenix) return;
-        
-        // Update Phoenix with real backend data
-        if (data.intelligence?.data) {
-            const metrics = data.intelligence.data.metrics;
-            window.Phoenix.userData.recoveryScore = metrics.recoveryScore || 78;
-            window.Phoenix.userData.hrv = metrics.hrv || 68;
-            window.Phoenix.userData.steps = metrics.steps || 4250;
-            window.Phoenix.userData.sleepHours = (metrics.sleep / 60).toFixed(1) || 7.3;
-        }
-        
-        if (data.goals?.length > 0) {
-            window.Phoenix.userData.goals = data.goals.map(goal => ({
-                name: goal.name,
-                completed: goal.completed,
-                current: goal.current,
-                target: goal.target
-            }));
-        }
-        
-        // Update UI
-        window.Phoenix.checkUserState();
-        
-        // Update widgets
-        this.updateWidgets(data);
-    }
+export const getLastWorkout = async (type) => {
+    const response = await fetch(`${API_BASE_URL}/workouts/last/${type}`, {
+        headers: getAuthHeaders()
+    });
+    return await response.json();
+};
 
-    updateWidgets(data) {
-        // Update goals widget
-        if (data.goals) {
-            const completed = data.goals.filter(g => g.completed).length;
-            const total = data.goals.length;
-            const goalsWidget = document.querySelector('.goals-widget .widget-value');
-            if (goalsWidget) {
-                goalsWidget.textContent = `${completed}/${total}`;
-            }
-        }
-        
-        // Trigger Phoenix evolution if enough data
-        if (data.intelligence && data.wearables && data.goals) {
-            setTimeout(() => {
-                if (window.Phoenix && window.Phoenix.state === 'PAL') {
-                    window.Phoenix.evolveToJARVIS();
-                }
-            }, 5000);
-        }
-    }
+export const getWorkoutSuggestion = async (type) => {
+    const response = await fetch(`${API_BASE_URL}/workouts/suggest/${type}`, {
+        headers: getAuthHeaders()
+    });
+    return await response.json();
+};
 
-    // ============================================
-    // API METHODS
-    // ============================================
+export const getWorkoutTemplates = async () => {
+    const response = await fetch(`${API_BASE_URL}/workouts/templates`, {
+        headers: getAuthHeaders()
+    });
+    return await response.json();
+};
 
-    async getIntelligence() {
-        return this.apiCall(`/intelligence/${this.userId}`, 'GET');
-    }
+// ========================================
+// NUTRITION LOGGING (NEW - FILE MODIFICATION #2)
+// ========================================
 
-    async getWearableData() {
-        return this.apiCall(`/wearables/user/${this.userId}`, 'GET');
-    }
+export const logMeal = async (mealData) => {
+    const response = await fetch(`${API_BASE_URL}/nutrition/log`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+            name: mealData.name,
+            calories: mealData.calories,
+            protein: mealData.protein,
+            carbs: mealData.carbs,
+            fat: mealData.fat,
+            mealType: mealData.mealType, // breakfast, lunch, dinner, snack
+            timestamp: mealData.timestamp || new Date().toISOString()
+        })
+    });
+    return await response.json();
+};
 
-    async syncWearables(provider = 'fitbit') {
-        return this.apiCall(`/wearables/sync/${provider}`, 'POST');
-    }
+export const getTodayNutrition = async () => {
+    const response = await fetch(`${API_BASE_URL}/nutrition/today`, {
+        headers: getAuthHeaders()
+    });
+    return await response.json();
+};
 
-    async getWorkouts() {
-        return this.apiCall(`/workouts/client/${this.userId}`, 'GET');
-    }
+export const getNutritionHistory = async (days = 7) => {
+    const response = await fetch(`${API_BASE_URL}/nutrition/history?days=${days}`, {
+        headers: getAuthHeaders()
+    });
+    return await response.json();
+};
 
-    async getGoals() {
-        return this.apiCall(`/goals/client/${this.userId}`, 'GET');
-    }
+// ========================================
+// GOAL CREATION (NEW - FILE MODIFICATION #3)
+// ========================================
 
-    async getMeasurements() {
-        return this.apiCall(`/measurements/client/${this.userId}`, 'GET');
-    }
+export const createGoal = async (goalData) => {
+    const response = await fetch(`${API_BASE_URL}/goals`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+            title: goalData.title,
+            type: goalData.type, // weight, strength, habit, performance
+            target: goalData.target,
+            deadline: goalData.deadline,
+            metric: goalData.metric
+        })
+    });
+    return await response.json();
+};
 
-    async getNutrition() {
-        return this.apiCall(`/nutrition/client/${this.userId}`, 'GET');
-    }
+export const getActiveGoals = async () => {
+    const response = await fetch(`${API_BASE_URL}/goals/active`, {
+        headers: getAuthHeaders()
+    });
+    return await response.json();
+};
 
-    async createWorkout(workout) {
-        return this.apiCall(`/workouts/client/${this.userId}`, 'POST', workout);
-    }
+export const updateGoalProgress = async (goalId, progress) => {
+    const response = await fetch(`${API_BASE_URL}/goals/${goalId}/progress`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ progress })
+    });
+    return await response.json();
+};
 
-    async completeWorkout(workoutId, data) {
-        return this.apiCall(`/workouts/${workoutId}/complete`, 'POST', data);
-    }
+// ========================================
+// MERCURY - WEARABLES & HEALTH
+// ========================================
 
-    async updateGoal(goalId, data) {
-        return this.apiCall(`/goals/${goalId}`, 'PUT', data);
-    }
+export const getLatestWearableData = async () => {
+    const response = await fetch(`${API_BASE_URL}/mercury/latest`, {
+        headers: getAuthHeaders()
+    });
+    return await response.json();
+};
 
-    async sendChatMessage(message) {
-        return this.apiCall('/ai/chat', 'POST', { 
-            message, 
-            userId: this.userId 
-        });
-    }
+export const syncWearables = async () => {
+    const response = await fetch(`${API_BASE_URL}/mercury/sync`, {
+        method: 'POST',
+        headers: getAuthHeaders()
+    });
+    return await response.json();
+};
 
-    async getHealthAnalysis() {
-        const [recovery, readiness, sleep] = await Promise.all([
-            this.apiCall(`/health/recovery/${this.userId}`, 'GET'),
-            this.apiCall(`/health/workout-readiness/${this.userId}`, 'GET'),
-            this.apiCall(`/health/sleep/${this.userId}`, 'GET')
-        ]);
-        
-        return { recovery, readiness, sleep };
-    }
+export const getRecoveryScore = async () => {
+    const response = await fetch(`${API_BASE_URL}/mercury/recovery`, {
+        headers: getAuthHeaders()
+    });
+    return await response.json();
+};
 
-    async getCalendarData() {
-        return this.apiCall(`/calendar/schedule/${this.userId}`, 'GET');
-    }
+// ========================================
+// VENUS - WORKOUTS & NUTRITION
+// ========================================
 
-    async triggerIntervention() {
-        return this.apiCall(`/interventions/${this.userId}/analyze`, 'POST');
-    }
+export const getWorkoutAnalysis = async () => {
+    const response = await fetch(`${API_BASE_URL}/venus/analysis`, {
+        headers: getAuthHeaders()
+    });
+    return await response.json();
+};
 
-    async getPredictions() {
-        const [hrv, illness, energy] = await Promise.all([
-            this.apiCall(`/predictions/${this.userId}/hrv`, 'GET'),
-            this.apiCall(`/predictions/${this.userId}/illness`, 'GET'),
-            this.apiCall(`/predictions/${this.userId}/energy`, 'GET')
-        ]);
-        
-        return { hrv, illness, energy };
-    }
+export const getNutritionRecommendations = async () => {
+    const response = await fetch(`${API_BASE_URL}/venus/nutrition/recommendations`, {
+        headers: getAuthHeaders()
+    });
+    return await response.json();
+};
 
-    // ============================================
-    // REAL-TIME SYNC
-    // ============================================
+// ========================================
+// EARTH - CALENDAR
+// ========================================
 
-    startAutoSync() {
-        // Sync every 30 seconds
-        this.syncInterval = setInterval(() => {
-            this.syncData();
-        }, 30000);
-        
-        // Initial sync
-        setTimeout(() => this.syncData(), 2000);
-    }
+export const getCalendarEvents = async () => {
+    const response = await fetch(`${API_BASE_URL}/earth/calendar-events`, {
+        headers: getAuthHeaders()
+    });
+    return await response.json();
+};
 
-    async syncData() {
-        if (!this.token || !this.userId) return;
-        
-        try {
-            // Quick sync of critical metrics
-            const intelligence = await this.getIntelligence();
-            
-            if (intelligence?.data) {
-                // Update recovery score in real-time
-                const newRecovery = intelligence.data.metrics.recoveryScore;
-                if (window.Phoenix && newRecovery !== window.Phoenix.userData.recoveryScore) {
-                    console.log(`📊 Recovery updated: ${newRecovery}%`);
-                    window.Phoenix.userData.recoveryScore = newRecovery;
-                    
-                    // Update reactor energy
-                    if (window.Reactor) {
-                        window.Reactor.setEnergy(newRecovery);
-                    }
-                }
-            }
-        } catch (error) {
-            console.log('Sync skipped:', error.message);
-        }
-    }
+export const optimizeSchedule = async () => {
+    const response = await fetch(`${API_BASE_URL}/earth/optimize-schedule`, {
+        method: 'POST',
+        headers: getAuthHeaders()
+    });
+    return await response.json();
+};
 
-    // ============================================
-    // OFFLINE MODE
-    // ============================================
+// ========================================
+// MARS - GOALS
+// ========================================
 
-    offlineMode() {
-        console.log('📴 Running in offline mode');
-        
-        // Use default demo data
-        const demoData = {
-            intelligence: {
-                data: {
-                    metrics: {
-                        recoveryScore: 78,
-                        hrv: 68,
-                        steps: 4250,
-                        sleep: 438
-                    }
-                }
-            },
-            goals: [
-                { name: 'Morning workout', completed: true },
-                { name: 'Hit 10k steps', completed: false, current: 4250, target: 10000 },
-                { name: 'Meditate 10 min', completed: false },
-                { name: 'Drink 8 glasses water', completed: false, current: 3, target: 8 },
-                { name: 'Sleep by 10:30 PM', completed: false }
-            ]
-        };
-        
-        this.updatePhoenixData(demoData);
-    }
+export const getGoalProgress = async () => {
+    const response = await fetch(`${API_BASE_URL}/mars/progress`, {
+        headers: getAuthHeaders()
+    });
+    return await response.json();
+};
 
-    // ============================================
-    // CLEANUP
-    // ============================================
+export const getGoalPredictions = async () => {
+    const response = await fetch(`${API_BASE_URL}/mars/predictions`, {
+        headers: getAuthHeaders()
+    });
+    return await response.json();
+};
 
-    destroy() {
-        if (this.syncInterval) {
-            clearInterval(this.syncInterval);
-        }
-        this.cache.clear();
-    }
-}
+// ========================================
+// JUPITER - FINANCE
+// ========================================
 
-// Initialize API when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    window.PhoenixAPI = new PhoenixAPI();
-    window.PhoenixAPI.init();
-});
+export const getFinancialOverview = async () => {
+    const response = await fetch(`${API_BASE_URL}/jupiter/overview`, {
+        headers: getAuthHeaders()
+    });
+    return await response.json();
+};
 
-// Handle page unload
-window.addEventListener('beforeunload', () => {
-    if (window.PhoenixAPI) {
-        window.PhoenixAPI.destroy();
-    }
-});
+export const getStressSpendingCorrelation = async () => {
+    const response = await fetch(`${API_BASE_URL}/jupiter/stress-spending`, {
+        headers: getAuthHeaders()
+    });
+    return await response.json();
+};
+
+// ========================================
+// SATURN - LEGACY
+// ========================================
+
+export const getLifeTimeline = async () => {
+    const response = await fetch(`${API_BASE_URL}/saturn/timeline`, {
+        headers: getAuthHeaders()
+    });
+    return await response.json();
+};
+
+export const updateVision = async (visionData) => {
+    const response = await fetch(`${API_BASE_URL}/saturn/vision`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(visionData)
+    });
+    return await response.json();
+};
+
+// ========================================
+// PHOENIX COMPANION (AI CHAT)
+// ========================================
+
+export const sendChatMessage = async (message, context = {}) => {
+    const response = await fetch(`${API_BASE_URL}/phoenix-companion/chat`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ message, context })
+    });
+    return await response.json();
+};
+
+export const getChatHistory = async (limit = 20) => {
+    const response = await fetch(`${API_BASE_URL}/phoenix-companion/history?limit=${limit}`, {
+        headers: getAuthHeaders()
+    });
+    return await response.json();
+};
+
+export const triggerProactiveCheck = async () => {
+    const response = await fetch(`${API_BASE_URL}/phoenix-companion/proactive-check`, {
+        method: 'POST',
+        headers: getAuthHeaders()
+    });
+    return await response.json();
+};
+
+// ========================================
+// INTERVENTIONS
+// ========================================
+
+export const getActiveInterventions = async () => {
+    const response = await fetch(`${API_BASE_URL}/interventions/active`, {
+        headers: getAuthHeaders()
+    });
+    return await response.json();
+};
+
+export const analyzeForInterventions = async () => {
+    const response = await fetch(`${API_BASE_URL}/interventions/analyze`, {
+        method: 'POST',
+        headers: getAuthHeaders()
+    });
+    return await response.json();
+};
+
+export const respondToIntervention = async (interventionId, response) => {
+    const res = await fetch(`${API_BASE_URL}/interventions/${interventionId}/respond`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ response })
+    });
+    return await res.json();
+};
+
+// ========================================
+// PREDICTIONS
+// ========================================
+
+export const getPredictions = async () => {
+    const response = await fetch(`${API_BASE_URL}/predictions`, {
+        headers: getAuthHeaders()
+    });
+    return await response.json();
+};
+
+export const getIllnessRiskPrediction = async () => {
+    const response = await fetch(`${API_BASE_URL}/predictions/illness-risk`, {
+        headers: getAuthHeaders()
+    });
+    return await response.json();
+};
+
+// ========================================
+// INTELLIGENCE
+// ========================================
+
+export const getHealthInsights = async () => {
+    const response = await fetch(`${API_BASE_URL}/intelligence/insights`, {
+        headers: getAuthHeaders()
+    });
+    return await response.json();
+};
+
+export const analyzePatterns = async () => {
+    const response = await fetch(`${API_BASE_URL}/intelligence/patterns`, {
+        method: 'POST',
+        headers: getAuthHeaders()
+    });
+    return await response.json();
+};
