@@ -18,7 +18,7 @@ class PhoenixJARVIS {
         };
         
         this.userData = {
-            name: 'Josh',
+            name: localStorage.getItem('userName') || 'User',
             recoveryScore: 0,
             hrv: 0,
             sleepHours: 0,
@@ -92,6 +92,14 @@ class PhoenixJARVIS {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             };
+            
+            // Fetch user profile to get real name
+            const profileResponse = await fetch(`${baseURL}/user/profile`, { headers });
+            if (profileResponse.ok) {
+                const profile = await profileResponse.json();
+                this.userData.name = profile.name || profile.firstName || 'User';
+                localStorage.setItem('userName', this.userData.name);
+            }
             
             // Fetch wearable data (Mercury planet)
             const wearableResponse = await fetch(`${baseURL}/wearable/latest`, { headers });
