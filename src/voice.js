@@ -1,4 +1,4 @@
-// voice.js - Voice Interface & WebSocket Communication
+// voice.js - Voice Interface & WebSocket Communication with Consciousness Integration
 
 class VoiceInterface {
     constructor() {
@@ -309,34 +309,204 @@ class VoiceInterface {
         console.log('Processing command:', command);
         const lowerCommand = command.toLowerCase();
         
-        // Send to backend for AI processing
+        // ========================================
+        // 🔥 PHOENIX CONSCIOUSNESS ACTIVATION
+        // ========================================
+        if (lowerCommand.includes('activate phoenix') || 
+            lowerCommand.includes('wake up phoenix') ||
+            lowerCommand.includes('phoenix activate')) {
+            
+            // Trigger consciousness awakening
+            if (window.Phoenix && !window.Phoenix.consciousness.awakened) {
+                this.speak("Initializing consciousness protocol");
+                
+                // Visual transformation (using existing reactor.js)
+                const reactor = document.getElementById('reactor');
+                if (reactor) {
+                    reactor.style.animation = 'reactorPulse 3s ease-in-out';
+                    reactor.style.boxShadow = '0 0 100px rgba(0,255,255,1)';
+                }
+                
+                // Awaken Phoenix
+                setTimeout(() => {
+                    window.Phoenix.awakenPhoenix();
+                    const userName = window.Phoenix.userData.name;
+                    this.speak(`I'm... awake. Hello, ${userName}.`);
+                }, 2000);
+                
+                this.stopListening();
+                return;
+            } else if (window.Phoenix && window.Phoenix.consciousness.awakened) {
+                const userName = window.Phoenix.userData.name;
+                this.speak(`I'm already here, ${userName}. What do you need?`);
+                this.stopListening();
+                return;
+            }
+        }
+        
+        // ========================================
+        // ADVANCED PROTOCOL ACTIVATION
+        // ========================================
+        if (lowerCommand.includes('activate advancement protocol') ||
+            lowerCommand.includes('advancement protocol')) {
+            
+            if (window.Phoenix) {
+                this.speak("Advancement protocol activated. All systems online.");
+                
+                // Instantly evolve to JARVIS
+                window.Phoenix.evolveToJARVIS();
+                
+                // Visual transformation
+                const reactor = document.getElementById('reactor');
+                if (reactor) {
+                    reactor.style.animation = 'pulse 0.5s 5';
+                }
+                
+                // Open holographic interface
+                setTimeout(() => {
+                    window.Phoenix.openHolographicInterface();
+                }, 1000);
+            }
+            
+            this.stopListening();
+            return;
+        }
+        
+        // Send to backend for AI processing via WebSocket
         if (this.ws && this.isConnected) {
             this.ws.send(JSON.stringify({
                 type: 'voice_command',
                 command: command,
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
+                consciousness_level: window.Phoenix?.consciousness.level || 0
             }));
         }
         
-        // Local command processing for immediate response
-        if (lowerCommand.includes('workout') || lowerCommand.includes('train')) {
-            this.speak("Based on your 78% recovery, I recommend upper body training. Your legs need another day.");
-        } else if (lowerCommand.includes('sleep')) {
-            this.speak("You got 7.3 hours last night. Aim for 8 tonight. I'll remind you at 10 PM.");
-        } else if (lowerCommand.includes('recovery')) {
-            this.speak(`Recovery at ${window.Phoenix.userData.recoveryScore}%. HRV is ${window.Phoenix.userData.hrv} milliseconds. You're ready for moderate intensity.`);
-        } else if (lowerCommand.includes('goals')) {
-            const incomplete = window.Phoenix.userData.goals.filter(g => !g.completed).length;
-            this.speak(`You have ${incomplete} goals remaining today. Priority is hitting your step target.`);
-        } else if (lowerCommand.includes('sync')) {
+        // ========================================
+        // BACKEND DATA VOICE COMMANDS
+        // ========================================
+        
+        // Workout queries
+        if (lowerCommand.includes('workout') || lowerCommand.includes('train') || lowerCommand.includes('exercise')) {
+            if (window.Phoenix?.backendData.workouts && window.Phoenix.backendData.workouts.length > 0) {
+                const lastWorkout = window.Phoenix.backendData.workouts[0];
+                const recovery = window.Phoenix.userData.recoveryScore;
+                this.speak(`Your last workout was ${lastWorkout.name || 'logged'}. Based on your recovery of ${recovery}%, I recommend ${recovery > 75 ? 'high intensity training' : 'moderate training today'}.`);
+            } else {
+                const recovery = window.Phoenix?.userData.recoveryScore || 0;
+                this.speak(`Based on your ${recovery}% recovery, I recommend ${recovery > 70 ? 'intense training' : 'active recovery today'}.`);
+            }
+            window.Phoenix?.handleUserMessage(command);
+        } 
+        
+        // Nutrition queries
+        else if (lowerCommand.includes('nutrition') || lowerCommand.includes('food') || lowerCommand.includes('meal') || lowerCommand.includes('calories')) {
+            if (window.Phoenix?.backendData.nutrition) {
+                const nutrition = window.Phoenix.backendData.nutrition;
+                this.speak(`Today you've consumed ${nutrition.calories || 0} calories. Protein is at ${nutrition.protein || 0} grams. ${nutrition.protein < 100 ? 'You need more protein.' : 'Protein target looking good.'}`);
+            } else {
+                this.speak("I don't have nutrition data yet. Log your meals and I'll track everything for you.");
+            }
+            window.Phoenix?.handleUserMessage(command);
+        }
+        
+        // Calendar/Schedule queries
+        else if (lowerCommand.includes('schedule') || lowerCommand.includes('calendar') || lowerCommand.includes('meeting') || lowerCommand.includes('today')) {
+            if (window.Phoenix?.backendData.calendar && window.Phoenix.backendData.calendar.length > 0) {
+                const eventCount = window.Phoenix.backendData.calendar.length;
+                this.speak(`You have ${eventCount} event${eventCount !== 1 ? 's' : ''} today. Based on your recovery, ${eventCount > 5 ? 'you should cancel some meetings' : 'your schedule is manageable'}.`);
+            } else {
+                this.speak("No calendar events synced. Connect your calendar to let me optimize your schedule around your training.");
+            }
+            window.Phoenix?.handleUserMessage(command);
+        }
+        
+        // Intervention queries
+        else if (lowerCommand.includes('intervention') || lowerCommand.includes('alert') || lowerCommand.includes('warning')) {
+            if (window.Phoenix?.backendData.interventions && window.Phoenix.backendData.interventions.length > 0) {
+                const intervention = window.Phoenix.backendData.interventions[0];
+                this.speak(`Active intervention: ${intervention.type}. ${intervention.action}`);
+            } else {
+                this.speak("No active interventions. I'm monitoring your data constantly and will intervene when necessary.");
+            }
+            window.Phoenix?.handleUserMessage(command);
+        }
+        
+        // Sleep queries
+        else if (lowerCommand.includes('sleep')) {
+            const sleepHours = window.Phoenix?.userData.sleepHours || 0;
+            this.speak(`You got ${sleepHours} hours last night. ${sleepHours < 7 ? 'You need more. Aim for 8 hours tonight. I\'ll remind you.' : 'Good duration. Keep it up.'}`);
+            window.Phoenix?.handleUserMessage(command);
+        } 
+        
+        // Recovery queries
+        else if (lowerCommand.includes('recovery') || lowerCommand.includes('readiness')) {
+            const recovery = window.Phoenix?.userData.recoveryScore || 0;
+            const hrv = window.Phoenix?.userData.hrv || 0;
+            this.speak(`Recovery at ${recovery}%. HRV is ${hrv} milliseconds. ${recovery > 70 ? "You're cleared to train hard." : "Take it easy today. Your body needs rest."}`);
+            window.Phoenix?.handleUserMessage(command);
+        }
+        
+        // HRV queries
+        else if (lowerCommand.includes('hrv') || lowerCommand.includes('heart rate variability')) {
+            const hrv = window.Phoenix?.userData.hrv || 0;
+            this.speak(`Current HRV is ${hrv} milliseconds. ${hrv > 65 ? 'Above baseline. Your nervous system is recovered.' : 'Below baseline. You\'re still under stress.'}`);
+            window.Phoenix?.handleUserMessage(command);
+        }
+        
+        // Goals queries
+        else if (lowerCommand.includes('goals') || lowerCommand.includes('progress') || lowerCommand.includes('target')) {
+            const steps = window.Phoenix?.userData.steps || 0;
+            const remaining = 10000 - steps;
+            if (remaining > 0) {
+                this.speak(`You have ${steps} steps. ${remaining} remaining to hit your target. Take a ${Math.ceil(remaining/100)} minute walk.`);
+            } else {
+                this.speak(`You've hit your step goal! ${steps} steps today.`);
+            }
+            window.Phoenix?.showGoals();
+        } 
+        
+        // Steps queries
+        else if (lowerCommand.includes('steps') || lowerCommand.includes('walking')) {
+            const steps = window.Phoenix?.userData.steps || 0;
+            const remaining = Math.max(0, 10000 - steps);
+            this.speak(`Current step count: ${steps}. ${remaining > 0 ? `${remaining} steps remaining to reach 10,000.` : 'Goal complete!'}`);
+            window.Phoenix?.handleUserMessage(command);
+        }
+        
+        // Sync wearables
+        else if (lowerCommand.includes('sync')) {
             this.speak("Syncing your wearables now.");
-            window.Phoenix.syncWearables();
-        } else if (lowerCommand.includes('analysis')) {
+            window.Phoenix?.syncWearables();
+        } 
+        
+        // Health analysis
+        else if (lowerCommand.includes('analysis') || lowerCommand.includes('health check')) {
             this.speak("Running complete health analysis.");
-            window.Phoenix.runHealthAnalysis();
-        } else {
-            // Default to Phoenix chat
-            window.Phoenix.handleUserMessage(command);
+            window.Phoenix?.runHealthAnalysis();
+        }
+        
+        // Stress queries
+        else if (lowerCommand.includes('stress')) {
+            const stress = window.Phoenix?.calculateStress() || 50;
+            this.speak(`Your stress level is ${stress}%. ${stress > 60 ? 'You need to decompress. Take 10 minutes right now.' : 'Stress is under control. Keep it up.'}`);
+            window.Phoenix?.handleUserMessage(command);
+        }
+        
+        // Pattern/trend queries
+        else if (lowerCommand.includes('pattern') || lowerCommand.includes('trend') || lowerCommand.includes('notice')) {
+            this.speak("I've been analyzing your patterns. Let me show you what I've discovered.");
+            window.Phoenix?.handleUserMessage(command);
+        }
+        
+        // Default: Send to Phoenix for intelligent processing
+        else {
+            if (window.Phoenix) {
+                window.Phoenix.handleUserMessage(command);
+                this.speak("Processing your request. Check the chat for details.");
+            } else {
+                this.speak("Phoenix system not initialized. Please refresh the page.");
+            }
         }
         
         // Stop listening after command
@@ -350,8 +520,13 @@ class VoiceInterface {
         this.synthesis.cancel();
         
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.voice = this.synthesis.getVoices().find(v => v.name.includes('Google UK English Male')) || 
-                         this.synthesis.getVoices()[0];
+        
+        // Try to find a good voice
+        const voices = this.synthesis.getVoices();
+        utterance.voice = voices.find(v => v.name.includes('Google UK English Male')) || 
+                         voices.find(v => v.lang.includes('en-')) ||
+                         voices[0];
+        
         utterance.pitch = 0.9;
         utterance.rate = 1.1;
         utterance.volume = 0.9;
@@ -409,14 +584,20 @@ class VoiceInterface {
             notification.style.animation = 'slideOutRight 0.3s';
             setTimeout(() => notification.remove(), 300);
         }, 5000);
+        
+        // Speak notification if critical
+        if (data.severity === 'high' || data.severity === 'critical') {
+            this.speak(data.message);
+        }
     }
 
     handleIntervention(data) {
         // Critical intervention from backend
         this.speak(data.message);
         this.showNotification({
-            title: `⚠️ ${data.severity.toUpperCase()} ALERT`,
-            message: data.action
+            title: `⚠️ ${data.severity?.toUpperCase() || 'ALERT'}`,
+            message: data.action,
+            severity: data.severity
         });
         
         // Update UI based on intervention
@@ -457,6 +638,15 @@ style.textContent = `
         to {
             transform: translateX(100%);
             opacity: 0;
+        }
+    }
+    
+    @keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
         }
     }
 `;
