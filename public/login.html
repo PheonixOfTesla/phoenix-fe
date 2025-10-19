@@ -423,12 +423,33 @@
                     CREATE ACCOUNT
                 </button>
             </form>
+            
+            <div class="checkbox-group" style="margin-top: 20px;">
+                <input type="checkbox" id="terms-checkbox" required>
+                <label for="terms-checkbox">
+                    I agree to the <a href="/terms.html" target="_blank">Terms of Service</a> and <a href="/privacy.html" target="_blank">Privacy Policy</a>
+                </label>
+            </div>
         </div>
 
         <div class="loading-spinner" id="loading-spinner">
             <div class="spinner"></div>
             <div style="margin-top: 15px; font-size: 12px; color: rgba(0,255,255,0.7);">
                 Connecting to Phoenix...
+            </div>
+        </div>
+    </div>
+
+    <!-- Terms & Privacy Modal -->
+    <div class="terms-modal" id="terms-modal">
+        <div class="terms-content">
+            <div class="terms-title" id="modal-title">Terms of Service</div>
+            <div class="terms-text" id="modal-text">
+                <!-- Content loaded dynamically -->
+            </div>
+            <div class="terms-buttons">
+                <button class="terms-btn decline" id="decline-btn">DECLINE</button>
+                <button class="terms-btn" id="accept-btn">ACCEPT & CONTINUE</button>
             </div>
         </div>
     </div>
@@ -543,6 +564,9 @@
         // AUTHENTICATION
         // ========================================
         
+        let registrationData = null;
+        let registrationStep = 0; // 0 = form, 1 = privacy, 2 = terms, 3 = complete
+
         // Check if already logged in
         const token = localStorage.getItem('phoenixToken');
         if (token) {
@@ -616,12 +640,130 @@
             const email = document.getElementById('register-email').value;
             const password = document.getElementById('register-password').value;
             const passwordConfirm = document.getElementById('register-password-confirm').value;
+            const termsChecked = document.getElementById('terms-checkbox').checked;
             
             if (password !== passwordConfirm) {
                 showError('Passwords do not match');
                 return;
             }
 
+            if (!termsChecked) {
+                showError('You must agree to the Terms of Service and Privacy Policy');
+                return;
+            }
+
+            // Store registration data temporarily
+            registrationData = { name, email, password };
+            registrationStep = 1;
+            
+            // Show Privacy Policy first
+            showModal('privacy');
+        });
+
+        // Modal handlers
+        function showModal(type) {
+            const modal = document.getElementById('terms-modal');
+            const title = document.getElementById('modal-title');
+            const text = document.getElementById('modal-text');
+            
+            modal.classList.add('active');
+            
+            if (type === 'privacy') {
+                title.textContent = 'Privacy Policy';
+                text.innerHTML = `
+                    <h3>Information We Collect</h3>
+                    <p>Phoenix collects health and fitness data to provide personalized insights:</p>
+                    <ul>
+                        <li>Wearable device data (heart rate, sleep, activity)</li>
+                        <li>Workout and nutrition logs</li>
+                        <li>Calendar events (with permission)</li>
+                        <li>Goal and habit tracking</li>
+                    </ul>
+                    
+                    <h3>How We Use Your Data</h3>
+                    <p>We use your data to:</p>
+                    <ul>
+                        <li>Provide personalized health insights</li>
+                        <li>Generate predictions and recommendations</li>
+                        <li>Automate interventions and optimizations</li>
+                        <li>Improve the service</li>
+                    </ul>
+                    
+                    <h3>Data Storage and Security</h3>
+                    <p>All data is encrypted in transit (TLS/SSL) and at rest (AES-256). Data is stored on secure MongoDB Atlas servers with automated backups.</p>
+                    
+                    <h3>Data Sharing</h3>
+                    <p><strong>We do NOT sell, rent, or share your personal data with third parties for marketing purposes.</strong></p>
+                    
+                    <h3>Your Rights</h3>
+                    <p>You have the right to access, delete, export, and control your data at any time.</p>
+                    
+                    <p style="margin-top: 20px; font-size: 11px; color: rgba(0,255,255,0.5);">
+                        <a href="/privacy.html" target="_blank" style="color: #00ffff;">View Full Privacy Policy</a>
+                    </p>
+                `;
+            } else if (type === 'terms') {
+                title.textContent = 'Terms of Service';
+                text.innerHTML = `
+                    <h3>1. Acceptance of Terms</h3>
+                    <p>By using Phoenix, you agree to be bound by these Terms of Service.</p>
+                    
+                    <h3>2. Description of Service</h3>
+                    <p>Phoenix is an AI-powered life optimization platform that integrates health, fitness, calendar, and goal tracking to provide personalized insights.</p>
+                    
+                    <h3>3. User Responsibilities</h3>
+                    <p>You are responsible for:</p>
+                    <ul>
+                        <li>Maintaining the confidentiality of your account</li>
+                        <li>Ensuring accuracy of data you provide</li>
+                        <li>Using the Service in compliance with laws</li>
+                        <li>Not attempting to compromise the Service</li>
+                    </ul>
+                    
+                    <h3>4. Medical Disclaimer</h3>
+                    <p><strong>Phoenix is not a medical device and does not provide medical advice.</strong> All insights are for informational purposes only. Consult healthcare professionals before making health decisions.</p>
+                    
+                    <h3>5. Limitation of Liability</h3>
+                    <p>Phoenix is provided "as is" without warranties. We are not liable for damages arising from your use of the Service.</p>
+                    
+                    <h3>6. Privacy</h3>
+                    <p>Your use of Phoenix is also governed by our Privacy Policy.</p>
+                    
+                    <p style="margin-top: 20px; font-size: 11px; color: rgba(0,255,255,0.5);">
+                        <a href="/terms.html" target="_blank" style="color: #00ffff;">View Full Terms of Service</a>
+                    </p>
+                `;
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('terms-modal').classList.remove('active');
+        }
+
+        document.getElementById('decline-btn').addEventListener('click', () => {
+            closeModal();
+            registrationData = null;
+            registrationStep = 0;
+            showError('You must accept the Terms and Privacy Policy to create an account');
+        });
+
+        document.getElementById('accept-btn').addEventListener('click', () => {
+            closeModal();
+            
+            if (registrationStep === 1) {
+                // Just accepted privacy, now show terms
+                registrationStep = 2;
+                setTimeout(() => showModal('terms'), 300);
+            } else if (registrationStep === 2) {
+                // Accepted both, now create account
+                registrationStep = 3;
+                createAccount();
+            }
+        });
+
+        async function createAccount() {
+            if (!registrationData) return;
+            
             showLoading();
             hideMessages();
 
@@ -632,9 +774,9 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ 
-                        name, 
-                        email, 
-                        password,
+                        name: registrationData.name,
+                        email: registrationData.email,
+                        password: registrationData.password,
                         role: 'client'
                     })
                 });
@@ -653,13 +795,17 @@
                     }, 1000);
                 } else {
                     showError(data.message || 'Registration failed. Please try again.');
+                    registrationData = null;
+                    registrationStep = 0;
                 }
             } catch (error) {
                 hideLoading();
                 showError('Connection error. Please try again.');
                 console.error('Register error:', error);
+                registrationData = null;
+                registrationStep = 0;
             }
-        });
+        }
 
         // Forgot Password
         document.getElementById('forgot-password-link').addEventListener('click', (e) => {
