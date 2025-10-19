@@ -269,7 +269,278 @@
             }
         }
 
-        /* Corner Brackets */
+        /* Action Menu */
+        #action-menu {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 8000;
+            display: none;
+        }
+
+        #action-menu.active {
+            display: block;
+        }
+
+        .action-ring {
+            position: relative;
+            width: 400px;
+            height: 400px;
+        }
+
+        .action-button-circular {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: rgba(0, 10, 20, 0.9);
+            border: 2px solid rgba(0, 255, 255, 0.5);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .action-button-circular:hover {
+            background: rgba(0, 255, 255, 0.2);
+            border-color: #00ffff;
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
+        }
+
+        .action-icon {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .action-label {
+            font-size: 10px;
+            color: #00ffff;
+            letter-spacing: 1px;
+        }
+
+        /* Planet Detail View */
+        #planet-detail {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.98);
+            z-index: 7000;
+            display: none;
+            overflow-y: auto;
+        }
+
+        #planet-detail.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .planet-detail-header {
+            padding: 40px;
+            text-align: center;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        .planet-detail-title {
+            font-size: 36px;
+            color: #00ffff;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 1);
+            margin-bottom: 10px;
+        }
+
+        .planet-detail-subtitle {
+            font-size: 14px;
+            color: rgba(0, 255, 255, 0.6);
+        }
+
+        .planet-detail-content {
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .metric-card {
+            background: rgba(0, 10, 20, 0.8);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+        }
+
+        .metric-card:hover {
+            background: rgba(0, 255, 255, 0.05);
+            border-color: #00ffff;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+
+        .metric-card-label {
+            font-size: 11px;
+            color: rgba(0, 255, 255, 0.5);
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .metric-card-value {
+            font-size: 42px;
+            color: #00ffff;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+            margin-bottom: 5px;
+        }
+
+        .metric-card-trend {
+            font-size: 14px;
+            color: rgba(0, 255, 255, 0.7);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 15px 30px;
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.5);
+            color: #00ffff;
+            font-family: inherit;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+        }
+
+        .action-btn:hover {
+            background: rgba(0, 255, 255, 0.3);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .close-detail {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 10, 20, 0.9);
+            border: 2px solid rgba(0, 255, 255, 0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 24px;
+            color: #00ffff;
+            transition: all 0.3s;
+            z-index: 7100;
+        }
+
+        .close-detail:hover {
+            background: rgba(255, 0, 0, 0.2);
+            border-color: #ff4444;
+            color: #ff4444;
+            transform: rotate(90deg);
+        }
+
+        /* Quick Actions Bar */
+        #quick-actions {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 6000;
+            opacity: 0;
+            animation: fadeIn 1s 2s forwards;
+        }
+
+        .quick-action-btn {
+            padding: 12px 24px;
+            background: rgba(0, 10, 20, 0.9);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            color: #00ffff;
+            font-family: inherit;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            letter-spacing: 1px;
+        }
+
+        .quick-action-btn:hover {
+            background: rgba(0, 255, 255, 0.2);
+            border-color: #00ffff;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+        }
+
+        /* Onboarding */
+        #onboarding {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.98);
+            z-index: 11000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        #onboarding.active {
+            display: flex;
+        }
+
+        .onboarding-title {
+            font-size: 48px;
+            color: #00ffff;
+            margin-bottom: 20px;
+            text-shadow: 0 0 30px rgba(0, 255, 255, 1);
+        }
+
+        .onboarding-text {
+            font-size: 18px;
+            color: rgba(0, 255, 255, 0.7);
+            text-align: center;
+            max-width: 600px;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .activate-btn {
+            padding: 20px 60px;
+            background: rgba(0, 255, 255, 0.1);
+            border: 2px solid #00ffff;
+            color: #00ffff;
+            font-family: inherit;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .activate-btn:hover {
+            background: rgba(0, 255, 255, 0.3);
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.8);
+            transform: scale(1.05);
+        }
         .corner-bracket {
             position: fixed;
             width: 30px;
@@ -305,9 +576,97 @@
             border-left: none;
             border-top: none;
         }
+
+        /* Logout Button */
+        .logout-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid rgba(255, 68, 68, 0.5);
+            color: #ff4444;
+            font-family: inherit;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 1001;
+            letter-spacing: 1px;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 68, 68, 0.3);
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.5);
+        }
     </style>
 </head>
 <body>
+    <!-- Onboarding Screen -->
+    <div id="onboarding" class="active">
+        <div class="onboarding-title">PHOENIX</div>
+        <div class="onboarding-text">
+            Your AI companion is ready.<br>
+            Tap below or say "Activate Phoenix" to begin.
+        </div>
+        <button class="activate-btn" id="activate-btn">ACTIVATE PHOENIX</button>
+    </div>
+
+    <!-- Action Menu -->
+    <div id="action-menu">
+        <div class="action-ring">
+            <!-- Workout -->
+            <div class="action-button-circular" id="action-workout" style="top: 10%; left: 50%; transform: translate(-50%, -50%);">
+                <div class="action-icon">💪</div>
+                <div class="action-label">WORKOUT</div>
+            </div>
+            <!-- Meal -->
+            <div class="action-button-circular" id="action-meal" style="top: 30%; right: 10%; transform: translate(50%, -50%);">
+                <div class="action-icon">🍽️</div>
+                <div class="action-label">MEAL</div>
+            </div>
+            <!-- Goals -->
+            <div class="action-button-circular" id="action-goals" style="bottom: 30%; right: 10%; transform: translate(50%, 50%);">
+                <div class="action-icon">🎯</div>
+                <div class="action-label">GOALS</div>
+            </div>
+            <!-- Chat -->
+            <div class="action-button-circular" id="action-chat" style="bottom: 10%; left: 50%; transform: translate(-50%, 50%);">
+                <div class="action-icon">💬</div>
+                <div class="action-label">CHAT</div>
+            </div>
+            <!-- Sync -->
+            <div class="action-button-circular" id="action-sync" style="bottom: 30%; left: 10%; transform: translate(-50%, 50%);">
+                <div class="action-icon">🔄</div>
+                <div class="action-label">SYNC</div>
+            </div>
+            <!-- Insights -->
+            <div class="action-button-circular" id="action-insights" style="top: 30%; left: 10%; transform: translate(-50%, -50%);">
+                <div class="action-icon">📊</div>
+                <div class="action-label">INSIGHTS</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Planet Detail View -->
+    <div id="planet-detail">
+        <div class="close-detail" id="close-detail">✕</div>
+        <div class="planet-detail-header">
+            <div class="planet-detail-title" id="detail-title">LOADING...</div>
+            <div class="planet-detail-subtitle" id="detail-subtitle">Fetching data...</div>
+        </div>
+        <div class="planet-detail-content" id="detail-content">
+            <!-- Dynamic content loaded here -->
+        </div>
+    </div>
+
+    <!-- Quick Actions Bar -->
+    <div id="quick-actions">
+        <button class="quick-action-btn" id="quick-workout">LOG WORKOUT</button>
+        <button class="quick-action-btn" id="quick-meal">LOG MEAL</button>
+        <button class="quick-action-btn" id="quick-sync">SYNC DATA</button>
+        <button class="quick-action-btn" id="quick-chat">ASK PHOENIX</button>
+    </div>
+
     <!-- Loading Screen -->
     <div id="loading">
         <div class="loading-text">PHOENIX</div>
@@ -319,6 +678,9 @@
     <div class="corner-bracket bracket-tr"></div>
     <div class="corner-bracket bracket-bl"></div>
     <div class="corner-bracket bracket-br"></div>
+
+    <!-- Logout Button -->
+    <button class="logout-btn" id="logout-btn">LOGOUT</button>
 
     <!-- Three.js Container -->
     <div id="container"></div>
@@ -404,6 +766,9 @@
                 this.userData = {};
                 this.location = {};
                 this.weather = {};
+                this.isActivated = false;
+                this.actionMenuOpen = false;
+                this.currentPlanet = null;
                 
                 // Device orientation
                 this.alpha = 0;
@@ -419,23 +784,382 @@
                 this.createParticleField();
                 this.setupLighting();
                 this.setupEventListeners();
+                this.setupUIHandlers();
                 this.loadLocationAndWeather();
-                this.loadUserData();
-                this.startDataSync();
                 this.animate();
                 this.startHUD();
                 
-                // Hide loading after 3 seconds
-                setTimeout(() => {
+                // Check if first time user
+                const hasActivated = localStorage.getItem('phoenixActivated');
+                if (hasActivated) {
+                    document.getElementById('onboarding').classList.remove('active');
+                    this.isActivated = true;
+                    this.loadUserData();
+                    this.startDataSync();
+                    setTimeout(() => {
+                        document.getElementById('loading').classList.add('hidden');
+                    }, 3000);
+                } else {
                     document.getElementById('loading').classList.add('hidden');
-                }, 3000);
+                }
+            }
+
+            setupUIHandlers() {
+                // Logout button
+                document.getElementById('logout-btn').addEventListener('click', () => {
+                    if (confirm('Are you sure you want to logout?')) {
+                        localStorage.removeItem('phoenixToken');
+                        localStorage.removeItem('phoenixUser');
+                        localStorage.removeItem('phoenixActivated');
+                        window.location.href = '/login.html';
+                    }
+                });
+
+                // Activate button
+                document.getElementById('activate-btn').addEventListener('click', () => {
+                    this.activatePhoenix();
+                });
+
+                // Action menu buttons
+                document.getElementById('action-workout').addEventListener('click', () => {
+                    this.closeActionMenu();
+                    this.openPlanetDetail('mercury');
+                });
+                document.getElementById('action-meal').addEventListener('click', () => {
+                    this.closeActionMenu();
+                    this.openPlanetDetail('venus');
+                });
+                document.getElementById('action-goals').addEventListener('click', () => {
+                    this.closeActionMenu();
+                    this.openPlanetDetail('mars');
+                });
+                document.getElementById('action-chat').addEventListener('click', () => {
+                    this.closeActionMenu();
+                    this.activateVoice();
+                });
+                document.getElementById('action-sync').addEventListener('click', () => {
+                    this.closeActionMenu();
+                    this.syncAllData();
+                });
+                document.getElementById('action-insights').addEventListener('click', () => {
+                    this.closeActionMenu();
+                    this.showInsights();
+                });
+
+                // Quick action buttons
+                document.getElementById('quick-workout').addEventListener('click', () => {
+                    this.openPlanetDetail('mercury');
+                });
+                document.getElementById('quick-meal').addEventListener('click', () => {
+                    this.openPlanetDetail('venus');
+                });
+                document.getElementById('quick-sync').addEventListener('click', () => {
+                    this.syncAllData();
+                });
+                document.getElementById('quick-chat').addEventListener('click', () => {
+                    this.activateVoice();
+                });
+
+                // Close detail
+                document.getElementById('close-detail').addEventListener('click', () => {
+                    this.closePlanetDetail();
+                });
+            }
+
+            activatePhoenix() {
+                document.getElementById('onboarding').classList.remove('active');
+                localStorage.setItem('phoenixActivated', 'true');
+                this.isActivated = true;
+                
+                // Dramatic activation animation
+                this.phoenixCore.material.emissiveIntensity = 2;
+                setTimeout(() => {
+                    this.phoenixCore.material.emissiveIntensity = 0.5;
+                }, 500);
+
+                // Show welcome notification
+                this.showNotification(
+                    '🔥 Phoenix Activated',
+                    'Your AI companion is now online. Loading your data...'
+                );
+
+                // Load user data
+                this.loadUserData();
+                this.startDataSync();
+            }
+
+            toggleActionMenu() {
+                this.actionMenuOpen = !this.actionMenuOpen;
+                const menu = document.getElementById('action-menu');
+                if (this.actionMenuOpen) {
+                    menu.classList.add('active');
+                } else {
+                    menu.classList.remove('active');
+                }
+            }
+
+            closeActionMenu() {
+                this.actionMenuOpen = false;
+                document.getElementById('action-menu').classList.remove('active');
+            }
+
+            openPlanetDetail(planetName) {
+                this.currentPlanet = planetName;
+                const detail = document.getElementById('planet-detail');
+                detail.classList.add('active');
+                
+                const planetData = {
+                    mercury: {
+                        title: 'FITNESS & RECOVERY',
+                        subtitle: 'Workouts, Performance, Biometrics',
+                        icon: '💪'
+                    },
+                    venus: {
+                        title: 'NUTRITION',
+                        subtitle: 'Meals, Macros, Supplements',
+                        icon: '🍽️'
+                    },
+                    earth: {
+                        title: 'SCHEDULE & TIME',
+                        subtitle: 'Calendar, Energy Patterns, Optimization',
+                        icon: '🗓️'
+                    },
+                    mars: {
+                        title: 'GOALS & HABITS',
+                        subtitle: 'Objectives, Progress, Achievements',
+                        icon: '🎯'
+                    },
+                    jupiter: {
+                        title: 'WEALTH & FINANCE',
+                        subtitle: 'Spending, Budgets, Correlations',
+                        icon: '💰'
+                    },
+                    saturn: {
+                        title: 'LEGACY & LONGEVITY',
+                        subtitle: 'Long-term Health, Life Timeline',
+                        icon: '⏳'
+                    }
+                };
+
+                const planet = planetData[planetName] || planetData.mercury;
+                document.getElementById('detail-title').textContent = planet.title;
+                document.getElementById('detail-subtitle').textContent = planet.subtitle;
+
+                // Load planet-specific content
+                this.loadPlanetContent(planetName);
+            }
+
+            closePlanetDetail() {
+                document.getElementById('planet-detail').classList.remove('active');
+                this.currentPlanet = null;
+            }
+
+            async loadPlanetContent(planetName) {
+                const content = document.getElementById('detail-content');
+                
+                if (planetName === 'mercury') {
+                    // Fitness & Recovery
+                    content.innerHTML = `
+                        <div class="metric-grid">
+                            <div class="metric-card">
+                                <div class="metric-card-label">RECOVERY SCORE</div>
+                                <div class="metric-card-value">${Math.round(this.recoveryScore)}%</div>
+                                <div class="metric-card-trend">↑ +5% vs yesterday</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-card-label">HRV</div>
+                                <div class="metric-card-value">${this.userData.wearable?.hrv || '--'}<span style="font-size: 18px;">ms</span></div>
+                                <div class="metric-card-trend">Above baseline</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-card-label">WORKOUTS THIS WEEK</div>
+                                <div class="metric-card-value">${this.userData.intelligence?.recentWorkouts?.length || 0}</div>
+                                <div class="metric-card-trend">4/5 goal</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-card-label">SLEEP QUALITY</div>
+                                <div class="metric-card-value">${this.userData.wearable?.sleepScore || '--'}%</div>
+                                <div class="metric-card-trend">7.2 hours</div>
+                            </div>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="phoenix.quickLogWorkout()">📝 LOG WORKOUT</button>
+                            <button class="action-btn" onclick="phoenix.generateWorkout()">🤖 AI GENERATE</button>
+                            <button class="action-btn" onclick="phoenix.viewWorkoutHistory()">📊 HISTORY</button>
+                            <button class="action-btn" onclick="phoenix.analyzeRecovery()">🔍 ANALYZE</button>
+                        </div>
+                    `;
+                } else if (planetName === 'venus') {
+                    // Nutrition
+                    content.innerHTML = `
+                        <div class="metric-grid">
+                            <div class="metric-card">
+                                <div class="metric-card-label">TODAY'S CALORIES</div>
+                                <div class="metric-card-value">${this.userData.intelligence?.todayNutrition?.calories || 0}</div>
+                                <div class="metric-card-trend">2400 target</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-card-label">PROTEIN</div>
+                                <div class="metric-card-value">${this.userData.intelligence?.todayNutrition?.protein || 0}<span style="font-size: 18px;">g</span></div>
+                                <div class="metric-card-trend">180g target</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-card-label">MEALS LOGGED</div>
+                                <div class="metric-card-value">${this.userData.intelligence?.mealsToday || 0}</div>
+                                <div class="metric-card-trend">of 4 planned</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-card-label">HYDRATION</div>
+                                <div class="metric-card-value">64<span style="font-size: 18px;">oz</span></div>
+                                <div class="metric-card-trend">100oz target</div>
+                            </div>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="phoenix.quickLogMeal()">📝 LOG MEAL</button>
+                            <button class="action-btn" onclick="phoenix.generateMealPlan()">🤖 MEAL PLAN</button>
+                            <button class="action-btn" onclick="phoenix.scanFood()">📷 SCAN FOOD</button>
+                            <button class="action-btn" onclick="phoenix.viewNutritionHistory()">📊 HISTORY</button>
+                        </div>
+                    `;
+                } else if (planetName === 'mars') {
+                    // Goals
+                    const activeGoals = this.userData.goals?.filter(g => !g.completed) || [];
+                    content.innerHTML = `
+                        <div class="metric-grid">
+                            <div class="metric-card">
+                                <div class="metric-card-label">ACTIVE GOALS</div>
+                                <div class="metric-card-value">${activeGoals.length}</div>
+                                <div class="metric-card-trend">On track</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-card-label">COMPLETION RATE</div>
+                                <div class="metric-card-value">73%</div>
+                                <div class="metric-card-trend">+12% this month</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-card-label">STREAK</div>
+                                <div class="metric-card-value">14<span style="font-size: 18px;">days</span></div>
+                                <div class="metric-card-trend">Personal best</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-card-label">LEVEL</div>
+                                <div class="metric-card-value">7</div>
+                                <div class="metric-card-trend">2450/3000 XP</div>
+                            </div>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="phoenix.createGoal()">➕ NEW GOAL</button>
+                            <button class="action-btn" onclick="phoenix.viewGoals()">📋 VIEW ALL</button>
+                            <button class="action-btn" onclick="phoenix.analyzeProgress()">📈 ANALYZE</button>
+                            <button class="action-btn" onclick="phoenix.viewAchievements()">🏆 BADGES</button>
+                        </div>
+                    `;
+                } else {
+                    content.innerHTML = `
+                        <div style="text-align: center; padding: 60px;">
+                            <div style="font-size: 48px; margin-bottom: 20px;">🚧</div>
+                            <div style="font-size: 24px; color: #00ffff; margin-bottom: 10px;">Coming Soon</div>
+                            <div style="font-size: 14px; color: rgba(0,255,255,0.6);">
+                                This planet's features are under development.
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            quickLogWorkout() {
+                const exercise = prompt('Exercise name:');
+                const weight = prompt('Weight (lbs):');
+                const sets = prompt('Sets:');
+                const reps = prompt('Reps:');
+                
+                if (exercise && weight && sets && reps) {
+                    this.logQuickWorkout(exercise, weight, sets, reps);
+                    this.closePlanetDetail();
+                }
+            }
+
+            quickLogMeal() {
+                const food = prompt('Food name:');
+                const calories = prompt('Calories:');
+                const protein = prompt('Protein (g):');
+                
+                if (food && calories && protein) {
+                    this.logQuickMeal(food, calories, protein);
+                    this.closePlanetDetail();
+                }
+            }
+
+            async generateWorkout() {
+                if (!this.userId) return;
+                
+                this.showNotification('🤖 Generating Workout', 'Phoenix is creating your optimal workout...');
+                
+                try {
+                    const response = await fetch(`${API_BASE}/mercury/${this.userId}/generate-workout`, {
+                        method: 'POST',
+                        headers: getAuthHeaders(),
+                        body: JSON.stringify({
+                            recovery: this.recoveryScore,
+                            type: 'strength'
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    if (data.success) {
+                        this.showNotification('✅ Workout Ready', 'Your AI-generated workout is ready to start!');
+                    }
+                } catch (error) {
+                    console.error('Error generating workout:', error);
+                }
+            }
+
+            async syncAllData() {
+                this.showNotification('🔄 Syncing Data', 'Fetching latest from all devices...');
+                
+                try {
+                    if (this.userId) {
+                        await Promise.all([
+                            fetch(`${API_BASE}/wearables/sync/fitbit`, {
+                                method: 'POST',
+                                headers: getAuthHeaders()
+                            }),
+                            this.loadUserData()
+                        ]);
+                        
+                        this.showNotification('✅ Sync Complete', 'All data updated successfully');
+                    }
+                } catch (error) {
+                    console.error('Sync error:', error);
+                }
+            }
+
+            async showInsights() {
+                if (!this.userId) return;
+                
+                this.showNotification('🔍 Analyzing', 'Phoenix is analyzing your data...');
+                
+                try {
+                    const response = await fetch(`${API_BASE}/intelligence/${this.userId}`, {
+                        headers: getAuthHeaders()
+                    });
+                    
+                    const data = await response.json();
+                    if (data.success && data.insights) {
+                        const insightsText = data.insights.join('\n\n');
+                        this.showNotification('💡 Insights', insightsText);
+                    }
+                } catch (error) {
+                    console.error('Insights error:', error);
+                }
             }
 
             async authenticate() {
                 const token = localStorage.getItem('phoenixToken');
                 if (!token) {
-                    console.log('No token found - user needs to login');
-                    return;
+                    console.log('No token found - redirecting to login');
+                    window.location.href = '/login.html';
+                    return false;
                 }
 
                 try {
@@ -446,9 +1170,26 @@
                     if (data.success && data.user) {
                         this.userId = data.user._id;
                         console.log('✅ Authenticated:', data.user.name);
+                        
+                        // Update greeting with user name
+                        const hour = new Date().getHours();
+                        const greeting = hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : 'Good Evening';
+                        document.querySelector('.greeting-main').textContent = `${greeting}, ${data.user.name.split(' ')[0]}`;
+                        
+                        return true;
+                    } else {
+                        console.log('Token invalid - redirecting to login');
+                        localStorage.removeItem('phoenixToken');
+                        localStorage.removeItem('phoenixUser');
+                        window.location.href = '/login.html';
+                        return false;
                     }
                 } catch (error) {
                     console.error('Auth error:', error);
+                    localStorage.removeItem('phoenixToken');
+                    localStorage.removeItem('phoenixUser');
+                    window.location.href = '/login.html';
+                    return false;
                 }
             }
 
@@ -862,10 +1603,77 @@
 
             setupEventListeners() {
                 // Touch/Mouse events
-                document.addEventListener('touchstart', (e) => this.onTouch(e), { passive: false });
+                let touchStartTime = 0;
+                
+                document.addEventListener('touchstart', (e) => {
+                    touchStartTime = Date.now();
+                    this.onTouch(e);
+                }, { passive: false });
+                
+                document.addEventListener('touchend', (e) => {
+                    const touchDuration = Date.now() - touchStartTime;
+                    if (touchDuration > 500) {
+                        // Long press - activate voice
+                        this.activateVoice();
+                    }
+                });
+                
                 document.addEventListener('touchmove', (e) => this.onTouchMove(e), { passive: false });
-                document.addEventListener('mousedown', (e) => this.onTouch(e));
+                document.addEventListener('mousedown', (e) => {
+                    touchStartTime = Date.now();
+                    this.onTouch(e);
+                });
+                document.addEventListener('mouseup', (e) => {
+                    const clickDuration = Date.now() - touchStartTime;
+                    if (clickDuration > 500) {
+                        this.activateVoice();
+                    }
+                });
                 document.addEventListener('mousemove', (e) => this.onMouseMove(e));
+
+                // Click on Phoenix core to toggle action menu
+                if (this.phoenixCore) {
+                    this.phoenixCore.userData.clickable = true;
+                }
+
+                // Raycasting for planet clicks
+                this.raycaster = new THREE.Raycaster();
+                this.mouseVector = new THREE.Vector2();
+
+                // Click handler for 3D objects
+                const clickHandler = (e) => {
+                    e.preventDefault();
+                    
+                    const x = e.touches ? e.touches[0].clientX : e.clientX;
+                    const y = e.touches ? e.touches[0].clientY : e.clientY;
+                    
+                    this.mouseVector.x = (x / window.innerWidth) * 2 - 1;
+                    this.mouseVector.y = -(y / window.innerHeight) * 2 + 1;
+                    
+                    this.raycaster.setFromCamera(this.mouseVector, this.camera);
+                    
+                    // Check Phoenix core
+                    const coreIntersects = this.raycaster.intersectObject(this.phoenixCore);
+                    if (coreIntersects.length > 0 && !this.actionMenuOpen) {
+                        this.toggleActionMenu();
+                        return;
+                    }
+                    
+                    // Check planets
+                    const planetIntersects = this.raycaster.intersectObjects(this.planets);
+                    if (planetIntersects.length > 0) {
+                        const planet = planetIntersects[0].object;
+                        const planetName = planet.userData.name.toLowerCase();
+                        this.openPlanetDetail(planetName);
+                    }
+                    
+                    // Close action menu if clicking elsewhere
+                    if (this.actionMenuOpen && coreIntersects.length === 0) {
+                        this.closeActionMenu();
+                    }
+                };
+
+                document.addEventListener('click', clickHandler);
 
                 // Device orientation
                 if (window.DeviceOrientationEvent) {
@@ -876,13 +1684,18 @@
                     });
                 }
 
-                // Voice activation (long press)
-                let pressTimer;
-                document.addEventListener('touchstart', () => {
-                    pressTimer = setTimeout(() => this.activateVoice(), 500);
-                });
-                document.addEventListener('touchend', () => {
-                    clearTimeout(pressTimer);
+                // Keyboard shortcuts
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === ' ') {
+                        e.preventDefault();
+                        this.toggleActionMenu();
+                    } else if (e.key === 'v' || e.key === 'V') {
+                        e.preventDefault();
+                        this.activateVoice();
+                    } else if (e.key === 'Escape') {
+                        this.closeActionMenu();
+                        this.closePlanetDetail();
+                    }
                 });
             }
 
