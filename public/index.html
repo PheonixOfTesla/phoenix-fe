@@ -299,48 +299,109 @@
     <script src="shaders.js"></script>
 
     <script>
-        // Modal controls
-        function closeSyncModal() {
-            document.getElementById('sync-modal').style.display = 'none';
+    // Modal controls
+    function closeSyncModal() {
+        document.getElementById('sync-modal').style.display = 'none';
+    }
+
+    async function connectFitbit() {
+        document.getElementById('fitbit-status').textContent = 'Connecting...';
+        
+        const token = localStorage.getItem('phoenixToken');
+        
+        if (!token) {
+            alert('Please log in first');
+            document.getElementById('fitbit-status').textContent = 'Not Connected';
+            return;
         }
-
-        function connectFitbit() {
-            document.getElementById('fitbit-status').textContent = 'Connecting...';
-            // Trigger OAuth flow
-            window.location.href = 'https://pal-backend-production.up.railway.app/api/wearables/fitbit/connect';
-        }
-
-        function connectPolar() {
-            document.getElementById('polar-status').textContent = 'Connecting...';
-            window.location.href = 'https://pal-backend-production.up.railway.app/api/wearables/polar/connect';
-        }
-
-        // Initialize time display
-        function updateSystemTime() {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            document.getElementById('system-time').textContent = `${hours}:${minutes}`;
-            
-            const days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
-            const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-            const dateStr = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
-            document.getElementById('system-date').textContent = dateStr;
-
-            // Highlight current day
-            const currentDay = now.getDate();
-            document.querySelectorAll('.date-segment').forEach((seg, i) => {
-                seg.classList.toggle('active', i + 1 === currentDay);
+        
+        try {
+            // Call backend to get OAuth URL
+            const response = await fetch('https://pal-backend-production.up.railway.app/api/wearables/connect/fitbit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
             });
+            
+            const data = await response.json();
+            
+            if (data.success && data.authUrl) {
+                // Redirect to Fitbit authorization
+                window.location.href = data.authUrl;
+            } else {
+                document.getElementById('fitbit-status').textContent = 'Connection failed';
+                alert('Failed to connect: ' + (data.error || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Connection error:', error);
+            document.getElementById('fitbit-status').textContent = 'Connection failed';
+            alert('Network error. Please try again.');
         }
+    }
 
-        updateSystemTime();
-        setInterval(updateSystemTime, 1000);
+    async function connectPolar() {
+        document.getElementById('polar-status').textContent = 'Connecting...';
+        
+        const token = localStorage.getItem('phoenixToken');
+        
+        if (!token) {
+            alert('Please log in first');
+            document.getElementById('polar-status').textContent = 'Not Connected';
+            return;
+        }
+        
+        try {
+            const response = await fetch('https://pal-backend-production.up.railway.app/api/wearables/connect/polar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.success && data.authUrl) {
+                window.location.href = data.authUrl;
+            } else {
+                document.getElementById('polar-status').textContent = 'Connection failed';
+                alert('Failed to connect: ' + (data.error || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Connection error:', error);
+            document.getElementById('polar-status').textContent = 'Connection failed';
+            alert('Network error. Please try again.');
+        }
+    }
 
-        // Sync button handler
-        document.getElementById('sync-wearables-btn').addEventListener('click', () => {
-            document.getElementById('sync-modal').style.display = 'flex';
+    // Initialize time display
+    function updateSystemTime() {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        document.getElementById('system-time').textContent = `${hours}:${minutes}`;
+        
+        const days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+        const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+        const dateStr = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
+        document.getElementById('system-date').textContent = dateStr;
+
+        // Highlight current day
+        const currentDay = now.getDate();
+        document.querySelectorAll('.date-segment').forEach((seg, i) => {
+            seg.classList.toggle('active', i + 1 === currentDay);
         });
-    </script>
+    }
+
+    updateSystemTime();
+    setInterval(updateSystemTime, 1000);
+
+    // Sync button handler
+    document.getElementById('sync-wearables-btn').addEventListener('click', () => {
+        document.getElementById('sync-modal').style.display = 'flex';
+    });
+</script>
 </body>
 </html>
