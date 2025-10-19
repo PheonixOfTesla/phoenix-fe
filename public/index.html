@@ -3,383 +3,1207 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phoenix JARVIS - Holographic Mind Map</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Phoenix - JARVIS Intelligence</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-cyan: #00d4ff;
+            --primary-blue: #0099ff;
+            --accent-orange: #ff6b35;
+            --accent-red: #ff0055;
+            --bg-dark: #0a0e1a;
+            --bg-darker: #050810;
+            --glass-bg: rgba(10, 30, 60, 0.3);
+            --glass-border: rgba(0, 212, 255, 0.2);
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            background: var(--bg-darker);
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Animated Background */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, #0a1628 0%, #050810 100%);
+            z-index: -1;
+        }
+
+        .grid-lines {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Auth Modal */
+        .auth-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .auth-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 40px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0, 212, 255, 0.2);
+        }
+
+        .auth-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--primary-cyan), var(--primary-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+        }
+
+        .auth-subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-cyan);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+        }
+
+        .auth-button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary-cyan), var(--primary-blue));
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .auth-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.4);
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 20px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+        }
+
+        .auth-switch a {
+            color: var(--primary-cyan);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Main Container */
+        .container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .status-text {
+            font-size: 14px;
+            color: var(--primary-cyan);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .recovery-badge {
+            padding: 6px 12px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid var(--primary-cyan);
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            background: rgba(255, 0, 85, 0.1);
+            border: 1px solid var(--accent-red);
+            border-radius: 8px;
+            color: var(--accent-red);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 0, 85, 0.2);
+        }
+
+        /* Phoenix Orb */
+        .orb-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .phoenix-orb {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .orb-outer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px solid var(--primary-cyan);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        .orb-middle {
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            border: 2px solid var(--primary-blue);
+            border-radius: 50%;
+            opacity: 0.5;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .orb-inner {
+            position: absolute;
+            width: 60%;
+            height: 60%;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.4), transparent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        .flame-icon {
+            font-size: 80px;
+            animation: flicker 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.3; }
+            50% { transform: scale(1.1); opacity: 0.6; }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 40px rgba(0, 212, 255, 0.4); }
+            50% { box-shadow: 0 0 80px rgba(0, 212, 255, 0.8); }
+        }
+
+        @keyframes flicker {
+            0%, 100% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.05); filter: brightness(1.2); }
+        }
+
+        .orb-state-listening .orb-outer {
+            border-color: var(--primary-blue);
+            animation: expand 1s ease-in-out infinite;
+        }
+
+        .orb-state-thinking .orb-inner {
+            animation: spin 1s linear infinite;
+        }
+
+        .orb-state-speaking .orb-outer {
+            border-color: #00ff88;
+        }
+
+        @keyframes expand {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Voice Controls */
+        .voice-controls {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .voice-button {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-cyan), var(--primary-blue));
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 40px rgba(0, 212, 255, 0.4);
+        }
+
+        .voice-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 50px rgba(0, 212, 255, 0.6);
+        }
+
+        .voice-button.active {
+            background: linear-gradient(135deg, #00ff88, #00cc66);
+            animation: pulse-active 0.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-active {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .voice-button svg {
+            width: 32px;
+            height: 32px;
+            fill: #fff;
+        }
+
+        .voice-mode-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .voice-mode-toggle:hover {
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .toggle-switch {
+            width: 40px;
+            height: 22px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 11px;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: var(--primary-cyan);
+        }
+
+        .toggle-knob {
+            width: 18px;
+            height: 18px;
+            background: #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch.active .toggle-knob {
+            left: 20px;
+        }
+
+        /* Chat Drawer */
+        .chat-toggle {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-cyan), var(--primary-blue));
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 24px;
+            box-shadow: 0 10px 40px rgba(0, 212, 255, 0.4);
+            transition: all 0.3s;
+            z-index: 999;
+        }
+
+        .chat-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .chat-drawer {
+            position: fixed;
+            bottom: -100%;
+            left: 0;
+            width: 100%;
+            height: 70%;
+            background: var(--bg-dark);
+            backdrop-filter: blur(20px);
+            border-top: 2px solid var(--glass-border);
+            transition: bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 998;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-drawer.open {
+            bottom: 0;
+        }
+
+        .drawer-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .drawer-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-cyan);
+        }
+
+        .close-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: rgba(255, 0, 85, 0.1);
+            color: var(--accent-red);
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 0, 85, 0.2);
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            padding: 20px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .quick-action {
+            padding: 12px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+
+        .quick-action:hover {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: var(--primary-cyan);
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .message-label {
+            font-size: 11px;
+            color: var(--primary-cyan);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .message-content {
+            padding: 12px 16px;
+            background: var(--glass-bg);
+            border-left: 3px solid var(--primary-cyan);
+            border-radius: 8px;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .message.user .message-label {
+            color: rgba(255, 255, 255, 0.6);
+            text-align: right;
+        }
+
+        .message.user .message-content {
+            background: rgba(0, 212, 255, 0.1);
+            border-left: none;
+            border-right: 3px solid var(--primary-blue);
+            text-align: right;
+        }
+
+        .chat-input-container {
+            padding: 20px;
+            border-top: 1px solid var(--glass-border);
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--primary-cyan);
+        }
+
+        .send-btn {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary-cyan), var(--primary-blue));
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Planet Cards Overlay */
+        .planet-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+            padding: 20px;
+        }
+
+        .planet-overlay.show {
+            display: flex;
+        }
+
+        .planet-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .planet-card-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: rgba(255, 0, 85, 0.1);
+            color: var(--accent-red);
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .planet-card-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--primary-cyan), var(--primary-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .data-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .data-item {
+            padding: 15px;
+            background: rgba(0, 212, 255, 0.05);
+            border-left: 3px solid var(--primary-cyan);
+            border-radius: 8px;
+        }
+
+        .data-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .data-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--primary-cyan);
+        }
+
+        /* Loading State */
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 9999;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(0, 212, 255, 0.2);
+            border-top-color: var(--primary-cyan);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
 </head>
 <body>
-    <!-- Holographic HUD Frame -->
-    <div class="hud-frame">
-        <div class="corner-bracket top-left"></div>
-        <div class="corner-bracket top-right"></div>
-        <div class="corner-bracket bottom-left"></div>
-        <div class="corner-bracket bottom-right"></div>
+    <div class="background">
+        <div class="grid-lines"></div>
     </div>
 
-    <!-- Top Date Bar -->
-    <div class="date-bar">
-        <div class="date-segment" id="date-day-1">01</div>
-        <div class="date-segment" id="date-day-2">02</div>
-        <div class="date-segment" id="date-day-3">03</div>
-        <div class="date-segment" id="date-day-4">04</div>
-        <div class="date-segment" id="date-day-5">05</div>
-        <div class="date-segment" id="date-day-6">06</div>
-        <div class="date-segment" id="date-day-7">07</div>
-        <div class="date-segment" id="date-day-8">08</div>
-        <div class="date-segment" id="date-day-9">09</div>
-        <div class="date-segment" id="date-day-10">10</div>
-        <div class="date-segment" id="date-day-11">11</div>
-        <div class="date-segment" id="date-day-12">12</div>
-        <div class="date-segment" id="date-day-13">13</div>
-        <div class="date-segment" id="date-day-14">14</div>
-        <div class="date-segment" id="date-day-15">15</div>
-        <div class="date-segment" id="date-day-16">16</div>
-        <div class="date-segment" id="date-day-17">17</div>
-        <div class="date-segment" id="date-day-18">18</div>
-        <div class="date-segment" id="date-day-19">19</div>
-        <div class="date-segment" id="date-day-20">20</div>
-        <div class="date-segment active" id="date-day-21">21</div>
-        <div class="date-segment" id="date-day-22">22</div>
-        <div class="date-segment" id="date-day-23">23</div>
-        <div class="date-segment" id="date-day-24">24</div>
-        <div class="date-segment" id="date-day-25">25</div>
-        <div class="date-segment" id="date-day-26">26</div>
-        <div class="date-segment" id="date-day-27">27</div>
-        <div class="date-segment" id="date-day-28">28</div>
-        <div class="date-segment" id="date-day-29">29</div>
-        <div class="date-segment" id="date-day-30">30</div>
-    </div>
-
-    <!-- Left Panel: Vitals -->
-    <div class="panel-left vitals-panel">
-        <div class="panel-section" id="hrv-section">
-            <div class="metric-label">HRV</div>
-            <div class="metric-value" id="hrv-value">--</div>
-            <div class="metric-unit">ms</div>
-        </div>
-        
-        <div class="panel-section" id="rhr-section">
-            <div class="metric-label">RHR</div>
-            <div class="metric-value" id="rhr-value">--</div>
-            <div class="metric-unit">bpm</div>
-        </div>
-        
-        <div class="panel-section" id="recovery-section">
-            <div class="metric-label">RECOVERY</div>
-            <div class="metric-value" id="recovery-value">--</div>
-            <div class="metric-unit">%</div>
-            <div class="metric-status" id="recovery-status">Calculating...</div>
-        </div>
-        
-        <div class="panel-section" id="o2-section">
-            <div class="metric-label">O₂</div>
-            <div class="metric-value" id="o2-value">--</div>
-            <div class="metric-unit">%</div>
-        </div>
-
-        <div class="panel-section weather-section" id="weather-section">
-            <div class="metric-label">WEATHER</div>
-            <div class="weather-temp" id="weather-temp">--°F</div>
-            <div class="weather-status" id="weather-status">Loading...</div>
-        </div>
-    </div>
-
-    <!-- Right Panel: System Info & Goals -->
-    <div class="panel-right">
-        <div class="system-time-panel">
-            <div class="time-label">SYSTEM TIME</div>
-            <div class="time-display" id="system-time">00:00</div>
-            <div class="date-display" id="system-date">LOADING...</div>
-            <div class="location-display" id="location">Sarasota, Florida</div>
-        </div>
-
-        <div class="goals-panel" id="goals-panel">
-            <div class="panel-title">GOALS PROGRESS</div>
-            <div class="goals-fraction" id="goals-fraction">0/0</div>
-            <div class="goals-percentage" id="goals-percentage">0% Complete</div>
-            <div class="goals-list" id="goals-list"></div>
-        </div>
-
-        <div class="quick-notes-panel">
-            <div class="panel-title">Notes</div>
-            <div class="notes-content">
-                <div class="notes-header">Things to do:</div>
-                <div class="notes-list" id="notes-list">
-                    <div class="note-item">• Sync wearables</div>
-                    <div class="note-item">• Review health data</div>
+    <!-- Auth Modal -->
+    <div class="auth-modal" id="authModal">
+        <div class="auth-container">
+            <div class="auth-title">🔥 PHOENIX</div>
+            <div class="auth-subtitle">Your Intelligence OS</div>
+            
+            <div id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="loginEmail" placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="loginPassword" placeholder="••••••••">
+                </div>
+                <button class="auth-button" onclick="login()">ACCESS SYSTEM</button>
+                <div class="auth-switch">
+                    Don't have access? <a onclick="toggleAuthMode()">Register</a>
                 </div>
             </div>
-            <button class="add-note-btn" id="add-note-btn">+</button>
-        </div>
-    </div>
 
-    <!-- Center: Mind Map Canvas -->
-    <div class="mind-map-container" id="mind-map-container">
-        <!-- Phoenix Core Reactor -->
-        <div class="phoenix-core" id="phoenix-core">
-            <div class="core-rings">
-                <div class="core-ring ring-1"></div>
-                <div class="core-ring ring-2"></div>
-                <div class="core-ring ring-3"></div>
-            </div>
-            <div class="core-center">
-                <div class="core-glow"></div>
-                <div class="core-text">PHOENIX</div>
-            </div>
-        </div>
-
-        <!-- Greeting Message -->
-        <div class="phoenix-greeting" id="phoenix-greeting">
-            <div class="greeting-text">Good evening, Josh</div>
-            <div class="greeting-subtitle">Wind down mode. Focus on recovery and tomorrow's preparation.</div>
-        </div>
-
-        <!-- Planets Container -->
-        <div class="planets-container" id="planets-container">
-            <!-- Mercury -->
-            <div class="planet-gear mercury" id="planet-mercury" data-planet="mercury">
-                <div class="gear-outer"></div>
-                <div class="gear-inner"></div>
-                <div class="planet-icon">☿</div>
-                <div class="planet-label">MERCURY</div>
-                <div class="planet-sublabel">Health</div>
-                <div class="planet-metric" id="mercury-metric">--</div>
-                <div class="loading-ring"></div>
-            </div>
-
-            <!-- Venus -->
-            <div class="planet-gear venus" id="planet-venus" data-planet="venus">
-                <div class="gear-outer"></div>
-                <div class="gear-inner"></div>
-                <div class="planet-icon">♀</div>
-                <div class="planet-label">VENUS</div>
-                <div class="planet-sublabel">Fitness</div>
-                <div class="planet-metric" id="venus-metric">--</div>
-                <div class="loading-ring"></div>
-            </div>
-
-            <!-- Earth -->
-            <div class="planet-gear earth" id="planet-earth" data-planet="earth">
-                <div class="gear-outer"></div>
-                <div class="gear-inner"></div>
-                <div class="planet-icon">🌍</div>
-                <div class="planet-label">EARTH</div>
-                <div class="planet-sublabel">Calendar</div>
-                <div class="planet-metric" id="earth-metric">--</div>
-                <div class="loading-ring"></div>
-            </div>
-
-            <!-- Mars -->
-            <div class="planet-gear mars" id="planet-mars" data-planet="mars">
-                <div class="gear-outer"></div>
-                <div class="gear-inner"></div>
-                <div class="planet-icon">♂</div>
-                <div class="planet-label">MARS</div>
-                <div class="planet-sublabel">Goals</div>
-                <div class="planet-metric" id="mars-metric">--</div>
-                <div class="loading-ring"></div>
-            </div>
-
-            <!-- Jupiter -->
-            <div class="planet-gear jupiter" id="planet-jupiter" data-planet="jupiter">
-                <div class="gear-outer"></div>
-                <div class="gear-inner"></div>
-                <div class="planet-icon">♃</div>
-                <div class="planet-label">JUPITER</div>
-                <div class="planet-sublabel">Finance</div>
-                <div class="planet-metric" id="jupiter-metric">--</div>
-                <div class="loading-ring"></div>
-            </div>
-
-            <!-- Saturn -->
-            <div class="planet-gear saturn" id="planet-saturn" data-planet="saturn">
-                <div class="gear-outer"></div>
-                <div class="gear-inner"></div>
-                <div class="planet-icon">♄</div>
-                <div class="planet-label">SATURN</div>
-                <div class="planet-sublabel">Legacy</div>
-                <div class="planet-metric" id="saturn-metric">--</div>
-                <div class="loading-ring"></div>
-            </div>
-        </div>
-
-        <!-- Correlation Lines -->
-        <svg class="correlation-lines" id="correlation-lines">
-            <!-- Lines drawn dynamically -->
-        </svg>
-    </div>
-
-    <!-- Bottom: Quick Action Bar -->
-    <div class="quick-actions-bar">
-        <button class="action-btn" id="sync-wearables-btn">
-            <span class="btn-icon">⟳</span>
-            <span class="btn-text">SYNC WEARABLES</span>
-        </button>
-        
-        <button class="action-btn" id="todays-goals-btn">
-            <span class="btn-icon">◎</span>
-            <span class="btn-text">TODAY'S GOALS</span>
-        </button>
-        
-        <button class="action-btn" id="health-analysis-btn">
-            <span class="btn-icon">✚</span>
-            <span class="btn-text">HEALTH ANALYSIS</span>
-        </button>
-    </div>
-
-    <!-- Expanded Dashboard Overlay (Level 1) -->
-    <div class="dashboard-overlay" id="dashboard-overlay">
-        <div class="dashboard-container">
-            <button class="dashboard-close" id="dashboard-close">×</button>
-            <div class="dashboard-header">
-                <h2 id="dashboard-title">PLANET NAME</h2>
-                <div class="dashboard-subtitle" id="dashboard-subtitle">Loading...</div>
-            </div>
-            <div class="dashboard-content" id="dashboard-content">
-                <!-- Content loaded dynamically -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Sync Wearables Modal -->
-    <div class="modal-overlay" id="sync-modal">
-        <div class="modal-container">
-            <div class="modal-header">
-                <h3>Sync Wearables</h3>
-                <button class="modal-close" onclick="closeSyncModal()">×</button>
-            </div>
-            <div class="modal-content">
-                <div class="wearable-option" id="sync-fitbit">
-                    <div class="wearable-icon">📱</div>
-                    <div class="wearable-name">Fitbit</div>
-                    <div class="wearable-status" id="fitbit-status">Not Connected</div>
-                    <button class="connect-btn" onclick="connectFitbit()">Connect</button>
+            <div id="registerForm" class="hidden">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-input" id="registerName" placeholder="John Doe">
                 </div>
-                <div class="wearable-option" id="sync-polar">
-                    <div class="wearable-icon">⌚</div>
-                    <div class="wearable-name">Polar</div>
-                    <div class="wearable-status" id="polar-status">Not Connected</div>
-                    <button class="connect-btn" onclick="connectPolar()">Connect</button>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="registerEmail" placeholder="your@email.com">
                 </div>
-                <div class="wearable-option" id="sync-oura">
-                    <div class="wearable-icon">💍</div>
-                    <div class="wearable-name">Oura Ring</div>
-                    <div class="wearable-status">Coming Soon</div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="registerPassword" placeholder="••••••••">
                 </div>
-                <div class="sync-status" id="sync-status"></div>
+                <button class="auth-button" onclick="register()">CREATE ACCOUNT</button>
+                <div class="auth-switch">
+                    Already have access? <a onclick="toggleAuthMode()">Login</a>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Voice Interface -->
-    <div class="voice-button" id="voice-button">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="#00ffff">
-            <path d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3z"/>
-            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-        </svg>
+    <!-- Main Interface -->
+    <div class="container hidden" id="mainInterface">
+        <div class="status-bar">
+            <div class="status-text" id="statusText">READY</div>
+            <div class="user-info">
+                <div class="recovery-badge" id="recoveryBadge">Loading...</div>
+                <button class="logout-btn" onclick="logout()">EXIT</button>
+            </div>
+        </div>
+
+        <div class="orb-container">
+            <div class="phoenix-orb" id="phoenixOrb">
+                <div class="orb-outer"></div>
+                <div class="orb-middle"></div>
+                <div class="orb-inner">
+                    <div class="flame-icon">🔥</div>
+                </div>
+            </div>
+
+            <div class="voice-controls">
+                <div class="voice-mode-toggle" onclick="toggleVoiceMode()">
+                    <span id="voiceModeText">Voice Mode: Off</span>
+                    <div class="toggle-switch" id="voiceToggle">
+                        <div class="toggle-knob"></div>
+                    </div>
+                </div>
+                <div class="voice-button" id="voiceButton" onclick="handleVoiceClick()">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3z"/>
+                        <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Chat Interface -->
-    <div class="chat-interface" id="chat-interface">
-        <div class="chat-messages" id="chat-messages"></div>
-        <input type="text" class="chat-input" id="chat-input" placeholder="Ask Phoenix anything...">
+    <!-- Chat Drawer -->
+    <button class="chat-toggle hidden" id="chatToggle" onclick="toggleChat()">💬</button>
+    <div class="chat-drawer" id="chatDrawer">
+        <div class="drawer-header">
+            <div class="drawer-title">Phoenix Interface</div>
+            <button class="close-btn" onclick="toggleChat()">✕</button>
+        </div>
+
+        <div class="quick-actions">
+            <button class="quick-action" onclick="quickAction('schedule')">
+                📅 Today's Schedule
+            </button>
+            <button class="quick-action" onclick="quickAction('recovery')">
+                💪 Recovery Status
+            </button>
+            <button class="quick-action" onclick="quickAction('goals')">
+                🎯 Goal Progress
+            </button>
+            <button class="quick-action" onclick="quickAction('health')">
+                ❤️ Health Metrics
+            </button>
+        </div>
+
+        <div class="messages" id="messages">
+            <div class="message">
+                <div class="message-label">PHOENIX</div>
+                <div class="message-content">Systems online. How can I assist you?</div>
+            </div>
+        </div>
+
+        <div class="chat-input-container">
+            <input type="text" class="chat-input" id="chatInput" placeholder="Ask Phoenix anything..." onkeypress="handleChatKeypress(event)">
+            <button class="send-btn" onclick="sendMessage()">➤</button>
+        </div>
     </div>
 
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loading-overlay">
-        <div class="loading-spinner"></div>
-        <div class="loading-text">Initializing Phoenix...</div>
+    <!-- Planet Data Overlay -->
+    <div class="planet-overlay" id="planetOverlay">
+        <div class="planet-card">
+            <button class="planet-card-close" onclick="closePlanetOverlay()">✕</button>
+            <div class="planet-card-title" id="planetTitle"></div>
+            <div class="data-grid" id="planetData"></div>
+        </div>
     </div>
 
-    <!-- Scripts -->
-    <script type="module" src="api.js"></script>
-    <script type="module" src="jarvis.js"></script>
-    <script src="planets.js"></script>
-    <script src="reactor.js"></script>
-    <script src="voice.js"></script>
-    <script src="shaders.js"></script>
+    <!-- Loading Indicator -->
+    <div class="loading hidden" id="loading">
+        <div class="spinner"></div>
+    </div>
 
     <script>
-        // Modal controls
-        function closeSyncModal() {
-            document.getElementById('sync-modal').style.display = 'none';
-        }
+        // Configuration
+        const API_URL = 'https://pal-backend-production.up.railway.app/api';
+        let currentUser = null;
+        let phoenixToken = null;
+        let isVoiceMode = false;
+        let isListening = false;
 
-        async function connectFitbit() {
-            document.getElementById('fitbit-status').textContent = 'Connecting...';
-            
-            try {
-                const response = await fetch('https://pal-backend-production.up.railway.app/api/wearables/connect/fitbit', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                const data = await response.json();
-                
-                if (data.success && data.authUrl) {
-                    // Redirect to Fitbit OAuth page
-                    window.location.href = data.authUrl;
-                } else {
-                    document.getElementById('fitbit-status').textContent = 'Failed';
-                    console.error('Failed to get OAuth URL:', data.error);
-                }
-            } catch (error) {
-                console.error('Connection error:', error);
-                document.getElementById('fitbit-status').textContent = 'Error';
+        // Initialize
+        window.onload = () => {
+            checkAuth();
+        };
+
+        function checkAuth() {
+            phoenixToken = localStorage.getItem('phoenixToken');
+            if (phoenixToken) {
+                fetchUserData();
             }
         }
 
-        async function connectPolar() {
-            document.getElementById('polar-status').textContent = 'Connecting...';
-            
+        async function fetchUserData() {
             try {
-                const response = await fetch('https://pal-backend-production.up.railway.app/api/wearables/connect/polar', {
-                    method: 'POST',
+                const response = await fetch(`${API_URL}/auth/me`, {
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Authorization': `Bearer ${phoenixToken}`
                     }
                 });
-                
-                const data = await response.json();
-                
-                if (data.success && data.authUrl) {
-                    window.location.href = data.authUrl;
+
+                if (response.ok) {
+                    currentUser = await response.json();
+                    showMainInterface();
+                    loadDashboardData();
                 } else {
-                    document.getElementById('polar-status').textContent = 'Failed';
+                    localStorage.removeItem('phoenixToken');
+                    phoenixToken = null;
                 }
             } catch (error) {
-                console.error('Connection error:', error);
-                document.getElementById('polar-status').textContent = 'Error';
+                console.error('Auth check failed:', error);
             }
         }
 
-        // Initialize time display
-        function updateSystemTime() {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            document.getElementById('system-time').textContent = `${hours}:${minutes}`;
-            
-            const days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
-            const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-            const dateStr = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
-            document.getElementById('system-date').textContent = dateStr;
-
-            // Highlight current day
-            const currentDay = now.getDate();
-            document.querySelectorAll('.date-segment').forEach((seg, i) => {
-                seg.classList.toggle('active', i + 1 === currentDay);
-            });
+        function toggleAuthMode() {
+            document.getElementById('loginForm').classList.toggle('hidden');
+            document.getElementById('registerForm').classList.toggle('hidden');
         }
 
-        updateSystemTime();
-        setInterval(updateSystemTime, 1000);
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
 
-        // Sync button handler
-        document.getElementById('sync-wearables-btn').addEventListener('click', () => {
-            document.getElementById('sync-modal').style.display = 'flex';
-        });
+            if (!email || !password) {
+                alert('Please enter email and password');
+                return;
+            }
+
+            showLoading();
+            try {
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.token) {
+                    phoenixToken = data.token;
+                    localStorage.setItem('phoenixToken', phoenixToken);
+                    currentUser = data.user;
+                    showMainInterface();
+                    loadDashboardData();
+                } else {
+                    alert(data.message || 'Login failed');
+                }
+            } catch (error) {
+                alert('Connection error: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function register() {
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+
+            if (!name || !email || !password) {
+                alert('Please fill all fields');
+                return;
+            }
+
+            showLoading();
+            try {
+                const response = await fetch(`${API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.token) {
+                    phoenixToken = data.token;
+                    localStorage.setItem('phoenixToken', phoenixToken);
+                    currentUser = data.user;
+                    showMainInterface();
+                    loadDashboardData();
+                } else {
+                    alert(data.message || 'Registration failed');
+                }
+            } catch (error) {
+                alert('Connection error: ' + error.message);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('phoenixToken');
+            phoenixToken = null;
+            currentUser = null;
+            document.getElementById('mainInterface').classList.add('hidden');
+            document.getElementById('chatToggle').classList.add('hidden');
+            document.getElementById('authModal').classList.remove('hidden');
+        }
+
+        function showMainInterface() {
+            document.getElementById('authModal').classList.add('hidden');
+            document.getElementById('mainInterface').classList.remove('hidden');
+            document.getElementById('chatToggle').classList.remove('hidden');
+        }
+
+        async function loadDashboardData() {
+            try {
+                // Load Mercury (Health) data
+                const healthResponse = await fetch(`${API_URL}/mercury/${currentUser._id}/latest`, {
+                    headers: { 'Authorization': `Bearer ${phoenixToken}` }
+                });
+
+                if (healthResponse.ok) {
+                    const healthData = await healthResponse.json();
+                    updateRecoveryBadge(healthData);
+                }
+
+                // Load wearable connections
+                const wearablesResponse = await fetch(`${API_URL}/wearables/connections`, {
+                    headers: { 'Authorization': `Bearer ${phoenixToken}` }
+                });
+
+                if (wearablesResponse.ok) {
+                    const wearables = await wearablesResponse.json();
+                    console.log('Connected wearables:', wearables);
+                }
+
+            } catch (error) {
+                console.error('Failed to load dashboard data:', error);
+            }
+        }
+
+        function updateRecoveryBadge(data) {
+            const badge = document.getElementById('recoveryBadge');
+            if (data && data.recoveryScore) {
+                badge.textContent = `Recovery: ${data.recoveryScore}%`;
+                if (data.recoveryScore < 50) {
+                    badge.style.borderColor = '#ff0055';
+                    badge.style.color = '#ff0055';
+                } else if (data.recoveryScore < 70) {
+                    badge.style.borderColor = '#ff6b35';
+                    badge.style.color = '#ff6b35';
+                } else {
+                    badge.style.borderColor = '#00ff88';
+                    badge.style.color = '#00ff88';
+                }
+            }
+        }
+
+        function toggleVoiceMode() {
+            isVoiceMode = !isVoiceMode;
+            const toggle = document.getElementById('voiceToggle');
+            const text = document.getElementById('voiceModeText');
+            
+            toggle.classList.toggle('active');
+            text.textContent = isVoiceMode ? 'Voice Mode: On' : 'Voice Mode: Off';
+        }
+
+        function handleVoiceClick() {
+            if (isVoiceMode) {
+                // Toggle always-listening mode
+                isListening = !isListening;
+                updateOrbState(isListening ? 'listening' : 'ready');
+            } else {
+                // Push-to-talk mode
+                startVoiceRecording();
+            }
+        }
+
+        function startVoiceRecording() {
+            updateOrbState('listening');
+            document.getElementById('statusText').textContent = 'LISTENING...';
+            
+            // Simulated voice recording - integrate with actual voice API
+            setTimeout(() => {
+                updateOrbState('thinking');
+                document.getElementById('statusText').textContent = 'PROCESSING...';
+                
+                setTimeout(() => {
+                    updateOrbState('speaking');
+                    document.getElementById('statusText').textContent = 'PHOENIX SPEAKING...';
+                    
+                    setTimeout(() => {
+                        updateOrbState('ready');
+                        document.getElementById('statusText').textContent = 'READY';
+                    }, 2000);
+                }, 1000);
+            }, 2000);
+        }
+
+        function updateOrbState(state) {
+            const orb = document.getElementById('phoenixOrb');
+            orb.className = 'phoenix-orb';
+            if (state !== 'ready') {
+                orb.classList.add(`orb-state-${state}`);
+            }
+            
+            const btn = document.getElementById('voiceButton');
+            if (state === 'listening') {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        }
+
+        function toggleChat() {
+            document.getElementById('chatDrawer').classList.toggle('open');
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            // Add user message to chat
+            addMessage('user', message);
+            input.value = '';
+
+            updateOrbState('thinking');
+
+            try {
+                const response = await fetch(`${API_URL}/companion/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${phoenixToken}`
+                    },
+                    body: JSON.stringify({
+                        userId: currentUser._id,
+                        message: message,
+                        context: {}
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.response) {
+                    addMessage('phoenix', data.response);
+                } else {
+                    addMessage('phoenix', 'I encountered an error processing that request.');
+                }
+            } catch (error) {
+                addMessage('phoenix', 'Connection error. Please try again.');
+            } finally {
+                updateOrbState('ready');
+            }
+        }
+
+        function handleChatKeypress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function addMessage(sender, content) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            messageDiv.innerHTML = `
+                <div class="message-label">${sender === 'user' ? 'YOU' : 'PHOENIX'}</div>
+                <div class="message-content">${content}</div>
+            `;
+            
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        async function quickAction(action) {
+            updateOrbState('thinking');
+
+            const actions = {
+                schedule: {
+                    endpoint: `/earth/${currentUser._id}/calendar-events`,
+                    title: '🌍 Today\'s Schedule'
+                },
+                recovery: {
+                    endpoint: `/mercury/${currentUser._id}/latest`,
+                    title: '💪 Recovery Status'
+                },
+                goals: {
+                    endpoint: `/goals/client/${currentUser._id}`,
+                    title: '🎯 Goal Progress'
+                },
+                health: {
+                    endpoint: `/wearables/user/${currentUser._id}`,
+                    title: '❤️ Health Metrics'
+                }
+            };
+
+            const selected = actions[action];
+
+            try {
+                const response = await fetch(`${API_URL}${selected.endpoint}`, {
+                    headers: { 'Authorization': `Bearer ${phoenixToken}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    showPlanetData(selected.title, data);
+                } else {
+                    addMessage('phoenix', `Unable to load ${action} data at this time.`);
+                }
+            } catch (error) {
+                addMessage('phoenix', 'Connection error. Please try again.');
+            } finally {
+                updateOrbState('ready');
+            }
+        }
+
+        function showPlanetData(title, data) {
+            document.getElementById('planetTitle').textContent = title;
+            
+            const dataGrid = document.getElementById('planetData');
+            dataGrid.innerHTML = '';
+
+            if (Array.isArray(data)) {
+                data.forEach(item => {
+                    dataGrid.innerHTML += createDataItem(item);
+                });
+            } else {
+                for (const [key, value] of Object.entries(data)) {
+                    if (typeof value !== 'object') {
+                        dataGrid.innerHTML += `
+                            <div class="data-item">
+                                <div class="data-label">${key}</div>
+                                <div class="data-value">${value}</div>
+                            </div>
+                        `;
+                    }
+                }
+            }
+
+            document.getElementById('planetOverlay').classList.add('show');
+        }
+
+        function createDataItem(item) {
+            let html = '<div class="data-item">';
+            for (const [key, value] of Object.entries(item)) {
+                if (typeof value !== 'object' && key !== '_id') {
+                    html += `
+                        <div class="data-label">${key}</div>
+                        <div class="data-value">${value}</div>
+                    `;
+                }
+            }
+            html += '</div>';
+            return html;
+        }
+
+        function closePlanetOverlay() {
+            document.getElementById('planetOverlay').classList.remove('show');
+        }
+
+        function showLoading() {
+            document.getElementById('loading').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').classList.add('hidden');
+        }
     </script>
 </body>
 </html>
