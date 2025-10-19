@@ -810,7 +810,8 @@
                     if (confirm('Are you sure you want to logout?')) {
                         localStorage.removeItem('phoenixToken');
                         localStorage.removeItem('phoenixUser');
-                        localStorage.removeItem('phoenixActivated');
+                        // Keep phoenixActivated so they don't see onboarding again
+                        // localStorage.removeItem('phoenixActivated');
                         window.location.href = '/login.html';
                     }
                 });
@@ -1158,7 +1159,7 @@
                 const token = localStorage.getItem('phoenixToken');
                 if (!token) {
                     console.log('No token found - redirecting to login');
-                    window.location.href = '/login.html';
+                    window.location.href = '/login';
                     return false;
                 }
 
