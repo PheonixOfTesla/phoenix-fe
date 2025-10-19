@@ -238,6 +238,37 @@
             }
         }
 
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes alertFlash {
+            0%, 100% {
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
         /* Corner Brackets */
         .corner-bracket {
             position: fixed;
@@ -337,6 +368,22 @@
 
     <script>
         // ========================================
+        // CONFIGURATION
+        // ========================================
+        
+        const API_BASE = window.location.hostname === 'localhost' 
+            ? 'http://localhost:5000/api'
+            : 'https://pal-backend-production.up.railway.app/api';
+
+        const getAuthHeaders = () => {
+            const token = localStorage.getItem('phoenixToken');
+            return {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            };
+        };
+
+        // ========================================
         // PHOENIX ENGINE - MAIN CONTROLLER
         // ========================================
         
@@ -353,6 +400,10 @@
                 this.recoveryScore = 75;
                 this.mouseX = 0;
                 this.mouseY = 0;
+                this.userId = null;
+                this.userData = {};
+                this.location = {};
+                this.weather = {};
                 
                 // Device orientation
                 this.alpha = 0;
@@ -361,12 +412,16 @@
             }
 
             init() {
+                this.authenticate();
                 this.setupScene();
                 this.createPhoenixCore();
                 this.createPlanets();
                 this.createParticleField();
                 this.setupLighting();
                 this.setupEventListeners();
+                this.loadLocationAndWeather();
+                this.loadUserData();
+                this.startDataSync();
                 this.animate();
                 this.startHUD();
                 
@@ -374,6 +429,268 @@
                 setTimeout(() => {
                     document.getElementById('loading').classList.add('hidden');
                 }, 3000);
+            }
+
+            async authenticate() {
+                const token = localStorage.getItem('phoenixToken');
+                if (!token) {
+                    console.log('No token found - user needs to login');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${API_BASE}/auth/me`, {
+                        headers: getAuthHeaders()
+                    });
+                    const data = await response.json();
+                    if (data.success && data.user) {
+                        this.userId = data.user._id;
+                        console.log('✅ Authenticated:', data.user.name);
+                    }
+                } catch (error) {
+                    console.error('Auth error:', error);
+                }
+            }
+
+            async loadLocationAndWeather() {
+                try {
+                    // Get IP geolocation
+                    const geoResponse = await fetch('https://ipapi.co/json/');
+                    const geoData = await geoResponse.json();
+                    
+                    if (geoData.city && geoData.region) {
+                        this.location = {
+                            city: geoData.city,
+                            region: geoData.region,
+                            country: geoData.country_name,
+                            lat: geoData.latitude,
+                            lon: geoData.longitude
+                        };
+                        
+                        // Get weather using Open-Meteo
+                        const weatherResponse = await fetch(
+                            `https://api.open-meteo.com/v1/forecast?latitude=${geoData.latitude}&longitude=${geoData.longitude}&current=temperature_2m,weathercode&temperature_unit=fahrenheit`
+                        );
+                        const weatherData = await weatherResponse.json();
+                        
+                        if (weatherData.current) {
+                            const temp = Math.round(weatherData.current.temperature_2m);
+                            const weatherCode = weatherData.current.weathercode;
+                            const weatherInfo = this.getWeatherInfo(weatherCode);
+                            
+                            this.weather = {
+                                temp: temp,
+                                icon: weatherInfo.icon,
+                                description: weatherInfo.description
+                            };
+                            
+                            this.updateWeatherDisplay();
+                        }
+                    }
+                } catch (error) {
+                    console.error('Location/Weather error:', error);
+                }
+            }
+
+            getWeatherInfo(code) {
+                const weatherMap = {
+                    0: { icon: '☀️', description: 'Clear' },
+                    1: { icon: '🌤️', description: 'Clear' },
+                    2: { icon: '⛅', description: 'Cloudy' },
+                    3: { icon: '☁️', description: 'Overcast' },
+                    45: { icon: '🌫️', description: 'Foggy' },
+                    48: { icon: '🌫️', description: 'Foggy' },
+                    51: { icon: '🌦️', description: 'Drizzle' },
+                    53: { icon: '🌧️', description: 'Rain' },
+                    55: { icon: '🌧️', description: 'Rain' },
+                    61: { icon: '🌧️', description: 'Rain' },
+                    63: { icon: '🌧️', description: 'Rain' },
+                    65: { icon: '⛈️', description: 'Storm' },
+                    71: { icon: '🌨️', description: 'Snow' },
+                    73: { icon: '❄️', description: 'Snow' },
+                    75: { icon: '❄️', description: 'Snow' },
+                    77: { icon: '🌨️', description: 'Snow' },
+                    80: { icon: '🌦️', description: 'Showers' },
+                    81: { icon: '🌧️', description: 'Showers' },
+                    82: { icon: '⛈️', description: 'Storm' },
+                    85: { icon: '🌨️', description: 'Snow' },
+                    86: { icon: '❄️', description: 'Snow' },
+                    95: { icon: '⛈️', description: 'Thunder' },
+                    96: { icon: '⛈️', description: 'Thunder' },
+                    99: { icon: '⚡', description: 'Thunder' }
+                };
+                return weatherMap[code] || { icon: '🌡️', description: 'Unknown' };
+            }
+
+            updateWeatherDisplay() {
+                const weatherHTML = `
+                    <div class="hud-label">WEATHER</div>
+                    <div style="font-size: 24px; margin: 5px 0;">${this.weather.icon}</div>
+                    <div class="hud-value">${this.weather.temp}°F</div>
+                    <div style="font-size: 9px; color: rgba(0,255,255,0.5); margin-top: 5px;">
+                        ${this.weather.description}
+                    </div>
+                    <div style="font-size: 8px; color: rgba(0,255,255,0.3); margin-top: 3px;">
+                        ${this.location.city}
+                    </div>
+                `;
+                document.getElementById('hud-bl').innerHTML = weatherHTML;
+            }
+
+            async loadUserData() {
+                if (!this.userId) return;
+
+                try {
+                    // Load comprehensive intelligence data
+                    const [intelligence, wearable, recovery, goals, predictions] = await Promise.all([
+                        fetch(`${API_BASE}/intelligence/${this.userId}`, { headers: getAuthHeaders() }),
+                        fetch(`${API_BASE}/wearables/user/${this.userId}`, { headers: getAuthHeaders() }),
+                        fetch(`${API_BASE}/recovery/${this.userId}/score/current`, { headers: getAuthHeaders() }),
+                        fetch(`${API_BASE}/goals/client/${this.userId}`, { headers: getAuthHeaders() }),
+                        fetch(`${API_BASE}/predictions/${this.userId}/hrv`, { headers: getAuthHeaders() })
+                    ]);
+
+                    const intelligenceData = await intelligence.json();
+                    const wearableData = await wearable.json();
+                    const recoveryData = await recovery.json();
+                    const goalsData = await goals.json();
+                    const predictionsData = await predictions.json();
+
+                    // Store user data
+                    this.userData = {
+                        intelligence: intelligenceData.data || {},
+                        wearable: wearableData.data || {},
+                        recovery: recoveryData.data || {},
+                        goals: goalsData.data || [],
+                        predictions: predictionsData.data || {}
+                    };
+
+                    // Update recovery score from real data
+                    if (recoveryData.data?.score) {
+                        this.recoveryScore = recoveryData.data.score;
+                    }
+
+                    // Update planet metrics
+                    this.updatePlanetMetrics();
+
+                    console.log('✅ User data loaded:', this.userData);
+                } catch (error) {
+                    console.error('Error loading user data:', error);
+                }
+            }
+
+            updatePlanetMetrics() {
+                // Update planet colors and intensities based on real data
+                const metrics = {
+                    mercury: this.userData.wearable?.hrv || 0,
+                    venus: this.userData.intelligence?.recentWorkouts?.length || 0,
+                    earth: this.userData.intelligence?.upcomingEvents || 0,
+                    mars: this.userData.goals?.filter(g => !g.completed).length || 0,
+                    jupiter: 0, // Placeholder for financial data
+                    saturn: this.userData.recovery?.score || 0
+                };
+
+                // Update visual intensity based on metrics
+                this.planets.forEach(planet => {
+                    const metric = metrics[planet.userData.name.toLowerCase()];
+                    if (metric !== undefined) {
+                        // Adjust emissive intensity based on data
+                        const intensity = Math.min(1, metric / 100);
+                        planet.material.emissiveIntensity = 0.3 + intensity * 0.7;
+                    }
+                });
+            }
+
+            startDataSync() {
+                // Sync data every 30 seconds
+                setInterval(() => {
+                    this.loadUserData();
+                }, 30000);
+
+                // Check for interventions every 60 seconds
+                if (this.userId) {
+                    setInterval(() => {
+                        this.checkInterventions();
+                    }, 60000);
+                }
+            }
+
+            async checkInterventions() {
+                if (!this.userId) return;
+
+                try {
+                    const response = await fetch(`${API_BASE}/intervention/${this.userId}/analyze`, {
+                        method: 'POST',
+                        headers: getAuthHeaders()
+                    });
+                    const data = await response.json();
+
+                    if (data.success && data.interventions && data.interventions.length > 0) {
+                        data.interventions.forEach(intervention => {
+                            this.showIntervention(intervention);
+                        });
+                    }
+                } catch (error) {
+                    console.error('Intervention check error:', error);
+                }
+            }
+
+            showIntervention(intervention) {
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 100px;
+                    right: 30px;
+                    background: rgba(0, 10, 20, 0.95);
+                    border: 2px solid ${intervention.severity === 'critical' ? '#ff4444' : '#ffaa00'};
+                    padding: 20px;
+                    max-width: 300px;
+                    z-index: 10000;
+                    animation: slideIn 0.3s ease-out;
+                    box-shadow: 0 0 30px ${intervention.severity === 'critical' ? 'rgba(255,68,68,0.5)' : 'rgba(255,170,0,0.5)'};
+                `;
+                
+                notification.innerHTML = `
+                    <div style="font-size: 14px; font-weight: bold; color: #00ffff; margin-bottom: 10px;">
+                        ${intervention.severity === 'critical' ? '🚨' : '⚠️'} ${intervention.title}
+                    </div>
+                    <div style="font-size: 12px; color: rgba(0, 255, 255, 0.7); margin-bottom: 10px;">
+                        ${intervention.message}
+                    </div>
+                    <div style="font-size: 11px; color: rgba(0, 255, 255, 0.5);">
+                        ${intervention.action || 'Phoenix is handling this automatically.'}
+                    </div>
+                `;
+
+                document.body.appendChild(notification);
+
+                // Flash screen for critical interventions
+                if (intervention.severity === 'critical') {
+                    this.flashAlert();
+                }
+
+                // Auto-remove after 8 seconds
+                setTimeout(() => {
+                    notification.style.animation = 'slideOut 0.3s ease-out';
+                    setTimeout(() => notification.remove(), 300);
+                }, 8000);
+            }
+
+            flashAlert() {
+                const overlay = document.createElement('div');
+                overlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    border: 5px solid #ff4444;
+                    pointer-events: none;
+                    z-index: 9999;
+                    animation: alertFlash 0.5s ease-out 3;
+                `;
+                document.body.appendChild(overlay);
+                setTimeout(() => overlay.remove(), 1500);
             }
 
             setupScene() {
@@ -610,13 +927,125 @@
                 overlay.classList.add('active');
                 this.isListening = true;
                 
-                // Simulate voice recognition
-                setTimeout(() => {
-                    overlay.classList.remove('active');
-                    this.isListening = false;
-                }, 3000);
+                // Start speech recognition if available
+                if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    const recognition = new SpeechRecognition();
+                    recognition.continuous = false;
+                    recognition.interimResults = false;
+                    recognition.lang = 'en-US';
+
+                    recognition.onstart = () => {
+                        document.getElementById('voice-text').textContent = 'Listening...';
+                    };
+
+                    recognition.onresult = async (event) => {
+                        const transcript = event.results[0][0].transcript;
+                        document.getElementById('voice-text').textContent = `"${transcript}"`;
+                        
+                        // Process command
+                        await this.processVoiceCommand(transcript);
+                        
+                        setTimeout(() => {
+                            overlay.classList.remove('active');
+                            this.isListening = false;
+                        }, 2000);
+                    };
+
+                    recognition.onerror = (error) => {
+                        console.error('Speech recognition error:', error);
+                        document.getElementById('voice-text').textContent = 'Error processing voice...';
+                        setTimeout(() => {
+                            overlay.classList.remove('active');
+                            this.isListening = false;
+                        }, 2000);
+                    };
+
+                    recognition.onend = () => {
+                        if (this.isListening) {
+                            setTimeout(() => {
+                                overlay.classList.remove('active');
+                                this.isListening = false;
+                            }, 1000);
+                        }
+                    };
+
+                    recognition.start();
+                } else {
+                    document.getElementById('voice-text').textContent = 'Voice recognition not supported';
+                    setTimeout(() => {
+                        overlay.classList.remove('active');
+                        this.isListening = false;
+                    }, 2000);
+                }
                 
                 this.animateWaveform();
+            }
+
+            async processVoiceCommand(command) {
+                const lowerCmd = command.toLowerCase();
+
+                // Quick workout logging
+                const workoutMatch = lowerCmd.match(/log workout (.+?) (\d+) pounds (\d+) sets (\d+) reps/i);
+                if (workoutMatch) {
+                    const [, exercise, weight, sets, reps] = workoutMatch;
+                    await this.logQuickWorkout(exercise, weight, sets, reps);
+                    return;
+                }
+
+                // Quick meal logging
+                const mealMatch = lowerCmd.match(/log meal (.+?) (\d+) calories (\d+) protein/i);
+                if (mealMatch) {
+                    const [, food, calories, protein] = mealMatch;
+                    await this.logQuickMeal(food, calories, protein);
+                    return;
+                }
+
+                // Send to AI companion
+                if (this.userId) {
+                    try {
+                        const response = await fetch(`${API_BASE}/companion/chat`, {
+                            method: 'POST',
+                            headers: getAuthHeaders(),
+                            body: JSON.stringify({ 
+                                message: command,
+                                context: {
+                                    recovery: this.recoveryScore,
+                                    location: this.location.city,
+                                    weather: this.weather.description
+                                }
+                            })
+                        });
+                        
+                        const data = await response.json();
+                        if (data.success && data.response) {
+                            this.speakResponse(data.response);
+                            this.showNotification('Phoenix', data.response);
+                        }
+                    } catch (error) {
+                        console.error('AI chat error:', error);
+                    }
+                }
+            }
+
+            speakResponse(text) {
+                if ('speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.rate = 1.0;
+                    utterance.pitch = 1.0;
+                    utterance.volume = 1.0;
+                    utterance.lang = 'en-US';
+                    
+                    const voices = speechSynthesis.getVoices();
+                    const preferredVoice = voices.find(v => 
+                        v.name.includes('Google') || v.name.includes('Microsoft')
+                    );
+                    if (preferredVoice) {
+                        utterance.voice = preferredVoice;
+                    }
+                    
+                    speechSynthesis.speak(utterance);
+                }
             }
 
             animateWaveform() {
@@ -708,7 +1137,11 @@
                 setInterval(() => this.updateTime(), 1000);
                 
                 this.updateRecovery();
-                setInterval(() => this.updateRecovery(), 5000);
+                setInterval(() => this.updateRecovery(), 30000); // Every 30 seconds
+                
+                // Update greeting
+                this.updateGreeting();
+                setInterval(() => this.updateGreeting(), 60000); // Every minute
             }
 
             updateTime() {
@@ -729,8 +1162,10 @@
             }
 
             updateRecovery() {
-                // Simulate recovery data (replace with real API call)
-                this.recoveryScore = Math.max(50, Math.min(100, this.recoveryScore + (Math.random() - 0.5) * 10));
+                // Use REAL recovery data from backend
+                if (this.userData.recovery?.score) {
+                    this.recoveryScore = this.userData.recovery.score;
+                }
                 
                 document.getElementById('recovery-value').textContent = Math.round(this.recoveryScore) + '%';
                 document.getElementById('recovery-fill').style.width = this.recoveryScore + '%';
@@ -739,11 +1174,120 @@
                 const fill = document.getElementById('recovery-fill');
                 if (this.recoveryScore < 60) {
                     fill.style.background = '#ff4444';
+                    fill.style.boxShadow = '0 0 10px rgba(255,68,68,0.8)';
                 } else if (this.recoveryScore < 80) {
                     fill.style.background = '#ffaa00';
+                    fill.style.boxShadow = '0 0 10px rgba(255,170,0,0.8)';
                 } else {
                     fill.style.background = '#00ffff';
+                    fill.style.boxShadow = '0 0 10px rgba(0,255,255,0.8)';
                 }
+
+                // Update greeting based on recovery
+                this.updateGreeting();
+            }
+
+            updateGreeting() {
+                const hour = new Date().getHours();
+                const greeting = hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : 'Good Evening';
+                
+                let status = 'Ready to optimize';
+                if (this.recoveryScore < 60) {
+                    status = 'Recovery needed - taking it easy today';
+                } else if (this.recoveryScore > 85) {
+                    status = 'Peak performance ready';
+                }
+
+                document.querySelector('.greeting-main').textContent = greeting;
+                document.querySelector('.greeting-sub').textContent = status;
+            }
+
+            async logQuickWorkout(exercise, weight, sets, reps) {
+                if (!this.userId) return;
+
+                try {
+                    const response = await fetch(`${API_BASE}/workouts`, {
+                        method: 'POST',
+                        headers: getAuthHeaders(),
+                        body: JSON.stringify({
+                            name: `Quick ${exercise}`,
+                            type: 'strength',
+                            exercises: [{
+                                name: exercise,
+                                sets: parseInt(sets),
+                                reps: parseInt(reps),
+                                weight: parseInt(weight)
+                            }],
+                            duration: 30
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    if (data.success) {
+                        this.showNotification('✅ Workout Logged', `${exercise} ${weight}lbs x${sets}x${reps}`);
+                        this.loadUserData(); // Refresh data
+                    }
+                } catch (error) {
+                    console.error('Error logging workout:', error);
+                }
+            }
+
+            async logQuickMeal(food, calories, protein) {
+                if (!this.userId) return;
+
+                try {
+                    const response = await fetch(`${API_BASE}/nutrition/log`, {
+                        method: 'POST',
+                        headers: getAuthHeaders(),
+                        body: JSON.stringify({
+                            name: food,
+                            calories: parseInt(calories),
+                            protein: parseInt(protein),
+                            carbs: 0,
+                            fat: 0,
+                            mealType: 'snack'
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    if (data.success) {
+                        this.showNotification('✅ Meal Logged', `${food} - ${calories}cal, ${protein}g protein`);
+                    }
+                } catch (error) {
+                    console.error('Error logging meal:', error);
+                }
+            }
+
+            showNotification(title, message) {
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 100px;
+                    right: 30px;
+                    background: rgba(0, 10, 20, 0.95);
+                    border: 2px solid rgba(0, 255, 255, 0.5);
+                    padding: 20px;
+                    max-width: 300px;
+                    z-index: 10000;
+                    animation: slideIn 0.3s ease-out;
+                    box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+                `;
+                
+                notification.innerHTML = `
+                    <div style="font-size: 14px; font-weight: bold; color: #00ffff; margin-bottom: 10px;">
+                        ${title}
+                    </div>
+                    <div style="font-size: 12px; color: rgba(0, 255, 255, 0.7);">
+                        ${message}
+                    </div>
+                `;
+
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.style.animation = 'slideOut 0.3s ease-out';
+                    setTimeout(() => notification.remove(), 300);
+                }, 5000);
             }
         }
 
@@ -755,8 +1299,22 @@
             const phoenix = new PhoenixEngine();
             phoenix.init();
             
-            // Expose to window for iOS bridge
+            // Expose to window for iOS bridge and debugging
             window.phoenix = phoenix;
+            
+            // Add quick input helpers
+            window.logWorkout = (exercise, weight, sets, reps) => {
+                phoenix.logQuickWorkout(exercise, weight, sets, reps);
+            };
+            
+            window.logMeal = (food, calories, protein) => {
+                phoenix.logQuickMeal(food, calories, protein);
+            };
+            
+            console.log('🔥 PHOENIX INITIALIZED');
+            console.log('💡 Quick commands:');
+            console.log('   window.logWorkout("bench press", 225, 5, 5)');
+            console.log('   window.logMeal("chicken breast", 400, 40)');
         });
     </script>
 </body>
