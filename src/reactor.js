@@ -1,322 +1,353 @@
-// reactor.js - Arc Reactor Visualization & HUD
+// reactor.js - Phoenix Reactor Core Canvas Animations
 
 class ReactorCore {
     constructor() {
         this.canvas = null;
         this.ctx = null;
-        this.animationId = null;
         this.particles = [];
-        this.energy = 78; // Matches recovery score
-        this.pulsePhase = 0;
+        this.beams = [];
         this.dataStreams = [];
+        this.hudElements = [];
+        this.animationFrame = null;
+        this.energy = 100;
+        this.pulsePhase = 0;
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
     }
 
     init() {
+        console.log('⚡ Initializing Reactor Core...');
         this.createCanvas();
         this.generateParticles();
+        this.setupBeams();
+        this.setupDataStreams();
+        this.setupHUD();
         this.animate();
-        this.initDataStreams();
+        this.setupResizeHandler();
+        console.log('✅ Reactor Core initialized');
     }
 
     createCanvas() {
-        // Create a canvas overlay for the reactor effects
         this.canvas = document.createElement('canvas');
-        this.canvas.style.position = 'fixed';
-        this.canvas.style.top = '0';
-        this.canvas.style.left = '0';
-        this.canvas.style.width = '100%';
-        this.canvas.style.height = '100%';
-        this.canvas.style.pointerEvents = 'none';
-        this.canvas.style.zIndex = '100';
-        document.body.appendChild(this.canvas);
-
+        this.canvas.id = 'reactor-canvas';
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+        this.canvas.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        `;
+        document.body.insertBefore(this.canvas, document.body.firstChild);
         this.ctx = this.canvas.getContext('2d');
-        this.resize();
-        window.addEventListener('resize', () => this.resize());
-    }
-
-    resize() {
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
     }
 
     generateParticles() {
-        // Create energy particles around reactor
-        for (let i = 0; i < 50; i++) {
+        // Create floating particles around the core
+        const centerX = this.width / 2;
+        const centerY = this.height / 2;
+
+        for (let i = 0; i < 100; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const distance = 100 + Math.random() * 300;
+            
             this.particles.push({
-                x: window.innerWidth / 2,
-                y: window.innerHeight / 2,
-                vx: (Math.random() - 0.5) * 2,
-                vy: (Math.random() - 0.5) * 2,
-                radius: Math.random() * 2 + 0.5,
-                life: 1,
-                decay: Math.random() * 0.02 + 0.005
+                x: centerX + Math.cos(angle) * distance,
+                y: centerY + Math.sin(angle) * distance,
+                vx: (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5,
+                size: Math.random() * 2 + 1,
+                alpha: Math.random() * 0.5 + 0.3,
+                angle: angle,
+                orbitSpeed: Math.random() * 0.01 + 0.005
             });
         }
     }
 
+    setupBeams() {
+        // Energy beams from core to planets
+        const planetPositions = [
+            { x: 0.5, y: 0.25 },  // Mercury (top)
+            { x: 0.75, y: 0.4 },  // Venus (top-right)
+            { x: 0.75, y: 0.65 }, // Earth (bottom-right)
+            { x: 0.25, y: 0.65 }, // Mars (bottom-left)
+            { x: 0.25, y: 0.4 },  // Jupiter (top-left)
+            { x: 0.5, y: 0.8 }    // Saturn (bottom)
+        ];
+
+        planetPositions.forEach((pos, i) => {
+            this.beams.push({
+                targetX: this.width * pos.x,
+                targetY: this.height * pos.y,
+                intensity: 0,
+                phase: i * Math.PI / 3,
+                active: false
+            });
+        });
+    }
+
+    setupDataStreams() {
+        // Vertical data streams (Matrix-style)
+        for (let i = 0; i < 15; i++) {
+            this.dataStreams.push({
+                x: Math.random() * this.width,
+                y: Math.random() * this.height,
+                speed: Math.random() * 2 + 1,
+                length: Math.random() * 100 + 50,
+                chars: this.generateRandomChars(20)
+            });
+        }
+    }
+
+    generateRandomChars(count) {
+        const chars = '01ABCDEF';
+        let result = '';
+        for (let i = 0; i < count; i++) {
+            result += chars[Math.floor(Math.random() * chars.length)];
+        }
+        return result;
+    }
+
+    setupHUD() {
+        // Corner HUD elements with live data
+        this.hudElements = [
+            { x: 60, y: 60, label: 'CORE', value: '100%', align: 'left' },
+            { x: this.width - 60, y: 60, label: 'TRUST', value: '0%', align: 'right' },
+            { x: 60, y: this.height - 40, label: 'SYNC', value: 'IDLE', align: 'left' },
+            { x: this.width - 60, y: this.height - 40, label: 'MODE', value: 'ACTIVE', align: 'right' }
+        ];
+    }
+
     animate() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        
-        // Update pulse phase
-        this.pulsePhase += 0.02;
-        
-        // Draw particles
+        this.ctx.clearRect(0, 0, this.width, this.height);
+
+        // Update and draw components
+        this.updateParticles();
         this.drawParticles();
-        
-        // Draw energy beams
         this.drawEnergyBeams();
-        
-        // Draw data streams
         this.drawDataStreams();
-        
-        // Draw HUD elements
         this.drawHUD();
-        
-        this.animationId = requestAnimationFrame(() => this.animate());
+        this.drawScanningLine();
+
+        this.pulsePhase += 0.02;
+
+        this.animationFrame = requestAnimationFrame(() => this.animate());
+    }
+
+    updateParticles() {
+        const centerX = this.width / 2;
+        const centerY = this.height / 2;
+
+        this.particles.forEach(p => {
+            // Orbital motion around center
+            p.angle += p.orbitSpeed;
+            const distance = Math.sqrt(Math.pow(p.x - centerX, 2) + Math.pow(p.y - centerY, 2));
+            
+            p.x = centerX + Math.cos(p.angle) * distance;
+            p.y = centerY + Math.sin(p.angle) * distance;
+
+            // Add slight random drift
+            p.x += p.vx;
+            p.y += p.vy;
+
+            // Keep particles in bounds
+            if (p.x < 0 || p.x > this.width) p.vx *= -1;
+            if (p.y < 0 || p.y > this.height) p.vy *= -1;
+
+            // Pulsing alpha
+            p.alpha = 0.3 + Math.sin(this.pulsePhase + p.angle) * 0.2;
+        });
     }
 
     drawParticles() {
-        this.particles.forEach((particle, index) => {
-            // Update position
-            particle.x += particle.vx;
-            particle.y += particle.vy;
-            particle.life -= particle.decay;
-            
-            // Draw particle
-            this.ctx.save();
-            this.ctx.globalAlpha = particle.life;
-            this.ctx.fillStyle = '#00ffff';
-            this.ctx.shadowBlur = 10;
-            this.ctx.shadowColor = '#00ffff';
-            
+        this.particles.forEach(p => {
             this.ctx.beginPath();
-            this.ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+            this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            this.ctx.fillStyle = `rgba(0, 255, 255, ${p.alpha})`;
             this.ctx.fill();
-            this.ctx.restore();
-            
-            // Respawn dead particles
-            if (particle.life <= 0 || 
-                particle.x < 0 || particle.x > this.canvas.width ||
-                particle.y < 0 || particle.y > this.canvas.height) {
-                    
-                const angle = Math.random() * Math.PI * 2;
-                const radius = 125; // Reactor radius
-                particle.x = window.innerWidth / 2 + Math.cos(angle) * radius;
-                particle.y = window.innerHeight / 2 + Math.sin(angle) * radius;
-                particle.vx = Math.cos(angle) * (Math.random() + 0.5);
-                particle.vy = Math.sin(angle) * (Math.random() + 0.5);
-                particle.life = 1;
-            }
+
+            // Glow effect
+            const gradient = this.ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 3);
+            gradient.addColorStop(0, `rgba(0, 255, 255, ${p.alpha * 0.5})`);
+            gradient.addColorStop(1, 'rgba(0, 255, 255, 0)');
+            this.ctx.fillStyle = gradient;
+            this.ctx.fillRect(p.x - p.size * 3, p.y - p.size * 3, p.size * 6, p.size * 6);
         });
     }
 
     drawEnergyBeams() {
-        const centerX = window.innerWidth / 2;
-        const centerY = window.innerHeight / 2;
-        const time = Date.now() * 0.001;
-        
-        // Draw rotating energy beams
-        this.ctx.save();
-        this.ctx.globalAlpha = 0.3;
-        this.ctx.strokeStyle = '#00ffff';
-        this.ctx.lineWidth = 1;
-        
-        for (let i = 0; i < 8; i++) {
-            const angle = (i / 8) * Math.PI * 2 + time;
-            const innerRadius = 30;
-            const outerRadius = 120 + Math.sin(this.pulsePhase + i) * 10;
+        const centerX = this.width / 2;
+        const centerY = this.height / 2;
+
+        this.beams.forEach((beam, i) => {
+            if (!beam.active) return;
+
+            const intensity = beam.intensity * (0.5 + Math.sin(this.pulsePhase + beam.phase) * 0.5);
             
             this.ctx.beginPath();
-            this.ctx.moveTo(
-                centerX + Math.cos(angle) * innerRadius,
-                centerY + Math.sin(angle) * innerRadius
-            );
-            this.ctx.lineTo(
-                centerX + Math.cos(angle) * outerRadius,
-                centerY + Math.sin(angle) * outerRadius
-            );
+            this.ctx.moveTo(centerX, centerY);
+            this.ctx.lineTo(beam.targetX, beam.targetY);
+            this.ctx.strokeStyle = `rgba(0, 255, 255, ${intensity * 0.3})`;
+            this.ctx.lineWidth = 2;
             this.ctx.stroke();
-        }
-        
-        this.ctx.restore();
+
+            // Beam glow
+            this.ctx.strokeStyle = `rgba(0, 255, 255, ${intensity * 0.1})`;
+            this.ctx.lineWidth = 6;
+            this.ctx.stroke();
+        });
     }
 
     drawDataStreams() {
-        const now = Date.now();
-        
-        // Add new data points periodically
-        if (Math.random() > 0.98) {
-            this.dataStreams.push({
-                x: Math.random() * this.canvas.width,
-                y: -20,
-                speed: Math.random() * 2 + 1,
-                value: Math.random().toFixed(3),
-                opacity: 1
-            });
-        }
-        
-        // Update and draw data streams
-        this.ctx.save();
-        this.ctx.font = '10px monospace';
-        this.ctx.fillStyle = '#00ffff';
-        
-        this.dataStreams = this.dataStreams.filter(stream => {
+        this.dataStreams.forEach(stream => {
             stream.y += stream.speed;
-            stream.opacity = 1 - (stream.y / this.canvas.height);
+            if (stream.y > this.height + stream.length) {
+                stream.y = -stream.length;
+                stream.x = Math.random() * this.width;
+                stream.chars = this.generateRandomChars(20);
+            }
+
+            this.ctx.font = '12px monospace';
             
-            this.ctx.globalAlpha = stream.opacity * 0.5;
-            this.ctx.fillText(stream.value, stream.x, stream.y);
-            
-            return stream.y < this.canvas.height;
+            for (let i = 0; i < stream.chars.length; i++) {
+                const y = stream.y - i * 15;
+                if (y < 0 || y > this.height) continue;
+
+                const alpha = i === 0 ? 0.8 : (1 - i / stream.chars.length) * 0.5;
+                this.ctx.fillStyle = `rgba(0, 255, 255, ${alpha})`;
+                this.ctx.fillText(stream.chars[i], stream.x, y);
+            }
         });
-        
-        this.ctx.restore();
     }
 
     drawHUD() {
-        const centerX = window.innerWidth / 2;
-        const centerY = window.innerHeight / 2;
+        this.ctx.font = 'bold 11px monospace';
         
-        // Draw scanning line
-        this.ctx.save();
-        this.ctx.strokeStyle = '#00ffff';
-        this.ctx.lineWidth = 2;
-        this.ctx.globalAlpha = 0.1;
-        
-        const scanAngle = Date.now() * 0.002;
-        const scanRadius = 150;
-        
-        this.ctx.beginPath();
-        this.ctx.moveTo(centerX, centerY);
-        this.ctx.lineTo(
-            centerX + Math.cos(scanAngle) * scanRadius,
-            centerY + Math.sin(scanAngle) * scanRadius
-        );
-        this.ctx.stroke();
-        
-        // Draw scan arc
-        this.ctx.globalAlpha = 0.05;
-        this.ctx.beginPath();
-        this.ctx.arc(centerX, centerY, scanRadius, scanAngle - 0.5, scanAngle);
-        this.ctx.fill();
-        
-        this.ctx.restore();
-        
-        // Draw corner brackets (HUD frame)
+        this.hudElements.forEach(hud => {
+            this.ctx.textAlign = hud.align;
+            
+            // Label
+            this.ctx.fillStyle = 'rgba(0, 255, 255, 0.5)';
+            this.ctx.fillText(hud.label, hud.x, hud.y);
+            
+            // Value
+            this.ctx.fillStyle = 'rgba(0, 255, 255, 1)';
+            this.ctx.font = 'bold 16px monospace';
+            this.ctx.fillText(hud.value, hud.x, hud.y + 20);
+            
+            // Reset font
+            this.ctx.font = 'bold 11px monospace';
+        });
+
+        // Draw corner brackets (enhanced)
         this.drawCornerBrackets();
-        
-        // Draw live metrics
-        this.drawMetrics();
     }
 
     drawCornerBrackets() {
-        const margin = 20;
-        const bracketSize = 30;
-        const lineWidth = 1;
+        const size = 30;
+        const offset = 15;
         
-        this.ctx.save();
-        this.ctx.strokeStyle = '#00ffff';
-        this.ctx.lineWidth = lineWidth;
-        this.ctx.globalAlpha = 0.3;
-        
+        this.ctx.strokeStyle = 'rgba(0, 255, 255, 0.4)';
+        this.ctx.lineWidth = 2;
+
         // Top-left
         this.ctx.beginPath();
-        this.ctx.moveTo(margin, margin + bracketSize);
-        this.ctx.lineTo(margin, margin);
-        this.ctx.lineTo(margin + bracketSize, margin);
+        this.ctx.moveTo(offset + size, offset);
+        this.ctx.lineTo(offset, offset);
+        this.ctx.lineTo(offset, offset + size);
         this.ctx.stroke();
-        
+
         // Top-right
         this.ctx.beginPath();
-        this.ctx.moveTo(this.canvas.width - margin - bracketSize, margin);
-        this.ctx.lineTo(this.canvas.width - margin, margin);
-        this.ctx.lineTo(this.canvas.width - margin, margin + bracketSize);
+        this.ctx.moveTo(this.width - offset - size, offset);
+        this.ctx.lineTo(this.width - offset, offset);
+        this.ctx.lineTo(this.width - offset, offset + size);
         this.ctx.stroke();
-        
+
         // Bottom-left
         this.ctx.beginPath();
-        this.ctx.moveTo(margin, this.canvas.height - margin - bracketSize);
-        this.ctx.lineTo(margin, this.canvas.height - margin);
-        this.ctx.lineTo(margin + bracketSize, this.canvas.height - margin);
+        this.ctx.moveTo(offset, this.height - offset - size);
+        this.ctx.lineTo(offset, this.height - offset);
+        this.ctx.lineTo(offset + size, this.height - offset);
         this.ctx.stroke();
-        
+
         // Bottom-right
         this.ctx.beginPath();
-        this.ctx.moveTo(this.canvas.width - margin - bracketSize, this.canvas.height - margin);
-        this.ctx.lineTo(this.canvas.width - margin, this.canvas.height - margin);
-        this.ctx.lineTo(this.canvas.width - margin, this.canvas.height - margin - bracketSize);
+        this.ctx.moveTo(this.width - offset, this.height - offset - size);
+        this.ctx.lineTo(this.width - offset, this.height - offset);
+        this.ctx.lineTo(this.width - offset - size, this.height - offset);
         this.ctx.stroke();
-        
-        this.ctx.restore();
     }
 
-    drawMetrics() {
-        // Draw live biometric readouts
-        const metrics = [
-            { label: 'HRV', value: 68 + Math.sin(this.pulsePhase) * 2, unit: 'ms' },
-            { label: 'RHR', value: 52 + Math.sin(this.pulsePhase * 1.5) * 1, unit: 'bpm' },
-            { label: 'RECOVERY', value: this.energy, unit: '%' },
-            { label: 'O₂', value: 98 + Math.sin(this.pulsePhase * 0.5) * 0.5, unit: '%' }
-        ];
+    drawScanningLine() {
+        const y = (this.height / 2) + Math.sin(this.pulsePhase * 0.5) * 200;
         
-        this.ctx.save();
-        this.ctx.font = '11px monospace';
-        this.ctx.fillStyle = '#00ffff';
-        this.ctx.globalAlpha = 0.6;
+        const gradient = this.ctx.createLinearGradient(0, y - 2, 0, y + 2);
+        gradient.addColorStop(0, 'rgba(0, 255, 255, 0)');
+        gradient.addColorStop(0.5, 'rgba(0, 255, 255, 0.3)');
+        gradient.addColorStop(1, 'rgba(0, 255, 255, 0)');
         
-        metrics.forEach((metric, index) => {
-            const x = 30;
-            const y = 100 + index * 25;
-            const value = metric.value.toFixed(metric.unit === '%' ? 0 : 1);
-            
-            // Draw label
-            this.ctx.globalAlpha = 0.4;
-            this.ctx.fillText(metric.label, x, y);
-            
-            // Draw value
-            this.ctx.globalAlpha = 0.8;
-            this.ctx.fillText(`${value}${metric.unit}`, x + 60, y);
-            
-            // Draw mini bar
-            this.ctx.globalAlpha = 0.2;
-            this.ctx.fillRect(x + 120, y - 8, 50, 2);
-            this.ctx.globalAlpha = 0.6;
-            this.ctx.fillRect(x + 120, y - 8, (metric.value / 100) * 50, 2);
-        });
-        
-        this.ctx.restore();
-    }
-
-    initDataStreams() {
-        // Initialize with some data streams
-        for (let i = 0; i < 10; i++) {
-            this.dataStreams.push({
-                x: Math.random() * this.canvas.width,
-                y: Math.random() * this.canvas.height,
-                speed: Math.random() * 2 + 1,
-                value: Math.random().toFixed(3),
-                opacity: 1
-            });
-        }
+        this.ctx.fillStyle = gradient;
+        this.ctx.fillRect(0, y - 2, this.width, 4);
     }
 
     setEnergy(value) {
-        this.energy = value;
+        this.energy = Math.max(0, Math.min(100, value));
+        this.hudElements[0].value = `${Math.round(this.energy)}%`;
+    }
+
+    setTrustScore(value) {
+        this.hudElements[1].value = `${Math.round(value)}%`;
+    }
+
+    setSyncStatus(status) {
+        this.hudElements[2].value = status.toUpperCase();
+    }
+
+    activateBeam(index) {
+        if (this.beams[index]) {
+            this.beams[index].active = true;
+            this.beams[index].intensity = 1;
+        }
+    }
+
+    deactivateBeam(index) {
+        if (this.beams[index]) {
+            this.beams[index].active = false;
+            this.beams[index].intensity = 0;
+        }
+    }
+
+    setupResizeHandler() {
+        window.addEventListener('resize', () => {
+            this.width = window.innerWidth;
+            this.height = window.innerHeight;
+            this.canvas.width = this.width;
+            this.canvas.height = this.height;
+            this.setupHUD();
+        });
     }
 
     destroy() {
-        if (this.animationId) {
-            cancelAnimationFrame(this.animationId);
+        if (this.animationFrame) {
+            cancelAnimationFrame(this.animationFrame);
         }
-        if (this.canvas) {
-            document.body.removeChild(this.canvas);
+        if (this.canvas && this.canvas.parentNode) {
+            this.canvas.parentNode.removeChild(this.canvas);
         }
     }
 }
 
-// Initialize reactor when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    window.Reactor = new ReactorCore();
-    window.Reactor.init();
-});
+// Initialize
+const reactorCore = new ReactorCore();
+window.reactorCore = reactorCore;
+
+// Auto-initialize
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => reactorCore.init());
+} else {
+    reactorCore.init();
+}
