@@ -661,7 +661,7 @@
     <div id="jarvis-container">
         <!-- Header with Title and Sync -->
         <div class="header">
-            <h1 style="color: #00ffff; font-size: 24px;">PHOENIX JARVIS</h1>
+            <h1 style="color: #00ffff; font-size: 24px;">PHOENIX</h1>
             <button id="sync-wearables-btn" class="sync-btn">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00ffff">
                     <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
@@ -721,8 +721,12 @@
         <!-- Data Widgets -->
         <div class="data-widget weather-widget active">
             <div class="widget-header">Weather</div>
-            <div class="widget-value" id="weather-temp">--°F</div>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                <span id="weather-icon" style="font-size: 32px;">☀️</span>
+                <div class="widget-value" id="weather-temp">--°F</div>
+            </div>
             <div class="widget-label" id="weather-condition">Loading...</div>
+            <div class="widget-label" id="weather-location" style="font-size: 10px; margin-top: 5px; opacity: 0.6;">--</div>
         </div>
         
         <div class="data-widget time-widget active">
@@ -1074,7 +1078,10 @@ Overhead Press, 4, 8, 135"></textarea>
                         const weatherCode = weatherData.current.weathercode;
                         
                         document.getElementById('weather-temp').textContent = `${temp}°F`;
-                        document.getElementById('weather-condition').textContent = getWeatherDescription(weatherCode);
+                        const weatherInfo = getWeatherInfo(weatherCode);
+                        document.getElementById('weather-condition').textContent = weatherInfo.description;
+                        document.getElementById('weather-icon').textContent = weatherInfo.icon;
+                        document.getElementById('weather-location').textContent = `${geoData.city}, ${geoData.country_code}`;
                     }
                 } else {
                     throw new Error('Geolocation failed');
@@ -1085,37 +1092,39 @@ Overhead Press, 4, 8, 135"></textarea>
                 document.getElementById('location-region').textContent = 'Location unavailable';
                 document.getElementById('weather-temp').textContent = '--°F';
                 document.getElementById('weather-condition').textContent = 'Weather unavailable';
+                document.getElementById('weather-icon').textContent = '❓';
+                document.getElementById('weather-location').textContent = '--';
             }
         }
 
-        function getWeatherDescription(code) {
-            const weatherCodes = {
-                0: 'Clear sky',
-                1: 'Mainly clear',
-                2: 'Partly cloudy',
-                3: 'Overcast',
-                45: 'Foggy',
-                48: 'Foggy',
-                51: 'Light drizzle',
-                53: 'Drizzle',
-                55: 'Heavy drizzle',
-                61: 'Light rain',
-                63: 'Rain',
-                65: 'Heavy rain',
-                71: 'Light snow',
-                73: 'Snow',
-                75: 'Heavy snow',
-                77: 'Snow grains',
-                80: 'Light showers',
-                81: 'Showers',
-                82: 'Heavy showers',
-                85: 'Light snow showers',
-                86: 'Snow showers',
-                95: 'Thunderstorm',
-                96: 'Thunderstorm with hail',
-                99: 'Heavy thunderstorm'
+        function getWeatherInfo(code) {
+            const weatherMap = {
+                0: { icon: '☀️', description: 'Clear sky' },
+                1: { icon: '🌤️', description: 'Mainly clear' },
+                2: { icon: '⛅', description: 'Partly cloudy' },
+                3: { icon: '☁️', description: 'Overcast' },
+                45: { icon: '🌫️', description: 'Foggy' },
+                48: { icon: '🌫️', description: 'Foggy' },
+                51: { icon: '🌦️', description: 'Light drizzle' },
+                53: { icon: '🌧️', description: 'Drizzle' },
+                55: { icon: '🌧️', description: 'Heavy drizzle' },
+                61: { icon: '🌧️', description: 'Light rain' },
+                63: { icon: '🌧️', description: 'Rain' },
+                65: { icon: '⛈️', description: 'Heavy rain' },
+                71: { icon: '🌨️', description: 'Light snow' },
+                73: { icon: '❄️', description: 'Snow' },
+                75: { icon: '❄️', description: 'Heavy snow' },
+                77: { icon: '🌨️', description: 'Snow grains' },
+                80: { icon: '🌦️', description: 'Light showers' },
+                81: { icon: '🌧️', description: 'Showers' },
+                82: { icon: '⛈️', description: 'Heavy showers' },
+                85: { icon: '🌨️', description: 'Light snow showers' },
+                86: { icon: '❄️', description: 'Snow showers' },
+                95: { icon: '⛈️', description: 'Thunderstorm' },
+                96: { icon: '⛈️', description: 'Thunderstorm with hail' },
+                99: { icon: '⚡', description: 'Heavy thunderstorm' }
             };
-            return weatherCodes[code] || 'Unknown';
+            return weatherMap[code] || { icon: '🌡️', description: 'Unknown' };
         }
 
         // API Base URL
