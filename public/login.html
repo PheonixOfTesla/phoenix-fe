@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Phoenix - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+            background: #000;
+            color: #00ffff;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Animated Background */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Login Container */
+        .login-container {
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 450px;
+            background: rgba(0, 10, 20, 0.95);
+            border: 2px solid rgba(0, 255, 255, 0.5);
+            padding: 50px 40px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 0 60px rgba(0, 255, 255, 0.4);
+            animation: slideIn 0.8s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo-text {
+            font-size: 48px;
+            color: #00ffff;
+            text-shadow: 0 0 30px rgba(0, 255, 255, 1);
+            letter-spacing: 8px;
+            margin-bottom: 10px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                text-shadow: 0 0 30px rgba(0, 255, 255, 1);
+            }
+            50% {
+                text-shadow: 0 0 50px rgba(0, 255, 255, 1);
+            }
+        }
+
+        .logo-subtitle {
+            font-size: 14px;
+            color: rgba(0, 255, 255, 0.6);
+            letter-spacing: 2px;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: rgba(0, 255, 255, 0.5);
+            font-size: 14px;
+            letter-spacing: 2px;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab.active {
+            color: #00ffff;
+            border-bottom-color: #00ffff;
+        }
+
+        .tab:hover {
+            color: #00ffff;
+        }
+
+        .form-container {
+            display: none;
+        }
+
+        .form-container.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 11px;
+            color: rgba(0, 255, 255, 0.7);
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(0, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            color: #00ffff;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            background: rgba(0, 255, 255, 0.1);
+            border-color: #00ffff;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+
+        .form-input::placeholder {
+            color: rgba(0, 255, 255, 0.3);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: rgba(0, 255, 255, 0.1);
+            border: 2px solid #00ffff;
+            color: #00ffff;
+            font-family: inherit;
+            font-size: 14px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            background: rgba(0, 255, 255, 0.3);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid rgba(255, 68, 68, 0.5);
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #ff4444;
+            font-size: 12px;
+            display: none;
+            animation: shake 0.5s;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .success-message {
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.5);
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #00ffff;
+            font-size: 12px;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .loading-spinner.show {
+            display: block;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(0, 255, 255, 0.2);
+            border-top-color: #00ffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .forgot-password a {
+            color: rgba(0, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .forgot-password a:hover {
+            color: #00ffff;
+        }
+
+        /* Corner Brackets */
+        .corner-bracket {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            z-index: 5;
+        }
+
+        .bracket-tl {
+            top: 20px;
+            left: 20px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .bracket-tr {
+            top: 20px;
+            right: 20px;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .bracket-bl {
+            bottom: 20px;
+            left: 20px;
+            border-right: none;
+            border-top: none;
+        }
+
+        .bracket-br {
+            bottom: 20px;
+            right: 20px;
+            border-left: none;
+            border-top: none;
+        }
+
+        @media (max-width: 600px) {
+            .login-container {
+                padding: 40px 30px;
+            }
+
+            .logo-text {
+                font-size: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Corner Brackets -->
+    <div class="corner-bracket bracket-tl"></div>
+    <div class="corner-bracket bracket-tr"></div>
+    <div class="corner-bracket bracket-bl"></div>
+    <div class="corner-bracket bracket-br"></div>
+
+    <!-- Animated Background -->
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- Login Container -->
+    <div class="login-container">
+        <div class="logo">
+            <div class="logo-text">PHOENIX</div>
+            <div class="logo-subtitle">AI COMPANION</div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" id="login-tab">LOGIN</div>
+            <div class="tab" id="register-tab">REGISTER</div>
+        </div>
+
+        <div class="error-message" id="error-message"></div>
+        <div class="success-message" id="success-message"></div>
+
+        <!-- Login Form -->
+        <div class="form-container active" id="login-form">
+            <form id="login-form-element">
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input 
+                        type="email" 
+                        class="form-input" 
+                        id="login-email" 
+                        placeholder="your@email.com"
+                        required
+                    >
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input 
+                        type="password" 
+                        class="form-input" 
+                        id="login-password" 
+                        placeholder="••••••••"
+                        required
+                    >
+                </div>
+                <button type="submit" class="submit-btn" id="login-btn">
+                    ACTIVATE PHOENIX
+                </button>
+            </form>
+            
+            <div class="forgot-password">
+                <a href="#" id="forgot-password-link">Forgot password?</a>
+            </div>
+        </div>
+
+        <!-- Register Form -->
+        <div class="form-container" id="register-form">
+            <form id="register-form-element">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input 
+                        type="text" 
+                        class="form-input" 
+                        id="register-name" 
+                        placeholder="John Doe"
+                        required
+                    >
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input 
+                        type="email" 
+                        class="form-input" 
+                        id="register-email" 
+                        placeholder="your@email.com"
+                        required
+                    >
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input 
+                        type="password" 
+                        class="form-input" 
+                        id="register-password" 
+                        placeholder="••••••••"
+                        required
+                        minlength="6"
+                    >
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Confirm Password</label>
+                    <input 
+                        type="password" 
+                        class="form-input" 
+                        id="register-password-confirm" 
+                        placeholder="••••••••"
+                        required
+                        minlength="6"
+                    >
+                </div>
+                <button type="submit" class="submit-btn" id="register-btn">
+                    CREATE ACCOUNT
+                </button>
+            </form>
+        </div>
+
+        <div class="loading-spinner" id="loading-spinner">
+            <div class="spinner"></div>
+            <div style="margin-top: 15px; font-size: 12px; color: rgba(0,255,255,0.7);">
+                Connecting to Phoenix...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // CONFIGURATION
+        // ========================================
+        
+        const API_BASE = window.location.hostname === 'localhost' 
+            ? 'http://localhost:5000/api'
+            : 'https://pal-backend-production.up.railway.app/api';
+
+        // ========================================
+        // ANIMATED BACKGROUND
+        // ========================================
+        
+        class AnimatedBackground {
+            constructor() {
+                this.canvas = document.getElementById('bg-canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.particles = [];
+                this.width = window.innerWidth;
+                this.height = window.innerHeight;
+                this.canvas.width = this.width;
+                this.canvas.height = this.height;
+                this.init();
+            }
+
+            init() {
+                for (let i = 0; i < 100; i++) {
+                    this.particles.push({
+                        x: Math.random() * this.width,
+                        y: Math.random() * this.height,
+                        vx: (Math.random() - 0.5) * 0.5,
+                        vy: (Math.random() - 0.5) * 0.5,
+                        size: Math.random() * 2 + 1,
+                        alpha: Math.random() * 0.5 + 0.3
+                    });
+                }
+                this.animate();
+                
+                window.addEventListener('resize', () => {
+                    this.width = window.innerWidth;
+                    this.height = window.innerHeight;
+                    this.canvas.width = this.width;
+                    this.canvas.height = this.height;
+                });
+            }
+
+            animate() {
+                this.ctx.clearRect(0, 0, this.width, this.height);
+
+                this.particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    if (p.x < 0 || p.x > this.width) p.vx *= -1;
+                    if (p.y < 0 || p.y > this.height) p.vy *= -1;
+
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    this.ctx.fillStyle = `rgba(0, 255, 255, ${p.alpha})`;
+                    this.ctx.fill();
+                });
+
+                // Draw connections
+                this.particles.forEach((p1, i) => {
+                    this.particles.slice(i + 1).forEach(p2 => {
+                        const dx = p1.x - p2.x;
+                        const dy = p1.y - p2.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (dist < 150) {
+                            this.ctx.beginPath();
+                            this.ctx.moveTo(p1.x, p1.y);
+                            this.ctx.lineTo(p2.x, p2.y);
+                            this.ctx.strokeStyle = `rgba(0, 255, 255, ${(1 - dist / 150) * 0.2})`;
+                            this.ctx.lineWidth = 1;
+                            this.ctx.stroke();
+                        }
+                    });
+                });
+
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+
+        new AnimatedBackground();
+
+        // ========================================
+        // TAB SWITCHING
+        // ========================================
+        
+        document.getElementById('login-tab').addEventListener('click', () => {
+            document.getElementById('login-tab').classList.add('active');
+            document.getElementById('register-tab').classList.remove('active');
+            document.getElementById('login-form').classList.add('active');
+            document.getElementById('register-form').classList.remove('active');
+            hideMessages();
+        });
+
+        document.getElementById('register-tab').addEventListener('click', () => {
+            document.getElementById('register-tab').classList.add('active');
+            document.getElementById('login-tab').classList.remove('active');
+            document.getElementById('register-form').classList.add('active');
+            document.getElementById('login-form').classList.remove('active');
+            hideMessages();
+        });
+
+        // ========================================
+        // AUTHENTICATION
+        // ========================================
+        
+        // Check if already logged in
+        const token = localStorage.getItem('phoenixToken');
+        if (token) {
+            // Verify token is still valid
+            fetch(`${API_BASE}/auth/me`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/index.html';
+                } else {
+                    localStorage.removeItem('phoenixToken');
+                    localStorage.removeItem('phoenixUser');
+                }
+            })
+            .catch(() => {
+                localStorage.removeItem('phoenixToken');
+                localStorage.removeItem('phoenixUser');
+            });
+        }
+
+        // Login Form Submission
+        document.getElementById('login-form-element').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            showLoading();
+            hideMessages();
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+                hideLoading();
+
+                if (data.success && data.token) {
+                    localStorage.setItem('phoenixToken', data.token);
+                    localStorage.setItem('phoenixUser', JSON.stringify(data.user));
+                    
+                    showSuccess('Login successful! Redirecting to Phoenix...');
+                    
+                    setTimeout(() => {
+                        window.location.href = '/index.html';
+                    }, 1000);
+                } else {
+                    showError(data.message || 'Login failed. Please check your credentials.');
+                }
+            } catch (error) {
+                hideLoading();
+                showError('Connection error. Please try again.');
+                console.error('Login error:', error);
+            }
+        });
+
+        // Register Form Submission
+        document.getElementById('register-form-element').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const passwordConfirm = document.getElementById('register-password-confirm').value;
+            
+            if (password !== passwordConfirm) {
+                showError('Passwords do not match');
+                return;
+            }
+
+            showLoading();
+            hideMessages();
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        name, 
+                        email, 
+                        password,
+                        role: 'client'
+                    })
+                });
+
+                const data = await response.json();
+                hideLoading();
+
+                if (data.success && data.token) {
+                    localStorage.setItem('phoenixToken', data.token);
+                    localStorage.setItem('phoenixUser', JSON.stringify(data.user));
+                    
+                    showSuccess('Account created! Welcome to Phoenix...');
+                    
+                    setTimeout(() => {
+                        window.location.href = '/index.html';
+                    }, 1000);
+                } else {
+                    showError(data.message || 'Registration failed. Please try again.');
+                }
+            } catch (error) {
+                hideLoading();
+                showError('Connection error. Please try again.');
+                console.error('Register error:', error);
+            }
+        });
+
+        // Forgot Password
+        document.getElementById('forgot-password-link').addEventListener('click', (e) => {
+            e.preventDefault();
+            const email = prompt('Enter your email address:');
+            if (email) {
+                showSuccess('Password reset link sent to ' + email);
+                // TODO: Implement password reset
+            }
+        });
+
+        // ========================================
+        // UI HELPERS
+        // ========================================
+        
+        function showLoading() {
+            document.getElementById('loading-spinner').classList.add('show');
+            document.getElementById('login-btn').disabled = true;
+            document.getElementById('register-btn').disabled = true;
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-spinner').classList.remove('show');
+            document.getElementById('login-btn').disabled = false;
+            document.getElementById('register-btn').disabled = false;
+        }
+
+        function showError(message) {
+            const errorEl = document.getElementById('error-message');
+            errorEl.textContent = message;
+            errorEl.classList.add('show');
+        }
+
+        function showSuccess(message) {
+            const successEl = document.getElementById('success-message');
+            successEl.textContent = message;
+            successEl.classList.add('show');
+        }
+
+        function hideMessages() {
+            document.getElementById('error-message').classList.remove('show');
+            document.getElementById('success-message').classList.remove('show');
+        }
+    </script>
+</body>
+</html>
