@@ -1,4 +1,4 @@
-// reactor.js - Phoenix Reactor Core Canvas Animations
+// reactor.js - Phoenix Reactor Core with REAL Backend Data Integration
 
 class ReactorCore {
     constructor() {
@@ -13,6 +13,15 @@ class ReactorCore {
         this.pulsePhase = 0;
         this.width = window.innerWidth;
         this.height = window.innerHeight;
+        this.trustScore = 0;
+        this.syncStatus = 'IDLE';
+        this.mode = 'PAL';
+        this.liveMetrics = {
+            hrv: 0,
+            rhr: 0,
+            recovery: 0,
+            spo2: 98
+        };
     }
 
     init() {
@@ -24,8 +33,41 @@ class ReactorCore {
         this.setupHUD();
         this.animate();
         this.setupResizeHandler();
+        this.connectToBackend();
         console.log('✅ Reactor Core initialized');
     }
+
+    // ========================================
+    // BACKEND CONNECTION
+    // ========================================
+
+    connectToBackend() {
+        // Listen for JARVIS engine updates
+        setInterval(() => {
+            if (window.jarvisEngine) {
+                const userData = window.jarvisEngine.userData || {};
+                
+                // Update live metrics from backend
+                this.liveMetrics.hrv = userData.hrv || 0;
+                this.liveMetrics.rhr = userData.heartRate || 0;
+                this.liveMetrics.recovery = userData.recoveryScore || 0;
+                this.liveMetrics.spo2 = userData.spo2 || 98;
+                
+                // Update energy based on recovery score
+                this.setEnergy(userData.recoveryScore || 100);
+                
+                // Update trust score
+                this.setTrustScore(window.jarvisEngine.trustScore || 0);
+                
+                // Update mode
+                this.mode = window.jarvisEngine.mode || 'PAL';
+            }
+        }, 1000);
+    }
+
+    // ========================================
+    // CANVAS SETUP
+    // ========================================
 
     createCanvas() {
         this.canvas = document.createElement('canvas');
@@ -45,8 +87,11 @@ class ReactorCore {
         this.ctx = this.canvas.getContext('2d');
     }
 
+    // ========================================
+    // PARTICLE SYSTEM
+    // ========================================
+
     generateParticles() {
-        // Create floating particles around the core
         const centerX = this.width / 2;
         const centerY = this.height / 2;
 
@@ -67,6 +112,51 @@ class ReactorCore {
         }
     }
 
+    updateParticles() {
+        const centerX = this.width / 2;
+        const centerY = this.height / 2;
+
+        this.particles.forEach(p => {
+            // Orbital motion around center - speed based on REAL recovery score
+            p.angle += p.orbitSpeed * (this.energy / 100);
+            const distance = Math.sqrt(Math.pow(p.x - centerX, 2) + Math.pow(p.y - centerY, 2));
+            
+            p.x = centerX + Math.cos(p.angle) * distance;
+            p.y = centerY + Math.sin(p.angle) * distance;
+
+            // Add slight random drift
+            p.x += p.vx;
+            p.y += p.vy;
+
+            // Keep particles in bounds
+            if (p.x < 0 || p.x > this.width) p.vx *= -1;
+            if (p.y < 0 || p.y > this.height) p.vy *= -1;
+
+            // Pulsing alpha based on energy
+            p.alpha = (0.3 + Math.sin(this.pulsePhase + p.angle) * 0.2) * (this.energy / 100);
+        });
+    }
+
+    drawParticles() {
+        this.particles.forEach(p => {
+            this.ctx.beginPath();
+            this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            this.ctx.fillStyle = `rgba(0, 255, 255, ${p.alpha})`;
+            this.ctx.fill();
+
+            // Glow effect
+            const gradient = this.ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 3);
+            gradient.addColorStop(0, `rgba(0, 255, 255, ${p.alpha * 0.5})`);
+            gradient.addColorStop(1, 'rgba(0, 255, 255, 0)');
+            this.ctx.fillStyle = gradient;
+            this.ctx.fillRect(p.x - p.size * 3, p.y - p.size * 3, p.size * 6, p.size * 6);
+        });
+    }
+
+    // ========================================
+    // ENERGY BEAMS (TO PLANETS)
+    // ========================================
+
     setupBeams() {
         // Energy beams from core to planets
         const planetPositions = [
@@ -84,10 +174,40 @@ class ReactorCore {
                 targetY: this.height * pos.y,
                 intensity: 0,
                 phase: i * Math.PI / 3,
-                active: false
+                active: true, // Always active for real-time connection
+                planetIndex: i
             });
         });
     }
+
+    drawEnergyBeams() {
+        const centerX = this.width / 2;
+        const centerY = this.height / 2;
+
+        this.beams.forEach((beam, i) => {
+            // Beam intensity based on planet activity and energy
+            const baseIntensity = beam.active ? 0.3 : 0.1;
+            const pulseIntensity = 0.5 + Math.sin(this.pulsePhase + beam.phase) * 0.5;
+            const energyMultiplier = this.energy / 100;
+            const intensity = baseIntensity * pulseIntensity * energyMultiplier;
+            
+            this.ctx.beginPath();
+            this.ctx.moveTo(centerX, centerY);
+            this.ctx.lineTo(beam.targetX, beam.targetY);
+            this.ctx.strokeStyle = `rgba(0, 255, 255, ${intensity * 0.3})`;
+            this.ctx.lineWidth = 2;
+            this.ctx.stroke();
+
+            // Beam glow
+            this.ctx.strokeStyle = `rgba(0, 255, 255, ${intensity * 0.1})`;
+            this.ctx.lineWidth = 6;
+            this.ctx.stroke();
+        });
+    }
+
+    // ========================================
+    // DATA STREAMS
+    // ========================================
 
     setupDataStreams() {
         // Vertical data streams (Matrix-style)
@@ -109,96 +229,6 @@ class ReactorCore {
             result += chars[Math.floor(Math.random() * chars.length)];
         }
         return result;
-    }
-
-    setupHUD() {
-        // Corner HUD elements with live data
-        this.hudElements = [
-            { x: 60, y: 60, label: 'CORE', value: '100%', align: 'left' },
-            { x: this.width - 60, y: 60, label: 'TRUST', value: '0%', align: 'right' },
-            { x: 60, y: this.height - 40, label: 'SYNC', value: 'IDLE', align: 'left' },
-            { x: this.width - 60, y: this.height - 40, label: 'MODE', value: 'ACTIVE', align: 'right' }
-        ];
-    }
-
-    animate() {
-        this.ctx.clearRect(0, 0, this.width, this.height);
-
-        // Update and draw components
-        this.updateParticles();
-        this.drawParticles();
-        this.drawEnergyBeams();
-        this.drawDataStreams();
-        this.drawHUD();
-        this.drawScanningLine();
-
-        this.pulsePhase += 0.02;
-
-        this.animationFrame = requestAnimationFrame(() => this.animate());
-    }
-
-    updateParticles() {
-        const centerX = this.width / 2;
-        const centerY = this.height / 2;
-
-        this.particles.forEach(p => {
-            // Orbital motion around center
-            p.angle += p.orbitSpeed;
-            const distance = Math.sqrt(Math.pow(p.x - centerX, 2) + Math.pow(p.y - centerY, 2));
-            
-            p.x = centerX + Math.cos(p.angle) * distance;
-            p.y = centerY + Math.sin(p.angle) * distance;
-
-            // Add slight random drift
-            p.x += p.vx;
-            p.y += p.vy;
-
-            // Keep particles in bounds
-            if (p.x < 0 || p.x > this.width) p.vx *= -1;
-            if (p.y < 0 || p.y > this.height) p.vy *= -1;
-
-            // Pulsing alpha
-            p.alpha = 0.3 + Math.sin(this.pulsePhase + p.angle) * 0.2;
-        });
-    }
-
-    drawParticles() {
-        this.particles.forEach(p => {
-            this.ctx.beginPath();
-            this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-            this.ctx.fillStyle = `rgba(0, 255, 255, ${p.alpha})`;
-            this.ctx.fill();
-
-            // Glow effect
-            const gradient = this.ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 3);
-            gradient.addColorStop(0, `rgba(0, 255, 255, ${p.alpha * 0.5})`);
-            gradient.addColorStop(1, 'rgba(0, 255, 255, 0)');
-            this.ctx.fillStyle = gradient;
-            this.ctx.fillRect(p.x - p.size * 3, p.y - p.size * 3, p.size * 6, p.size * 6);
-        });
-    }
-
-    drawEnergyBeams() {
-        const centerX = this.width / 2;
-        const centerY = this.height / 2;
-
-        this.beams.forEach((beam, i) => {
-            if (!beam.active) return;
-
-            const intensity = beam.intensity * (0.5 + Math.sin(this.pulsePhase + beam.phase) * 0.5);
-            
-            this.ctx.beginPath();
-            this.ctx.moveTo(centerX, centerY);
-            this.ctx.lineTo(beam.targetX, beam.targetY);
-            this.ctx.strokeStyle = `rgba(0, 255, 255, ${intensity * 0.3})`;
-            this.ctx.lineWidth = 2;
-            this.ctx.stroke();
-
-            // Beam glow
-            this.ctx.strokeStyle = `rgba(0, 255, 255, ${intensity * 0.1})`;
-            this.ctx.lineWidth = 6;
-            this.ctx.stroke();
-        });
     }
 
     drawDataStreams() {
@@ -223,6 +253,20 @@ class ReactorCore {
         });
     }
 
+    // ========================================
+    // HUD WITH REAL METRICS
+    // ========================================
+
+    setupHUD() {
+        // Corner HUD elements with REAL backend data
+        this.hudElements = [
+            { x: 60, y: 60, label: 'RECOVERY', getValue: () => `${Math.round(this.energy)}%`, align: 'left' },
+            { x: this.width - 60, y: 60, label: 'TRUST', getValue: () => `${Math.round(this.trustScore)}%`, align: 'right' },
+            { x: 60, y: this.height - 40, label: 'SYNC', getValue: () => this.syncStatus, align: 'left' },
+            { x: this.width - 60, y: this.height - 40, label: 'MODE', getValue: () => this.mode, align: 'right' }
+        ];
+    }
+
     drawHUD() {
         this.ctx.font = 'bold 11px monospace';
         
@@ -233,17 +277,20 @@ class ReactorCore {
             this.ctx.fillStyle = 'rgba(0, 255, 255, 0.5)';
             this.ctx.fillText(hud.label, hud.x, hud.y);
             
-            // Value
+            // Value - REAL DATA FROM BACKEND
             this.ctx.fillStyle = 'rgba(0, 255, 255, 1)';
             this.ctx.font = 'bold 16px monospace';
-            this.ctx.fillText(hud.value, hud.x, hud.y + 20);
+            this.ctx.fillText(hud.getValue(), hud.x, hud.y + 20);
             
             // Reset font
             this.ctx.font = 'bold 11px monospace';
         });
 
-        // Draw corner brackets (enhanced)
+        // Draw corner brackets
         this.drawCornerBrackets();
+        
+        // Draw live biometric data
+        this.drawLiveBiometrics();
     }
 
     drawCornerBrackets() {
@@ -282,6 +329,44 @@ class ReactorCore {
         this.ctx.stroke();
     }
 
+    drawLiveBiometrics() {
+        // Draw REAL biometric data from backend
+        const metrics = [
+            { label: 'HRV', value: this.liveMetrics.hrv, unit: 'ms' },
+            { label: 'RHR', value: this.liveMetrics.rhr, unit: 'bpm' },
+            { label: 'RECOVERY', value: this.liveMetrics.recovery, unit: '%' },
+            { label: 'O₂', value: this.liveMetrics.spo2, unit: '%' }
+        ];
+        
+        this.ctx.save();
+        this.ctx.font = '11px monospace';
+        this.ctx.fillStyle = '#00ffff';
+        this.ctx.globalAlpha = 0.6;
+        
+        metrics.forEach((metric, index) => {
+            const x = 30;
+            const y = 100 + index * 25;
+            const value = metric.value.toFixed(metric.unit === '%' ? 0 : 1);
+            
+            // Draw label
+            this.ctx.globalAlpha = 0.4;
+            this.ctx.fillText(metric.label, x, y);
+            
+            // Draw value - REAL from backend
+            this.ctx.globalAlpha = 0.8;
+            this.ctx.fillText(`${value}${metric.unit}`, x + 60, y);
+            
+            // Draw mini bar
+            this.ctx.globalAlpha = 0.2;
+            this.ctx.fillRect(x + 120, y - 8, 50, 2);
+            this.ctx.globalAlpha = 0.6;
+            const barWidth = metric.unit === '%' ? (metric.value / 100) * 50 : (metric.value / 200) * 50;
+            this.ctx.fillRect(x + 120, y - 8, barWidth, 2);
+        });
+        
+        this.ctx.restore();
+    }
+
     drawScanningLine() {
         const y = (this.height / 2) + Math.sin(this.pulsePhase * 0.5) * 200;
         
@@ -294,17 +379,65 @@ class ReactorCore {
         this.ctx.fillRect(0, y - 2, this.width, 4);
     }
 
+    // ========================================
+    // ANIMATION LOOP
+    // ========================================
+
+    animate() {
+        this.ctx.clearRect(0, 0, this.width, this.height);
+
+        // Update and draw components
+        this.updateParticles();
+        this.drawParticles();
+        this.drawEnergyBeams();
+        this.drawDataStreams();
+        this.drawHUD();
+        this.drawScanningLine();
+
+        this.pulsePhase += 0.02;
+
+        this.animationFrame = requestAnimationFrame(() => this.animate());
+    }
+
+    // ========================================
+    // PUBLIC API (Called by jarvis.js)
+    // ========================================
+
     setEnergy(value) {
         this.energy = Math.max(0, Math.min(100, value));
-        this.hudElements[0].value = `${Math.round(this.energy)}%`;
+        
+        // Update particle behavior based on energy
+        if (this.energy < 40) {
+            // Low energy - slow particles
+            this.particles.forEach(p => {
+                p.orbitSpeed = Math.max(0.003, p.orbitSpeed * 0.95);
+            });
+        } else if (this.energy > 80) {
+            // High energy - fast particles
+            this.particles.forEach(p => {
+                p.orbitSpeed = Math.min(0.02, p.orbitSpeed * 1.05);
+            });
+        }
     }
 
     setTrustScore(value) {
-        this.hudElements[1].value = `${Math.round(value)}%`;
+        this.trustScore = Math.max(0, Math.min(100, value));
+        
+        // Visual change at 70% trust (PAL → JARVIS)
+        if (this.trustScore >= 70 && this.mode === 'PAL') {
+            this.triggerEvolutionEffect();
+        }
     }
 
     setSyncStatus(status) {
-        this.hudElements[2].value = status.toUpperCase();
+        this.syncStatus = status.toUpperCase();
+        
+        // Visual feedback for sync
+        if (status === 'SYNCING' || status === 'CONNECTED') {
+            this.activateBeam(0); // Activate Mercury beam
+        } else if (status === 'SYNCED') {
+            setTimeout(() => this.deactivateBeam(0), 2000);
+        }
     }
 
     activateBeam(index) {
@@ -321,6 +454,32 @@ class ReactorCore {
         }
     }
 
+    triggerEvolutionEffect() {
+        // Visual effect when evolving to JARVIS
+        const originalEnergy = this.energy;
+        
+        // Pulse effect
+        let pulses = 0;
+        const pulseInterval = setInterval(() => {
+            this.energy = originalEnergy + (pulses % 2 === 0 ? 20 : -20);
+            pulses++;
+            
+            if (pulses >= 6) {
+                clearInterval(pulseInterval);
+                this.energy = originalEnergy;
+            }
+        }, 300);
+        
+        // Activate all beams
+        this.beams.forEach((beam, i) => {
+            setTimeout(() => this.activateBeam(i), i * 200);
+        });
+    }
+
+    // ========================================
+    // RESIZE HANDLER
+    // ========================================
+
     setupResizeHandler() {
         window.addEventListener('resize', () => {
             this.width = window.innerWidth;
@@ -330,6 +489,10 @@ class ReactorCore {
             this.setupHUD();
         });
     }
+
+    // ========================================
+    // CLEANUP
+    // ========================================
 
     destroy() {
         if (this.animationFrame) {
@@ -351,3 +514,5 @@ if (document.readyState === 'loading') {
 } else {
     reactorCore.init();
 }
+
+export default reactorCore;
