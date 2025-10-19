@@ -3,343 +3,308 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phoenix JARVIS - Holographic Mind Map</title>
+    <title>Phoenix JARVIS - AI Life Operating System</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Holographic HUD Frame -->
-    <div class="hud-frame">
-        <div class="corner-bracket top-left"></div>
-        <div class="corner-bracket top-right"></div>
-        <div class="corner-bracket bottom-left"></div>
-        <div class="corner-bracket bottom-right"></div>
-    </div>
-
-    <!-- Top Date Bar -->
-    <div class="date-bar">
-        <div class="date-segment" id="date-day-1">01</div>
-        <div class="date-segment" id="date-day-2">02</div>
-        <div class="date-segment" id="date-day-3">03</div>
-        <div class="date-segment" id="date-day-4">04</div>
-        <div class="date-segment" id="date-day-5">05</div>
-        <div class="date-segment" id="date-day-6">06</div>
-        <div class="date-segment" id="date-day-7">07</div>
-        <div class="date-segment" id="date-day-8">08</div>
-        <div class="date-segment" id="date-day-9">09</div>
-        <div class="date-segment" id="date-day-10">10</div>
-        <div class="date-segment" id="date-day-11">11</div>
-        <div class="date-segment" id="date-day-12">12</div>
-        <div class="date-segment" id="date-day-13">13</div>
-        <div class="date-segment" id="date-day-14">14</div>
-        <div class="date-segment" id="date-day-15">15</div>
-        <div class="date-segment" id="date-day-16">16</div>
-        <div class="date-segment" id="date-day-17">17</div>
-        <div class="date-segment" id="date-day-18">18</div>
-        <div class="date-segment" id="date-day-19">19</div>
-        <div class="date-segment" id="date-day-20">20</div>
-        <div class="date-segment active" id="date-day-21">21</div>
-        <div class="date-segment" id="date-day-22">22</div>
-        <div class="date-segment" id="date-day-23">23</div>
-        <div class="date-segment" id="date-day-24">24</div>
-        <div class="date-segment" id="date-day-25">25</div>
-        <div class="date-segment" id="date-day-26">26</div>
-        <div class="date-segment" id="date-day-27">27</div>
-        <div class="date-segment" id="date-day-28">28</div>
-        <div class="date-segment" id="date-day-29">29</div>
-        <div class="date-segment" id="date-day-30">30</div>
-    </div>
-
-    <!-- Left Panel: Vitals -->
-    <div class="panel-left vitals-panel">
-        <div class="panel-section" id="hrv-section">
-            <div class="metric-label">HRV</div>
-            <div class="metric-value" id="hrv-value">--</div>
-            <div class="metric-unit">ms</div>
-        </div>
+    <!-- Arc Reactor Core -->
+    <div id="reactor"></div>
+    
+    <!-- Main Interface -->
+    <div id="main-interface">
         
-        <div class="panel-section" id="rhr-section">
-            <div class="metric-label">RHR</div>
-            <div class="metric-value" id="rhr-value">--</div>
-            <div class="metric-unit">bpm</div>
-        </div>
-        
-        <div class="panel-section" id="recovery-section">
-            <div class="metric-label">RECOVERY</div>
-            <div class="metric-value" id="recovery-value">--</div>
-            <div class="metric-unit">%</div>
-            <div class="metric-status" id="recovery-status">Calculating...</div>
-        </div>
-        
-        <div class="panel-section" id="o2-section">
-            <div class="metric-label">O₂</div>
-            <div class="metric-value" id="o2-value">--</div>
-            <div class="metric-unit">%</div>
+        <!-- Header with Sync Button -->
+        <div class="header">
+            <h1 style="color: #00ffff; font-size: 24px;">PHOENIX JARVIS</h1>
+            <button id="sync-wearables-btn" class="sync-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00ffff">
+                    <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                </svg>
+                Sync Wearables
+            </button>
         </div>
 
-        <div class="panel-section weather-section" id="weather-section">
-            <div class="metric-label">WEATHER</div>
-            <div class="weather-temp" id="weather-temp">--°F</div>
-            <div class="weather-status" id="weather-status">Loading...</div>
-        </div>
-    </div>
-
-    <!-- Right Panel: System Info & Goals -->
-    <div class="panel-right">
-        <div class="system-time-panel">
-            <div class="time-label">SYSTEM TIME</div>
-            <div class="time-display" id="system-time">00:00</div>
-            <div class="date-display" id="system-date">LOADING...</div>
-            <div class="location-display" id="location">Sarasota, Florida</div>
-        </div>
-
-        <div class="goals-panel" id="goals-panel">
-            <div class="panel-title">GOALS PROGRESS</div>
-            <div class="goals-fraction" id="goals-fraction">0/0</div>
-            <div class="goals-percentage" id="goals-percentage">0% Complete</div>
-            <div class="goals-list" id="goals-list"></div>
-        </div>
-
-        <div class="quick-notes-panel">
-            <div class="panel-title">Notes</div>
-            <div class="notes-content">
-                <div class="notes-header">Things to do:</div>
-                <div class="notes-list" id="notes-list">
-                    <div class="note-item">• Sync wearables</div>
-                    <div class="note-item">• Review health data</div>
+        <!-- Quick Input Section (NEW) -->
+        <div class="quick-input-section" style="margin: 20px 0;">
+            
+            <!-- Quick Workout Input -->
+            <div class="quick-input-box">
+                <label style="color: #00ffff; font-size: 14px; margin-bottom: 5px; display: block;">
+                    Quick Workout Log
+                </label>
+                <input 
+                    type="text" 
+                    id="quick-workout-input" 
+                    placeholder="e.g., bench press 225x5x5"
+                    class="quick-input"
+                />
+                <div style="color: rgba(0,255,255,0.5); font-size: 11px; margin-top: 5px;">
+                    Format: exercise weight x sets x reps
                 </div>
             </div>
-            <button class="add-note-btn" id="add-note-btn">+</button>
-        </div>
-    </div>
 
-    <!-- Center: Mind Map Canvas -->
-    <div class="mind-map-container" id="mind-map-container">
-        <!-- Phoenix Core Reactor -->
-        <div class="phoenix-core" id="phoenix-core">
-            <div class="core-rings">
-                <div class="core-ring ring-1"></div>
-                <div class="core-ring ring-2"></div>
-                <div class="core-ring ring-3"></div>
-            </div>
-            <div class="core-center">
-                <div class="core-glow"></div>
-                <div class="core-text">PHOENIX</div>
-            </div>
-        </div>
-
-        <!-- Greeting Message -->
-        <div class="phoenix-greeting" id="phoenix-greeting">
-            <div class="greeting-text">Good evening, Josh</div>
-            <div class="greeting-subtitle">Wind down mode. Focus on recovery and tomorrow's preparation.</div>
-        </div>
-
-        <!-- Planets Container -->
-        <div class="planets-container" id="planets-container">
-            <!-- Mercury -->
-            <div class="planet-gear mercury" id="planet-mercury" data-planet="mercury">
-                <div class="gear-outer"></div>
-                <div class="gear-inner"></div>
-                <div class="planet-icon">☿</div>
-                <div class="planet-label">MERCURY</div>
-                <div class="planet-sublabel">Health</div>
-                <div class="planet-metric" id="mercury-metric">--</div>
-                <div class="loading-ring"></div>
-            </div>
-
-            <!-- Venus -->
-            <div class="planet-gear venus" id="planet-venus" data-planet="venus">
-                <div class="gear-outer"></div>
-                <div class="gear-inner"></div>
-                <div class="planet-icon">♀</div>
-                <div class="planet-label">VENUS</div>
-                <div class="planet-sublabel">Fitness</div>
-                <div class="planet-metric" id="venus-metric">--</div>
-                <div class="loading-ring"></div>
-            </div>
-
-            <!-- Earth -->
-            <div class="planet-gear earth" id="planet-earth" data-planet="earth">
-                <div class="gear-outer"></div>
-                <div class="gear-inner"></div>
-                <div class="planet-icon">🌍</div>
-                <div class="planet-label">EARTH</div>
-                <div class="planet-sublabel">Calendar</div>
-                <div class="planet-metric" id="earth-metric">--</div>
-                <div class="loading-ring"></div>
-            </div>
-
-            <!-- Mars -->
-            <div class="planet-gear mars" id="planet-mars" data-planet="mars">
-                <div class="gear-outer"></div>
-                <div class="gear-inner"></div>
-                <div class="planet-icon">♂</div>
-                <div class="planet-label">MARS</div>
-                <div class="planet-sublabel">Goals</div>
-                <div class="planet-metric" id="mars-metric">--</div>
-                <div class="loading-ring"></div>
-            </div>
-
-            <!-- Jupiter -->
-            <div class="planet-gear jupiter" id="planet-jupiter" data-planet="jupiter">
-                <div class="gear-outer"></div>
-                <div class="gear-inner"></div>
-                <div class="planet-icon">♃</div>
-                <div class="planet-label">JUPITER</div>
-                <div class="planet-sublabel">Finance</div>
-                <div class="planet-metric" id="jupiter-metric">--</div>
-                <div class="loading-ring"></div>
-            </div>
-
-            <!-- Saturn -->
-            <div class="planet-gear saturn" id="planet-saturn" data-planet="saturn">
-                <div class="gear-outer"></div>
-                <div class="gear-inner"></div>
-                <div class="planet-icon">♄</div>
-                <div class="planet-label">SATURN</div>
-                <div class="planet-sublabel">Legacy</div>
-                <div class="planet-metric" id="saturn-metric">--</div>
-                <div class="loading-ring"></div>
-            </div>
-        </div>
-
-        <!-- Correlation Lines -->
-        <svg class="correlation-lines" id="correlation-lines">
-            <!-- Lines drawn dynamically -->
-        </svg>
-    </div>
-
-    <!-- Bottom: Quick Action Bar -->
-    <div class="quick-actions-bar">
-        <button class="action-btn" id="sync-wearables-btn">
-            <span class="btn-icon">⟳</span>
-            <span class="btn-text">SYNC WEARABLES</span>
-        </button>
-        
-        <button class="action-btn" id="todays-goals-btn">
-            <span class="btn-icon">◎</span>
-            <span class="btn-text">TODAY'S GOALS</span>
-        </button>
-        
-        <button class="action-btn" id="health-analysis-btn">
-            <span class="btn-icon">✚</span>
-            <span class="btn-text">HEALTH ANALYSIS</span>
-        </button>
-    </div>
-
-    <!-- Expanded Dashboard Overlay (Level 1) -->
-    <div class="dashboard-overlay" id="dashboard-overlay">
-        <div class="dashboard-container">
-            <button class="dashboard-close" id="dashboard-close">×</button>
-            <div class="dashboard-header">
-                <h2 id="dashboard-title">PLANET NAME</h2>
-                <div class="dashboard-subtitle" id="dashboard-subtitle">Loading...</div>
-            </div>
-            <div class="dashboard-content" id="dashboard-content">
-                <!-- Content loaded dynamically -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Sync Wearables Modal -->
-    <div class="modal-overlay" id="sync-modal">
-        <div class="modal-container">
-            <div class="modal-header">
-                <h3>Sync Wearables</h3>
-                <button class="modal-close" onclick="closeSyncModal()">×</button>
-            </div>
-            <div class="modal-content">
-                <div class="wearable-option" id="sync-fitbit">
-                    <div class="wearable-icon">📱</div>
-                    <div class="wearable-name">Fitbit</div>
-                    <div class="wearable-status" id="fitbit-status">Not Connected</div>
-                    <button class="connect-btn" onclick="connectFitbit()">Connect</button>
+            <!-- Quick Meal Input -->
+            <div class="quick-input-box">
+                <label style="color: #00ffff; font-size: 14px; margin-bottom: 5px; display: block;">
+                    Quick Meal Log
+                </label>
+                <input 
+                    type="text" 
+                    id="quick-meal-input" 
+                    placeholder="e.g., chicken breast 400cal 40p"
+                    class="quick-input"
+                />
+                <div style="color: rgba(0,255,255,0.5); font-size: 11px; margin-top: 5px;">
+                    Format: food name 400cal 40p
                 </div>
-                <div class="wearable-option" id="sync-polar">
-                    <div class="wearable-icon">⌚</div>
-                    <div class="wearable-name">Polar</div>
-                    <div class="wearable-status" id="polar-status">Not Connected</div>
-                    <button class="connect-btn" onclick="connectPolar()">Connect</button>
-                </div>
-                <div class="wearable-option" id="sync-oura">
-                    <div class="wearable-icon">💍</div>
-                    <div class="wearable-name">Oura Ring</div>
-                    <div class="wearable-status">Coming Soon</div>
-                </div>
-                <div class="sync-status" id="sync-status"></div>
             </div>
+        </div>
+
+        <!-- Data Display Sections -->
+        <div class="data-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 20px 0;">
+            
+            <!-- Recent Workouts (Venus) -->
+            <div class="data-panel">
+                <div class="panel-header">
+                    <h3>Recent Workouts</h3>
+                    <button class="add-btn" onclick="openWorkoutModal()">+</button>
+                </div>
+                <div id="recent-workouts"></div>
+            </div>
+
+            <!-- Nutrition Summary (Venus) -->
+            <div class="data-panel">
+                <div class="panel-header">
+                    <h3>Today's Nutrition</h3>
+                    <button class="add-btn" onclick="openMealModal()">+</button>
+                </div>
+                <div id="nutrition-summary"></div>
+            </div>
+
+            <!-- Active Goals (Mars) -->
+            <div class="data-panel">
+                <div class="panel-header">
+                    <h3>Active Goals</h3>
+                    <button class="add-btn" onclick="openGoalModal()">+</button>
+                </div>
+                <div id="active-goals"></div>
+            </div>
+        </div>
+
+        <!-- Chat Interface -->
+        <div id="chat-interface" style="margin-top: 30px;">
+            <div id="chat-messages" style="height: 200px; overflow-y: auto; background: rgba(0,0,0,0.5); padding: 15px; border: 1px solid rgba(0,255,255,0.3); margin-bottom: 10px;"></div>
+            <input 
+                type="text" 
+                id="chat-input" 
+                placeholder="Ask Phoenix anything..."
+                class="quick-input"
+                style="width: 100%;"
+            />
         </div>
     </div>
 
-    <!-- Voice Interface -->
-    <div class="voice-button" id="voice-button">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="#00ffff">
-            <path d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3z"/>
-            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-        </svg>
+    <!-- WORKOUT MODAL (NEW) -->
+    <div id="workout-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeWorkoutModal()">&times;</span>
+            <h2 style="color: #00ffff; margin-bottom: 20px;">Log Workout</h2>
+            
+            <form id="workout-form">
+                <div class="form-group">
+                    <label>Workout Name</label>
+                    <input type="text" name="workout-name" required placeholder="e.g., Upper Body Push" />
+                </div>
+
+                <div class="form-group">
+                    <label>Type</label>
+                    <select name="workout-type">
+                        <option value="strength">Strength</option>
+                        <option value="cardio">Cardio</option>
+                        <option value="flexibility">Flexibility</option>
+                        <option value="sports">Sports</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Exercises (one per line: name, sets, reps, weight)</label>
+                    <textarea name="exercises" rows="4" placeholder="Bench Press, 5, 10, 225
+Overhead Press, 4, 8, 135"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Duration (minutes)</label>
+                    <input type="number" name="duration" placeholder="60" />
+                </div>
+
+                <div class="form-group">
+                    <label>Mood After</label>
+                    <select name="mood">
+                        <option value="great">Great</option>
+                        <option value="good">Good</option>
+                        <option value="okay">Okay</option>
+                        <option value="tired">Tired</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea name="notes" rows="2" placeholder="Optional notes..."></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn">Log Workout</button>
+            </form>
+        </div>
     </div>
 
-    <!-- Chat Interface -->
-    <div class="chat-interface" id="chat-interface">
-        <div class="chat-messages" id="chat-messages"></div>
-        <input type="text" class="chat-input" id="chat-input" placeholder="Ask Phoenix anything...">
+    <!-- MEAL MODAL (NEW) -->
+    <div id="meal-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeMealModal()">&times;</span>
+            <h2 style="color: #00ffff; margin-bottom: 20px;">Log Meal</h2>
+            
+            <form id="meal-form">
+                <div class="form-group">
+                    <label>Meal Name</label>
+                    <input type="text" name="meal-name" required placeholder="e.g., Chicken & Rice" />
+                </div>
+
+                <div class="form-group">
+                    <label>Meal Type</label>
+                    <select name="meal-type">
+                        <option value="breakfast">Breakfast</option>
+                        <option value="lunch">Lunch</option>
+                        <option value="dinner">Dinner</option>
+                        <option value="snack">Snack</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Calories</label>
+                    <input type="number" name="calories" required placeholder="500" />
+                </div>
+
+                <div class="form-group">
+                    <label>Protein (g)</label>
+                    <input type="number" name="protein" required placeholder="40" />
+                </div>
+
+                <div class="form-group">
+                    <label>Carbs (g)</label>
+                    <input type="number" name="carbs" placeholder="50" />
+                </div>
+
+                <div class="form-group">
+                    <label>Fat (g)</label>
+                    <input type="number" name="fat" placeholder="15" />
+                </div>
+
+                <button type="submit" class="submit-btn">Log Meal</button>
+            </form>
+        </div>
     </div>
 
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loading-overlay">
-        <div class="loading-spinner"></div>
-        <div class="loading-text">Initializing Phoenix...</div>
+    <!-- GOAL MODAL (NEW) -->
+    <div id="goal-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeGoalModal()">&times;</span>
+            <h2 style="color: #00ffff; margin-bottom: 20px;">Create Goal</h2>
+            
+            <form id="goal-form">
+                <div class="form-group">
+                    <label>Goal Title</label>
+                    <input type="text" name="goal-title" required placeholder="e.g., Lose 10 lbs" />
+                </div>
+
+                <div class="form-group">
+                    <label>Goal Type</label>
+                    <select name="goal-type">
+                        <option value="weight">Weight</option>
+                        <option value="strength">Strength</option>
+                        <option value="habit">Habit</option>
+                        <option value="performance">Performance</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Target Value</label>
+                    <input type="number" name="target" required placeholder="175" />
+                </div>
+
+                <div class="form-group">
+                    <label>Metric</label>
+                    <input type="text" name="metric" placeholder="lbs, reps, days, etc." />
+                </div>
+
+                <div class="form-group">
+                    <label>Deadline</label>
+                    <input type="date" name="deadline" required />
+                </div>
+
+                <button type="submit" class="submit-btn">Create Goal</button>
+            </form>
+        </div>
     </div>
 
     <!-- Scripts -->
     <script type="module" src="api.js"></script>
     <script type="module" src="jarvis.js"></script>
-    <script src="planets.js"></script>
-    <script src="reactor.js"></script>
     <script src="voice.js"></script>
-    <script src="shaders.js"></script>
+    <script src="reactor.js"></script>
 
     <script>
         // Modal controls
-        function closeSyncModal() {
-            document.getElementById('sync-modal').style.display = 'none';
+        function openWorkoutModal() {
+            document.getElementById('workout-modal').style.display = 'flex';
+        }
+        function closeWorkoutModal() {
+            document.getElementById('workout-modal').style.display = 'none';
+        }
+        function openMealModal() {
+            document.getElementById('meal-modal').style.display = 'flex';
+        }
+        function closeMealModal() {
+            document.getElementById('meal-modal').style.display = 'none';
+        }
+        function openGoalModal() {
+            document.getElementById('goal-modal').style.display = 'flex';
+        }
+        function closeGoalModal() {
+            document.getElementById('goal-modal').style.display = 'none';
         }
 
-        function connectFitbit() {
-            document.getElementById('fitbit-status').textContent = 'Connecting...';
-            // Trigger OAuth flow
-            window.location.href = 'https://pal-backend-production.up.railway.app/api/wearables/fitbit/connect';
-        }
-
-        function connectPolar() {
-            document.getElementById('polar-status').textContent = 'Connecting...';
-            window.location.href = 'https://pal-backend-production.up.railway.app/api/wearables/polar/connect';
-        }
-
-        // Initialize time display
-        function updateSystemTime() {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            document.getElementById('system-time').textContent = `${hours}:${minutes}`;
-            
-            const days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
-            const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-            const dateStr = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
-            document.getElementById('system-date').textContent = dateStr;
-
-            // Highlight current day
-            const currentDay = now.getDate();
-            document.querySelectorAll('.date-segment').forEach((seg, i) => {
-                seg.classList.toggle('active', i + 1 === currentDay);
-            });
-        }
-
-        updateSystemTime();
-        setInterval(updateSystemTime, 1000);
-
-        // Sync button handler
-        document.getElementById('sync-wearables-btn').addEventListener('click', () => {
-            document.getElementById('sync-modal').style.display = 'flex';
+        // Chat input handler
+        document.getElementById('chat-input')?.addEventListener('keypress', async (e) => {
+            if (e.key === 'Enter' && e.target.value.trim()) {
+                const message = e.target.value.trim();
+                e.target.value = '';
+                
+                if (window.Phoenix) {
+                    window.Phoenix.addChatMessage(message, 'user');
+                    
+                    // Send to backend AI
+                    try {
+                        const response = await fetch('https://pal-backend-production.up.railway.app/api/phoenix-companion/chat', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${localStorage.getItem('phoenixToken')}`
+                            },
+                            body: JSON.stringify({ message })
+                        });
+                        
+                        const data = await response.json();
+                        if (data.success && data.response) {
+                            window.Phoenix.addChatMessage(data.response, 'phoenix');
+                            if (window.Voice) {
+                                window.Voice.speak(data.response);
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Chat error:', error);
+                    }
+                }
+            }
         });
     </script>
 </body>
