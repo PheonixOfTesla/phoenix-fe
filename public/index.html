@@ -721,8 +721,8 @@
         <!-- Data Widgets -->
         <div class="data-widget weather-widget active">
             <div class="widget-header">Weather</div>
-            <div class="widget-value" id="weather-temp">72°F</div>
-            <div class="widget-label">Clear, Perfect for training</div>
+            <div class="widget-value" id="weather-temp">--°F</div>
+            <div class="widget-label" id="weather-condition">Loading...</div>
         </div>
         
         <div class="data-widget time-widget active">
@@ -735,6 +735,12 @@
             <div class="widget-header">Goals Progress</div>
             <div class="widget-value" id="goals-progress">0/0</div>
             <div class="widget-label" id="goals-percentage">0% Complete</div>
+        </div>
+        
+        <div class="data-widget" style="bottom: 180px; right: 60px; animation: fadeSlideIn 0.8s 2.1s forwards;">
+            <div class="widget-header">Location</div>
+            <div class="widget-value" style="font-size: 18px;" id="location-city">--</div>
+            <div class="widget-label" id="location-region">Detecting...</div>
         </div>
         
         <!-- Chat Interface -->
@@ -1043,6 +1049,74 @@ Overhead Press, 4, 8, 135"></textarea>
 
         // Initialize reactor background
         const reactor = new ReactorBackground();
+
+        // ========================================
+        // REAL GEOLOCATION & WEATHER API
+        // ========================================
+        async function loadLocationAndWeather() {
+            try {
+                // Get IP geolocation using ipapi.co (free, no key needed)
+                const geoResponse = await fetch('https://ipapi.co/json/');
+                const geoData = await geoResponse.json();
+                
+                if (geoData.city && geoData.region) {
+                    document.getElementById('location-city').textContent = geoData.city;
+                    document.getElementById('location-region').textContent = `${geoData.region}, ${geoData.country_name}`;
+                    
+                    // Get weather using Open-Meteo (free, no key needed)
+                    const weatherResponse = await fetch(
+                        `https://api.open-meteo.com/v1/forecast?latitude=${geoData.latitude}&longitude=${geoData.longitude}&current=temperature_2m,weathercode&temperature_unit=fahrenheit`
+                    );
+                    const weatherData = await weatherResponse.json();
+                    
+                    if (weatherData.current) {
+                        const temp = Math.round(weatherData.current.temperature_2m);
+                        const weatherCode = weatherData.current.weathercode;
+                        
+                        document.getElementById('weather-temp').textContent = `${temp}°F`;
+                        document.getElementById('weather-condition').textContent = getWeatherDescription(weatherCode);
+                    }
+                } else {
+                    throw new Error('Geolocation failed');
+                }
+            } catch (error) {
+                console.error('Location/Weather error:', error);
+                document.getElementById('location-city').textContent = 'Unknown';
+                document.getElementById('location-region').textContent = 'Location unavailable';
+                document.getElementById('weather-temp').textContent = '--°F';
+                document.getElementById('weather-condition').textContent = 'Weather unavailable';
+            }
+        }
+
+        function getWeatherDescription(code) {
+            const weatherCodes = {
+                0: 'Clear sky',
+                1: 'Mainly clear',
+                2: 'Partly cloudy',
+                3: 'Overcast',
+                45: 'Foggy',
+                48: 'Foggy',
+                51: 'Light drizzle',
+                53: 'Drizzle',
+                55: 'Heavy drizzle',
+                61: 'Light rain',
+                63: 'Rain',
+                65: 'Heavy rain',
+                71: 'Light snow',
+                73: 'Snow',
+                75: 'Heavy snow',
+                77: 'Snow grains',
+                80: 'Light showers',
+                81: 'Showers',
+                82: 'Heavy showers',
+                85: 'Light snow showers',
+                86: 'Snow showers',
+                95: 'Thunderstorm',
+                96: 'Thunderstorm with hail',
+                99: 'Heavy thunderstorm'
+            };
+            return weatherCodes[code] || 'Unknown';
+        }
 
         // API Base URL
         const API_BASE = 'https://pal-backend-production.up.railway.app/api';
@@ -1389,6 +1463,10 @@ Overhead Press, 4, 8, 135"></textarea>
         // Load initial data
         window.addEventListener('DOMContentLoaded', () => {
             loadGoals();
+            loadLocationAndWeather();
+            
+            // Refresh weather every 10 minutes
+            setInterval(loadLocationAndWeather, 600000);
         });
     </script>
 </body>
