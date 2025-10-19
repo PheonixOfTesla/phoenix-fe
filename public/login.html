@@ -18,13 +18,15 @@
             font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
             background: #000;
             color: #00ffff;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
             width: 100vw;
-            height: 100vh;
-            position: fixed;
+            min-height: 100vh;
+            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 40px 20px;
         }
 
         /* Animated Background */
@@ -49,6 +51,7 @@
             backdrop-filter: blur(20px);
             box-shadow: 0 0 60px rgba(0, 255, 255, 0.4);
             animation: slideIn 0.8s ease-out;
+            margin: 20px 0;
         }
 
         @keyframes slideIn {
@@ -308,10 +311,30 @@
         @media (max-width: 600px) {
             .login-container {
                 padding: 40px 30px;
+                width: 95%;
             }
 
             .logo-text {
                 font-size: 36px;
+            }
+
+            body {
+                padding: 20px 10px;
+            }
+        }
+
+        @media (max-height: 800px) {
+            .login-container {
+                padding: 30px 25px;
+            }
+
+            .logo-text {
+                font-size: 36px;
+                margin-bottom: 5px;
+            }
+
+            .form-group {
+                margin-bottom: 20px;
             }
         }
     </style>
