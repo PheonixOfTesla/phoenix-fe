@@ -1,0 +1,1017 @@
+/* Phoenix JARVIS - Holographic Mind Map Styles */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #000;
+    color: #00ffff;
+    font-family: 'Courier New', 'Consolas', monospace;
+    overflow: hidden;
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+}
+
+/* ============================================
+   HUD FRAME
+   ============================================ */
+
+.hud-frame {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 100;
+}
+
+.corner-bracket {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border: 2px solid rgba(0, 255, 255, 0.3);
+}
+
+.corner-bracket.top-left {
+    top: 10px;
+    left: 10px;
+    border-right: none;
+    border-bottom: none;
+}
+
+.corner-bracket.top-right {
+    top: 10px;
+    right: 10px;
+    border-left: none;
+    border-bottom: none;
+}
+
+.corner-bracket.bottom-left {
+    bottom: 10px;
+    left: 10px;
+    border-right: none;
+    border-top: none;
+}
+
+.corner-bracket.bottom-right {
+    bottom: 10px;
+    right: 10px;
+    border-left: none;
+    border-top: none;
+}
+
+/* ============================================
+   DATE BAR
+   ============================================ */
+
+.date-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 30px;
+    display: flex;
+    justify-content: space-between;
+    background: rgba(0, 0, 0, 0.8);
+    border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+    z-index: 90;
+    padding: 0 10px;
+}
+
+.date-segment {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: rgba(0, 255, 255, 0.4);
+    border-right: 1px solid rgba(0, 255, 255, 0.1);
+    transition: all 0.3s;
+}
+
+.date-segment.active {
+    background: rgba(0, 255, 255, 0.2);
+    color: #00ffff;
+    font-weight: bold;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+.date-segment:hover {
+    background: rgba(0, 255, 255, 0.1);
+}
+
+/* ============================================
+   LEFT PANEL - VITALS
+   ============================================ */
+
+.panel-left {
+    position: fixed;
+    left: 20px;
+    top: 60px;
+    width: 180px;
+    background: rgba(0, 10, 20, 0.85);
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    padding: 15px;
+    backdrop-filter: blur(10px);
+    z-index: 50;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+}
+
+.panel-section {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.panel-section:hover {
+    background: rgba(0, 255, 255, 0.05);
+    padding: 10px;
+    margin: -10px -10px 10px -10px;
+}
+
+.panel-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.metric-label {
+    font-size: 10px;
+    color: rgba(0, 255, 255, 0.5);
+    letter-spacing: 2px;
+    margin-bottom: 5px;
+}
+
+.metric-value {
+    font-size: 32px;
+    font-weight: bold;
+    color: #00ffff;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+    line-height: 1;
+}
+
+.metric-unit {
+    font-size: 12px;
+    color: rgba(0, 255, 255, 0.6);
+    margin-top: 2px;
+}
+
+.metric-status {
+    font-size: 11px;
+    color: rgba(0, 255, 255, 0.7);
+    margin-top: 5px;
+}
+
+.weather-section {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(0, 255, 255, 0.2);
+}
+
+.weather-temp {
+    font-size: 28px;
+    font-weight: bold;
+    color: #00ffff;
+    margin: 5px 0;
+}
+
+.weather-status {
+    font-size: 11px;
+    color: rgba(0, 255, 255, 0.6);
+}
+
+/* ============================================
+   RIGHT PANEL - SYSTEM & GOALS
+   ============================================ */
+
+.panel-right {
+    position: fixed;
+    right: 20px;
+    top: 60px;
+    width: 240px;
+    z-index: 50;
+}
+
+.system-time-panel {
+    background: rgba(0, 10, 20, 0.85);
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    padding: 15px;
+    backdrop-filter: blur(10px);
+    margin-bottom: 20px;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+}
+
+.time-label {
+    font-size: 10px;
+    color: rgba(0, 255, 255, 0.5);
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+}
+
+.time-display {
+    font-size: 48px;
+    font-weight: bold;
+    color: #00ffff;
+    text-shadow: 0 0 15px rgba(0, 255, 255, 1);
+    line-height: 1;
+    margin-bottom: 8px;
+}
+
+.date-display {
+    font-size: 12px;
+    color: rgba(0, 255, 255, 0.7);
+    letter-spacing: 1px;
+}
+
+.location-display {
+    font-size: 11px;
+    color: rgba(0, 255, 255, 0.5);
+    margin-top: 8px;
+}
+
+.goals-panel {
+    background: rgba(0, 10, 20, 0.85);
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    padding: 15px;
+    backdrop-filter: blur(10px);
+    margin-bottom: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+}
+
+.goals-panel:hover {
+    background: rgba(0, 255, 255, 0.05);
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.4);
+}
+
+.panel-title {
+    font-size: 11px;
+    color: rgba(0, 255, 255, 0.5);
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
+
+.goals-fraction {
+    font-size: 42px;
+    font-weight: bold;
+    color: #00ffff;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+    line-height: 1;
+    margin-bottom: 5px;
+}
+
+.goals-percentage {
+    font-size: 13px;
+    color: rgba(0, 255, 255, 0.7);
+}
+
+.quick-notes-panel {
+    background: rgba(0, 10, 20, 0.85);
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    padding: 15px;
+    backdrop-filter: blur(10px);
+    position: relative;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+}
+
+.notes-content {
+    font-size: 12px;
+    color: rgba(0, 255, 255, 0.7);
+}
+
+.notes-header {
+    margin-bottom: 10px;
+    color: #00ffff;
+}
+
+.note-item {
+    margin: 5px 0;
+}
+
+.add-note-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 25px;
+    height: 25px;
+    background: rgba(0, 255, 255, 0.1);
+    border: 1px solid rgba(0, 255, 255, 0.5);
+    color: #00ffff;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.add-note-btn:hover {
+    background: rgba(0, 255, 255, 0.3);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+}
+
+/* ============================================
+   MIND MAP CONTAINER
+   ============================================ */
+
+.mind-map-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 900px;
+    height: 700px;
+    z-index: 10;
+}
+
+/* Phoenix Core Reactor */
+.phoenix-core {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 180px;
+    height: 180px;
+    cursor: pointer;
+    z-index: 20;
+}
+
+.core-rings {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.core-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    border-radius: 50%;
+    animation: coreRotate 20s linear infinite;
+}
+
+.core-ring.ring-1 {
+    width: 100%;
+    height: 100%;
+}
+
+.core-ring.ring-2 {
+    width: 120%;
+    height: 120%;
+    animation-duration: 15s;
+    animation-direction: reverse;
+}
+
+.core-ring.ring-3 {
+    width: 140%;
+    height: 140%;
+    animation-duration: 25s;
+}
+
+@keyframes coreRotate {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.core-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, rgba(0, 255, 255, 0.6), rgba(0, 255, 255, 0.1));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 50px rgba(0, 255, 255, 0.8), inset 0 0 30px rgba(0, 255, 255, 0.4);
+    animation: corePulse 2s ease-in-out infinite;
+}
+
+@keyframes corePulse {
+    0%, 100% {
+        box-shadow: 0 0 50px rgba(0, 255, 255, 0.8), inset 0 0 30px rgba(0, 255, 255, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 80px rgba(0, 255, 255, 1), inset 0 0 50px rgba(0, 255, 255, 0.6);
+    }
+}
+
+.core-glow {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(0, 255, 255, 0.3), transparent);
+    border-radius: 50%;
+}
+
+.core-text {
+    font-size: 14px;
+    font-weight: bold;
+    color: #00ffff;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 1);
+    letter-spacing: 3px;
+    z-index: 1;
+}
+
+/* Greeting */
+.phoenix-greeting {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    max-width: 600px;
+}
+
+.greeting-text {
+    font-size: 24px;
+    color: #00ffff;
+    margin-bottom: 10px;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+}
+
+.greeting-subtitle {
+    font-size: 13px;
+    color: rgba(0, 255, 255, 0.6);
+    line-height: 1.4;
+}
+
+/* ============================================
+   PLANET GEARS
+   ============================================ */
+
+.planets-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.planet-gear {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    cursor: pointer;
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.planet-gear:hover {
+    transform: scale(1.15);
+}
+
+.planet-gear:hover .gear-outer {
+    animation-duration: 1s;
+}
+
+.planet-gear.active {
+    animation: planetExpand 0.8s forwards;
+}
+
+@keyframes planetExpand {
+    to {
+        transform: scale(5) translate(0, 0);
+        z-index: 1000;
+    }
+}
+
+/* Gear Graphics */
+.gear-outer,
+.gear-inner {
+    position: absolute;
+    border-radius: 50%;
+    border: 2px solid rgba(0, 255, 255, 0.4);
+}
+
+.gear-outer {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(0, 255, 255, 0.05), transparent);
+    animation: gearRotate 8s linear infinite;
+}
+
+.gear-inner {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70%;
+    height: 70%;
+    animation: gearRotate 6s linear infinite reverse;
+}
+
+@keyframes gearRotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes gearRotateInner {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(-360deg); }
+}
+
+.gear-inner {
+    animation-name: gearRotateInner;
+}
+
+/* Planet Content */
+.planet-icon {
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 28px;
+    z-index: 2;
+}
+
+.planet-label {
+    position: absolute;
+    top: 52%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    font-weight: bold;
+    color: #00ffff;
+    letter-spacing: 1px;
+    z-index: 2;
+}
+
+.planet-sublabel {
+    position: absolute;
+    top: 63%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 9px;
+    color: rgba(0, 255, 255, 0.5);
+    z-index: 2;
+}
+
+.planet-metric {
+    position: absolute;
+    top: 75%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px;
+    font-weight: bold;
+    color: #00ffff;
+    text-shadow: 0 0 5px rgba(0, 255, 255, 0.8);
+    z-index: 2;
+}
+
+/* Loading Ring */
+.loading-ring {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 3px solid transparent;
+    border-top-color: #00ffff;
+    border-radius: 50%;
+    opacity: 0;
+    animation: loadingRing 1s linear infinite;
+}
+
+.planet-gear.loading .loading-ring {
+    opacity: 1;
+}
+
+@keyframes loadingRing {
+    to { transform: rotate(360deg); }
+}
+
+/* Planet Positions */
+.planet-gear.mercury {
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.planet-gear.venus {
+    top: 40%;
+    right: 15%;
+}
+
+.planet-gear.earth {
+    top: 65%;
+    right: 20%;
+}
+
+.planet-gear.mars {
+    top: 65%;
+    left: 20%;
+}
+
+.planet-gear.jupiter {
+    top: 40%;
+    left: 15%;
+}
+
+.planet-gear.saturn {
+    bottom: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* ============================================
+   CORRELATION LINES
+   ============================================ */
+
+.correlation-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.correlation-lines line {
+    stroke: rgba(0, 255, 255, 0.2);
+    stroke-width: 1;
+    animation: lineGlow 2s ease-in-out infinite;
+}
+
+@keyframes lineGlow {
+    0%, 100% { stroke: rgba(0, 255, 255, 0.2); }
+    50% { stroke: rgba(0, 255, 255, 0.5); }
+}
+
+/* ============================================
+   QUICK ACTIONS BAR
+   ============================================ */
+
+.quick-actions-bar {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 20px;
+    z-index: 80;
+}
+
+.action-btn {
+    background: rgba(0, 10, 20, 0.85);
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    padding: 12px 24px;
+    color: #00ffff;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s;
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.action-btn:hover {
+    background: rgba(0, 255, 255, 0.1);
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.5);
+    transform: translateY(-2px);
+}
+
+.btn-icon {
+    font-size: 16px;
+}
+
+/* ============================================
+   DASHBOARD OVERLAY (Level 1)
+   ============================================ */
+
+.dashboard-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    backdrop-filter: blur(10px);
+    animation: overlayFadeIn 0.5s;
+}
+
+@keyframes overlayFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.dashboard-container {
+    width: 90%;
+    max-width: 1200px;
+    height: 85%;
+    background: rgba(0, 10, 20, 0.95);
+    border: 2px solid rgba(0, 255, 255, 0.5);
+    padding: 40px;
+    position: relative;
+    overflow-y: auto;
+    box-shadow: 0 0 50px rgba(0, 255, 255, 0.3);
+}
+
+.dashboard-close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    background: none;
+    border: none;
+    color: #00ffff;
+    font-size: 40px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.dashboard-close:hover {
+    color: #fff;
+    text-shadow: 0 0 20px rgba(0, 255, 255, 1);
+    transform: rotate(90deg);
+}
+
+.dashboard-header h2 {
+    font-size: 32px;
+    color: #00ffff;
+    margin-bottom: 10px;
+    text-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+}
+
+.dashboard-subtitle {
+    font-size: 14px;
+    color: rgba(0, 255, 255, 0.6);
+    margin-bottom: 30px;
+}
+
+.dashboard-content {
+    color: rgba(0, 255, 255, 0.8);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* ============================================
+   MODAL
+   ============================================ */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 300;
+    backdrop-filter: blur(10px);
+}
+
+.modal-container {
+    background: rgba(0, 10, 20, 0.95);
+    border: 2px solid rgba(0, 255, 255, 0.5);
+    padding: 30px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 0 50px rgba(0, 255, 255, 0.4);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+}
+
+.modal-header h3 {
+    font-size: 20px;
+    color: #00ffff;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: #00ffff;
+    font-size: 30px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.modal-close:hover {
+    color: #fff;
+    text-shadow: 0 0 15px rgba(0, 255, 255, 1);
+}
+
+.wearable-option {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: rgba(0, 255, 255, 0.05);
+    border: 1px solid rgba(0, 255, 255, 0.2);
+    margin-bottom: 15px;
+    transition: all 0.3s;
+}
+
+.wearable-option:hover {
+    background: rgba(0, 255, 255, 0.1);
+    border-color: rgba(0, 255, 255, 0.4);
+}
+
+.wearable-icon {
+    font-size: 28px;
+}
+
+.wearable-name {
+    flex: 1;
+    font-size: 16px;
+    color: #00ffff;
+}
+
+.wearable-status {
+    font-size: 12px;
+    color: rgba(0, 255, 255, 0.6);
+}
+
+.connect-btn {
+    background: rgba(0, 255, 255, 0.1);
+    border: 1px solid rgba(0, 255, 255, 0.5);
+    padding: 8px 16px;
+    color: #00ffff;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.connect-btn:hover {
+    background: rgba(0, 255, 255, 0.3);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+}
+
+/* ============================================
+   VOICE BUTTON
+   ============================================ */
+
+.voice-button {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: rgba(0, 255, 255, 0.1);
+    border: 2px solid rgba(0, 255, 255, 0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    z-index: 100;
+}
+
+.voice-button:hover {
+    background: rgba(0, 255, 255, 0.2);
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
+    transform: scale(1.1);
+}
+
+.voice-button.active {
+    animation: voicePulse 1s ease-in-out infinite;
+}
+
+@keyframes voicePulse {
+    0%, 100% {
+        box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
+    }
+    50% {
+        box-shadow: 0 0 60px rgba(0, 255, 255, 1);
+    }
+}
+
+/* ============================================
+   CHAT INTERFACE
+   ============================================ */
+
+.chat-interface {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    width: 350px;
+    background: rgba(0, 10, 20, 0.95);
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    z-index: 90;
+    display: none;
+}
+
+.chat-interface.active {
+    display: block;
+}
+
+.chat-messages {
+    height: 300px;
+    overflow-y: auto;
+    padding: 15px;
+    border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+}
+
+.chat-input {
+    width: 100%;
+    background: rgba(0, 255, 255, 0.05);
+    border: none;
+    padding: 15px;
+    color: #00ffff;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    outline: none;
+}
+
+.chat-input::placeholder {
+    color: rgba(0, 255, 255, 0.4);
+}
+
+/* ============================================
+   LOADING OVERLAY
+   ============================================ */
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 500;
+    animation: loadingFadeOut 2s 1s forwards;
+}
+
+@keyframes loadingFadeOut {
+    to {
+        opacity: 0;
+        pointer-events: none;
+    }
+}
+
+.loading-spinner {
+    width: 60px;
+    height: 60px;
+    border: 3px solid rgba(0, 255, 255, 0.2);
+    border-top-color: #00ffff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.loading-text {
+    color: #00ffff;
+    font-size: 16px;
+    margin-top: 20px;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+}
+
+/* ============================================
+   SCROLLBARS
+   ============================================ */
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 255, 255, 0.3);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 255, 255, 0.5);
+}
