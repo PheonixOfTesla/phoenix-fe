@@ -93,22 +93,12 @@
             
         } else if (code) {
             // Success - send code to backend
-            const token = localStorage.getItem('phoenixToken');
-            
-            if (!token) {
-                statusEl.className = 'error';
-                statusEl.textContent = 'Not logged in. Please log in to Phoenix first.';
-                setTimeout(() => window.location.href = '/', 3000);
-                return;
-            }
-            
             statusEl.textContent = 'Exchanging authorization code...';
             
             fetch('https://pal-backend-production.up.railway.app/api/wearables/fitbit/exchange', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ code })
             })
