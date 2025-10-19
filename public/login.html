@@ -308,6 +308,129 @@
             border-top: none;
         }
 
+        .checkbox-group {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #00ffff;
+        }
+
+        .checkbox-group label {
+            color: rgba(0, 255, 255, 0.7);
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .checkbox-group a {
+            color: #00ffff;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .checkbox-group a:hover {
+            border-bottom-color: #00ffff;
+        }
+
+        /* Modal Styles */
+        .terms-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .terms-content {
+            background: rgba(0, 10, 20, 0.95);
+            border: 2px solid rgba(0, 255, 255, 0.5);
+            padding: 40px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.4);
+        }
+
+        .terms-title {
+            font-size: 28px;
+            color: #00ffff;
+            margin-bottom: 20px;
+            text-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+        }
+
+        .terms-text {
+            color: rgba(0, 255, 255, 0.8);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .terms-text h3 {
+            color: #00ffff;
+            font-size: 18px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .terms-text ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .terms-text li {
+            margin-bottom: 8px;
+        }
+
+        .terms-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .terms-btn {
+            padding: 15px 30px;
+            border: 1px solid;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+        }
+
+        .terms-btn.decline {
+            background: rgba(255, 68, 68, 0.1);
+            border-color: rgba(255, 68, 68, 0.5);
+            color: #ff4444;
+        }
+
+        .terms-btn.decline:hover {
+            background: rgba(255, 68, 68, 0.3);
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.5);
+        }
+
+        .terms-btn:not(.decline) {
+            background: rgba(0, 255, 255, 0.1);
+            border-color: rgba(0, 255, 255, 0.5);
+            color: #00ffff;
+        }
+
+        .terms-btn:not(.decline):hover {
+            background: rgba(0, 255, 255, 0.3);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+
         @media (max-width: 600px) {
             .login-container {
                 padding: 40px 30px;
@@ -447,7 +570,7 @@
                 </button>
             </form>
             
-            <div class="checkbox-group" style="margin-top: 20px;">
+            <div class="checkbox-group">
                 <input type="checkbox" id="terms-checkbox" required>
                 <label for="terms-checkbox">
                     I agree to the <a href="/terms" target="_blank">Terms of Service</a> and <a href="/privacy" target="_blank">Privacy Policy</a>
@@ -689,7 +812,7 @@
             const title = document.getElementById('modal-title');
             const text = document.getElementById('modal-text');
             
-            modal.classList.add('active');
+            modal.style.display = 'flex';
             
             if (type === 'privacy') {
                 title.textContent = 'Privacy Policy';
@@ -760,7 +883,7 @@
         }
 
         function closeModal() {
-            document.getElementById('terms-modal').classList.remove('active');
+            document.getElementById('terms-modal').style.display = 'none';
         }
 
         document.getElementById('decline-btn').addEventListener('click', () => {
