@@ -1,26 +1,33 @@
 {
-  "version": 2,
-  "buildCommand": "echo 'Static site - no build needed'",
-  "outputDirectory": ".",
-  "installCommand": "echo 'No dependencies to install'",
   "cleanUrls": true,
   "trailingSlash": false,
-  "rewrites": [
+  "redirects": [
     {
       "source": "/",
-      "destination": "/login.html"
-    },
+      "destination": "/login",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
     {
       "source": "/login",
       "destination": "/login.html"
     },
     {
-      "source": "/dashboard",
+      "source": "/index",
       "destination": "/index.html"
     },
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "source": "/privacy",
+      "destination": "/privacy.html"
+    },
+    {
+      "source": "/terms",
+      "destination": "/terms.html"
+    },
+    {
+      "source": "/fitbit",
+      "destination": "/fitbit.html"
     }
   ],
   "headers": [
@@ -28,34 +35,16 @@
       "source": "/(.*)",
       "headers": [
         {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
         },
         {
-          "key": "Access-Control-Allow-Methods",
-          "value": "GET, POST, PUT, DELETE, OPTIONS"
+          "key": "X-Frame-Options",
+          "value": "DENY"
         },
         {
-          "key": "Access-Control-Allow-Headers",
-          "value": "X-Requested-With, Content-Type, Authorization"
-        }
-      ]
-    },
-    {
-      "source": "/(.+)\\.js",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/javascript; charset=utf-8"
-        }
-      ]
-    },
-    {
-      "source": "/(.+)\\.css",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "text/css; charset=utf-8"
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
         }
       ]
     }
