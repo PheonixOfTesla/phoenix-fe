@@ -427,7 +427,7 @@
             <div class="checkbox-group" style="margin-top: 20px;">
                 <input type="checkbox" id="terms-checkbox" required>
                 <label for="terms-checkbox">
-                    I agree to the <a href="/terms.html" target="_blank">Terms of Service</a> and <a href="/privacy.html" target="_blank">Privacy Policy</a>
+                    I agree to the <a href="/terms" target="_blank">Terms of Service</a> and <a href="/privacy" target="_blank">Privacy Policy</a>
                 </label>
             </div>
         </div>
@@ -579,7 +579,7 @@
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    window.location.href = '/index.html';
+                    window.location.href = '/index';
                 } else {
                     localStorage.removeItem('phoenixToken');
                     localStorage.removeItem('phoenixUser');
@@ -620,7 +620,7 @@
                     showSuccess('Login successful! Redirecting to Phoenix...');
                     
                     setTimeout(() => {
-                        window.location.href = '/index.html';
+                        window.location.href = '/index';
                     }, 1000);
                 } else {
                     showError(data.message || 'Login failed. Please check your credentials.');
@@ -699,7 +699,7 @@
                     <p>You have the right to access, delete, export, and control your data at any time.</p>
                     
                     <p style="margin-top: 20px; font-size: 11px; color: rgba(0,255,255,0.5);">
-                        <a href="/privacy.html" target="_blank" style="color: #00ffff;">View Full Privacy Policy</a>
+                        <a href="/privacy" target="_blank" style="color: #00ffff;">View Full Privacy Policy</a>
                     </p>
                 `;
             } else if (type === 'terms') {
@@ -730,7 +730,7 @@
                     <p>Your use of Phoenix is also governed by our Privacy Policy.</p>
                     
                     <p style="margin-top: 20px; font-size: 11px; color: rgba(0,255,255,0.5);">
-                        <a href="/terms.html" target="_blank" style="color: #00ffff;">View Full Terms of Service</a>
+                        <a href="/terms" target="_blank" style="color: #00ffff;">View Full Terms of Service</a>
                     </p>
                 `;
             }
@@ -791,7 +791,7 @@
                     showSuccess('Account created! Welcome to Phoenix...');
                     
                     setTimeout(() => {
-                        window.location.href = '/index.html';
+                        window.location.href = '/index';
                     }, 1000);
                 } else {
                     showError(data.message || 'Registration failed. Please try again.');
