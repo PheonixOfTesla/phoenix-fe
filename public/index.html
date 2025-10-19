@@ -3,732 +3,344 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phoenix - JARVIS Intelligence</title>
+    <title>Phoenix JARVIS - Holographic Mind Map</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Animated Background -->
-    <div class="background">
-        <div class="grid-lines"></div>
-    </div>
-    
-    <!-- Background Canvas -->
-    <canvas id="bg-canvas"></canvas>
-
-    <!-- Auth Modal -->
-    <div class="auth-modal" id="authModal">
-        <div class="auth-container">
-            <div class="auth-title">🔥 PHOENIX</div>
-            <div class="auth-subtitle">Your Intelligence OS</div>
-            
-            <div id="loginForm">
-                <div class="form-group">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-input" id="loginEmail" placeholder="your@email.com">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Password</label>
-                    <input type="password" class="form-input" id="loginPassword" placeholder="••••••••">
-                </div>
-                <button class="auth-button" onclick="login()">ACCESS SYSTEM</button>
-                <div class="auth-switch">
-                    Don't have access? <a onclick="toggleAuthMode()">Register</a>
-                </div>
-            </div>
-
-            <div id="registerForm" class="hidden">
-                <div class="form-group">
-                    <label class="form-label">Full Name</label>
-                    <input type="text" class="form-input" id="registerName" placeholder="John Doe">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-input" id="registerEmail" placeholder="your@email.com">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Password</label>
-                    <input type="password" class="form-input" id="registerPassword" placeholder="••••••••">
-                </div>
-                <button class="auth-button" onclick="register()">CREATE ACCOUNT</button>
-                <div class="auth-switch">
-                    Already have access? <a onclick="toggleAuthMode()">Login</a>
-                </div>
-            </div>
-        </div>
+    <!-- Holographic HUD Frame -->
+    <div class="hud-frame">
+        <div class="corner-bracket top-left"></div>
+        <div class="corner-bracket top-right"></div>
+        <div class="corner-bracket bottom-left"></div>
+        <div class="corner-bracket bottom-right"></div>
     </div>
 
-    <!-- Main Interface -->
-    <div class="container hidden" id="mainInterface">
-        <!-- Status Bar -->
-        <div class="status-bar">
-            <div class="status-left">
-                <div class="status-indicator">
-                    <div class="status-dot"></div>
-                    <span class="status-text" id="statusText">READY</span>
-                </div>
-                
-                <div class="vitals-inline">
-                    <div class="vital-item">
-                        <span class="vital-label">HRV</span>
-                        <span class="vital-value" id="hrvValue">66.2ms</span>
-                    </div>
-                    <div class="vital-item">
-                        <span class="vital-label">RHR</span>
-                        <span class="vital-value" id="rhrValue">58bpm</span>
-                    </div>
-                    <div class="vital-item">
-                        <span class="vital-label">O₂</span>
-                        <span class="vital-value" id="o2Value">98%</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="user-info">
-                <div class="recovery-badge" id="recoveryBadge">Recovery: 78%</div>
-                <span class="user-name" id="userName">Josh</span>
-                <button class="logout-btn" onclick="logout()">EXIT</button>
-            </div>
+    <!-- Top Date Bar -->
+    <div class="date-bar">
+        <div class="date-segment" id="date-day-1">01</div>
+        <div class="date-segment" id="date-day-2">02</div>
+        <div class="date-segment" id="date-day-3">03</div>
+        <div class="date-segment" id="date-day-4">04</div>
+        <div class="date-segment" id="date-day-5">05</div>
+        <div class="date-segment" id="date-day-6">06</div>
+        <div class="date-segment" id="date-day-7">07</div>
+        <div class="date-segment" id="date-day-8">08</div>
+        <div class="date-segment" id="date-day-9">09</div>
+        <div class="date-segment" id="date-day-10">10</div>
+        <div class="date-segment" id="date-day-11">11</div>
+        <div class="date-segment" id="date-day-12">12</div>
+        <div class="date-segment" id="date-day-13">13</div>
+        <div class="date-segment" id="date-day-14">14</div>
+        <div class="date-segment" id="date-day-15">15</div>
+        <div class="date-segment" id="date-day-16">16</div>
+        <div class="date-segment" id="date-day-17">17</div>
+        <div class="date-segment" id="date-day-18">18</div>
+        <div class="date-segment" id="date-day-19">19</div>
+        <div class="date-segment" id="date-day-20">20</div>
+        <div class="date-segment active" id="date-day-21">21</div>
+        <div class="date-segment" id="date-day-22">22</div>
+        <div class="date-segment" id="date-day-23">23</div>
+        <div class="date-segment" id="date-day-24">24</div>
+        <div class="date-segment" id="date-day-25">25</div>
+        <div class="date-segment" id="date-day-26">26</div>
+        <div class="date-segment" id="date-day-27">27</div>
+        <div class="date-segment" id="date-day-28">28</div>
+        <div class="date-segment" id="date-day-29">29</div>
+        <div class="date-segment" id="date-day-30">30</div>
+    </div>
+
+    <!-- Left Panel: Vitals -->
+    <div class="panel-left vitals-panel">
+        <div class="panel-section" id="hrv-section">
+            <div class="metric-label">HRV</div>
+            <div class="metric-value" id="hrv-value">--</div>
+            <div class="metric-unit">ms</div>
+        </div>
+        
+        <div class="panel-section" id="rhr-section">
+            <div class="metric-label">RHR</div>
+            <div class="metric-value" id="rhr-value">--</div>
+            <div class="metric-unit">bpm</div>
+        </div>
+        
+        <div class="panel-section" id="recovery-section">
+            <div class="metric-label">RECOVERY</div>
+            <div class="metric-value" id="recovery-value">--</div>
+            <div class="metric-unit">%</div>
+            <div class="metric-status" id="recovery-status">Calculating...</div>
+        </div>
+        
+        <div class="panel-section" id="o2-section">
+            <div class="metric-label">O₂</div>
+            <div class="metric-value" id="o2-value">--</div>
+            <div class="metric-unit">%</div>
         </div>
 
-        <!-- Main Content Area -->
-        <div class="main-content">
-            <!-- Phoenix Core -->
-            <div class="phoenix-core-container">
-                <!-- Outer Rings -->
-                <div class="core-ring ring-outer"></div>
-                <div class="core-ring ring-middle"></div>
-                
-                <!-- Center Orb -->
-                <div class="phoenix-orb" id="phoenixOrb">
-                    <div class="orb-glow"></div>
-                    <div class="orb-inner-glow"></div>
-                    <div class="flame-icon">🔥</div>
-                </div>
-                
-                <!-- Greeting Text -->
-                <div class="greeting-text">
-                    <div class="greeting-main" id="greetingMain">Good evening, Josh</div>
-                    <div class="greeting-sub" id="greetingSub">Wind down mode. Focus on recovery and tomorrow's preparation.</div>
-                </div>
-
-                <!-- Planet Gears -->
-                <div class="planet-gear planet-mercury" id="planet-mercury" data-planet="mercury">
-                    <div class="gear-outer">
-                        <div class="gear-tooth" style="transform: rotate(0deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(30deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(60deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(90deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(120deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(150deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(180deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(210deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(240deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(270deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(300deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(330deg)"></div>
-                    </div>
-                    <div class="gear-inner">
-                        <div class="gear-tooth-inner" style="transform: rotate(0deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(45deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(90deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(135deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(180deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(225deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(270deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(315deg)"></div>
-                    </div>
-                    <div class="planet-center">🔥</div>
-                    <div class="planet-metric">
-                        <div class="metric-value" id="mercury-metric">78%</div>
-                        <div class="metric-label">Recovery</div>
-                    </div>
-                </div>
-
-                <div class="planet-gear planet-venus" id="planet-venus" data-planet="venus">
-                    <div class="gear-outer">
-                        <div class="gear-tooth" style="transform: rotate(0deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(30deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(60deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(90deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(120deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(150deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(180deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(210deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(240deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(270deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(300deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(330deg)"></div>
-                    </div>
-                    <div class="gear-inner">
-                        <div class="gear-tooth-inner" style="transform: rotate(0deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(45deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(90deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(135deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(180deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(225deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(270deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(315deg)"></div>
-                    </div>
-                    <div class="planet-center">🔥</div>
-                    <div class="planet-metric">
-                        <div class="metric-value" id="venus-metric">4x</div>
-                        <div class="metric-label">Workouts</div>
-                    </div>
-                </div>
-
-                <div class="planet-gear planet-earth" id="planet-earth" data-planet="earth">
-                    <div class="gear-outer">
-                        <div class="gear-tooth" style="transform: rotate(0deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(30deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(60deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(90deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(120deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(150deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(180deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(210deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(240deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(270deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(300deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(330deg)"></div>
-                    </div>
-                    <div class="gear-inner">
-                        <div class="gear-tooth-inner" style="transform: rotate(0deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(45deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(90deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(135deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(180deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(225deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(270deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(315deg)"></div>
-                    </div>
-                    <div class="planet-center">🔥</div>
-                    <div class="planet-metric">
-                        <div class="metric-value" id="earth-metric">8</div>
-                        <div class="metric-label">Events</div>
-                    </div>
-                </div>
-
-                <div class="planet-gear planet-mars" id="planet-mars" data-planet="mars">
-                    <div class="gear-outer">
-                        <div class="gear-tooth" style="transform: rotate(0deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(30deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(60deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(90deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(120deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(150deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(180deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(210deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(240deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(270deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(300deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(330deg)"></div>
-                    </div>
-                    <div class="gear-inner">
-                        <div class="gear-tooth-inner" style="transform: rotate(0deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(45deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(90deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(135deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(180deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(225deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(270deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(315deg)"></div>
-                    </div>
-                    <div class="planet-center">🔥</div>
-                    <div class="planet-metric">
-                        <div class="metric-value" id="mars-metric">3/5</div>
-                        <div class="metric-label">Goals</div>
-                    </div>
-                </div>
-
-                <div class="planet-gear planet-jupiter" id="planet-jupiter" data-planet="jupiter">
-                    <div class="gear-outer">
-                        <div class="gear-tooth" style="transform: rotate(0deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(30deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(60deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(90deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(120deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(150deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(180deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(210deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(240deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(270deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(300deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(330deg)"></div>
-                    </div>
-                    <div class="gear-inner">
-                        <div class="gear-tooth-inner" style="transform: rotate(0deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(45deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(90deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(135deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(180deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(225deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(270deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(315deg)"></div>
-                    </div>
-                    <div class="planet-center">🔥</div>
-                    <div class="planet-metric">
-                        <div class="metric-value" id="jupiter-metric">$2.4K</div>
-                        <div class="metric-label">Budget</div>
-                    </div>
-                </div>
-
-                <div class="planet-gear planet-saturn" id="planet-saturn" data-planet="saturn">
-                    <div class="gear-outer">
-                        <div class="gear-tooth" style="transform: rotate(0deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(30deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(60deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(90deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(120deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(150deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(180deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(210deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(240deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(270deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(300deg)"></div>
-                        <div class="gear-tooth" style="transform: rotate(330deg)"></div>
-                    </div>
-                    <div class="gear-inner">
-                        <div class="gear-tooth-inner" style="transform: rotate(0deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(45deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(90deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(135deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(180deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(225deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(270deg)"></div>
-                        <div class="gear-tooth-inner" style="transform: rotate(315deg)"></div>
-                    </div>
-                    <div class="planet-center">🔥</div>
-                    <div class="planet-metric">
-                        <div class="metric-value" id="saturn-metric">42%</div>
-                        <div class="metric-label">Progress</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Voice Controls -->
-            <div class="voice-controls">
-                <div class="voice-mode-toggle" onclick="toggleVoiceMode()">
-                    <span id="voiceModeText">Voice Mode: Off</span>
-                    <div class="toggle-switch" id="voiceToggle">
-                        <div class="toggle-knob"></div>
-                    </div>
-                </div>
-                <div class="voice-button" id="voiceButton" onclick="handleVoiceClick()">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3z"/>
-                        <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-                    </svg>
-                </div>
-            </div>
-        </div>
-
-        <!-- Bottom Panel -->
-        <div class="bottom-panel">
-            <div class="panel-section">
-                <div class="panel-label">WEATHER</div>
-                <div class="panel-value">72°F</div>
-                <div class="panel-detail">Clear, Perfect for training</div>
-            </div>
-            
-            <div class="panel-section panel-center">
-                <div class="panel-label">GOALS PROGRESS</div>
-                <div class="panel-value-large">4/5</div>
-                <div class="panel-detail">60% Complete</div>
-            </div>
-            
-            <div class="panel-section panel-right">
-                <div class="panel-label">SYSTEM TIME</div>
-                <div class="panel-value" id="systemTime">00:17</div>
-                <div class="panel-detail" id="systemDate">Saturday, Oct 18</div>
-            </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="quick-actions">
-            <button class="action-button" onclick="syncWearables()">SYNC WEARABLES</button>
-            <button class="action-button" onclick="viewGoals()">TODAY'S GOALS</button>
-            <button class="action-button" onclick="healthAnalysis()">HEALTH ANALYSIS</button>
+        <div class="panel-section weather-section" id="weather-section">
+            <div class="metric-label">WEATHER</div>
+            <div class="weather-temp" id="weather-temp">--°F</div>
+            <div class="weather-status" id="weather-status">Loading...</div>
         </div>
     </div>
 
-    <!-- Chat Toggle Button -->
-    <button class="chat-toggle hidden" id="chatToggle" onclick="toggleChat()">💬</button>
-
-    <!-- Chat Drawer -->
-    <div class="chat-drawer" id="chatDrawer">
-        <div class="drawer-header">
-            <div class="drawer-title">Phoenix Interface</div>
-            <button class="close-btn" onclick="toggleChat()">✕</button>
+    <!-- Right Panel: System Info & Goals -->
+    <div class="panel-right">
+        <div class="system-time-panel">
+            <div class="time-label">SYSTEM TIME</div>
+            <div class="time-display" id="system-time">00:00</div>
+            <div class="date-display" id="system-date">LOADING...</div>
+            <div class="location-display" id="location">Sarasota, Florida</div>
         </div>
 
-        <div class="quick-actions-grid">
-            <button class="quick-action" onclick="quickAction('schedule')">📅 Today's Schedule</button>
-            <button class="quick-action" onclick="quickAction('recovery')">💪 Recovery Status</button>
-            <button class="quick-action" onclick="quickAction('goals')">🎯 Goal Progress</button>
-            <button class="quick-action" onclick="quickAction('health')">❤️ Health Metrics</button>
+        <div class="goals-panel" id="goals-panel">
+            <div class="panel-title">GOALS PROGRESS</div>
+            <div class="goals-fraction" id="goals-fraction">0/0</div>
+            <div class="goals-percentage" id="goals-percentage">0% Complete</div>
+            <div class="goals-list" id="goals-list"></div>
         </div>
 
-        <div class="messages" id="messages">
-            <div class="message">
-                <div class="message-label">PHOENIX</div>
-                <div class="message-content">Systems online. How can I assist you?</div>
+        <div class="quick-notes-panel">
+            <div class="panel-title">Notes</div>
+            <div class="notes-content">
+                <div class="notes-header">Things to do:</div>
+                <div class="notes-list" id="notes-list">
+                    <div class="note-item">• Sync wearables</div>
+                    <div class="note-item">• Review health data</div>
+                </div>
+            </div>
+            <button class="add-note-btn" id="add-note-btn">+</button>
+        </div>
+    </div>
+
+    <!-- Center: Mind Map Canvas -->
+    <div class="mind-map-container" id="mind-map-container">
+        <!-- Phoenix Core Reactor -->
+        <div class="phoenix-core" id="phoenix-core">
+            <div class="core-rings">
+                <div class="core-ring ring-1"></div>
+                <div class="core-ring ring-2"></div>
+                <div class="core-ring ring-3"></div>
+            </div>
+            <div class="core-center">
+                <div class="core-glow"></div>
+                <div class="core-text">PHOENIX</div>
             </div>
         </div>
 
-        <div class="chat-input-container">
-            <input type="text" class="chat-input" id="chatInput" placeholder="Ask Phoenix anything..." onkeypress="handleChatKeypress(event)">
-            <button class="send-btn" onclick="sendMessage()">➤</button>
+        <!-- Greeting Message -->
+        <div class="phoenix-greeting" id="phoenix-greeting">
+            <div class="greeting-text">Good evening, Josh</div>
+            <div class="greeting-subtitle">Wind down mode. Focus on recovery and tomorrow's preparation.</div>
+        </div>
+
+        <!-- Planets Container -->
+        <div class="planets-container" id="planets-container">
+            <!-- Mercury -->
+            <div class="planet-gear mercury" id="planet-mercury" data-planet="mercury">
+                <div class="gear-outer"></div>
+                <div class="gear-inner"></div>
+                <div class="planet-icon">☿</div>
+                <div class="planet-label">MERCURY</div>
+                <div class="planet-sublabel">Health</div>
+                <div class="planet-metric" id="mercury-metric">--</div>
+                <div class="loading-ring"></div>
+            </div>
+
+            <!-- Venus -->
+            <div class="planet-gear venus" id="planet-venus" data-planet="venus">
+                <div class="gear-outer"></div>
+                <div class="gear-inner"></div>
+                <div class="planet-icon">♀</div>
+                <div class="planet-label">VENUS</div>
+                <div class="planet-sublabel">Fitness</div>
+                <div class="planet-metric" id="venus-metric">--</div>
+                <div class="loading-ring"></div>
+            </div>
+
+            <!-- Earth -->
+            <div class="planet-gear earth" id="planet-earth" data-planet="earth">
+                <div class="gear-outer"></div>
+                <div class="gear-inner"></div>
+                <div class="planet-icon">🌍</div>
+                <div class="planet-label">EARTH</div>
+                <div class="planet-sublabel">Calendar</div>
+                <div class="planet-metric" id="earth-metric">--</div>
+                <div class="loading-ring"></div>
+            </div>
+
+            <!-- Mars -->
+            <div class="planet-gear mars" id="planet-mars" data-planet="mars">
+                <div class="gear-outer"></div>
+                <div class="gear-inner"></div>
+                <div class="planet-icon">♂</div>
+                <div class="planet-label">MARS</div>
+                <div class="planet-sublabel">Goals</div>
+                <div class="planet-metric" id="mars-metric">--</div>
+                <div class="loading-ring"></div>
+            </div>
+
+            <!-- Jupiter -->
+            <div class="planet-gear jupiter" id="planet-jupiter" data-planet="jupiter">
+                <div class="gear-outer"></div>
+                <div class="gear-inner"></div>
+                <div class="planet-icon">♃</div>
+                <div class="planet-label">JUPITER</div>
+                <div class="planet-sublabel">Finance</div>
+                <div class="planet-metric" id="jupiter-metric">--</div>
+                <div class="loading-ring"></div>
+            </div>
+
+            <!-- Saturn -->
+            <div class="planet-gear saturn" id="planet-saturn" data-planet="saturn">
+                <div class="gear-outer"></div>
+                <div class="gear-inner"></div>
+                <div class="planet-icon">♄</div>
+                <div class="planet-label">SATURN</div>
+                <div class="planet-sublabel">Legacy</div>
+                <div class="planet-metric" id="saturn-metric">--</div>
+                <div class="loading-ring"></div>
+            </div>
+        </div>
+
+        <!-- Correlation Lines -->
+        <svg class="correlation-lines" id="correlation-lines">
+            <!-- Lines drawn dynamically -->
+        </svg>
+    </div>
+
+    <!-- Bottom: Quick Action Bar -->
+    <div class="quick-actions-bar">
+        <button class="action-btn" id="sync-wearables-btn">
+            <span class="btn-icon">⟳</span>
+            <span class="btn-text">SYNC WEARABLES</span>
+        </button>
+        
+        <button class="action-btn" id="todays-goals-btn">
+            <span class="btn-icon">◎</span>
+            <span class="btn-text">TODAY'S GOALS</span>
+        </button>
+        
+        <button class="action-btn" id="health-analysis-btn">
+            <span class="btn-icon">✚</span>
+            <span class="btn-text">HEALTH ANALYSIS</span>
+        </button>
+    </div>
+
+    <!-- Expanded Dashboard Overlay (Level 1) -->
+    <div class="dashboard-overlay" id="dashboard-overlay">
+        <div class="dashboard-container">
+            <button class="dashboard-close" id="dashboard-close">×</button>
+            <div class="dashboard-header">
+                <h2 id="dashboard-title">PLANET NAME</h2>
+                <div class="dashboard-subtitle" id="dashboard-subtitle">Loading...</div>
+            </div>
+            <div class="dashboard-content" id="dashboard-content">
+                <!-- Content loaded dynamically -->
+            </div>
         </div>
     </div>
 
-    <!-- Loading Indicator -->
-    <div class="loading hidden" id="loading">
-        <div class="spinner"></div>
+    <!-- Sync Wearables Modal -->
+    <div class="modal-overlay" id="sync-modal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>Sync Wearables</h3>
+                <button class="modal-close" onclick="closeSyncModal()">×</button>
+            </div>
+            <div class="modal-content">
+                <div class="wearable-option" id="sync-fitbit">
+                    <div class="wearable-icon">📱</div>
+                    <div class="wearable-name">Fitbit</div>
+                    <div class="wearable-status" id="fitbit-status">Not Connected</div>
+                    <button class="connect-btn" onclick="connectFitbit()">Connect</button>
+                </div>
+                <div class="wearable-option" id="sync-polar">
+                    <div class="wearable-icon">⌚</div>
+                    <div class="wearable-name">Polar</div>
+                    <div class="wearable-status" id="polar-status">Not Connected</div>
+                    <button class="connect-btn" onclick="connectPolar()">Connect</button>
+                </div>
+                <div class="wearable-option" id="sync-oura">
+                    <div class="wearable-icon">💍</div>
+                    <div class="wearable-name">Oura Ring</div>
+                    <div class="wearable-status">Coming Soon</div>
+                </div>
+                <div class="sync-status" id="sync-status"></div>
+            </div>
+        </div>
     </div>
+
+    <!-- Voice Interface -->
+    <div class="voice-button" id="voice-button">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="#00ffff">
+            <path d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3z"/>
+            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+        </svg>
+    </div>
+
+    <!-- Chat Interface -->
+    <div class="chat-interface" id="chat-interface">
+        <div class="chat-messages" id="chat-messages"></div>
+        <input type="text" class="chat-input" id="chat-input" placeholder="Ask Phoenix anything...">
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Initializing Phoenix...</div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="api.js"></script>
+    <script type="module" src="jarvis.js"></script>
+    <script src="planets.js"></script>
+    <script src="reactor.js"></script>
+    <script src="voice.js"></script>
+    <script src="shaders.js"></script>
 
     <script>
-        // API Configuration
-        const API_URL = 'https://pal-backend-production.up.railway.app/api';
-        let phoenixToken = localStorage.getItem('phoenixToken');
-        let currentUser = null;
-        let isVoiceMode = false;
-
-        // Initialize on load
-        window.onload = () => {
-            initBackgroundCanvas();
-            checkAuth();
-            updateTime();
-            setInterval(updateTime, 1000);
-        };
-
-        function checkAuth() {
-            if (phoenixToken) {
-                fetchUserData();
-            }
+        // Modal controls
+        function closeSyncModal() {
+            document.getElementById('sync-modal').style.display = 'none';
         }
 
-        async function fetchUserData() {
-            try {
-                const response = await fetch(`${API_URL}/auth/me`, {
-                    headers: { 'Authorization': `Bearer ${phoenixToken}` }
-                });
-                if (response.ok) {
-                    currentUser = await response.json();
-                    document.getElementById('userName').textContent = currentUser.name || 'User';
-                    showMainInterface();
-                    loadAllData();
-                } else {
-                    localStorage.removeItem('phoenixToken');
-                    phoenixToken = null;
-                }
-            } catch (error) {
-                console.error('Auth check failed:', error);
-            }
+        function connectFitbit() {
+            document.getElementById('fitbit-status').textContent = 'Connecting...';
+            // Trigger OAuth flow
+            window.location.href = 'https://pal-backend-production.up.railway.app/api/wearables/fitbit/connect';
         }
 
-        async function login() {
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            if (!email || !password) return alert('Please enter email and password');
-
-            try {
-                const response = await fetch(`${API_URL}/auth/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
-                const data = await response.json();
-                if (response.ok && data.token) {
-                    phoenixToken = data.token;
-                    localStorage.setItem('phoenixToken', phoenixToken);
-                    currentUser = data.user;
-                    document.getElementById('userName').textContent = currentUser.name || 'User';
-                    showMainInterface();
-                    loadAllData();
-                } else {
-                    alert(data.message || 'Login failed');
-                }
-            } catch (error) {
-                alert('Connection error: ' + error.message);
-            }
+        function connectPolar() {
+            document.getElementById('polar-status').textContent = 'Connecting...';
+            window.location.href = 'https://pal-backend-production.up.railway.app/api/wearables/polar/connect';
         }
 
-        async function register() {
-            const name = document.getElementById('registerName').value;
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-            if (!name || !email || !password) return alert('Please fill all fields');
-
-            try {
-                const response = await fetch(`${API_URL}/auth/register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, email, password })
-                });
-                const data = await response.json();
-                if (response.ok && data.token) {
-                    phoenixToken = data.token;
-                    localStorage.setItem('phoenixToken', phoenixToken);
-                    currentUser = data.user;
-                    document.getElementById('userName').textContent = currentUser.name || 'User';
-                    showMainInterface();
-                    loadAllData();
-                } else {
-                    alert(data.message || 'Registration failed');
-                }
-            } catch (error) {
-                alert('Connection error: ' + error.message);
-            }
-        }
-
-        function toggleAuthMode() {
-            document.getElementById('loginForm').classList.toggle('hidden');
-            document.getElementById('registerForm').classList.toggle('hidden');
-        }
-
-        function logout() {
-            localStorage.removeItem('phoenixToken');
-            phoenixToken = null;
-            currentUser = null;
-            document.getElementById('mainInterface').classList.add('hidden');
-            document.getElementById('chatToggle').classList.add('hidden');
-            document.getElementById('authModal').classList.remove('hidden');
-        }
-
-        function showMainInterface() {
-            document.getElementById('authModal').classList.add('hidden');
-            document.getElementById('mainInterface').classList.remove('hidden');
-            document.getElementById('chatToggle').classList.remove('hidden');
-        }
-
-        async function loadAllData() {
-            const headers = { 'Authorization': `Bearer ${phoenixToken}` };
-
-            try {
-                // Load Mercury (Health) data
-                const healthRes = await fetch(`${API_URL}/mercury/latest`, { headers });
-                if (healthRes.ok) {
-                    const health = await healthRes.json();
-                    if (health.data) {
-                        document.getElementById('hrvValue').textContent = `${health.data.hrv || 0}ms`;
-                        document.getElementById('rhrValue').textContent = `${health.data.heartRate || 0}bpm`;
-                        document.getElementById('o2Value').textContent = `${health.data.spo2 || 98}%`;
-                        document.getElementById('recoveryBadge').textContent = `Recovery: ${health.data.recoveryScore || 0}%`;
-                        document.getElementById('mercury-metric').textContent = `${health.data.recoveryScore || 0}%`;
-                    }
-                }
-
-                // Load Venus (Workouts) data
-                const workoutsRes = await fetch(`${API_URL}/workouts/recent?limit=7`, { headers });
-                if (workoutsRes.ok) {
-                    const workouts = await workoutsRes.json();
-                    const count = workouts.data?.length || 0;
-                    document.getElementById('venus-metric').textContent = `${count}x`;
-                }
-
-                // Load Earth (Calendar) data
-                const calendarRes = await fetch(`${API_URL}/earth/calendar-events`, { headers });
-                if (calendarRes.ok) {
-                    const calendar = await calendarRes.json();
-                    const events = calendar.data?.length || 0;
-                    document.getElementById('earth-metric').textContent = `${events}`;
-                }
-
-                // Load Mars (Goals) data
-                const goalsRes = await fetch(`${API_URL}/goals/active`, { headers });
-                if (goalsRes.ok) {
-                    const goals = await goalsRes.json();
-                    const active = goals.data?.length || 0;
-                    const completed = goals.data?.filter(g => g.completed).length || 0;
-                    document.getElementById('mars-metric').textContent = `${completed}/${active}`;
-                }
-
-                // Load Jupiter (Finance) data
-                const financeRes = await fetch(`${API_URL}/jupiter/overview`, { headers });
-                if (financeRes.ok) {
-                    const finance = await financeRes.json();
-                    const spent = finance.data?.expenses || 0;
-                    document.getElementById('jupiter-metric').textContent = `${(spent/1000).toFixed(1)}K`;
-                }
-
-                // Load Saturn (Timeline) data
-                const timelineRes = await fetch(`${API_URL}/saturn/timeline`, { headers });
-                if (timelineRes.ok) {
-                    const timeline = await timelineRes.json();
-                    const progress = timeline.data?.lifeProgress || 0;
-                    document.getElementById('saturn-metric').textContent = `${progress}%`;
-                }
-
-            } catch (error) {
-                console.error('Failed to load data:', error);
-            }
-        }
-
-        function toggleVoiceMode() {
-            isVoiceMode = !isVoiceMode;
-            const toggle = document.getElementById('voiceToggle');
-            const text = document.getElementById('voiceModeText');
-            toggle.classList.toggle('active');
-            text.textContent = isVoiceMode ? 'Voice Mode: On' : 'Voice Mode: Off';
-        }
-
-        function handleVoiceClick() {
-            const btn = document.getElementById('voiceButton');
-            btn.classList.toggle('active');
-            // Implement actual voice recognition here
-        }
-
-        function toggleChat() {
-            document.getElementById('chatDrawer').classList.toggle('open');
-        }
-
-        async function sendMessage() {
-            const input = document.getElementById('chatInput');
-            const message = input.value.trim();
-            if (!message) return;
-
-            addMessage('user', message);
-            input.value = '';
-
-            try {
-                const response = await fetch(`${API_URL}/phoenix-companion/chat`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${phoenixToken}`
-                    },
-                    body: JSON.stringify({ message, context: {} })
-                });
-                const data = await response.json();
-                if (response.ok && data.response) {
-                    addMessage('phoenix', data.response);
-                } else {
-                    addMessage('phoenix', 'I encountered an error processing that request.');
-                }
-            } catch (error) {
-                addMessage('phoenix', 'Connection error. Please try again.');
-            }
-        }
-
-        function handleChatKeypress(event) {
-            if (event.key === 'Enter') sendMessage();
-        }
-
-        function addMessage(sender, content) {
-            const messagesDiv = document.getElementById('messages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender}`;
-            messageDiv.innerHTML = `
-                <div class="message-label">${sender === 'user' ? 'YOU' : 'PHOENIX'}</div>
-                <div class="message-content">${content}</div>
-            `;
-            messagesDiv.appendChild(messageDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        }
-
-        async function quickAction(action) {
-            const actions = {
-                schedule: `${API_URL}/earth/calendar-events`,
-                recovery: `${API_URL}/mercury/latest`,
-                goals: `${API_URL}/goals/active`,
-                health: `${API_URL}/mercury/latest`
-            };
-            try {
-                const response = await fetch(actions[action], {
-                    headers: { 'Authorization': `Bearer ${phoenixToken}` }
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    addMessage('phoenix', `Retrieved ${action} data: ${JSON.stringify(data.data).substring(0, 100)}...`);
-                }
-            } catch (error) {
-                addMessage('phoenix', 'Failed to retrieve data.');
-            }
-        }
-
-        async function syncWearables() {
-            try {
-                const response = await fetch(`${API_URL}/mercury/sync`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${phoenixToken}` }
-                });
-                const data = await response.json();
-                alert(data.success ? 'Sync complete!' : 'Sync failed');
-                if (data.success) loadAllData();
-            } catch (error) {
-                alert('Sync error: ' + error.message);
-            }
-        }
-
-        function viewGoals() {
-            quickAction('goals');
-            toggleChat();
-        }
-
-        function healthAnalysis() {
-            quickAction('health');
-            toggleChat();
-        }
-
-        function updateTime() {
+        // Initialize time display
+        function updateSystemTime() {
             const now = new Date();
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
-            document.getElementById('systemTime').textContent = `${hours}:${minutes}`;
+            document.getElementById('system-time').textContent = `${hours}:${minutes}`;
             
-            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            document.getElementById('systemDate').textContent = 
-                `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
+            const days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+            const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+            const dateStr = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
+            document.getElementById('system-date').textContent = dateStr;
+
+            // Highlight current day
+            const currentDay = now.getDate();
+            document.querySelectorAll('.date-segment').forEach((seg, i) => {
+                seg.classList.toggle('active', i + 1 === currentDay);
+            });
         }
 
-        function initBackgroundCanvas() {
-            const canvas = document.getElementById('bg-canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+        updateSystemTime();
+        setInterval(updateSystemTime, 1000);
 
-            const particles = [];
-            for (let i = 0; i < 80; i++) {
-                particles.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    vx: (Math.random() - 0.5) * 0.5,
-                    vy: (Math.random() - 0.5) * 0.5,
-                    size: Math.random() * 2 + 1
-                });
-            }
-
-            let phase = 0;
-            function animate() {
-                ctx.fillStyle = 'rgba(5, 8, 16, 0.1)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                particles.forEach(p => {
-                    p.x += p.vx;
-                    p.y += p.vy;
-                    if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-                    if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
-
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(0, 212, 255, ${0.3 + Math.sin(phase) * 0.2})`;
-                    ctx.fill();
-                });
-
-                const scanY = (canvas.height / 2) + Math.sin(phase * 0.5) * 200;
-                const gradient = ctx.createLinearGradient(0, scanY - 2, 0, scanY + 2);
-                gradient.addColorStop(0, 'rgba(0, 212, 255, 0)');
-                gradient.addColorStop(0.5, 'rgba(0, 212, 255, 0.3)');
-                gradient.addColorStop(1, 'rgba(0, 212, 255, 0)');
-                ctx.fillStyle = gradient;
-                ctx.fillRect(0, scanY - 2, canvas.width, 4);
-
-                phase += 0.02;
-                requestAnimationFrame(animate);
-            }
-            animate();
-        }
+        // Sync button handler
+        document.getElementById('sync-wearables-btn').addEventListener('click', () => {
+            document.getElementById('sync-modal').style.display = 'flex';
+        });
     </script>
 </body>
 </html>
