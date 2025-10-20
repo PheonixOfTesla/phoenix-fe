@@ -336,7 +336,6 @@
             color: #00ffff;
         }
 
-        /* Toast Notification */
         .toast {
             position: fixed;
             top: 20px;
@@ -559,12 +558,16 @@
         let currentAudio = null;
 
         // Toast notification function
-        function showToast(message, isError = false) {
+        function showToast(message, isError) {
             const toast = document.getElementById('toast');
             toast.textContent = message;
-            toast.className = 'toast show' + (isError ? ' error' : '');
+            if (isError) {
+                toast.className = 'toast show error';
+            } else {
+                toast.className = 'toast show';
+            }
             
-            setTimeout(() => {
+            setTimeout(function() {
                 toast.classList.remove('show');
             }, 3000);
         }
@@ -595,31 +598,35 @@
                 }
                 this.animate();
                 
-                window.addEventListener('resize', () => {
-                    this.width = window.innerWidth;
-                    this.height = window.innerHeight;
-                    this.canvas.width = this.width;
-                    this.canvas.height = this.height;
+                var self = this;
+                window.addEventListener('resize', function() {
+                    self.width = window.innerWidth;
+                    self.height = window.innerHeight;
+                    self.canvas.width = self.width;
+                    self.canvas.height = self.height;
                 });
             }
 
             animate() {
+                var self = this;
                 this.ctx.clearRect(0, 0, this.width, this.height);
 
-                this.particles.forEach(p => {
+                this.particles.forEach(function(p) {
                     p.x += p.vx;
                     p.y += p.vy;
 
-                    if (p.x < 0 || p.x > this.width) p.vx *= -1;
-                    if (p.y < 0 || p.y > this.height) p.vy *= -1;
+                    if (p.x < 0 || p.x > self.width) p.vx *= -1;
+                    if (p.y < 0 || p.y > self.height) p.vy *= -1;
 
-                    this.ctx.beginPath();
-                    this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                    this.ctx.fillStyle = `rgba(0, 255, 255, ${p.alpha})`;
-                    this.ctx.fill();
+                    self.ctx.beginPath();
+                    self.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    self.ctx.fillStyle = 'rgba(0, 255, 255, ' + p.alpha + ')';
+                    self.ctx.fill();
                 });
 
-                requestAnimationFrame(() => this.animate());
+                requestAnimationFrame(function() {
+                    self.animate();
+                });
             }
         }
 
@@ -627,62 +634,60 @@
 
         function nextStep() {
             if (currentStep < 3) {
-                document.getElementById(`step-${currentStep}`).classList.remove('active');
-                document.getElementById(`indicator-${currentStep}`).classList.remove('active');
-                document.getElementById(`indicator-${currentStep}`).classList.add('completed');
+                document.getElementById('step-' + currentStep).classList.remove('active');
+                document.getElementById('indicator-' + currentStep).classList.remove('active');
+                document.getElementById('indicator-' + currentStep).classList.add('completed');
                 
                 currentStep++;
                 
-                document.getElementById(`step-${currentStep}`).classList.add('active');
-                document.getElementById(`indicator-${currentStep}`).classList.add('active');
+                document.getElementById('step-' + currentStep).classList.add('active');
+                document.getElementById('indicator-' + currentStep).classList.add('active');
             }
         }
 
         function prevStep() {
             if (currentStep > 1) {
-                document.getElementById(`step-${currentStep}`).classList.remove('active');
-                document.getElementById(`indicator-${currentStep}`).classList.remove('active');
+                document.getElementById('step-' + currentStep).classList.remove('active');
+                document.getElementById('indicator-' + currentStep).classList.remove('active');
                 
                 currentStep--;
                 
-                document.getElementById(`step-${currentStep}`).classList.add('active');
-                document.getElementById(`indicator-${currentStep}`).classList.remove('completed');
+                document.getElementById('step-' + currentStep).classList.add('active');
+                document.getElementById('indicator-' + currentStep).classList.remove('completed');
             }
         }
 
         function selectVoice(voice) {
             selectedVoice = voice;
-            document.querySelectorAll('.voice-card').forEach(card => {
+            var cards = document.querySelectorAll('.voice-card');
+            cards.forEach(function(card) {
                 card.classList.remove('selected');
             });
-            document.querySelector(`[data-voice="${voice}"]`).classList.add('selected');
+            document.querySelector('[data-voice="' + voice + '"]').classList.add('selected');
         }
 
         async function previewVoice(voice) {
-            // Stop any currently playing audio
             if (currentAudio) {
                 currentAudio.pause();
                 currentAudio = null;
             }
 
-            // Get the button that was clicked
             const btn = window.event.target;
             const originalText = btn.innerHTML;
             btn.innerHTML = '⏳ GENERATING...';
             btn.disabled = true;
 
             try {
-                // Check if token exists
                 const token = localStorage.getItem('phoenixToken');
                 if (!token) {
                     throw new Error('Authentication token not found');
                 }
 
-                const response = await fetch(`${API_BASE}/voice/speak`, {
+                const response = await fetch(API_BASE + '/voice/speak', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': 'Bearer ' + token
                     },
                     body: JSON.stringify({
                         text: 'Hello. I am Phoenix, your AI companion. Ready to optimize your life?',
@@ -692,8 +697,8 @@
                 });
 
                 if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    const errorMsg = errorData.message || `Server error: ${response.status}`;
+                    const errorData = await response.json().catch(function() { return {}; });
+                    const errorMsg = errorData.message || 'Server error: ' + response.status;
                     throw new Error(errorMsg);
                 }
 
@@ -701,18 +706,18 @@
                 const audioUrl = URL.createObjectURL(audioBlob);
                 currentAudio = new Audio(audioUrl);
                 
-                currentAudio.onended = () => {
+                currentAudio.onended = function() {
                     btn.innerHTML = originalText;
                     btn.disabled = false;
                     URL.revokeObjectURL(audioUrl);
                     currentAudio = null;
                 };
 
-                currentAudio.onerror = (error) => {
+                currentAudio.onerror = function(error) {
                     console.error('Audio playback error:', error);
                     btn.innerHTML = '❌ Error';
                     showToast('Failed to play audio preview', true);
-                    setTimeout(() => {
+                    setTimeout(function() {
                         btn.innerHTML = originalText;
                         btn.disabled = false;
                     }, 2000);
@@ -726,7 +731,6 @@
                 console.error('Preview failed:', error);
                 btn.innerHTML = '❌ Failed';
                 
-                // Show more specific error message
                 let errorMessage = 'Could not generate voice preview.';
                 if (error.message.includes('429')) {
                     errorMessage = 'Rate limit reached. Please wait a moment and try again.';
@@ -738,7 +742,7 @@
                 
                 showToast(errorMessage, true);
                 
-                setTimeout(() => {
+                setTimeout(function() {
                     btn.innerHTML = originalText;
                     btn.disabled = false;
                 }, 3000);
@@ -747,63 +751,64 @@
 
         function selectGoal(goal) {
             selectedGoal = goal;
-            document.querySelectorAll('.goal-card').forEach(card => {
+            var cards = document.querySelectorAll('.goal-card');
+            cards.forEach(function(card) {
                 card.classList.remove('selected');
             });
-            document.querySelector(`[data-goal="${goal}"]`).classList.add('selected');
+            document.querySelector('[data-goal="' + goal + '"]').classList.add('selected');
         }
 
-       async function playWelcomeGreeting() {
-    try {
-        const token = localStorage.getItem('phoenixToken');
-        if (!token) {
-            console.warn('No auth token, skipping welcome greeting');
-            window.location.href = '/';  // ✅ FIXED
-            return;
+        async function playWelcomeGreeting() {
+            try {
+                const token = localStorage.getItem('phoenixToken');
+                if (!token) {
+                    console.warn('No auth token, skipping welcome greeting');
+                    window.location.href = '/';
+                    return;
+                }
+
+                const response = await fetch(API_BASE + '/voice/speak', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify({
+                        text: 'Hello. I am Phoenix. Ready to optimize your life?',
+                        voice: selectedVoice,
+                        speed: 1.0
+                    })
+                });
+
+                if (response.ok) {
+                    const audioBlob = await response.blob();
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    const audio = new Audio(audioUrl);
+                    
+                    audio.onended = function() {
+                        URL.revokeObjectURL(audioUrl);
+                        window.location.href = '/';
+                    };
+
+                    audio.onerror = function() {
+                        URL.revokeObjectURL(audioUrl);
+                        window.location.href = '/';
+                    };
+
+                    await audio.play();
+                } else {
+                    console.warn('TTS failed with status:', response.status);
+                    setTimeout(function() {
+                        window.location.href = '/';
+                    }, 1000);
+                }
+            } catch (error) {
+                console.error('Welcome greeting failed:', error);
+                setTimeout(function() {
+                    window.location.href = '/';
+                }, 1000);
+            }
         }
-
-        const response = await fetch(`${API_BASE}/voice/speak`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                text: 'Hello. I am Phoenix. Ready to optimize your life?',
-                voice: selectedVoice,
-                speed: 1.0
-            })
-        });
-
-        if (response.ok) {
-            const audioBlob = await response.blob();
-            const audioUrl = URL.createObjectURL(audioBlob);
-            const audio = new Audio(audioUrl);
-            
-            audio.onended = () => {
-                URL.revokeObjectURL(audioUrl);
-                window.location.href = '/';  // ✅ FIXED
-            };
-
-            audio.onerror = () => {
-                URL.revokeObjectURL(audioUrl);
-                window.location.href = '/';  // ✅ FIXED
-            };
-
-            await audio.play();
-        } else {
-            console.warn('TTS failed with status:', response.status);
-            setTimeout(() => {
-                window.location.href = '/';  // ✅ FIXED
-            }, 1000);
-        }
-    } catch (error) {
-        console.error('Welcome greeting failed:', error);
-        setTimeout(() => {
-            window.location.href = '/';  // ✅ FIXED
-        }, 1000);
-    }
-}
 
         async function completeOnboarding() {
             document.getElementById('loading-overlay').classList.add('show');
@@ -825,41 +830,81 @@
                     throw new Error('Authentication required');
                 }
 
-               const response = await fetch(`${API_BASE}/auth/me`, {
+                console.log('📤 Saving preferences to:', API_BASE + '/auth/me');
+                console.log('📦 Preferences:', preferences);
+
+                const response = await fetch(API_BASE + '/auth/me', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': 'Bearer ' + token
                     },
-                    body: JSON.stringify({ preferences })
+                    body: JSON.stringify({ preferences: preferences })
                 });
 
+                console.log('📥 Response status:', response.status);
+
                 const data = await response.json();
+                console.log('📥 Response data:', data);
 
                 if (data.success) {
-                    // Save preferences locally
                     localStorage.setItem('phoenixPreferences', JSON.stringify(preferences));
-                    
-                    // Mark onboarding as complete
                     localStorage.setItem('phoenixOnboardingComplete', 'true');
                     
-                    // Play welcome greeting, then redirect
+                    console.log('✅ Preferences saved successfully');
+                    
                     await playWelcomeGreeting();
                 } else {
                     throw new Error(data.message || 'Failed to save preferences');
                 }
             } catch (error) {
-                console.error('Onboarding error:', error);
-                showToast('Failed to complete setup. Please try again.', true);
+                console.error('❌ Onboarding error:', error);
+                showToast('Failed to complete setup: ' + error.message, true);
                 document.getElementById('loading-overlay').classList.remove('show');
             }
         }
 
-        // Check if user is authenticated
-        const token = localStorage.getItem('phoenixToken');
-        if (!token) {
-            window.location.href = '/login';
-        }
+        // ✅ BACKEND AUTHENTICATION CHECK (Not localStorage)
+        (async function() {
+            const token = localStorage.getItem('phoenixToken');
+            if (!token) {
+                console.warn('⚠️ No token found, redirecting to login');
+                window.location.href = '/login';
+                return;
+            }
+
+            try {
+                console.log('🔐 Verifying authentication with backend...');
+                const response = await fetch(API_BASE + '/auth/me', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!data.success || !data.user) {
+                    console.warn('❌ Invalid token, redirecting to login');
+                    localStorage.removeItem('phoenixToken');
+                    localStorage.removeItem('phoenixUser');
+                    localStorage.removeItem('phoenixPreferences');
+                    localStorage.removeItem('phoenixOnboardingComplete');
+                    window.location.href = '/login';
+                } else {
+                    console.log('✅ User authenticated:', data.user.name);
+                    
+                    // Check if user already completed onboarding
+                    if (data.user.preferences && data.user.preferences.onboardingComplete) {
+                        console.log('ℹ️ User already completed onboarding (can redo if they want)');
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Auth check failed:', error);
+                window.location.href = '/login';
+            }
+        })();
     </script>
 </body>
 </html>
