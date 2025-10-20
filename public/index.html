@@ -1331,14 +1331,23 @@
             font-size: 14px;
             color: rgba(0, 255, 255, 0.6);
         }
-    <!-- Load Voice Interface -->
-    <script type="module">
-        import voiceInterface from './src/voice.js';
+  <script type="module" src="./src/voice.js"></script>
+    
+    <script>
+        // Voice interface will auto-initialize from voice.js
+        // This ensures it loads and speaks immediately when page is ready
+        console.log('🎙️ Voice interface loading...');
         
-        // Initialize voice interface after page loads
-        window.addEventListener('DOMContentLoaded', async () => {
-            await voiceInterface.init();
-            console.log('✅ Voice Interface loaded and ready');
+        // Listen for when voice interface is ready
+        window.addEventListener('DOMContentLoaded', () => {
+            // Check if voice interface initialized successfully
+            setTimeout(() => {
+                if (window.voiceInterface) {
+                    console.log('✅ Voice interface active and ready');
+                } else {
+                    console.warn('⚠️ Voice interface not found');
+                }
+            }, 1000);
         });
     </script>
 </body>
