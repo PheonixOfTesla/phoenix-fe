@@ -1551,4 +1551,38 @@ body::after {
 .metric-pod:hover {
     animation-play-state: paused;
 }
-```
+/* ADD THESE LINES TO THE END OF YOUR EXISTING styles.css */
+/* Everything else stays the same */
+
+/* ============================================
+   VOICE BUTTON ENHANCEMENTS (ADD TO END)
+   ============================================ */
+
+#voice-button,
+#voice-settings-button {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+}
+
+#voice-button.active {
+    animation: voicePulseActive 1.5s ease-in-out infinite !important;
+    background: rgba(0, 255, 255, 0.3) !important;
+    box-shadow: 0 0 50px rgba(0, 255, 255, 1) !important;
+}
+
+@keyframes voicePulseActive {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 40px rgba(0, 255, 255, 0.8);
+    }
+    50% {
+        transform: scale(1.15);
+        box-shadow: 0 0 60px rgba(0, 255, 255, 1);
+    }
+}
+
+/* Voice response/transcript animations */
+#voice-response,
+#voice-transcript {
+    pointer-events: auto !important;
+}
