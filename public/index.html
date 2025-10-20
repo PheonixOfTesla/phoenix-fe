@@ -1634,7 +1634,61 @@
                     
                     constellation.appendChild(pod);
                 });
-            }, 2000);
+           }, 2000);
+            
+            // ========================================
+            // VOICE AUTO-ACTIVATION (After Onboarding)
+            // ========================================
+            
+            // Check if user just completed onboarding
+            const onboardingComplete = localStorage.getItem('phoenixOnboardingComplete');
+            const preferences = localStorage.getItem('phoenixPreferences');
+            
+            if (onboardingComplete && preferences) {
+                try {
+                    const prefs = JSON.parse(preferences);
+                    console.log('Loading voice preferences:', prefs);
+                    
+                    // Auto-activate voice greeting after 3 seconds
+                    setTimeout(async () => {
+                        try {
+                            const greeting = "Hello, I'm Phoenix. Ready to optimize your life?";
+                            console.log('Playing welcome greeting...');
+                            
+                            // Call OpenAI TTS
+                            const response = await fetch(`${API_BASE}/voice/speak`, {
+                                method: 'POST',
+                                headers: getAuthHeaders(),
+                                body: JSON.stringify({
+                                    text: greeting,
+                                    voice: prefs.voice || 'fable',
+                                    speed: prefs.speechSpeed || 1.0
+                                })
+                            });
+                            
+                            if (response.ok) {
+                                const audioBlob = await response.blob();
+                                const audioUrl = URL.createObjectURL(audioBlob);
+                                const audio = new Audio(audioUrl);
+                                
+                                audio.onended = () => {
+                                    console.log('Welcome message complete');
+                                    URL.revokeObjectURL(audioUrl);
+                                };
+                                
+                                await audio.play();
+                            } else {
+                                console.error('TTS failed:', response.status);
+                            }
+                        } catch (error) {
+                            console.error('Failed to play welcome greeting:', error);
+                        }
+                    }, 3000);
+                    
+                } catch (error) {
+                    console.error('Failed to load voice preferences:', error);
+                }
+            }
             
             console.log('PHOENIX INITIALIZED');
         });
