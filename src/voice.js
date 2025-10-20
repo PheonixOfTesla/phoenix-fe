@@ -312,10 +312,12 @@ class VoiceInterface {
             if (data.voices) {
                 this.availableVoices = data.voices;
                 this.populateVoiceSelect();
+                console.log('✅ Loaded', data.voices.length, 'server voices');
             }
         } catch (error) {
             console.error('Failed to load server voices:', error);
             this.useServerTTS = false;
+            this.showError('Could not load server voices. Using browser fallback.');
         }
     }
 
@@ -352,11 +354,13 @@ class VoiceInterface {
                     indicator.style.borderColor = 'rgba(0, 255, 136, 0.5)';
                     indicator.style.color = 'rgba(0, 255, 136, 0.8)';
                     this.useServerTTS = true;
+                    console.log('✅ OpenAI TTS available');
                 } else {
                     indicator.innerHTML = '⚠️ Server TTS: Offline | Using browser fallback';
                     indicator.style.borderColor = 'rgba(255, 136, 0, 0.5)';
                     indicator.style.color = 'rgba(255, 136, 0, 0.8)';
                     this.useServerTTS = false;
+                    console.warn('⚠️ OpenAI TTS unavailable, using browser fallback');
                 }
             }
         } catch (error) {
@@ -378,7 +382,7 @@ class VoiceInterface {
             await this.speak(previewText);
         } catch (error) {
             console.error('Preview failed:', error);
-            this.showError('Failed to preview voice');
+            this.showError('Failed to preview voice: ' + error.message);
         } finally {
             if (btn) {
                 btn.textContent = '🔊 PREVIEW VOICE';
@@ -780,7 +784,7 @@ class VoiceInterface {
             this.currentAudio = new Audio(audioUrl);
             
             this.currentAudio.onended = () => {
-                console.log('🔊 Finished speaking');
+                console.log('🔊 Finished speaking (server TTS)');
                 this.isSpeaking = false;
                 this.updateUI('idle');
                 URL.revokeObjectURL(audioUrl);
@@ -794,10 +798,11 @@ class VoiceInterface {
                 this.updateUI('idle');
                 URL.revokeObjectURL(audioUrl);
                 this.currentAudio = null;
-                if (callback) callback();
+                throw new Error('Audio playback failed');
             };
 
             await this.currentAudio.play();
+            console.log('✅ Playing audio via OpenAI TTS');
         } catch (error) {
             this.isSpeaking = false;
             this.updateUI('idle');
@@ -827,6 +832,7 @@ class VoiceInterface {
             this.isSpeaking = true;
             this.updateUI('speaking');
             this.displayResponse(text);
+            console.log('✅ Using browser TTS fallback');
         };
 
         utterance.onend = () => {
