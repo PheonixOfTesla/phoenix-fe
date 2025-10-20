@@ -1,4 +1,4 @@
-// src/api.js - Production API Integration
+// src/api.js - Production API Integration with Voice Support
 // Connects to Railway Backend: https://pal-backend-production.up.railway.app
 
 const API_BASE_URL = window.location.hostname === 'localhost' 
@@ -46,7 +46,66 @@ export const getAuthHeaders = () => {
 };
 
 // ========================================
-// WORKOUT LOGGING (NEW - FILE MODIFICATION #1)
+// VOICE SERVICES (NEW - 4 FUNCTIONS)
+// ========================================
+
+/**
+ * Get available TTS voices with metadata
+ */
+export const getAvailableVoices = async () => {
+    const response = await fetch(`${API_BASE_URL}/voice/voices`);
+    return await response.json();
+};
+
+/**
+ * Convert text to speech using OpenAI TTS
+ * @param {string} text - Text to convert to speech
+ * @param {string} voice - Voice ID (alloy, echo, fable, onyx, nova, shimmer)
+ * @param {number} speed - Speech speed (0.25 - 4.0)
+ * @returns {Promise<Blob>} Audio blob
+ */
+export const textToSpeech = async (text, voice = 'nova', speed = 1.0) => {
+    const response = await fetch(`${API_BASE_URL}/voice/speak`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ text, voice, speed })
+    });
+    
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to generate speech');
+    }
+    
+    return await response.blob();
+};
+
+/**
+ * Check if voice service is available
+ */
+export const getVoiceStatus = async () => {
+    const response = await fetch(`${API_BASE_URL}/voice/status`);
+    return await response.json();
+};
+
+/**
+ * Get voice usage statistics for current user
+ */
+export const getVoiceStats = async () => {
+    const user = JSON.parse(localStorage.getItem('phoenixUser') || '{}');
+    const userId = user._id || user.id;
+    
+    if (!userId) {
+        throw new Error('User not authenticated');
+    }
+    
+    const response = await fetch(`${API_BASE_URL}/voice/stats/${userId}`, {
+        headers: getAuthHeaders()
+    });
+    return await response.json();
+};
+
+// ========================================
+// WORKOUT LOGGING
 // ========================================
 
 export const logWorkout = async (workoutData) => {
@@ -56,7 +115,7 @@ export const logWorkout = async (workoutData) => {
         body: JSON.stringify({
             name: workoutData.name,
             type: workoutData.type || 'strength',
-            exercises: workoutData.exercises, // [{ name, sets, reps, weight, rpe }]
+            exercises: workoutData.exercises,
             duration: workoutData.duration,
             notes: workoutData.notes,
             mood: workoutData.mood
@@ -94,7 +153,7 @@ export const getWorkoutTemplates = async () => {
 };
 
 // ========================================
-// NUTRITION LOGGING (NEW - FILE MODIFICATION #2)
+// NUTRITION LOGGING
 // ========================================
 
 export const logMeal = async (mealData) => {
@@ -107,7 +166,7 @@ export const logMeal = async (mealData) => {
             protein: mealData.protein,
             carbs: mealData.carbs,
             fat: mealData.fat,
-            mealType: mealData.mealType, // breakfast, lunch, dinner, snack
+            mealType: mealData.mealType,
             timestamp: mealData.timestamp || new Date().toISOString()
         })
     });
@@ -129,7 +188,7 @@ export const getNutritionHistory = async (days = 7) => {
 };
 
 // ========================================
-// GOAL CREATION (NEW - FILE MODIFICATION #3)
+// GOAL CREATION
 // ========================================
 
 export const createGoal = async (goalData) => {
@@ -138,7 +197,7 @@ export const createGoal = async (goalData) => {
         headers: getAuthHeaders(),
         body: JSON.stringify({
             title: goalData.title,
-            type: goalData.type, // weight, strength, habit, performance
+            type: goalData.type,
             target: goalData.target,
             deadline: goalData.deadline,
             metric: goalData.metric
