@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Phoenix - Onboarding</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+            background: #000;
+            color: #00ffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            overflow-x: hidden;
+        }
+
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .onboarding-container {
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 650px;
+            background: rgba(0, 10, 20, 0.95);
+            border: 2px solid rgba(0, 255, 255, 0.5);
+            padding: 50px 40px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 0 60px rgba(0, 255, 255, 0.4);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-text {
+            font-size: 42px;
+            color: #00ffff;
+            text-shadow: 0 0 30px rgba(0, 255, 255, 1);
+            letter-spacing: 8px;
+            margin-bottom: 10px;
+        }
+
+        .logo-subtitle {
+            font-size: 13px;
+            color: rgba(0, 255, 255, 0.6);
+            letter-spacing: 2px;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            gap: 10px;
+        }
+
+        .step {
+            flex: 1;
+            height: 4px;
+            background: rgba(0, 255, 255, 0.2);
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .step.active {
+            background: #00ffff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+        }
+
+        .step.completed {
+            background: rgba(0, 255, 136, 0.6);
+        }
+
+        .step-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .step-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-title {
+            font-size: 24px;
+            color: #00ffff;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+        }
+
+        .step-description {
+            font-size: 13px;
+            color: rgba(0, 255, 255, 0.6);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 11px;
+            color: rgba(0, 255, 255, 0.7);
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 15px;
+            background: rgba(0, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            color: #00ffff;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus, .form-select:focus {
+            background: rgba(0, 255, 255, 0.1);
+            border-color: #00ffff;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+
+        .voice-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .voice-card {
+            padding: 18px;
+            background: rgba(0, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .voice-card:hover {
+            background: rgba(0, 255, 255, 0.1);
+            border-color: rgba(0, 255, 255, 0.6);
+            transform: translateX(5px);
+        }
+
+        .voice-card.selected {
+            background: rgba(0, 255, 255, 0.15);
+            border-color: #00ffff;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+        }
+
+        .voice-info {
+            flex: 1;
+        }
+
+        .voice-name {
+            font-size: 16px;
+            color: #00ffff;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .voice-description {
+            font-size: 12px;
+            color: rgba(0, 255, 255, 0.6);
+        }
+
+        .voice-badge {
+            font-size: 18px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 18px;
+            font-family: inherit;
+            font-size: 14px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: rgba(0, 255, 255, 0.2);
+            border: 2px solid #00ffff;
+            color: #00ffff;
+        }
+
+        .btn-primary:hover {
+            background: rgba(0, 255, 255, 0.3);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            color: rgba(0, 255, 255, 0.7);
+        }
+
+        .btn-secondary:hover {
+            border-color: rgba(0, 255, 255, 0.6);
+            background: rgba(0, 255, 255, 0.05);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .preview-btn {
+            padding: 12px 20px;
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.5);
+            color: #00ffff;
+            font-family: inherit;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+        }
+
+        .preview-btn:hover {
+            background: rgba(0, 255, 255, 0.2);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+        }
+
+        .goal-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .goal-card {
+            padding: 20px;
+            background: rgba(0, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .goal-card:hover {
+            background: rgba(0, 255, 255, 0.1);
+            border-color: rgba(0, 255, 255, 0.6);
+            transform: scale(1.05);
+        }
+
+        .goal-card.selected {
+            background: rgba(0, 255, 255, 0.15);
+            border-color: #00ffff;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+        }
+
+        .goal-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .goal-name {
+            font-size: 14px;
+            color: #00ffff;
+            font-weight: bold;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            flex-direction: column;
+        }
+
+        .loading-overlay.show {
+            display: flex;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(0, 255, 255, 0.2);
+            border-top-color: #00ffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #00ffff;
+        }
+
+        @media (max-width: 600px) {
+            .onboarding-container {
+                padding: 40px 25px;
+            }
+
+            .goal-options {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="onboarding-container">
+        <div class="logo">
+            <div class="logo-text">PHOENIX</div>
+            <div class="logo-subtitle">SETUP YOUR AI COMPANION</div>
+        </div>
+
+        <div class="step-indicator">
+            <div class="step active" id="indicator-1"></div>
+            <div class="step" id="indicator-2"></div>
+            <div class="step" id="indicator-3"></div>
+            <div class="step" id="indicator-4"></div>
+            <div class="step" id="indicator-5"></div>
+        </div>
+
+        <!-- STEP 1: Language -->
+        <div class="step-content active" id="step-1">
+            <h2 class="step-title">Language</h2>
+            <p class="step-description">Choose your preferred language for Phoenix</p>
+            
+            <div class="form-group">
+                <label class="form-label">Select Language</label>
+                <select class="form-select" id="language">
+                    <option value="en">English</option>
+                    <option value="es">Spanish</option>
+                    <option value="fr">French</option>
+                    <option value="de">German</option>
+                </select>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="nextStep()">Next</button>
+            </div>
+        </div>
+
+        <!-- STEP 2: Preferences -->
+        <div class="step-content" id="step-2">
+            <h2 class="step-title">Preferences</h2>
+            <p class="step-description">Customize your experience</p>
+            
+            <div class="form-group">
+                <label class="form-label">Units</label>
+                <select class="form-select" id="units">
+                    <option value="imperial">Imperial (lbs, miles, °F)</option>
+                    <option value="metric">Metric (kg, km, °C)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Time Format</label>
+                <select class="form-select" id="timeFormat">
+                    <option value="12h">12-hour (AM/PM)</option>
+                    <option value="24h">24-hour</option>
+                </select>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="prevStep()">Back</button>
+                <button class="btn btn-primary" onclick="nextStep()">Next</button>
+            </div>
+        </div>
+
+        <!-- STEP 3: Voice -->
+        <div class="step-content" id="step-3">
+            <h2 class="step-title">Phoenix Voice</h2>
+            <p class="step-description">Choose how Phoenix speaks to you. Click to preview.</p>
+            
+            <div class="voice-grid">
+                <div class="voice-card" onclick="selectVoice('alloy')">
+                    <div class="voice-info">
+                        <div class="voice-name">Alloy</div>
+                        <div class="voice-description">Neutral, balanced</div>
+                    </div>
+                    <button class="preview-btn" onclick="event.stopPropagation(); previewVoice('alloy')">🔊 Preview</button>
+                </div>
+
+                <div class="voice-card" onclick="selectVoice('echo')">
+                    <div class="voice-info">
+                        <div class="voice-name">Echo</div>
+                        <div class="voice-description">Male, calm and soothing</div>
+                    </div>
+                    <button class="preview-btn" onclick="event.stopPropagation(); previewVoice('echo')">🔊 Preview</button>
+                </div>
+
+                <div class="voice-card selected" onclick="selectVoice('fable')">
+                    <div class="voice-info">
+                        <div class="voice-name">Fable</div>
+                        <div class="voice-description">British, JARVIS-like ⭐ Recommended</div>
+                    </div>
+                    <button class="preview-btn" onclick="event.stopPropagation(); previewVoice('fable')">🔊 Preview</button>
+                </div>
+
+                <div class="voice-card" onclick="selectVoice('onyx')">
+                    <div class="voice-info">
+                        <div class="voice-name">Onyx</div>
+                        <div class="voice-description">Deep, authoritative</div>
+                    </div>
+                    <button class="preview-btn" onclick="event.stopPropagation(); previewVoice('onyx')">🔊 Preview</button>
+                </div>
+
+                <div class="voice-card" onclick="selectVoice('nova')">
+                    <div class="voice-info">
+                        <div class="voice-name">Nova</div>
+                        <div class="voice-description">Female, energetic and friendly</div>
+                    </div>
+                    <button class="preview-btn" onclick="event.stopPropagation(); previewVoice('nova')">🔊 Preview</button>
+                </div>
+
+                <div class="voice-card" onclick="selectVoice('shimmer')">
+                    <div class="voice-info">
+                        <div class="voice-name">Shimmer</div>
+                        <div class="voice-description">Female, soft and gentle</div>
+                    </div>
+                    <button class="preview-btn" onclick="event.stopPropagation(); previewVoice('shimmer')">🔊 Preview</button>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="prevStep()">Back</button>
+                <button class="btn btn-primary" onclick="nextStep()">Next</button>
+            </div>
+        </div>
+
+        <!-- STEP 4: Habits -->
+        <div class="step-content" id="step-4">
+            <h2 class="step-title">Daily Habits</h2>
+            <p class="step-description">Help Phoenix understand your routine</p>
+            
+            <div class="form-group">
+                <label class="form-label">Typical Bedtime</label>
+                <input type="time" class="form-input" id="sleepTime" value="23:00">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Wake Up Time</label>
+                <input type="time" class="form-input" id="wakeTime" value="07:00">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Exercise Frequency</label>
+                <select class="form-select" id="exerciseFrequency">
+                    <option value="daily">Daily</option>
+                    <option value="4-6">4-6 times per week</option>
+                    <option value="2-3">2-3 times per week</option>
+                    <option value="weekly">Once per week</option>
+                    <option value="rarely">Rarely</option>
+                </select>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="prevStep()">Back</button>
+                <button class="btn btn-primary" onclick="nextStep()">Next</button>
+            </div>
+        </div>
+
+        <!-- STEP 5: Goals -->
+        <div class="step-content" id="step-5">
+            <h2 class="step-title">Your Goals</h2>
+            <p class="step-description">What do you want to achieve? Select your primary focus.</p>
+            
+            <div class="goal-options">
+                <div class="goal-card selected" onclick="selectGoal('fitness')">
+                    <div class="goal-icon">💪</div>
+                    <div class="goal-name">Improve Fitness</div>
+                </div>
+                <div class="goal-card" onclick="selectGoal('weight-loss')">
+                    <div class="goal-icon">⚖️</div>
+                    <div class="goal-name">Lose Weight</div>
+                </div>
+                <div class="goal-card" onclick="selectGoal('muscle')">
+                    <div class="goal-icon">🏋️</div>
+                    <div class="goal-name">Build Muscle</div>
+                </div>
+                <div class="goal-card" onclick="selectGoal('health')">
+                    <div class="goal-icon">❤️</div>
+                    <div class="goal-name">Better Health</div>
+                </div>
+                <div class="goal-card" onclick="selectGoal('performance')">
+                    <div class="goal-icon">🚀</div>
+                    <div class="goal-name">Peak Performance</div>
+                </div>
+                <div class="goal-card" onclick="selectGoal('wellness')">
+                    <div class="goal-icon">🧘</div>
+                    <div class="goal-name">Wellness & Balance</div>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="prevStep()">Back</button>
+                <button class="btn btn-primary" onclick="completeOnboarding()">Activate Phoenix</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Initializing Phoenix...</div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.hostname === 'localhost' 
+            ? 'http://localhost:5000/api'
+            : 'https://pal-backend-production.up.railway.app/api';
+
+        let currentStep = 1;
+        let selectedVoice = 'fable';
+        let selectedGoal = 'fitness';
+        let currentAudio = null;
+
+        // Animated background
+        class AnimatedBackground {
+            constructor() {
+                this.canvas = document.getElementById('bg-canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.particles = [];
+                this.width = window.innerWidth;
+                this.height = window.innerHeight;
+                this.canvas.width = this.width;
+                this.canvas.height = this.height;
+                this.init();
+            }
+
+            init() {
+                for (let i = 0; i < 80; i++) {
+                    this.particles.push({
+                        x: Math.random() * this.width,
+                        y: Math.random() * this.height,
+                        vx: (Math.random() - 0.5) * 0.3,
+                        vy: (Math.random() - 0.5) * 0.3,
+                        size: Math.random() * 2 + 1,
+                        alpha: Math.random() * 0.5 + 0.3
+                    });
+                }
+                this.animate();
+                
+                window.addEventListener('resize', () => {
+                    this.width = window.innerWidth;
+                    this.height = window.innerHeight;
+                    this.canvas.width = this.width;
+                    this.canvas.height = this.height;
+                });
+            }
+
+            animate() {
+                this.ctx.clearRect(0, 0, this.width, this.height);
+
+                this.particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    if (p.x < 0 || p.x > this.width) p.vx *= -1;
+                    if (p.y < 0 || p.y > this.height) p.vy *= -1;
+
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    this.ctx.fillStyle = `rgba(0, 255, 255, ${p.alpha})`;
+                    this.ctx.fill();
+                });
+
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+
+        new AnimatedBackground();
+
+        function nextStep() {
+            if (currentStep < 5) {
+                document.getElementById(`step-${currentStep}`).classList.remove('active');
+                document.getElementById(`indicator-${currentStep}`).classList.remove('active');
+                document.getElementById(`indicator-${currentStep}`).classList.add('completed');
+                
+                currentStep++;
+                
+                document.getElementById(`step-${currentStep}`).classList.add('active');
+                document.getElementById(`indicator-${currentStep}`).classList.add('active');
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                document.getElementById(`step-${currentStep}`).classList.remove('active');
+                document.getElementById(`indicator-${currentStep}`).classList.remove('active');
+                
+                currentStep--;
+                
+                document.getElementById(`step-${currentStep}`).classList.add('active');
+                document.getElementById(`indicator-${currentStep}`).classList.remove('completed');
+            }
+        }
+
+        function selectVoice(voice) {
+            selectedVoice = voice;
+            document.querySelectorAll('.voice-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.target.closest('.voice-card').classList.add('selected');
+        }
+
+        async function previewVoice(voice) {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio = null;
+            }
+
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '⏳ Loading...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(`${API_BASE}/voice/speak`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('phoenixToken')
+                    },
+                    body: JSON.stringify({
+                        text: 'Hello. I am Phoenix, your AI companion. Ready to optimize your life?',
+                        voice: voice,
+                        speed: 1.0
+                    })
+                });
+
+                if (!response.ok) throw new Error('TTS failed');
+
+                const audioBlob = await response.blob();
+                const audioUrl = URL.createObjectURL(audioBlob);
+                currentAudio = new Audio(audioUrl);
+                
+                currentAudio.onended = () => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    URL.revokeObjectURL(audioUrl);
+                };
+
+                await currentAudio.play();
+            } catch (error) {
+                console.error('Preview failed:', error);
+                btn.innerHTML = '❌ Failed';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }, 2000);
+            }
+        }
+
+        function selectGoal(goal) {
+            selectedGoal = goal;
+            document.querySelectorAll('.goal-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.target.closest('.goal-card').classList.add('selected');
+        }
+
+        async function completeOnboarding() {
+            document.getElementById('loading-overlay').classList.add('show');
+
+            const preferences = {
+                language: document.getElementById('language').value,
+                units: document.getElementById('units').value,
+                timeFormat: document.getElementById('timeFormat').value,
+                voice: selectedVoice,
+                sleepTime: document.getElementById('sleepTime').value,
+                wakeTime: document.getElementById('wakeTime').value,
+                exerciseFrequency: document.getElementById('exerciseFrequency').value,
+                primaryGoal: selectedGoal,
+                onboardingComplete: true
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/me`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('phoenixToken')
+                    },
+                    body: JSON.stringify({ preferences })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Save preferences locally
+                    localStorage.setItem('phoenixPreferences', JSON.stringify(preferences));
+                    
+                    // Mark onboarding as complete
+                    localStorage.setItem('phoenixOnboardingComplete', 'true');
+                    
+                    // Redirect to dashboard
+                    setTimeout(() => {
+                        window.location.href = '/index';
+                    }, 1500);
+                } else {
+                    throw new Error('Failed to save preferences');
+                }
+            } catch (error) {
+                console.error('Onboarding error:', error);
+                alert('Failed to complete setup. Please try again.');
+                document.getElementById('loading-overlay').classList.remove('show');
+            }
+        }
+
+        // Check if user is authenticated
+        const token = localStorage.getItem('phoenixToken');
+        if (!token) {
+            window.location.href = '/login';
+        }
+    </script>
+</body>
+</html>
