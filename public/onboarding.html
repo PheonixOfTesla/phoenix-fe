@@ -825,7 +825,7 @@
                     throw new Error('Authentication required');
                 }
 
-                const response = await fetch(`${API_BASE}/user/preferences`, {
+               const response = await fetch(`${API_BASE}/auth/me`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
