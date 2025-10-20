@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Phoenix - AI Life Companion</title>
+    <title>Phoenix</title>
     <style>
         * {
             margin: 0;
@@ -25,11 +25,6 @@
             touch-action: none;
         }
 
-        #root {
-            width: 100%;
-            height: 100%;
-        }
-
         #container {
             position: fixed;
             top: 0;
@@ -38,21 +33,7 @@
             height: 100%;
         }
 
-        /* Voice waveform canvas */
-        #voice-waveform {
-            position: fixed;
-            bottom: 200px;
-            right: 30px;
-            width: 200px;
-            height: 100px;
-            z-index: 1001;
-            display: none;
-        }
-
-        #voice-waveform.active {
-            display: block;
-        }
-
+        /* HUD Elements */
         .hud {
             position: fixed;
             z-index: 1000;
@@ -119,6 +100,7 @@
             transition: width 0.5s ease;
         }
 
+        /* Loading Screen */
         #loading {
             position: fixed;
             top: 0;
@@ -165,6 +147,7 @@
             50% { opacity: 1; }
         }
 
+        /* Voice Interface */
         #voice-overlay {
             position: fixed;
             top: 0;
@@ -198,6 +181,7 @@
             position: relative;
         }
 
+        /* Planet Labels */
         .planet-label {
             position: absolute;
             color: #00ffff;
@@ -209,6 +193,7 @@
             transform: translate(-50%, -50%);
         }
 
+        /* Greeting */
         #greeting {
             position: fixed;
             top: 25%;
@@ -236,6 +221,7 @@
             color: rgba(0, 255, 255, 0.6);
         }
 
+        /* Touch Ripple */
         .ripple {
             position: fixed;
             border: 2px solid rgba(0, 255, 255, 0.6);
@@ -283,6 +269,7 @@
             }
         }
 
+        /* Action Menu */
         #action-menu {
             position: fixed;
             top: 50%;
@@ -336,6 +323,7 @@
             letter-spacing: 1px;
         }
 
+        /* Planet Detail View */
         #planet-detail {
             position: fixed;
             top: 0;
@@ -468,6 +456,7 @@
             transform: rotate(90deg);
         }
 
+        /* Quick Actions Bar */
         #quick-actions {
             position: fixed;
             bottom: 30px;
@@ -499,6 +488,7 @@
             box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
         }
 
+        /* Onboarding */
         #onboarding {
             position: fixed;
             top: 0;
@@ -551,7 +541,6 @@
             box-shadow: 0 0 40px rgba(0, 255, 255, 0.8);
             transform: scale(1.05);
         }
-
         .corner-bracket {
             position: fixed;
             width: 30px;
@@ -588,6 +577,7 @@
             border-top: none;
         }
 
+        /* Logout Button */
         .logout-btn {
             position: fixed;
             top: 20px;
@@ -608,7 +598,7 @@
             background: rgba(255, 68, 68, 0.3);
             box-shadow: 0 0 20px rgba(255, 68, 68, 0.5);
         }
-
+         /* Phoenix Core Animations */
         @keyframes coreRotate {
             from { transform: translate(-50%, -50%) rotate(0deg); }
             to { transform: translate(-50%, -50%) rotate(360deg); }
@@ -678,11 +668,7 @@
     </style>
 </head>
 <body>
-    <div id="root"></div>
-
-    <!-- Voice Waveform Canvas -->
-    <canvas id="voice-waveform" width="200" height="100"></canvas>
-
+    <!-- Onboarding Screen -->
     <div id="onboarding" class="active">
         <div class="onboarding-title">PHOENIX</div>
         <div class="onboarding-text">
@@ -692,28 +678,35 @@
         <button class="activate-btn" id="activate-btn">ACTIVATE PHOENIX</button>
     </div>
 
+    <!-- Action Menu -->
     <div id="action-menu">
         <div class="action-ring">
+            <!-- Workout -->
             <div class="action-button-circular" id="action-workout" style="top: 10%; left: 50%; transform: translate(-50%, -50%);">
                 <div class="action-icon">💪</div>
                 <div class="action-label">WORKOUT</div>
             </div>
+            <!-- Meal -->
             <div class="action-button-circular" id="action-meal" style="top: 30%; right: 10%; transform: translate(50%, -50%);">
                 <div class="action-icon">🍽️</div>
                 <div class="action-label">MEAL</div>
             </div>
+            <!-- Goals -->
             <div class="action-button-circular" id="action-goals" style="bottom: 30%; right: 10%; transform: translate(50%, 50%);">
                 <div class="action-icon">🎯</div>
                 <div class="action-label">GOALS</div>
             </div>
+            <!-- Chat -->
             <div class="action-button-circular" id="action-chat" style="bottom: 10%; left: 50%; transform: translate(-50%, 50%);">
                 <div class="action-icon">💬</div>
                 <div class="action-label">CHAT</div>
             </div>
+            <!-- Sync -->
             <div class="action-button-circular" id="action-sync" style="bottom: 30%; left: 10%; transform: translate(-50%, 50%);">
                 <div class="action-icon">🔄</div>
                 <div class="action-label">SYNC</div>
             </div>
+            <!-- Insights -->
             <div class="action-button-circular" id="action-insights" style="top: 30%; left: 10%; transform: translate(-50%, -50%);">
                 <div class="action-icon">📊</div>
                 <div class="action-label">INSIGHTS</div>
@@ -721,15 +714,19 @@
         </div>
     </div>
 
+    <!-- Planet Detail View -->
     <div id="planet-detail">
         <div class="close-detail" id="close-detail">✕</div>
         <div class="planet-detail-header">
             <div class="planet-detail-title" id="detail-title">LOADING...</div>
             <div class="planet-detail-subtitle" id="detail-subtitle">Fetching data...</div>
         </div>
-        <div class="planet-detail-content" id="detail-content"></div>
+        <div class="planet-detail-content" id="detail-content">
+            <!-- Dynamic content loaded here -->
+        </div>
     </div>
 
+    <!-- Quick Actions Bar -->
     <div id="quick-actions">
         <button class="quick-action-btn" id="quick-workout">LOG WORKOUT</button>
         <button class="quick-action-btn" id="quick-meal">LOG MEAL</button>
@@ -737,117 +734,174 @@
         <button class="quick-action-btn" id="quick-chat">ASK PHOENIX</button>
     </div>
 
+    <!-- Loading Screen -->
     <div id="loading">
         <div class="loading-text">PHOENIX</div>
         <div class="loading-spinner"></div>
     </div>
 
+    <!-- Corner Brackets -->
     <div class="corner-bracket bracket-tl"></div>
     <div class="corner-bracket bracket-tr"></div>
     <div class="corner-bracket bracket-bl"></div>
     <div class="corner-bracket bracket-br"></div>
 
+    <!-- Logout Button -->
     <button class="logout-btn" id="logout-btn">LOGOUT</button>
 
+    <!-- Three.js Container -->
     <div id="container"></div>
 
-    <div id="phoenix-core-container" style="
-        position: fixed;
+    <!-- PHOENIX CORE - The Heart of the System -->
+<div id="phoenix-core-container" style="
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 200px;
+    z-index: 500;
+    pointer-events: auto;
+    cursor: pointer;
+">
+    <!-- Outer Rotating Rings -->
+    <div class="core-ring-outer" style="
+        position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        width: 200px;
-        height: 200px;
-        z-index: 500;
-        pointer-events: auto;
-        cursor: pointer;
+        width: 100%;
+        height: 100%;
+        border: 2px solid rgba(0, 255, 255, 0.3);
+        border-radius: 50%;
+        animation: coreRotate 20s linear infinite;
+    "></div>
+    
+    <div class="core-ring-middle" style="
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 120%;
+        height: 120%;
+        border: 2px solid rgba(0, 255, 255, 0.2);
+        border-radius: 50%;
+        animation: coreRotate 15s linear infinite reverse;
+    "></div>
+    
+    <div class="core-ring-wide" style="
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 140%;
+        height: 140%;
+        border: 1px solid rgba(0, 255, 255, 0.15);
+        border-radius: 50%;
+        animation: coreRotate 25s linear infinite;
+    "></div>
+    
+    <!-- Phoenix Core Sphere -->
+    <div id="phoenix-sphere" style="
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 120px;
+        height: 120px;
+        background: radial-gradient(circle at 30% 30%, rgba(0, 255, 255, 0.8), rgba(0, 150, 150, 0.4));
+        border-radius: 50%;
+        box-shadow: 
+            0 0 40px rgba(0, 255, 255, 0.6),
+            inset 0 0 40px rgba(0, 255, 255, 0.3),
+            0 0 80px rgba(0, 255, 255, 0.4);
+        animation: phoenixPulse 2s ease-in-out infinite;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     ">
-        <div class="core-ring-outer" style="
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+        <!-- Inner Glow -->
+        <div style="
             width: 100%;
             height: 100%;
-            border: 2px solid rgba(0, 255, 255, 0.3);
             border-radius: 50%;
-            animation: coreRotate 20s linear infinite;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.4), transparent);
+            animation: innerGlow 3s ease-in-out infinite alternate;
         "></div>
         
-        <div class="core-ring-middle" style="
+        <!-- Phoenix Text -->
+        <div style="
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 120%;
-            height: 120%;
-            border: 2px solid rgba(0, 255, 255, 0.2);
-            border-radius: 50%;
-            animation: coreRotate 15s linear infinite reverse;
-        "></div>
-        
-        <div class="core-ring-wide" style="
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 140%;
-            height: 140%;
-            border: 1px solid rgba(0, 255, 255, 0.15);
-            border-radius: 50%;
-            animation: coreRotate 25s linear infinite;
-        "></div>
-        
-        <div id="phoenix-sphere" style="
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 120px;
-            height: 120px;
-            background: radial-gradient(circle at 30% 30%, rgba(0, 255, 255, 0.8), rgba(0, 150, 150, 0.4));
-            border-radius: 50%;
-            box-shadow: 
-                0 0 40px rgba(0, 255, 255, 0.6),
-                inset 0 0 40px rgba(0, 255, 255, 0.3),
-                0 0 80px rgba(0, 255, 255, 0.4);
-            animation: phoenixPulse 2s ease-in-out infinite;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        ">
-            <div style="
-                width: 100%;
-                height: 100%;
-                border-radius: 50%;
-                background: radial-gradient(circle, rgba(0, 255, 255, 0.4), transparent);
-                animation: innerGlow 3s ease-in-out infinite alternate;
-            "></div>
-            
-            <div style="
-                position: absolute;
-                font-size: 14px;
-                font-weight: bold;
-                color: #00ffff;
-                text-shadow: 0 0 10px rgba(0, 255, 255, 1);
-                letter-spacing: 3px;
-                z-index: 1;
-            ">PHOENIX</div>
-        </div>
-        
-        <canvas id="phoenix-particles" width="200" height="200" style="
-            position: absolute;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-        "></canvas>
+            font-size: 14px;
+            font-weight: bold;
+            color: #00ffff;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 1);
+            letter-spacing: 3px;
+            z-index: 1;
+        ">PHOENIX</div>
     </div>
+    
+    <!-- Data Stream Particles (Hexagons rotating inside) -->
+    <canvas id="phoenix-particles" width="200" height="200" style="
+        position: absolute;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+    "></canvas>
+</div>
 
+<!-- Add these animations to the style tag in head -->
+<style>
+@keyframes coreRotate {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes phoenixPulse {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 
+            0 0 40px rgba(0, 255, 255, 0.6),
+            inset 0 0 40px rgba(0, 255, 255, 0.3),
+            0 0 80px rgba(0, 255, 255, 0.4);
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.05);
+        box-shadow: 
+            0 0 60px rgba(0, 255, 255, 0.8),
+            inset 0 0 50px rgba(0, 255, 255, 0.5),
+            0 0 100px rgba(0, 255, 255, 0.6);
+    }
+}
+
+@keyframes innerGlow {
+    from {
+        transform: scale(0.8);
+        opacity: 0.6;
+    }
+    to {
+        transform: scale(1.2);
+        opacity: 0.3;
+    }
+}
+
+/* Make Phoenix interactive */
+#phoenix-core-container:hover #phoenix-sphere {
+    transform: translate(-50%, -50%) scale(1.1);
+    box-shadow: 
+        0 0 60px rgba(0, 255, 255, 0.9),
+        inset 0 0 50px rgba(0, 255, 255, 0.5),
+        0 0 120px rgba(0, 255, 255, 0.7);
+}
+</style>
+
+    <!-- Greeting -->
     <div id="greeting">
         <div class="greeting-main">Welcome</div>
         <div class="greeting-sub">Your AI companion is initializing...</div>
     </div>
 
+    <!-- HUD Elements -->
     <div id="hud-tl" class="hud hud-corner">
         <div class="hud-label">TIME</div>
         <div class="hud-value" id="time-display">--:--</div>
@@ -873,6 +927,7 @@
         <div class="hud-value" style="font-size: 12px;">ACTIVE</div>
     </div>
 
+    <!-- Voice Overlay -->
     <div id="voice-overlay">
         <div class="waveform-container">
             <canvas id="waveform-canvas" width="200" height="100"></canvas>
@@ -880,6 +935,7 @@
         <div class="voice-text" id="voice-text">Listening...</div>
     </div>
     
+     <!-- Energy Beams from Phoenix to Planets -->
     <svg id="energy-beams" style="
         position: fixed;
         top: 0;
@@ -890,6 +946,7 @@
         z-index: 450;
     "></svg>
 
+    <!-- Data Constellation - Floating Metric Cards -->
     <div id="data-constellation" style="
         position: fixed;
         top: 0;
@@ -900,16 +957,1599 @@
         z-index: 600;
     "></div>
 
+    <!-- Three.js from CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    
-    <!-- React App will be mounted in #root by index.js -->
-    <!-- Voice.js will auto-initialize when loaded -->
-    
+
     <script>
-        console.log('🔥 PHOENIX HTML LOADED - Voice Integration Ready');
-        console.log('✅ Voice waveform canvas present');
-        console.log('✅ All UI elements configured');
-        console.log('⏳ Waiting for React and voice.js to initialize...');
+        // ========================================
+        // CONFIGURATION
+        // ========================================
+        
+        const API_BASE = window.location.hostname === 'localhost' 
+            ? 'http://localhost:5000/api'
+            : 'https://pal-backend-production.up.railway.app/api';
+
+        const getAuthHeaders = () => {
+            const token = localStorage.getItem('phoenixToken');
+            return {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            };
+        };
+
+        // ========================================
+        // PHOENIX ENGINE - MAIN CONTROLLER
+        // ========================================
+        
+        class PhoenixEngine {
+            constructor() {
+                this.scene = null;
+                this.camera = null;
+                this.renderer = null;
+                this.phoenixCore = null;
+                this.planets = [];
+                this.particles = [];
+                this.time = 0;
+                this.isListening = false;
+                this.recoveryScore = 75;
+                this.mouseX = 0;
+                this.mouseY = 0;
+                this.userId = null;
+                this.userData = {};
+                this.location = {};
+                this.weather = {};
+                this.isActivated = false;
+                this.actionMenuOpen = false;
+                this.currentPlanet = null;
+                
+                // Device orientation
+                this.alpha = 0;
+                this.beta = 0;
+                this.gamma = 0;
+            }
+
+            init() {
+                this.authenticate();
+                this.setupScene();
+                this.createPhoenixCore();
+                this.createPlanets();
+                this.createParticleField();
+                this.setupLighting();
+                this.setupEventListeners();
+                this.setupUIHandlers();
+                this.loadLocationAndWeather();
+                this.animate();
+                this.startHUD();
+                
+                // Check if first time user
+                const hasActivated = localStorage.getItem('phoenixActivated');
+                if (hasActivated) {
+                    document.getElementById('onboarding').classList.remove('active');
+                    this.isActivated = true;
+                    this.loadUserData();
+                    this.startDataSync();
+                    setTimeout(() => {
+                        document.getElementById('loading').classList.add('hidden');
+                    }, 3000);
+                } else {
+                    document.getElementById('loading').classList.add('hidden');
+                }
+            }
+
+            setupUIHandlers() {
+                // Logout button
+                document.getElementById('logout-btn').addEventListener('click', () => {
+                    if (confirm('Are you sure you want to logout?')) {
+                        localStorage.removeItem('phoenixToken');
+                        localStorage.removeItem('phoenixUser');
+                        // Keep phoenixActivated so they don't see onboarding again
+                        // localStorage.removeItem('phoenixActivated');
+                        window.location.href = '/login.html';
+                    }
+                });
+
+                // Activate button
+                document.getElementById('activate-btn').addEventListener('click', () => {
+                    this.activatePhoenix();
+                });
+
+                // Action menu buttons
+                document.getElementById('action-workout').addEventListener('click', () => {
+                    this.closeActionMenu();
+                    this.openPlanetDetail('mercury');
+                });
+                document.getElementById('action-meal').addEventListener('click', () => {
+                    this.closeActionMenu();
+                    this.openPlanetDetail('venus');
+                });
+                document.getElementById('action-goals').addEventListener('click', () => {
+                    this.closeActionMenu();
+                    this.openPlanetDetail('mars');
+                });
+                document.getElementById('action-chat').addEventListener('click', () => {
+                    this.closeActionMenu();
+                    this.activateVoice();
+                });
+                document.getElementById('action-sync').addEventListener('click', () => {
+                    this.closeActionMenu();
+                    this.syncAllData();
+                });
+                document.getElementById('action-insights').addEventListener('click', () => {
+                    this.closeActionMenu();
+                    this.showInsights();
+                });
+
+                // Quick action buttons
+                document.getElementById('quick-workout').addEventListener('click', () => {
+                    this.openPlanetDetail('mercury');
+                });
+                document.getElementById('quick-meal').addEventListener('click', () => {
+                    this.openPlanetDetail('venus');
+                });
+                document.getElementById('quick-sync').addEventListener('click', () => {
+                    this.syncAllData();
+                });
+                document.getElementById('quick-chat').addEventListener('click', () => {
+                    this.activateVoice();
+                });
+
+                // Close detail
+                document.getElementById('close-detail').addEventListener('click', () => {
+                    this.closePlanetDetail();
+                });
+            }
+
+            activatePhoenix() {
+                document.getElementById('onboarding').classList.remove('active');
+                localStorage.setItem('phoenixActivated', 'true');
+                this.isActivated = true;
+                
+                // Dramatic activation animation
+                this.phoenixCore.material.emissiveIntensity = 2;
+                setTimeout(() => {
+                    this.phoenixCore.material.emissiveIntensity = 0.5;
+                }, 500);
+
+                // Show welcome notification
+                this.showNotification(
+                    '🔥 Phoenix Activated',
+                    'Your AI companion is now online. Loading your data...'
+                );
+
+                // Load user data
+                this.loadUserData();
+                this.startDataSync();
+            }
+
+            toggleActionMenu() {
+                this.actionMenuOpen = !this.actionMenuOpen;
+                const menu = document.getElementById('action-menu');
+                if (this.actionMenuOpen) {
+                    menu.classList.add('active');
+                } else {
+                    menu.classList.remove('active');
+                }
+            }
+
+            closeActionMenu() {
+                this.actionMenuOpen = false;
+                document.getElementById('action-menu').classList.remove('active');
+            }
+
+            openPlanetDetail(planetName) {
+                this.currentPlanet = planetName;
+                const detail = document.getElementById('planet-detail');
+                detail.classList.add('active');
+                
+                const planetData = {
+                    mercury: {
+                        title: 'FITNESS & RECOVERY',
+                        subtitle: 'Workouts, Performance, Biometrics',
+                        icon: '💪'
+                    },
+                    venus: {
+                        title: 'NUTRITION',
+                        subtitle: 'Meals, Macros, Supplements',
+                        icon: '🍽️'
+                    },
+                    earth: {
+                        title: 'SCHEDULE & TIME',
+                        subtitle: 'Calendar, Energy Patterns, Optimization',
+                        icon: '🗓️'
+                    },
+                    mars: {
+                        title: 'GOALS & HABITS',
+                        subtitle: 'Objectives, Progress, Achievements',
+                        icon: '🎯'
+                    },
+                    jupiter: {
+                        title: 'WEALTH & FINANCE',
+                        subtitle: 'Spending, Budgets, Correlations',
+                        icon: '💰'
+                    },
+                    saturn: {
+                        title: 'LEGACY & LONGEVITY',
+                        subtitle: 'Long-term Health, Life Timeline',
+                        icon: '⏳'
+                    }
+                };
+
+                const planet = planetData[planetName] || planetData.mercury;
+                document.getElementById('detail-title').textContent = planet.title;
+                document.getElementById('detail-subtitle').textContent = planet.subtitle;
+
+                // Load planet-specific content
+                this.loadPlanetContent(planetName);
+            }
+
+            closePlanetDetail() {
+                document.getElementById('planet-detail').classList.remove('active');
+                this.currentPlanet = null;
+            }
+
+            async loadPlanetContent(planetName) {
+                const content = document.getElementById('detail-content');
+                
+                if (planetName === 'mercury') {
+                    // Fitness & Recovery
+                    content.innerHTML = `
+                        <div class="metric-grid">
+                            <div class="metric-card">
+                                <div class="metric-card-label">RECOVERY SCORE</div>
+                                <div class="metric-card-value">${Math.round(this.recoveryScore)}%</div>
+                                <div class="metric-card-trend">↑ +5% vs yesterday</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-card-label">HRV</div>
+                                <div class="metric-card-value">${this.userData.wearable?.hrv || '--'}<span style="font-size: 18px;">ms</span></div>
+                                <div class="metric-card-trend">Above baseline</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-card-label">WORKOUTS THIS WEEK</div>
+                                <div class="metric-card-value">${this.userData.intelligence?.recentWorkouts?.length || 0}</div>
+                                <div class="metric-card-trend">4/5 goal</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-card-label">SLEEP QUALITY</div>
+                                <div class="metric-card-value">${this.userData.wearable?.sleepScore || '--'}%</div>
+                                <div class="metric-card-trend">7.2 hours</div>
+                            </div>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="phoenix.quickLogWorkout()">📝 LOG WORKOUT</button>
+                            <button class="action-btn" onclick="phoenix.generateWorkout()">🤖 AI GENERATE</button>
+                            <button class="action-btn" onclick="phoenix.viewWorkoutHistory()">📊 HISTORY</button>
+                            <button class="action-btn" onclick="phoenix.analyzeRecovery()">🔍 ANALYZE</button>
+                        </div>
+                    `;
+                } else if (planetName === 'venus') {
+                    // Nutrition
+                    content.innerHTML = `
+                        <div class="metric-grid">
+                            <div class="metric-card">
+                                <div class="metric-card-label">TODAY'S CALORIES</div>
+                                <div class="metric-card-value">${this.userData.intelligence?.todayNutrition?.calories || 0}</div>
+                                <div class="metric-card-trend">2400 target</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-card-label">PROTEIN</div>
+                                <div class="metric-card-value">${this.userData.intelligence?.todayNutrition?.protein || 0}<span style="font-size: 18px;">g</span></div>
+                                <div class="metric-card-trend">180g target</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-card-label">MEALS LOGGED</div>
+                                <div class="metric-card-value">${this.userData.intelligence?.mealsToday || 0}</div>
+                                <div class="metric-card-trend">of 4 planned</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-card-label">HYDRATION</div>
+                                <div class="metric-card-value">64<span style="font-size: 18px;">oz</span></div>
+                                <div class="metric-card-trend">100oz target</div>
+                            </div>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="phoenix.quickLogMeal()">📝 LOG MEAL</button>
+                            <button class="action-btn" onclick="phoenix.generateMealPlan()">🤖 MEAL PLAN</button>
+                            <button class="action-btn" onclick="phoenix.scanFood()">📷 SCAN FOOD</button>
+                            <button class="action-btn" onclick="phoenix.viewNutritionHistory()">📊 HISTORY</button>
+                        </div>
+                    `;
+                } else if (planetName === 'mars') {
+                    // Goals
+                    const activeGoals = this.userData.goals?.filter(g => !g.completed) || [];
+                    content.innerHTML = `
+                        <div class="metric-grid">
+                            <div class="metric-card">
+                                <div class="metric-card-label">ACTIVE GOALS</div>
+                                <div class="metric-card-value">${activeGoals.length}</div>
+                                <div class="metric-card-trend">On track</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-card-label">COMPLETION RATE</div>
+                                <div class="metric-card-value">73%</div>
+                                <div class="metric-card-trend">+12% this month</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-card-label">STREAK</div>
+                                <div class="metric-card-value">14<span style="font-size: 18px;">days</span></div>
+                                <div class="metric-card-trend">Personal best</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-card-label">LEVEL</div>
+                                <div class="metric-card-value">7</div>
+                                <div class="metric-card-trend">2450/3000 XP</div>
+                            </div>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="phoenix.createGoal()">➕ NEW GOAL</button>
+                            <button class="action-btn" onclick="phoenix.viewGoals()">📋 VIEW ALL</button>
+                            <button class="action-btn" onclick="phoenix.analyzeProgress()">📈 ANALYZE</button>
+                            <button class="action-btn" onclick="phoenix.viewAchievements()">🏆 BADGES</button>
+                        </div>
+                    `;
+                } else {
+                    content.innerHTML = `
+                        <div style="text-align: center; padding: 60px;">
+                            <div style="font-size: 48px; margin-bottom: 20px;">🚧</div>
+                            <div style="font-size: 24px; color: #00ffff; margin-bottom: 10px;">Coming Soon</div>
+                            <div style="font-size: 14px; color: rgba(0,255,255,0.6);">
+                                This planet's features are under development.
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            quickLogWorkout() {
+                const exercise = prompt('Exercise name:');
+                const weight = prompt('Weight (lbs):');
+                const sets = prompt('Sets:');
+                const reps = prompt('Reps:');
+                
+                if (exercise && weight && sets && reps) {
+                    this.logQuickWorkout(exercise, weight, sets, reps);
+                    this.closePlanetDetail();
+                }
+            }
+
+            quickLogMeal() {
+                const food = prompt('Food name:');
+                const calories = prompt('Calories:');
+                const protein = prompt('Protein (g):');
+                
+                if (food && calories && protein) {
+                    this.logQuickMeal(food, calories, protein);
+                    this.closePlanetDetail();
+                }
+            }
+
+            async generateWorkout() {
+                if (!this.userId) return;
+                
+                this.showNotification('🤖 Generating Workout', 'Phoenix is creating your optimal workout...');
+                
+                try {
+                    const response = await fetch(`${API_BASE}/mercury/${this.userId}/generate-workout`, {
+                        method: 'POST',
+                        headers: getAuthHeaders(),
+                        body: JSON.stringify({
+                            recovery: this.recoveryScore,
+                            type: 'strength'
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    if (data.success) {
+                        this.showNotification('✅ Workout Ready', 'Your AI-generated workout is ready to start!');
+                    }
+                } catch (error) {
+                    console.error('Error generating workout:', error);
+                }
+            }
+
+            async syncAllData() {
+                this.showNotification('🔄 Syncing Data', 'Fetching latest from all devices...');
+                
+                try {
+                    if (this.userId) {
+                        await Promise.all([
+                            fetch(`${API_BASE}/wearables/sync/fitbit`, {
+                                method: 'POST',
+                                headers: getAuthHeaders()
+                            }),
+                            this.loadUserData()
+                        ]);
+                        
+                        this.showNotification('✅ Sync Complete', 'All data updated successfully');
+                    }
+                } catch (error) {
+                    console.error('Sync error:', error);
+                }
+            }
+
+            async showInsights() {
+                if (!this.userId) return;
+                
+                this.showNotification('🔍 Analyzing', 'Phoenix is analyzing your data...');
+                
+                try {
+                    const response = await fetch(`${API_BASE}/intelligence/${this.userId}`, {
+                        headers: getAuthHeaders()
+                    });
+                    
+                    const data = await response.json();
+                    if (data.success && data.insights) {
+                        const insightsText = data.insights.join('\n\n');
+                        this.showNotification('💡 Insights', insightsText);
+                    }
+                } catch (error) {
+                    console.error('Insights error:', error);
+                }
+            }
+
+            async authenticate() {
+                const token = localStorage.getItem('phoenixToken');
+                if (!token) {
+                    console.log('No token found - redirecting to login');
+                    window.location.href = '/login';
+                    return false;
+                }
+
+                try {
+                    const response = await fetch(`${API_BASE}/auth/me`, {
+                        headers: getAuthHeaders()
+                    });
+                    const data = await response.json();
+                    if (data.success && data.user) {
+                        this.userId = data.user._id;
+                        console.log('✅ Authenticated:', data.user.name);
+                        
+                        // Update greeting with user name
+                        const hour = new Date().getHours();
+                        const greeting = hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : 'Good Evening';
+                        document.querySelector('.greeting-main').textContent = `${greeting}, ${data.user.name.split(' ')[0]}`;
+                        
+                        return true;
+                    } else {
+                        console.log('Token invalid - redirecting to login');
+                        localStorage.removeItem('phoenixToken');
+                        localStorage.removeItem('phoenixUser');
+                        window.location.href = '/login.html';
+                        return false;
+                    }
+                } catch (error) {
+                    console.error('Auth error:', error);
+                    localStorage.removeItem('phoenixToken');
+                    localStorage.removeItem('phoenixUser');
+                    window.location.href = '/login.html';
+                    return false;
+                }
+            }
+
+            async loadLocationAndWeather() {
+                try {
+                    // Get IP geolocation
+                    const geoResponse = await fetch('https://ipapi.co/json/');
+                    const geoData = await geoResponse.json();
+                    
+                    if (geoData.city && geoData.region) {
+                        this.location = {
+                            city: geoData.city,
+                            region: geoData.region,
+                            country: geoData.country_name,
+                            lat: geoData.latitude,
+                            lon: geoData.longitude
+                        };
+                        
+                        // Get weather using Open-Meteo
+                        const weatherResponse = await fetch(
+                            `https://api.open-meteo.com/v1/forecast?latitude=${geoData.latitude}&longitude=${geoData.longitude}&current=temperature_2m,weathercode&temperature_unit=fahrenheit`
+                        );
+                        const weatherData = await weatherResponse.json();
+                        
+                        if (weatherData.current) {
+                            const temp = Math.round(weatherData.current.temperature_2m);
+                            const weatherCode = weatherData.current.weathercode;
+                            const weatherInfo = this.getWeatherInfo(weatherCode);
+                            
+                            this.weather = {
+                                temp: temp,
+                                icon: weatherInfo.icon,
+                                description: weatherInfo.description
+                            };
+                            
+                            this.updateWeatherDisplay();
+                        }
+                    }
+                } catch (error) {
+                    console.error('Location/Weather error:', error);
+                }
+            }
+
+            getWeatherInfo(code) {
+                const weatherMap = {
+                    0: { icon: '☀️', description: 'Clear' },
+                    1: { icon: '🌤️', description: 'Clear' },
+                    2: { icon: '⛅', description: 'Cloudy' },
+                    3: { icon: '☁️', description: 'Overcast' },
+                    45: { icon: '🌫️', description: 'Foggy' },
+                    48: { icon: '🌫️', description: 'Foggy' },
+                    51: { icon: '🌦️', description: 'Drizzle' },
+                    53: { icon: '🌧️', description: 'Rain' },
+                    55: { icon: '🌧️', description: 'Rain' },
+                    61: { icon: '🌧️', description: 'Rain' },
+                    63: { icon: '🌧️', description: 'Rain' },
+                    65: { icon: '⛈️', description: 'Storm' },
+                    71: { icon: '🌨️', description: 'Snow' },
+                    73: { icon: '❄️', description: 'Snow' },
+                    75: { icon: '❄️', description: 'Snow' },
+                    77: { icon: '🌨️', description: 'Snow' },
+                    80: { icon: '🌦️', description: 'Showers' },
+                    81: { icon: '🌧️', description: 'Showers' },
+                    82: { icon: '⛈️', description: 'Storm' },
+                    85: { icon: '🌨️', description: 'Snow' },
+                    86: { icon: '❄️', description: 'Snow' },
+                    95: { icon: '⛈️', description: 'Thunder' },
+                    96: { icon: '⛈️', description: 'Thunder' },
+                    99: { icon: '⚡', description: 'Thunder' }
+                };
+                return weatherMap[code] || { icon: '🌡️', description: 'Unknown' };
+            }
+
+            updateWeatherDisplay() {
+                const weatherHTML = `
+                    <div class="hud-label">WEATHER</div>
+                    <div style="font-size: 24px; margin: 5px 0;">${this.weather.icon}</div>
+                    <div class="hud-value">${this.weather.temp}°F</div>
+                    <div style="font-size: 9px; color: rgba(0,255,255,0.5); margin-top: 5px;">
+                        ${this.weather.description}
+                    </div>
+                    <div style="font-size: 8px; color: rgba(0,255,255,0.3); margin-top: 3px;">
+                        ${this.location.city}
+                    </div>
+                `;
+                document.getElementById('hud-bl').innerHTML = weatherHTML;
+            }
+
+            async loadUserData() {
+                if (!this.userId) return;
+
+                try {
+                    // Load comprehensive intelligence data
+                    const [intelligence, wearable, recovery, goals, predictions] = await Promise.all([
+                        fetch(`${API_BASE}/intelligence/${this.userId}`, { headers: getAuthHeaders() }),
+                        fetch(`${API_BASE}/wearables/user/${this.userId}`, { headers: getAuthHeaders() }),
+                        fetch(`${API_BASE}/recovery/${this.userId}/score/current`, { headers: getAuthHeaders() }),
+                        fetch(`${API_BASE}/goals/client/${this.userId}`, { headers: getAuthHeaders() }),
+                        fetch(`${API_BASE}/predictions/${this.userId}/hrv`, { headers: getAuthHeaders() })
+                    ]);
+
+                    const intelligenceData = await intelligence.json();
+                    const wearableData = await wearable.json();
+                    const recoveryData = await recovery.json();
+                    const goalsData = await goals.json();
+                    const predictionsData = await predictions.json();
+
+                    // Store user data
+                    this.userData = {
+                        intelligence: intelligenceData.data || {},
+                        wearable: wearableData.data || {},
+                        recovery: recoveryData.data || {},
+                        goals: goalsData.data || [],
+                        predictions: predictionsData.data || {}
+                    };
+
+                    // Update recovery score from real data
+                    if (recoveryData.data?.score) {
+                        this.recoveryScore = recoveryData.data.score;
+                    }
+
+                    // Update planet metrics
+                    this.updatePlanetMetrics();
+
+                    console.log('✅ User data loaded:', this.userData);
+                } catch (error) {
+                    console.error('Error loading user data:', error);
+                }
+            }
+
+            updatePlanetMetrics() {
+                // Update planet colors and intensities based on real data
+                const metrics = {
+                    mercury: this.userData.wearable?.hrv || 0,
+                    venus: this.userData.intelligence?.recentWorkouts?.length || 0,
+                    earth: this.userData.intelligence?.upcomingEvents || 0,
+                    mars: this.userData.goals?.filter(g => !g.completed).length || 0,
+                    jupiter: 0, // Placeholder for financial data
+                    saturn: this.userData.recovery?.score || 0
+                };
+
+                // Update visual intensity based on metrics
+                this.planets.forEach(planet => {
+                    const metric = metrics[planet.userData.name.toLowerCase()];
+                    if (metric !== undefined) {
+                        // Adjust emissive intensity based on data
+                        const intensity = Math.min(1, metric / 100);
+                        planet.material.emissiveIntensity = 0.3 + intensity * 0.7;
+                    }
+                });
+            }
+
+            startDataSync() {
+                // Sync data every 30 seconds
+                setInterval(() => {
+                    this.loadUserData();
+                }, 30000);
+
+                // Check for interventions every 60 seconds
+                if (this.userId) {
+                    setInterval(() => {
+                        this.checkInterventions();
+                    }, 60000);
+                }
+            }
+
+            async checkInterventions() {
+                if (!this.userId) return;
+
+                try {
+                    const response = await fetch(`${API_BASE}/intervention/${this.userId}/analyze`, {
+                        method: 'POST',
+                        headers: getAuthHeaders()
+                    });
+                    const data = await response.json();
+
+                    if (data.success && data.interventions && data.interventions.length > 0) {
+                        data.interventions.forEach(intervention => {
+                            this.showIntervention(intervention);
+                        });
+                    }
+                } catch (error) {
+                    console.error('Intervention check error:', error);
+                }
+            }
+
+            showIntervention(intervention) {
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 100px;
+                    right: 30px;
+                    background: rgba(0, 10, 20, 0.95);
+                    border: 2px solid ${intervention.severity === 'critical' ? '#ff4444' : '#ffaa00'};
+                    padding: 20px;
+                    max-width: 300px;
+                    z-index: 10000;
+                    animation: slideIn 0.3s ease-out;
+                    box-shadow: 0 0 30px ${intervention.severity === 'critical' ? 'rgba(255,68,68,0.5)' : 'rgba(255,170,0,0.5)'};
+                `;
+                
+                notification.innerHTML = `
+                    <div style="font-size: 14px; font-weight: bold; color: #00ffff; margin-bottom: 10px;">
+                        ${intervention.severity === 'critical' ? '🚨' : '⚠️'} ${intervention.title}
+                    </div>
+                    <div style="font-size: 12px; color: rgba(0, 255, 255, 0.7); margin-bottom: 10px;">
+                        ${intervention.message}
+                    </div>
+                    <div style="font-size: 11px; color: rgba(0, 255, 255, 0.5);">
+                        ${intervention.action || 'Phoenix is handling this automatically.'}
+                    </div>
+                `;
+
+                document.body.appendChild(notification);
+
+                // Flash screen for critical interventions
+                if (intervention.severity === 'critical') {
+                    this.flashAlert();
+                }
+
+                // Auto-remove after 8 seconds
+                setTimeout(() => {
+                    notification.style.animation = 'slideOut 0.3s ease-out';
+                    setTimeout(() => notification.remove(), 300);
+                }, 8000);
+            }
+
+            flashAlert() {
+                const overlay = document.createElement('div');
+                overlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    border: 5px solid #ff4444;
+                    pointer-events: none;
+                    z-index: 9999;
+                    animation: alertFlash 0.5s ease-out 3;
+                `;
+                document.body.appendChild(overlay);
+                setTimeout(() => overlay.remove(), 1500);
+            }
+
+            setupScene() {
+                // Scene
+                this.scene = new THREE.Scene();
+                this.scene.fog = new THREE.FogExp2(0x000000, 0.0008);
+
+                // Camera
+                this.camera = new THREE.PerspectiveCamera(
+                    75,
+                    window.innerWidth / window.innerHeight,
+                    0.1,
+                    1000
+                );
+                this.camera.position.z = 15;
+
+                // Renderer
+                this.renderer = new THREE.WebGLRenderer({ 
+                    antialias: true,
+                    alpha: true 
+                });
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                document.getElementById('container').appendChild(this.renderer.domElement);
+
+                // Responsive
+                window.addEventListener('resize', () => {
+                    this.camera.aspect = window.innerWidth / window.innerHeight;
+                    this.camera.updateProjectionMatrix();
+                    this.renderer.setSize(window.innerWidth, window.innerHeight);
+                });
+            }
+
+            createPhoenixCore() {
+                // Core sphere
+                const geometry = new THREE.SphereGeometry(1.5, 64, 64);
+                const material = new THREE.MeshPhongMaterial({
+                    color: 0x00ffff,
+                    emissive: 0x00ffff,
+                    emissiveIntensity: 0.5,
+                    shininess: 100,
+                    transparent: true,
+                    opacity: 0.8
+                });
+                
+                this.phoenixCore = new THREE.Mesh(geometry, material);
+                this.scene.add(this.phoenixCore);
+
+                // Outer rings
+                for (let i = 0; i < 3; i++) {
+                    const ringGeometry = new THREE.TorusGeometry(2 + i * 0.5, 0.02, 16, 100);
+                    const ringMaterial = new THREE.MeshBasicMaterial({
+                        color: 0x00ffff,
+                        transparent: true,
+                        opacity: 0.3
+                    });
+                    const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+                    ring.rotation.x = Math.PI / 2;
+                    ring.userData.rotationSpeed = 0.001 * (i + 1);
+                    this.phoenixCore.add(ring);
+                }
+
+                // Inner glow
+                const glowGeometry = new THREE.SphereGeometry(1.8, 32, 32);
+                const glowMaterial = new THREE.MeshBasicMaterial({
+                    color: 0x00ffff,
+                    transparent: true,
+                    opacity: 0.1
+                });
+                const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+                this.phoenixCore.add(glow);
+            }
+
+            createPlanets() {
+                const planetData = [
+                    { name: 'MERCURY', color: 0xff6b35, angle: 0, distance: 8, icon: '💪' },
+                    { name: 'VENUS', color: 0xff66ff, angle: Math.PI / 3, distance: 8, icon: '🧠' },
+                    { name: 'EARTH', color: 0x00ff88, angle: 2 * Math.PI / 3, distance: 8, icon: '🌍' },
+                    { name: 'MARS', color: 0xff4444, angle: Math.PI, distance: 8, icon: '🎯' },
+                    { name: 'JUPITER', color: 0xffaa00, angle: 4 * Math.PI / 3, distance: 8, icon: '💰' },
+                    { name: 'SATURN', color: 0x8844ff, angle: 5 * Math.PI / 3, distance: 8, icon: '⏳' }
+                ];
+
+                planetData.forEach((data, index) => {
+                    const geometry = new THREE.SphereGeometry(0.6, 32, 32);
+                    const material = new THREE.MeshPhongMaterial({
+                        color: data.color,
+                        emissive: data.color,
+                        emissiveIntensity: 0.3,
+                        shininess: 80
+                    });
+                    
+                    const planet = new THREE.Mesh(geometry, material);
+                    planet.userData = {
+                        angle: data.angle,
+                        distance: data.distance,
+                        speed: 0.0005 + index * 0.0002,
+                        name: data.name,
+                        icon: data.icon
+                    };
+                    
+                    this.scene.add(planet);
+                    this.planets.push(planet);
+
+                    // Planet glow
+                    const glowGeometry = new THREE.SphereGeometry(0.8, 16, 16);
+                    const glowMaterial = new THREE.MeshBasicMaterial({
+                        color: data.color,
+                        transparent: true,
+                        opacity: 0.2
+                    });
+                    const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+                    planet.add(glow);
+                });
+            }
+
+            createParticleField() {
+                const particleCount = 3000; // Reduced for performance
+                const geometry = new THREE.BufferGeometry();
+                const positions = new Float32Array(particleCount * 3);
+                const velocities = [];
+
+                for (let i = 0; i < particleCount; i++) {
+                    positions[i * 3] = (Math.random() - 0.5) * 50;
+                    positions[i * 3 + 1] = (Math.random() - 0.5) * 50;
+                    positions[i * 3 + 2] = (Math.random() - 0.5) * 50;
+
+                    velocities.push({
+                        x: (Math.random() - 0.5) * 0.02,
+                        y: (Math.random() - 0.5) * 0.02,
+                        z: (Math.random() - 0.5) * 0.02
+                    });
+                }
+
+                geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+                const material = new THREE.PointsMaterial({
+                    color: 0x00ffff,
+                    size: 0.05,
+                    transparent: true,
+                    opacity: 0.6,
+                    blending: THREE.AdditiveBlending
+                });
+
+                const particles = new THREE.Points(geometry, material);
+                particles.userData.velocities = velocities;
+                this.scene.add(particles);
+                this.particles.push(particles);
+            }
+
+            setupLighting() {
+                // Ambient light
+                const ambient = new THREE.AmbientLight(0x404040);
+                this.scene.add(ambient);
+
+                // Point light from Phoenix core
+                const pointLight = new THREE.PointLight(0x00ffff, 2, 50);
+                this.phoenixCore.add(pointLight);
+
+                // Additional colored lights
+                const light1 = new THREE.PointLight(0xff6b35, 0.5, 20);
+                light1.position.set(5, 5, 5);
+                this.scene.add(light1);
+
+                const light2 = new THREE.PointLight(0xff66ff, 0.5, 20);
+                light2.position.set(-5, -5, 5);
+                this.scene.add(light2);
+            }
+
+            setupEventListeners() {
+                // Touch/Mouse events
+                let touchStartTime = 0;
+                
+                document.addEventListener('touchstart', (e) => {
+                    touchStartTime = Date.now();
+                    this.onTouch(e);
+                }, { passive: false });
+                
+                document.addEventListener('touchend', (e) => {
+                    const touchDuration = Date.now() - touchStartTime;
+                    if (touchDuration > 500) {
+                        // Long press - activate voice
+                        this.activateVoice();
+                    }
+                });
+                
+                document.addEventListener('touchmove', (e) => this.onTouchMove(e), { passive: false });
+                document.addEventListener('mousedown', (e) => {
+                    touchStartTime = Date.now();
+                    this.onTouch(e);
+                });
+                document.addEventListener('mouseup', (e) => {
+                    const clickDuration = Date.now() - touchStartTime;
+                    if (clickDuration > 500) {
+                        this.activateVoice();
+                    }
+                });
+                document.addEventListener('mousemove', (e) => this.onMouseMove(e));
+
+                // Click on Phoenix core to toggle action menu
+                if (this.phoenixCore) {
+                    this.phoenixCore.userData.clickable = true;
+                }
+
+                // Raycasting for planet clicks
+                this.raycaster = new THREE.Raycaster();
+                this.mouseVector = new THREE.Vector2();
+
+                // Click handler for 3D objects
+                const clickHandler = (e) => {
+                    e.preventDefault();
+                    
+                    const x = e.touches ? e.touches[0].clientX : e.clientX;
+                    const y = e.touches ? e.touches[0].clientY : e.clientY;
+                    
+                    this.mouseVector.x = (x / window.innerWidth) * 2 - 1;
+                    this.mouseVector.y = -(y / window.innerHeight) * 2 + 1;
+                    
+                    this.raycaster.setFromCamera(this.mouseVector, this.camera);
+                    
+                    // Check Phoenix core
+                    const coreIntersects = this.raycaster.intersectObject(this.phoenixCore);
+                    if (coreIntersects.length > 0 && !this.actionMenuOpen) {
+                        this.toggleActionMenu();
+                        return;
+                    }
+                    
+                    // Check planets
+                    const planetIntersects = this.raycaster.intersectObjects(this.planets);
+                    if (planetIntersects.length > 0) {
+                        const planet = planetIntersects[0].object;
+                        const planetName = planet.userData.name.toLowerCase();
+                        this.openPlanetDetail(planetName);
+                    }
+                    
+                    // Close action menu if clicking elsewhere
+                    if (this.actionMenuOpen && coreIntersects.length === 0) {
+                        this.closeActionMenu();
+                    }
+                };
+
+                document.addEventListener('click', clickHandler);
+
+                // Device orientation
+                if (window.DeviceOrientationEvent) {
+                    window.addEventListener('deviceorientation', (e) => {
+                        this.alpha = e.alpha || 0;
+                        this.beta = e.beta || 0;
+                        this.gamma = e.gamma || 0;
+                    });
+                }
+
+                // Keyboard shortcuts
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === ' ') {
+                        e.preventDefault();
+                        this.toggleActionMenu();
+                    } else if (e.key === 'v' || e.key === 'V') {
+                        e.preventDefault();
+                        this.activateVoice();
+                    } else if (e.key === 'Escape') {
+                        this.closeActionMenu();
+                        this.closePlanetDetail();
+                    }
+                });
+            }
+
+            onTouch(e) {
+                e.preventDefault();
+                const x = e.touches ? e.touches[0].clientX : e.clientX;
+                const y = e.touches ? e.touches[0].clientY : e.clientY;
+                
+                this.createRipple(x, y);
+            }
+
+            onTouchMove(e) {
+                e.preventDefault();
+                const x = e.touches ? e.touches[0].clientX : e.clientX;
+                const y = e.touches ? e.touches[0].clientY : e.clientY;
+                
+                this.mouseX = (x / window.innerWidth) * 2 - 1;
+                this.mouseY = -(y / window.innerHeight) * 2 + 1;
+            }
+
+            onMouseMove(e) {
+                this.mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+                this.mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+            }
+
+            createRipple(x, y) {
+                const ripple = document.createElement('div');
+                ripple.className = 'ripple';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.style.width = '20px';
+                ripple.style.height = '20px';
+                ripple.style.marginLeft = '-10px';
+                ripple.style.marginTop = '-10px';
+                document.body.appendChild(ripple);
+                
+                setTimeout(() => ripple.remove(), 600);
+            }
+
+            activateVoice() {
+                const overlay = document.getElementById('voice-overlay');
+                overlay.classList.add('active');
+                this.isListening = true;
+                
+                // Start speech recognition if available
+                if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    const recognition = new SpeechRecognition();
+                    recognition.continuous = false;
+                    recognition.interimResults = false;
+                    recognition.lang = 'en-US';
+
+                    recognition.onstart = () => {
+                        document.getElementById('voice-text').textContent = 'Listening...';
+                    };
+
+                    recognition.onresult = async (event) => {
+                        const transcript = event.results[0][0].transcript;
+                        document.getElementById('voice-text').textContent = `"${transcript}"`;
+                        
+                        // Process command
+                        await this.processVoiceCommand(transcript);
+                        
+                        setTimeout(() => {
+                            overlay.classList.remove('active');
+                            this.isListening = false;
+                        }, 2000);
+                    };
+
+                    recognition.onerror = (error) => {
+                        console.error('Speech recognition error:', error);
+                        document.getElementById('voice-text').textContent = 'Error processing voice...';
+                        setTimeout(() => {
+                            overlay.classList.remove('active');
+                            this.isListening = false;
+                        }, 2000);
+                    };
+
+                    recognition.onend = () => {
+                        if (this.isListening) {
+                            setTimeout(() => {
+                                overlay.classList.remove('active');
+                                this.isListening = false;
+                            }, 1000);
+                        }
+                    };
+
+                    recognition.start();
+                } else {
+                    document.getElementById('voice-text').textContent = 'Voice recognition not supported';
+                    setTimeout(() => {
+                        overlay.classList.remove('active');
+                        this.isListening = false;
+                    }, 2000);
+                }
+                
+                this.animateWaveform();
+            }
+
+            async processVoiceCommand(command) {
+                const lowerCmd = command.toLowerCase();
+
+                // Quick workout logging
+                const workoutMatch = lowerCmd.match(/log workout (.+?) (\d+) pounds (\d+) sets (\d+) reps/i);
+                if (workoutMatch) {
+                    const [, exercise, weight, sets, reps] = workoutMatch;
+                    await this.logQuickWorkout(exercise, weight, sets, reps);
+                    return;
+                }
+
+                // Quick meal logging
+                const mealMatch = lowerCmd.match(/log meal (.+?) (\d+) calories (\d+) protein/i);
+                if (mealMatch) {
+                    const [, food, calories, protein] = mealMatch;
+                    await this.logQuickMeal(food, calories, protein);
+                    return;
+                }
+
+                // Send to AI companion
+                if (this.userId) {
+                    try {
+                        const response = await fetch(`${API_BASE}/companion/chat`, {
+                            method: 'POST',
+                            headers: getAuthHeaders(),
+                            body: JSON.stringify({ 
+                                message: command,
+                                context: {
+                                    recovery: this.recoveryScore,
+                                    location: this.location.city,
+                                    weather: this.weather.description
+                                }
+                            })
+                        });
+                        
+                        const data = await response.json();
+                        if (data.success && data.response) {
+                            this.speakResponse(data.response);
+                            this.showNotification('Phoenix', data.response);
+                        }
+                    } catch (error) {
+                        console.error('AI chat error:', error);
+                    }
+                }
+            }
+
+            speakResponse(text) {
+                if ('speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.rate = 1.0;
+                    utterance.pitch = 1.0;
+                    utterance.volume = 1.0;
+                    utterance.lang = 'en-US';
+                    
+                    const voices = speechSynthesis.getVoices();
+                    const preferredVoice = voices.find(v => 
+                        v.name.includes('Google') || v.name.includes('Microsoft')
+                    );
+                    if (preferredVoice) {
+                        utterance.voice = preferredVoice;
+                    }
+                    
+                    speechSynthesis.speak(utterance);
+                }
+            }
+
+            animateWaveform() {
+                if (!this.isListening) return;
+                
+                const canvas = document.getElementById('waveform-canvas');
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, 200, 100);
+                
+                ctx.strokeStyle = '#00ffff';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                
+                for (let i = 0; i < 200; i++) {
+                    const y = 50 + Math.sin(i * 0.1 + this.time * 5) * 20 * Math.sin(this.time * 2);
+                    if (i === 0) ctx.moveTo(i, y);
+                    else ctx.lineTo(i, y);
+                }
+                
+                ctx.stroke();
+                
+                if (this.isListening) {
+                    requestAnimationFrame(() => this.animateWaveform());
+                }
+            }
+
+            animate() {
+                requestAnimationFrame(() => this.animate());
+                
+                this.time += 0.01;
+
+                // Animate Phoenix core
+                if (this.phoenixCore) {
+                    this.phoenixCore.rotation.y += 0.002;
+                    
+                    // Pulse effect
+                    const scale = 1 + Math.sin(this.time * 2) * 0.05;
+                    this.phoenixCore.scale.set(scale, scale, scale);
+                    
+                    // Rotate rings
+                    this.phoenixCore.children.forEach(child => {
+                        if (child.userData.rotationSpeed) {
+                            child.rotation.z += child.userData.rotationSpeed;
+                        }
+                    });
+                }
+
+                // Animate planets
+                this.planets.forEach(planet => {
+                    planet.userData.angle += planet.userData.speed;
+                    planet.position.x = Math.cos(planet.userData.angle) * planet.userData.distance;
+                    planet.position.z = Math.sin(planet.userData.angle) * planet.userData.distance;
+                    planet.rotation.y += 0.01;
+                });
+
+                // Animate particles
+                this.particles.forEach(particleSystem => {
+                    const positions = particleSystem.geometry.attributes.position.array;
+                    const velocities = particleSystem.userData.velocities;
+                    
+                    for (let i = 0; i < positions.length; i += 3) {
+                        positions[i] += velocities[i / 3].x;
+                        positions[i + 1] += velocities[i / 3].y;
+                        positions[i + 2] += velocities[i / 3].z;
+                        
+                        // Boundary check
+                        if (Math.abs(positions[i]) > 25) velocities[i / 3].x *= -1;
+                        if (Math.abs(positions[i + 1]) > 25) velocities[i / 3].y *= -1;
+                        if (Math.abs(positions[i + 2]) > 25) velocities[i / 3].z *= -1;
+                    }
+                    
+                    particleSystem.geometry.attributes.position.needsUpdate = true;
+                });
+
+                // Camera parallax from mouse/gyroscope
+                const targetX = this.mouseX * 2 + (this.gamma / 90) * 2;
+                const targetY = this.mouseY * 2 + (this.beta / 90) * 2;
+                
+                this.camera.position.x += (targetX - this.camera.position.x) * 0.05;
+                this.camera.position.y += (targetY - this.camera.position.y) * 0.05;
+                
+                this.camera.lookAt(this.scene.position);
+
+                this.renderer.render(this.scene, this.camera);
+            }
+
+            startHUD() {
+                this.updateTime();
+                setInterval(() => this.updateTime(), 1000);
+                
+                this.updateRecovery();
+                setInterval(() => this.updateRecovery(), 30000); // Every 30 seconds
+                
+                // Update greeting
+                this.updateGreeting();
+                setInterval(() => this.updateGreeting(), 60000); // Every minute
+            }
+
+            updateTime() {
+                const now = new Date();
+                const time = now.toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    hour12: false 
+                });
+                const date = now.toLocaleDateString('en-US', { 
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric'
+                });
+                
+                document.getElementById('time-display').textContent = time;
+                document.getElementById('date-display').textContent = date;
+            }
+
+            updateRecovery() {
+                // Use REAL recovery data from backend
+                if (this.userData.recovery?.score) {
+                    this.recoveryScore = this.userData.recovery.score;
+                }
+                
+                document.getElementById('recovery-value').textContent = Math.round(this.recoveryScore) + '%';
+                document.getElementById('recovery-fill').style.width = this.recoveryScore + '%';
+                
+                // Change color based on recovery
+                const fill = document.getElementById('recovery-fill');
+                if (this.recoveryScore < 60) {
+                    fill.style.background = '#ff4444';
+                    fill.style.boxShadow = '0 0 10px rgba(255,68,68,0.8)';
+                } else if (this.recoveryScore < 80) {
+                    fill.style.background = '#ffaa00';
+                    fill.style.boxShadow = '0 0 10px rgba(255,170,0,0.8)';
+                } else {
+                    fill.style.background = '#00ffff';
+                    fill.style.boxShadow = '0 0 10px rgba(0,255,255,0.8)';
+                }
+
+                // Update greeting based on recovery
+                this.updateGreeting();
+            }
+
+            updateGreeting() {
+                const hour = new Date().getHours();
+                const greeting = hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : 'Good Evening';
+                
+                let status = 'Ready to optimize';
+                if (this.recoveryScore < 60) {
+                    status = 'Recovery needed - taking it easy today';
+                } else if (this.recoveryScore > 85) {
+                    status = 'Peak performance ready';
+                }
+
+                document.querySelector('.greeting-main').textContent = greeting;
+                document.querySelector('.greeting-sub').textContent = status;
+            }
+
+            async logQuickWorkout(exercise, weight, sets, reps) {
+                if (!this.userId) return;
+
+                try {
+                    const response = await fetch(`${API_BASE}/workouts`, {
+                        method: 'POST',
+                        headers: getAuthHeaders(),
+                        body: JSON.stringify({
+                            name: `Quick ${exercise}`,
+                            type: 'strength',
+                            exercises: [{
+                                name: exercise,
+                                sets: parseInt(sets),
+                                reps: parseInt(reps),
+                                weight: parseInt(weight)
+                            }],
+                            duration: 30
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    if (data.success) {
+                        this.showNotification('✅ Workout Logged', `${exercise} ${weight}lbs x${sets}x${reps}`);
+                        this.loadUserData(); // Refresh data
+                    }
+                } catch (error) {
+                    console.error('Error logging workout:', error);
+                }
+            }
+
+            async logQuickMeal(food, calories, protein) {
+                if (!this.userId) return;
+
+                try {
+                    const response = await fetch(`${API_BASE}/nutrition/log`, {
+                        method: 'POST',
+                        headers: getAuthHeaders(),
+                        body: JSON.stringify({
+                            name: food,
+                            calories: parseInt(calories),
+                            protein: parseInt(protein),
+                            carbs: 0,
+                            fat: 0,
+                            mealType: 'snack'
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    if (data.success) {
+                        this.showNotification('✅ Meal Logged', `${food} - ${calories}cal, ${protein}g protein`);
+                    }
+                } catch (error) {
+                    console.error('Error logging meal:', error);
+                }
+            }
+
+            showNotification(title, message) {
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 100px;
+                    right: 30px;
+                    background: rgba(0, 10, 20, 0.95);
+                    border: 2px solid rgba(0, 255, 255, 0.5);
+                    padding: 20px;
+                    max-width: 300px;
+                    z-index: 10000;
+                    animation: slideIn 0.3s ease-out;
+                    box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+                `;
+                
+                notification.innerHTML = `
+                    <div style="font-size: 14px; font-weight: bold; color: #00ffff; margin-bottom: 10px;">
+                        ${title}
+                    </div>
+                    <div style="font-size: 12px; color: rgba(0, 255, 255, 0.7);">
+                        ${message}
+                    </div>
+                `;
+
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.style.animation = 'slideOut 0.3s ease-out';
+                    setTimeout(() => notification.remove(), 300);
+                }, 5000);
+            }
+        }
+
+        // ========================================
+        // INITIALIZE PHOENIX
+        // ========================================
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            const phoenix = new PhoenixEngine();
+            phoenix.init();
+            
+            // Expose to window for iOS bridge and debugging
+            window.phoenix = phoenix;
+
+             // Phoenix Core Particle System
+            (function initPhoenixParticles() {
+                const canvas = document.getElementById('phoenix-particles');
+                if (!canvas) return;
+                
+                const ctx = canvas.getContext('2d');
+                const particles = [];
+                const centerX = 100;
+                const centerY = 100;
+                
+                // Create particles
+                for (let i = 0; i < 50; i++) {
+                    particles.push({
+                        angle: Math.random() * Math.PI * 2,
+                        distance: Math.random() * 40 + 20,
+                        size: Math.random() * 2 + 1,
+                        speed: Math.random() * 0.02 + 0.01,
+                        alpha: Math.random() * 0.5 + 0.3
+                    });
+                }
+                
+                function animate() {
+                    ctx.clearRect(0, 0, 200, 200);
+                    
+                    particles.forEach(p => {
+                        p.angle += p.speed;
+                        
+                        const x = centerX + Math.cos(p.angle) * p.distance;
+                        const y = centerY + Math.sin(p.angle) * p.distance;
+                        
+                        // Draw particle
+                        ctx.beginPath();
+                        ctx.arc(x, y, p.size, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(0, 255, 255, ${p.alpha})`;
+                        ctx.fill();
+                        
+                        // Glow
+                        const gradient = ctx.createRadialGradient(x, y, 0, x, y, p.size * 3);
+                        gradient.addColorStop(0, `rgba(0, 255, 255, ${p.alpha * 0.5})`);
+                        gradient.addColorStop(1, 'rgba(0, 255, 255, 0)');
+                        ctx.fillStyle = gradient;
+                        ctx.fillRect(x - p.size * 3, y - p.size * 3, p.size * 6, p.size * 6);
+                    });
+                    
+                    requestAnimationFrame(animate);
+                }
+                
+                animate();
+            })();
+            
+            // Phoenix Core Click Handler
+            const phoenixCoreContainer = document.getElementById('phoenix-core-container');
+            if (phoenixCoreContainer) {
+                phoenixCoreContainer.addEventListener('click', function() {
+                    console.log('🔥 Phoenix Core Activated');
+                    
+                    const sphere = document.getElementById('phoenix-sphere');
+                    if (sphere) {
+                        sphere.style.animation = 'none';
+                        setTimeout(() => {
+                            sphere.style.animation = 'phoenixPulse 0.5s ease-in-out 3';
+                            setTimeout(() => {
+                                sphere.style.animation = 'phoenixPulse 2s ease-in-out infinite';
+                            }, 1500);
+                        }, 10);
+                    }
+                    
+                    phoenix.toggleActionMenu();
+                });
+            }
+            
+            // Add quick input helpers
+            window.logWorkout = (exercise, weight, sets, reps) => {
+                phoenix.logQuickWorkout(exercise, weight, sets, reps);
+            };
+            
+            window.logMeal = (food, calories, protein) => {
+                phoenix.logQuickMeal(food, calories, protein);
+            };
+            
+            console.log('🔥 PHOENIX INITIALIZED');
+            console.log('💡 Quick commands:');
+            console.log('   window.logWorkout("bench press", 225, 5, 5)');
+            console.log('   window.logMeal("chicken breast", 400, 40)');
+
+            / Draw Energy Beams from Phoenix to Planets
+            setTimeout(() => {
+                const svg = document.getElementById('energy-beams');
+                const phoenixCore = document.getElementById('phoenix-core-container');
+                
+                if (!svg || !phoenixCore) return;
+                
+                function drawBeams() {
+                    svg.innerHTML = '';
+                    
+                    const coreRect = phoenixCore.getBoundingClientRect();
+                    const coreX = coreRect.left + coreRect.width / 2;
+                    const coreY = coreRect.top + coreRect.height / 2;
+                    
+                    const planetSelectors = [
+                        '[id*="mercury"]',
+                        '[id*="venus"]', 
+                        '[id*="earth"]',
+                        '[id*="mars"]',
+                        '[id*="jupiter"]',
+                        '[id*="saturn"]'
+                    ];
+                    
+                    planetSelectors.forEach((selector, index) => {
+                        const planet = document.querySelector(selector);
+                        if (!planet) return;
+                        
+                        const planetRect = planet.getBoundingClientRect();
+                        const planetX = planetRect.left + planetRect.width / 2;
+                        const planetY = planetRect.top + planetRect.height / 2;
+                        
+                        // Main beam
+                        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                        line.setAttribute('x1', coreX);
+                        line.setAttribute('y1', coreY);
+                        line.setAttribute('x2', planetX);
+                        line.setAttribute('y2', planetY);
+                        line.setAttribute('stroke', 'rgba(0, 255, 255, 0.2)');
+                        line.setAttribute('stroke-width', '2');
+                        line.style.animation = `beamPulse ${2 + index * 0.3}s ease-in-out infinite`;
+                        svg.appendChild(line);
+                        
+                        // Glow beam
+                        const glowLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                        glowLine.setAttribute('x1', coreX);
+                        glowLine.setAttribute('y1', coreY);
+                        glowLine.setAttribute('x2', planetX);
+                        glowLine.setAttribute('y2', planetY);
+                        glowLine.setAttribute('stroke', 'rgba(0, 255, 255, 0.1)');
+                        glowLine.setAttribute('stroke-width', '6');
+                        glowLine.style.animation = `beamPulse ${2 + index * 0.3}s ease-in-out infinite`;
+                        svg.appendChild(glowLine);
+                    });
+                }
+                
+                drawBeams();
+                window.addEventListener('resize', drawBeams);
+                setInterval(drawBeams, 100);
+            }, 1000);
+            
+            // Spawn Data Constellation Pods
+            setTimeout(() => {
+                const constellation = document.getElementById('data-constellation');
+                if (!constellation) return;
+                
+                const metrics = [
+                    { label: 'HRV', getValue: () => phoenix.userData?.wearable?.hrv || '--', color: '#00ffff' },
+                    { label: 'RECOVERY', getValue: () => Math.round(phoenix.recoveryScore) + '%', color: '#00ff88' },
+                    { label: 'SLEEP', getValue: () => phoenix.userData?.wearable?.sleepDuration ? (phoenix.userData.wearable.sleepDuration / 60).toFixed(1) + 'h' : '--', color: '#88ddff' },
+                    { label: 'WORKOUTS', getValue: () => (phoenix.userData?.intelligence?.recentWorkouts?.length || 0) + 'x', color: '#ff9600' }
+                ];
+                
+                metrics.forEach((metric, index) => {
+                    const pod = document.createElement('div');
+                    pod.className = 'metric-pod';
+                    pod.style.cssText = `
+                        position: absolute;
+                        background: rgba(0, 10, 20, 0.9);
+                        border: 1px solid rgba(0, 255, 255, 0.5);
+                        padding: 12px 20px;
+                        backdrop-filter: blur(10px);
+                        box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+                        animation: podFloat ${5 + index}s ease-in-out infinite;
+                        animation-delay: ${index * 0.5}s;
+                        pointer-events: auto;
+                        cursor: pointer;
+                    `;
+                    
+                    const angle = (index / metrics.length) * Math.PI * 2;
+                    const distance = 300;
+                    pod.style.left = `calc(50% + ${Math.cos(angle) * distance}px)`;
+                    pod.style.top = `calc(50% + ${Math.sin(angle) * distance}px)`;
+                    
+                    const updatePod = () => {
+                        pod.innerHTML = `
+                            <div style="font-size: 10px; color: rgba(0, 255, 255, 0.6); margin-bottom: 5px; letter-spacing: 2px;">${metric.label}</div>
+                            <div style="font-size: 24px; font-weight: bold; color: ${metric.color}; text-shadow: 0 0 10px ${metric.color};">${metric.getValue()}</div>
+                        `;
+                    };
+                    
+                    updatePod();
+                    setInterval(updatePod, 5000);
+                    
+                    pod.addEventListener('mouseenter', () => {
+                        pod.style.transform = 'translate(-50%, -50%) scale(1.1)';
+                        pod.style.boxShadow = '0 0 30px rgba(0, 255, 255, 0.6)';
+                    });
+                    
+                    pod.addEventListener('mouseleave', () => {
+                        pod.style.transform = 'translate(-50%, -50%)';
+                        pod.style.boxShadow = '0 0 20px rgba(0, 255, 255, 0.3)';
+                    });
+                    
+                    constellation.appendChild(pod);
+                });
+            }, 2000);
+        });
     </script>
 </body>
 </html>
