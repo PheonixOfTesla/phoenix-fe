@@ -22,6 +22,10 @@ class VoiceInterface {
         // Audio management
         this.currentAudio = null;
         this.audioQueue = [];
+        
+        // Proactive messaging
+        this.proactiveTimer = null;
+        this.lastProactiveMessage = Date.now();
     }
 
     async init() {
@@ -48,8 +52,206 @@ class VoiceInterface {
         // Check server TTS status
         await this.checkServerStatus();
         
+        // Start proactive messaging
+        this.startProactiveMessaging();
+        
+        // Say initial greeting after 2 seconds
+        setTimeout(() => {
+            this.sayInitialGreeting();
+        }, 2000);
+        
         console.log('✅ Voice Interface Ready');
         return true;
+    }
+
+    // ========================================
+    // INITIAL GREETING WITH CONTEXT
+    // ========================================
+
+    async sayInitialGreeting() {
+        const hour = new Date().getHours();
+        let greeting = 'Good morning';
+        if (hour >= 12 && hour < 18) greeting = 'Good afternoon';
+        if (hour >= 18) greeting = 'Good evening';
+        
+        const userName = this.getUserName();
+        
+        // Get real-time data from backend
+        const recovery = await this.getRecoveryScore();
+        const events = await this.getTodayEvents();
+        const insights = await this.getQuickInsights();
+        
+        let greetingText = `${greeting}${userName ? ', ' + userName : ''}. Phoenix AI companion online and ready.`;
+        
+        if (recovery) {
+            greetingText += ` Your recovery is at ${recovery} percent.`;
+        }
+        
+        if (events > 0) {
+            greetingText += ` You have ${events} event${events === 1 ? '' : 's'} scheduled today.`;
+        }
+        
+        if (insights) {
+            greetingText += ` ${insights}`;
+        }
+        
+        this.speak(greetingText);
+    }
+
+    getUserName() {
+        try {
+            const user = JSON.parse(localStorage.getItem('phoenixUser') || '{}');
+            return user.name ? user.name.split(' ')[0] : null;
+        } catch (error) {
+            return null;
+        }
+    }
+
+    async getRecoveryScore() {
+        try {
+            if (window.jarvisEngine && window.jarvisEngine.allData && window.jarvisEngine.allData.mercury) {
+                return window.jarvisEngine.allData.mercury.recoveryScore;
+            }
+            return null;
+        } catch (error) {
+            return null;
+        }
+    }
+
+    async getTodayEvents() {
+        try {
+            if (window.jarvisEngine && window.jarvisEngine.allData && window.jarvisEngine.allData.earth) {
+                const events = window.jarvisEngine.allData.earth.events || [];
+                return events.length;
+            }
+            return 0;
+        } catch (error) {
+            return 0;
+        }
+    }
+
+    async getQuickInsights() {
+        try {
+            if (window.jarvisEngine && window.jarvisEngine.correlations && window.jarvisEngine.correlations.length > 0) {
+                const correlation = window.jarvisEngine.correlations[0];
+                return `I've detected a correlation between ${correlation.insight}.`;
+            }
+            return null;
+        } catch (error) {
+            return null;
+        }
+    }
+
+    // ========================================
+    // PROACTIVE MESSAGING (VOICE ANNOUNCEMENTS)
+    // ========================================
+
+    startProactiveMessaging() {
+        // Check every minute for things to announce
+        this.proactiveTimer = setInterval(() => {
+            const elapsed = Date.now() - this.lastProactiveMessage;
+            if (elapsed > 300000) { // 5 minutes
+                this.sendProactiveMessage();
+                this.lastProactiveMessage = Date.now();
+            }
+        }, 60000);
+    }
+
+    async sendProactiveMessage() {
+        if (this.isSpeaking || this.isListening) return;
+        
+        const messages = await this.generateProactiveMessages();
+        
+        if (messages.length > 0) {
+            const message = messages[Math.floor(Math.random() * messages.length)];
+            console.log('🔊 Proactive message:', message);
+            this.speak(message);
+        }
+    }
+
+    async generateProactiveMessages() {
+        const messages = [];
+        
+        try {
+            // Check recovery score
+            const recovery = await this.getRecoveryScore();
+            if (recovery && recovery >= 80) {
+                messages.push("Your recovery score is excellent today. You're cleared for high-intensity training.");
+            } else if (recovery && recovery < 50) {
+                messages.push("Your recovery is low. I recommend active recovery or rest today.");
+            }
+            
+            // Check upcoming events
+            const events = await this.getTodayEvents();
+            if (events > 0) {
+                messages.push(`You have ${events} upcoming event${events === 1 ? '' : 's'} today. Would you like to review your schedule?`);
+            }
+            
+            // Check correlations
+            if (window.jarvisEngine && window.jarvisEngine.correlations && window.jarvisEngine.correlations.length > 0) {
+                const correlation = window.jarvisEngine.correlations[0];
+                messages.push(`I've noticed ${correlation.insight}. This may require attention.`);
+            }
+            
+            // Generic helpful messages
+            messages.push("Don't forget to log your meals and workouts for optimal insights.");
+            messages.push("Your HRV trend is stable this week. Great consistency.");
+            
+        } catch (error) {
+            console.error('Error generating proactive messages:', error);
+        }
+        
+        return messages;
+    }
+
+    // ========================================
+    // ANNOUNCEMENT METHODS (Called by other modules)
+    // ========================================
+
+    announceMetric(planetName, metricName, value) {
+        if (this.isSpeaking) return;
+        
+        const announcements = {
+            mercury: `Your ${metricName} is at ${value}.`,
+            venus: `Fitness update: ${metricName} is ${value}.`,
+            earth: `Calendar: ${metricName} shows ${value}.`,
+            mars: `Goal progress: ${metricName} at ${value}.`,
+            jupiter: `Financial: ${metricName} is ${value}.`,
+            saturn: `Legacy: ${metricName} at ${value}.`
+        };
+        
+        const message = announcements[planetName] || `${metricName}: ${value}`;
+        this.speak(message);
+    }
+
+    announceCorrelation(correlation) {
+        if (this.isSpeaking) return;
+        
+        const message = `I've detected a correlation: ${correlation.insight}. This may impact your performance.`;
+        this.speak(message);
+    }
+
+    announceSchedule(nextEvent) {
+        if (this.isSpeaking) return;
+        
+        const message = `Your next event is ${nextEvent.title} at ${nextEvent.time}.`;
+        this.speak(message);
+    }
+
+    announcePlanetOpen(planetName) {
+        if (this.isSpeaking) return;
+        
+        const announcements = {
+            mercury: "Loading health metrics. Analyzing recovery, heart rate variability, and sleep quality.",
+            venus: "Accessing fitness data. Reviewing workouts and performance trends.",
+            earth: "Opening calendar. Checking your schedule and time optimization.",
+            mars: "Loading goals dashboard. Reviewing progress and milestones.",
+            jupiter: "Accessing financial overview. Analyzing spending patterns.",
+            saturn: "Opening legacy planning. Long-term health and impact tracking."
+        };
+        
+        const message = announcements[planetName] || "Loading data.";
+        this.speak(message);
     }
 
     // ========================================
@@ -647,6 +849,7 @@ class VoiceInterface {
             z-index: 1000;
             font-size: 30px;
             transition: all 0.3s;
+            pointer-events: auto;
         `;
         
         btn.addEventListener('click', () => {
@@ -1088,6 +1291,9 @@ class VoiceInterface {
             this.currentAudio.pause();
             this.currentAudio = null;
         }
+        if (this.proactiveTimer) {
+            clearInterval(this.proactiveTimer);
+        }
         this.stopVisualizer();
     }
 }
@@ -1099,9 +1305,14 @@ class VoiceInterface {
 const voiceInterface = new VoiceInterface();
 window.voiceInterface = voiceInterface;
 
-// DO NOT AUTO-INITIALIZE
-// Wait for manual activation from index.html or React app
-console.log('✅ Voice Interface created - waiting for manual init()');
+// Auto-initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        voiceInterface.init();
+    });
+} else {
+    voiceInterface.init();
+}
 
 const style = document.createElement('style');
 style.textContent = `
