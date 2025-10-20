@@ -192,10 +192,6 @@
             color: rgba(0, 255, 255, 0.6);
         }
 
-        .voice-badge {
-            font-size: 18px;
-        }
-
         .btn-group {
             display: flex;
             gap: 15px;
@@ -254,9 +250,14 @@
             letter-spacing: 1px;
         }
 
-        .preview-btn:hover {
+        .preview-btn:hover:not(:disabled) {
             background: rgba(0, 255, 255, 0.2);
             box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+        }
+
+        .preview-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         .goal-options {
@@ -335,6 +336,34 @@
             color: #00ffff;
         }
 
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 10, 20, 0.95);
+            border: 1px solid rgba(0, 255, 255, 0.5);
+            padding: 15px 20px;
+            border-radius: 4px;
+            color: #00ffff;
+            font-size: 14px;
+            z-index: 10001;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.error {
+            border-color: rgba(255, 0, 0, 0.5);
+            color: #ff4444;
+        }
+
         @media (max-width: 600px) {
             .onboarding-container {
                 padding: 40px 25px;
@@ -363,17 +392,15 @@
             <div class="step active" id="indicator-1"></div>
             <div class="step" id="indicator-2"></div>
             <div class="step" id="indicator-3"></div>
-            <div class="step" id="indicator-4"></div>
-            <div class="step" id="indicator-5"></div>
         </div>
 
-        <!-- STEP 1: Language -->
+        <!-- STEP 1: Language & Preferences -->
         <div class="step-content active" id="step-1">
-            <h2 class="step-title">Language</h2>
-            <p class="step-description">Choose your preferred language for Phoenix</p>
+            <h2 class="step-title">Language & Preferences</h2>
+            <p class="step-description">Customize your Phoenix experience</p>
             
             <div class="form-group">
-                <label class="form-label">Select Language</label>
+                <label class="form-label">Language</label>
                 <select class="form-select" id="language">
                     <option value="en">English</option>
                     <option value="es">Spanish</option>
@@ -382,16 +409,6 @@
                 </select>
             </div>
 
-            <div class="btn-group">
-                <button class="btn btn-primary" onclick="nextStep()">Next</button>
-            </div>
-        </div>
-
-        <!-- STEP 2: Preferences -->
-        <div class="step-content" id="step-2">
-            <h2 class="step-title">Preferences</h2>
-            <p class="step-description">Customize your experience</p>
-            
             <div class="form-group">
                 <label class="form-label">Units</label>
                 <select class="form-select" id="units">
@@ -409,18 +426,17 @@
             </div>
 
             <div class="btn-group">
-                <button class="btn btn-secondary" onclick="prevStep()">Back</button>
                 <button class="btn btn-primary" onclick="nextStep()">Next</button>
             </div>
         </div>
 
-        <!-- STEP 3: Voice -->
-        <div class="step-content" id="step-3">
+        <!-- STEP 2: Voice Selection -->
+        <div class="step-content" id="step-2">
             <h2 class="step-title">Phoenix Voice</h2>
-            <p class="step-description">Choose how Phoenix speaks to you. Click to preview.</p>
+            <p class="step-description">Choose how Phoenix speaks to you. Click preview to hear each voice.</p>
             
             <div class="voice-grid">
-                <div class="voice-card" onclick="selectVoice('alloy')">
+                <div class="voice-card" data-voice="alloy" onclick="selectVoice('alloy')">
                     <div class="voice-info">
                         <div class="voice-name">Alloy</div>
                         <div class="voice-description">Neutral, balanced</div>
@@ -428,7 +444,7 @@
                     <button class="preview-btn" onclick="event.stopPropagation(); previewVoice('alloy')">🔊 Preview</button>
                 </div>
 
-                <div class="voice-card" onclick="selectVoice('echo')">
+                <div class="voice-card" data-voice="echo" onclick="selectVoice('echo')">
                     <div class="voice-info">
                         <div class="voice-name">Echo</div>
                         <div class="voice-description">Male, calm and soothing</div>
@@ -436,7 +452,7 @@
                     <button class="preview-btn" onclick="event.stopPropagation(); previewVoice('echo')">🔊 Preview</button>
                 </div>
 
-                <div class="voice-card selected" onclick="selectVoice('fable')">
+                <div class="voice-card selected" data-voice="fable" onclick="selectVoice('fable')">
                     <div class="voice-info">
                         <div class="voice-name">Fable</div>
                         <div class="voice-description">British, JARVIS-like ⭐ Recommended</div>
@@ -444,7 +460,7 @@
                     <button class="preview-btn" onclick="event.stopPropagation(); previewVoice('fable')">🔊 Preview</button>
                 </div>
 
-                <div class="voice-card" onclick="selectVoice('onyx')">
+                <div class="voice-card" data-voice="onyx" onclick="selectVoice('onyx')">
                     <div class="voice-info">
                         <div class="voice-name">Onyx</div>
                         <div class="voice-description">Deep, authoritative</div>
@@ -452,7 +468,7 @@
                     <button class="preview-btn" onclick="event.stopPropagation(); previewVoice('onyx')">🔊 Preview</button>
                 </div>
 
-                <div class="voice-card" onclick="selectVoice('nova')">
+                <div class="voice-card" data-voice="nova" onclick="selectVoice('nova')">
                     <div class="voice-info">
                         <div class="voice-name">Nova</div>
                         <div class="voice-description">Female, energetic and friendly</div>
@@ -460,7 +476,7 @@
                     <button class="preview-btn" onclick="event.stopPropagation(); previewVoice('nova')">🔊 Preview</button>
                 </div>
 
-                <div class="voice-card" onclick="selectVoice('shimmer')">
+                <div class="voice-card" data-voice="shimmer" onclick="selectVoice('shimmer')">
                     <div class="voice-info">
                         <div class="voice-name">Shimmer</div>
                         <div class="voice-description">Female, soft and gentle</div>
@@ -475,305 +491,18 @@
             </div>
         </div>
 
-        <!-- STEP 4: Habits -->
-        <div class="step-content" id="step-4">
-            <h2 class="step-title">Daily Habits</h2>
-            <p class="step-description">Help Phoenix understand your routine</p>
-            
-            <div class="form-group">
-                <label class="form-label">Typical Bedtime</label>
-                <input type="time" class="form-input" id="sleepTime" value="23:00">
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Wake Up Time</label>
-                <input type="time" class="form-input" id="wakeTime" value="07:00">
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Exercise Frequency</label>
-                <select class="form-select" id="exerciseFrequency">
-                    <option value="daily">Daily</option>
-                    <option value="4-6">4-6 times per week</option>
-                    <option value="2-3">2-3 times per week</option>
-                    <option value="weekly">Once per week</option>
-                    <option value="rarely">Rarely</option>
-                </select>
-            </div>
-
-            <div class="btn-group">
-                <button class="btn btn-secondary" onclick="prevStep()">Back</button>
-                <button class="btn btn-primary" onclick="nextStep()">Next</button>
-            </div>
-        </div>
-
-        <!-- STEP 5: Goals -->
-        <div class="step-content" id="step-5">
+        <!-- STEP 3: Goals & Habits -->
+        <div class="step-content" id="step-3">
             <h2 class="step-title">Your Goals</h2>
             <p class="step-description">What do you want to achieve? Select your primary focus.</p>
             
             <div class="goal-options">
-                <div class="goal-card selected" onclick="selectGoal('fitness')">
+                <div class="goal-card selected" data-goal="fitness" onclick="selectGoal('fitness')">
                     <div class="goal-icon">💪</div>
                     <div class="goal-name">Improve Fitness</div>
                 </div>
-                <div class="goal-card" onclick="selectGoal('weight-loss')">
+                <div class="goal-card" data-goal="weight-loss" onclick="selectGoal('weight-loss')">
                     <div class="goal-icon">⚖️</div>
                     <div class="goal-name">Lose Weight</div>
                 </div>
-                <div class="goal-card" onclick="selectGoal('muscle')">
-                    <div class="goal-icon">🏋️</div>
-                    <div class="goal-name">Build Muscle</div>
-                </div>
-                <div class="goal-card" onclick="selectGoal('health')">
-                    <div class="goal-icon">❤️</div>
-                    <div class="goal-name">Better Health</div>
-                </div>
-                <div class="goal-card" onclick="selectGoal('performance')">
-                    <div class="goal-icon">🚀</div>
-                    <div class="goal-name">Peak Performance</div>
-                </div>
-                <div class="goal-card" onclick="selectGoal('wellness')">
-                    <div class="goal-icon">🧘</div>
-                    <div class="goal-name">Wellness & Balance</div>
-                </div>
-            </div>
-
-            <div class="btn-group">
-                <button class="btn btn-secondary" onclick="prevStep()">Back</button>
-                <button class="btn btn-primary" onclick="completeOnboarding()">Activate Phoenix</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="loading-overlay" id="loading-overlay">
-        <div class="spinner"></div>
-        <div class="loading-text">Initializing Phoenix...</div>
-    </div>
-
-    <script>
-        const API_BASE = window.location.hostname === 'localhost' 
-            ? 'http://localhost:5000/api'
-            : 'https://pal-backend-production.up.railway.app/api';
-
-        let currentStep = 1;
-        let selectedVoice = 'fable';
-        let selectedGoal = 'fitness';
-        let currentAudio = null;
-
-        // Animated background
-        class AnimatedBackground {
-            constructor() {
-                this.canvas = document.getElementById('bg-canvas');
-                this.ctx = this.canvas.getContext('2d');
-                this.particles = [];
-                this.width = window.innerWidth;
-                this.height = window.innerHeight;
-                this.canvas.width = this.width;
-                this.canvas.height = this.height;
-                this.init();
-            }
-
-            init() {
-                for (let i = 0; i < 80; i++) {
-                    this.particles.push({
-                        x: Math.random() * this.width,
-                        y: Math.random() * this.height,
-                        vx: (Math.random() - 0.5) * 0.3,
-                        vy: (Math.random() - 0.5) * 0.3,
-                        size: Math.random() * 2 + 1,
-                        alpha: Math.random() * 0.5 + 0.3
-                    });
-                }
-                this.animate();
-                
-                window.addEventListener('resize', () => {
-                    this.width = window.innerWidth;
-                    this.height = window.innerHeight;
-                    this.canvas.width = this.width;
-                    this.canvas.height = this.height;
-                });
-            }
-
-            animate() {
-                this.ctx.clearRect(0, 0, this.width, this.height);
-
-                this.particles.forEach(p => {
-                    p.x += p.vx;
-                    p.y += p.vy;
-
-                    if (p.x < 0 || p.x > this.width) p.vx *= -1;
-                    if (p.y < 0 || p.y > this.height) p.vy *= -1;
-
-                    this.ctx.beginPath();
-                    this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                    this.ctx.fillStyle = `rgba(0, 255, 255, ${p.alpha})`;
-                    this.ctx.fill();
-                });
-
-                requestAnimationFrame(() => this.animate());
-            }
-        }
-
-        new AnimatedBackground();
-
-        function nextStep() {
-            if (currentStep < 5) {
-                document.getElementById(`step-${currentStep}`).classList.remove('active');
-                document.getElementById(`indicator-${currentStep}`).classList.remove('active');
-                document.getElementById(`indicator-${currentStep}`).classList.add('completed');
-                
-                currentStep++;
-                
-                document.getElementById(`step-${currentStep}`).classList.add('active');
-                document.getElementById(`indicator-${currentStep}`).classList.add('active');
-            }
-        }
-
-        function prevStep() {
-            if (currentStep > 1) {
-                document.getElementById(`step-${currentStep}`).classList.remove('active');
-                document.getElementById(`indicator-${currentStep}`).classList.remove('active');
-                
-                currentStep--;
-                
-                document.getElementById(`step-${currentStep}`).classList.add('active');
-                document.getElementById(`indicator-${currentStep}`).classList.remove('completed');
-            }
-        }
-
-        function selectVoice(voice) {
-            selectedVoice = voice;
-            document.querySelectorAll('.voice-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-            event.target.closest('.voice-card').classList.add('selected');
-        }
-
-        async function previewVoice(voice) {
-            if (currentAudio) {
-                currentAudio.pause();
-                currentAudio = null;
-            }
-
-            const btn = event.target;
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '⏳ Loading...';
-            btn.disabled = true;
-
-            try {
-                const response = await fetch(`${API_BASE}/voice/speak`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + localStorage.getItem('phoenixToken')
-                    },
-                    body: JSON.stringify({
-                        text: 'Hello. I am Phoenix, your AI companion. Ready to optimize your life?',
-                        voice: voice,
-                        speed: 1.0
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error('TTS request failed with status: ' + response.status);
-                }
-
-                const audioBlob = await response.blob();
-                const audioUrl = URL.createObjectURL(audioBlob);
-                currentAudio = new Audio(audioUrl);
-                
-                currentAudio.onended = () => {
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                    URL.revokeObjectURL(audioUrl);
-                    currentAudio = null;
-                };
-
-                currentAudio.onerror = (error) => {
-                    console.error('Audio playback error:', error);
-                    btn.innerHTML = '❌ Error';
-                    setTimeout(() => {
-                        btn.innerHTML = originalText;
-                        btn.disabled = false;
-                    }, 2000);
-                    URL.revokeObjectURL(audioUrl);
-                    currentAudio = null;
-                };
-
-                await currentAudio.play();
-            } catch (error) {
-                console.error('Preview failed:', error);
-                btn.innerHTML = '❌ Failed';
-                setTimeout(() => {
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                }, 2000);
-            }
-        }
-
-        function selectGoal(goal) {
-            selectedGoal = goal;
-            document.querySelectorAll('.goal-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-            event.target.closest('.goal-card').classList.add('selected');
-        }
-
-        async function completeOnboarding() {
-            document.getElementById('loading-overlay').classList.add('show');
-
-            const preferences = {
-                language: document.getElementById('language').value,
-                units: document.getElementById('units').value,
-                timeFormat: document.getElementById('timeFormat').value,
-                voice: selectedVoice,
-                sleepTime: document.getElementById('sleepTime').value,
-                wakeTime: document.getElementById('wakeTime').value,
-                exerciseFrequency: document.getElementById('exerciseFrequency').value,
-                primaryGoal: selectedGoal,
-                onboardingComplete: true,
-                speechSpeed: 1.0
-            };
-
-            try {
-                const response = await fetch(`${API_BASE}/auth/me`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + localStorage.getItem('phoenixToken')
-                    },
-                    body: JSON.stringify({ preferences })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    // Save preferences locally
-                    localStorage.setItem('phoenixPreferences', JSON.stringify(preferences));
-                    
-                    // Mark onboarding as complete
-                    localStorage.setItem('phoenixOnboardingComplete', 'true');
-                    
-                    // Redirect to dashboard
-                    setTimeout(() => {
-                        window.location.href = '/index';
-                    }, 1500);
-                } else {
-                    throw new Error(data.message || 'Failed to save preferences');
-                }
-            } catch (error) {
-                console.error('Onboarding error:', error);
-                alert('Failed to complete setup. Please try again.');
-                document.getElementById('loading-overlay').classList.remove('show');
-            }
-        }
-
-        // Check if user is authenticated
-        const token = localStorage.getItem('phoenixToken');
-        if (!token) {
-            window.location.href = '/login';
-        }
-    </script>
-</body>
-</html>
+                <div class="goal-card" data-goal=
