@@ -798,14 +798,19 @@
             }
 
             activateVoice() {
-                const overlay = document.getElementById('voice-overlay');
-                overlay.style.display = 'flex';
-                this.isListening = true;
-                
-                setTimeout(() => {
-                    overlay.style.display = 'none';
-                    this.isListening = false;
-                }, 3000);
+                // Trigger voice interface if available
+                if (window.voiceInterface) {
+                    window.voiceInterface.startListening();
+                } else {
+                    const overlay = document.getElementById('voice-overlay');
+                    overlay.style.display = 'flex';
+                    this.isListening = true;
+                    
+                    setTimeout(() => {
+                        overlay.style.display = 'none';
+                        this.isListening = false;
+                    }, 3000);
+                }
             }
 
             animate() {
@@ -1064,60 +1069,6 @@
                 });
             }, 2000);
             
-            const onboardingComplete = localStorage.getItem('phoenixOnboardingComplete');
-            const preferences = localStorage.getItem('phoenixPreferences');
-            
-            if (onboardingComplete && preferences) {
-                try {
-                    const prefs = JSON.parse(preferences);
-                    console.log('Loading voice preferences:', prefs);
-                    
-                    setTimeout(async () => {
-                        try {
-                            const greeting = "Hello, I'm Phoenix. Ready to optimize your life?";
-                            console.log('Playing welcome greeting...');
-                            
-                            const response = await fetch(`${API_BASE}/voice/speak`, {
-                                method: 'POST',
-                                headers: getAuthHeaders(),
-                                body: JSON.stringify({
-                                    text: greeting,
-                                    voice: prefs.voice || 'fable',
-                                    speed: prefs.speechSpeed || 1.0
-                                })
-                            });
-                            
-                            if (response.ok) {
-                                const audioBlob = await response.blob();
-                                const audioUrl = URL.createObjectURL(audioBlob);
-                                const audio = new Audio(audioUrl);
-                                
-                                audio.onended = () => {
-                                    console.log('Welcome message complete');
-                                    URL.revokeObjectURL(audioUrl);
-                                };
-                                
-                                audio.onerror = (error) => {
-                                    console.error('Audio playback error:', error);
-                                    URL.revokeObjectURL(audioUrl);
-                                };
-                                
-                                await audio.play();
-                            } else {
-                                console.error('TTS failed:', response.status);
-                                const errorData = await response.json();
-                                console.error('TTS error details:', errorData);
-                            }
-                        } catch (error) {
-                            console.error('Failed to play welcome greeting:', error);
-                        }
-                    }, 3000);
-                    
-                } catch (error) {
-                    console.error('Failed to load voice preferences:', error);
-                }
-            }
-            
             console.log('PHOENIX INITIALIZED');
         });
     </script>
@@ -1331,24 +1282,36 @@
             font-size: 14px;
             color: rgba(0, 255, 255, 0.6);
         }
-  <script type="module" src="./src/voice.js"></script>
+    </style>
+
+    <!-- Load Voice Interface -->
+    <script type="module" src="./src/voice.js"></script>
     
     <script>
         // Voice interface will auto-initialize from voice.js
-        // This ensures it loads and speaks immediately when page is ready
         console.log('🎙️ Voice interface loading...');
         
-        // Listen for when voice interface is ready
-        window.addEventListener('DOMContentLoaded', () => {
-            // Check if voice interface initialized successfully
-            setTimeout(() => {
-                if (window.voiceInterface) {
-                    console.log('✅ Voice interface active and ready');
-                } else {
-                    console.warn('⚠️ Voice interface not found');
-                }
-            }, 1000);
-        });
+        // Wait for voice interface to be available
+        let checkCount = 0;
+        const checkVoice = setInterval(() => {
+            checkCount++;
+            
+            if (window.voiceInterface) {
+                console.log('✅ Voice interface found and active!');
+                clearInterval(checkVoice);
+                
+                // Optionally trigger greeting manually after 1 second
+                setTimeout(() => {
+                    if (window.voiceInterface && !window.voiceInterface.isSpeaking) {
+                        console.log('🔊 Triggering manual greeting...');
+                        window.voiceInterface.sayInitialGreeting();
+                    }
+                }, 1000);
+            } else if (checkCount > 10) {
+                console.error('❌ Voice interface failed to load after 10 seconds');
+                clearInterval(checkVoice);
+            }
+        }, 1000);
     </script>
 </body>
 </html>
