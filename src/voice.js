@@ -1093,18 +1093,9 @@ class VoiceInterface {
 const voiceInterface = new VoiceInterface();
 window.voiceInterface = voiceInterface;
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', async () => {
-        await voiceInterface.init();
-        setTimeout(() => {
-            voiceInterface.sayGreeting();
-        }, 2000);
-    });
-} else {
-    voiceInterface.init().then(() => {
-        setTimeout(() => voiceInterface.sayGreeting(), 2000);
-    });
-}
+// DO NOT AUTO-INITIALIZE
+// Wait for manual activation from index.html or React app
+console.log('✅ Voice Interface created - waiting for manual init()');
 
 const style = document.createElement('style');
 style.textContent = `
