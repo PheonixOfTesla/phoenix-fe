@@ -19,7 +19,19 @@
     <div class="grid-underlay"></div>
     <div class="vhs-overlay"></div>
 
-    <div id="onboarding" class="active">
+    <div id="onboarding" style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.98);
+        z-index: 11000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    ">
         <div class="onboarding-title">PHOENIX</div>
         <div class="onboarding-text">
             Your AI companion is ready.<br>
@@ -28,36 +40,57 @@
         <button class="activate-btn" id="activate-btn">ACTIVATE PHOENIX</button>
     </div>
 
-    <div id="action-menu">
-        <div class="action-ring">
-            <div class="action-button-circular" id="action-workout">
+    <div id="action-menu" style="
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 8000;
+        display: none;
+    ">
+        <div class="action-ring" style="
+            position: relative;
+            width: 400px;
+            height: 400px;
+        ">
+            <div class="action-button-circular" id="action-workout" style="top: 10%; left: 50%; transform: translate(-50%, -50%);">
                 <div class="action-icon">💪</div>
                 <div class="action-label">WORKOUT</div>
             </div>
-            <div class="action-button-circular" id="action-meal">
+            <div class="action-button-circular" id="action-meal" style="top: 30%; right: 10%; transform: translate(50%, -50%);">
                 <div class="action-icon">🍽️</div>
                 <div class="action-label">MEAL</div>
             </div>
-            <div class="action-button-circular" id="action-goals">
+            <div class="action-button-circular" id="action-goals" style="bottom: 30%; right: 10%; transform: translate(50%, 50%);">
                 <div class="action-icon">🎯</div>
                 <div class="action-label">GOALS</div>
             </div>
-            <div class="action-button-circular" id="action-chat">
+            <div class="action-button-circular" id="action-chat" style="bottom: 10%; left: 50%; transform: translate(-50%, 50%);">
                 <div class="action-icon">💬</div>
                 <div class="action-label">CHAT</div>
             </div>
-            <div class="action-button-circular" id="action-sync">
+            <div class="action-button-circular" id="action-sync" style="bottom: 30%; left: 10%; transform: translate(-50%, 50%);">
                 <div class="action-icon">🔄</div>
                 <div class="action-label">SYNC</div>
             </div>
-            <div class="action-button-circular" id="action-insights">
+            <div class="action-button-circular" id="action-insights" style="top: 30%; left: 10%; transform: translate(-50%, -50%);">
                 <div class="action-icon">📊</div>
                 <div class="action-label">INSIGHTS</div>
             </div>
         </div>
     </div>
 
-    <div id="planet-detail">
+    <div id="planet-detail" style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.98);
+        z-index: 7000;
+        display: none;
+        overflow-y: auto;
+    ">
         <div class="close-detail" id="close-detail">✕</div>
         <div class="planet-detail-header">
             <div class="planet-detail-title" id="detail-title">LOADING...</div>
@@ -66,24 +99,71 @@
         <div class="planet-detail-content" id="detail-content"></div>
     </div>
 
-    <div id="quick-actions">
+    <div id="quick-actions" style="
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 15px;
+        z-index: 6000;
+        opacity: 0;
+        animation: fadeIn 1s 2s forwards;
+    ">
         <button class="quick-action-btn" id="quick-workout">LOG WORKOUT</button>
         <button class="quick-action-btn" id="quick-meal">LOG MEAL</button>
         <button class="quick-action-btn" id="quick-sync">SYNC DATA</button>
         <button class="quick-action-btn" id="quick-chat">ASK PHOENIX</button>
     </div>
 
-    <div id="loading">
+    <div id="loading" style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        transition: opacity 1s ease;
+    ">
         <div class="loading-text">PHOENIX</div>
         <div class="loading-spinner"></div>
     </div>
 
-    <button class="logout-btn" id="logout-btn">LOGOUT</button>
+    <button class="logout-btn" id="logout-btn" style="
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 10px 20px;
+        background: rgba(255, 68, 68, 0.1);
+        border: 1px solid rgba(255, 68, 68, 0.5);
+        color: #ff4444;
+        font-family: inherit;
+        font-size: 11px;
+        cursor: pointer;
+        transition: all 0.3s;
+        z-index: 1001;
+        letter-spacing: 1px;
+    ">LOGOUT</button>
 
     <div id="container"></div>
 
     <div class="mind-map-container">
-        <div id="phoenix-core-container" class="phoenix-core">
+        <div id="phoenix-core-container" class="phoenix-core" style="
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            z-index: 500;
+            pointer-events: auto;
+            cursor: pointer;
+        ">
             <div class="core-rings">
                 <div class="core-ring ring-1"></div>
                 <div class="core-ring ring-2"></div>
@@ -95,50 +175,125 @@
                 <div class="core-text">PHOENIX</div>
             </div>
             
-            <canvas id="phoenix-particles" width="200" height="200"></canvas>
+            <canvas id="phoenix-particles" width="200" height="200" style="
+                position: absolute;
+                top: 0;
+                left: 0;
+                pointer-events: none;
+            "></canvas>
         </div>
     </div>
 
-    <div id="greeting">
+    <div id="greeting" style="
+        position: fixed;
+        top: 25%;
+        left: 50%;
+        transform: translateX(-50%);
+        text-align: center;
+        z-index: 500;
+        opacity: 0;
+        animation: fadeIn 1s 1s forwards;
+    ">
         <div class="greeting-main">Welcome</div>
         <div class="greeting-sub">Your AI companion is initializing...</div>
     </div>
 
-    <div id="hud-tl" class="hud hud-corner">
+    <div id="hud-tl" class="hud hud-corner" style="
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 1000;
+        pointer-events: none;
+    ">
         <div class="hud-label">TIME</div>
         <div class="hud-value" id="time-display">--:--</div>
-        <div class="hud-label">DATE</div>
-        <div class="hud-value" id="date-display">---</div>
+        <div class="hud-label" style="margin-top: 10px;">DATE</div>
+        <div class="hud-value" style="font-size: 12px;" id="date-display">---</div>
     </div>
 
-    <div id="hud-tr" class="hud hud-corner">
+    <div id="hud-tr" class="hud hud-corner" style="
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        pointer-events: none;
+        text-align: right;
+    ">
         <div class="hud-label">RECOVERY</div>
         <div class="hud-value" id="recovery-value">--</div>
         <div class="recovery-bar">
-            <div class="recovery-fill" id="recovery-fill"></div>
+            <div class="recovery-fill" id="recovery-fill" style="width: 0%"></div>
         </div>
     </div>
 
-    <div id="hud-bl" class="hud hud-corner">
+    <div id="hud-bl" class="hud hud-corner" style="
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        z-index: 1000;
+        pointer-events: none;
+    ">
         <div class="hud-label">STATUS</div>
-        <div class="hud-value" id="status-display">ONLINE</div>
+        <div class="hud-value" style="font-size: 12px;" id="status-display">ONLINE</div>
     </div>
 
-    <div id="hud-br" class="hud hud-corner">
+    <div id="hud-br" class="hud hud-corner" style="
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+        pointer-events: none;
+        text-align: right;
+    ">
         <div class="hud-label">MODE</div>
-        <div class="hud-value">ACTIVE</div>
+        <div class="hud-value" style="font-size: 12px;">ACTIVE</div>
     </div>
 
-    <div id="voice-overlay">
+    <div id="voice-overlay" style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 9000;
+        flex-direction: column;
+    ">
         <div class="waveform-container">
             <canvas id="waveform-canvas" width="200" height="100"></canvas>
         </div>
-        <div class="voice-text" id="voice-text">Listening...</div>
+        <div class="voice-text" id="voice-text" style="
+            color: #00ffff;
+            font-size: 18px;
+            text-align: center;
+            padding: 20px;
+            max-width: 80%;
+            margin-top: 20px;
+        ">Listening...</div>
     </div>
     
-    <svg id="energy-beams" class="correlation-lines"></svg>
+    <svg id="energy-beams" class="correlation-lines" style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 450;
+    "></svg>
 
-    <div id="data-constellation"></div>
+    <div id="data-constellation" style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 600;
+    "></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
@@ -195,15 +350,23 @@
                 
                 const hasActivated = localStorage.getItem('phoenixActivated');
                 if (hasActivated) {
-                    document.getElementById('onboarding').classList.remove('active');
+                    document.getElementById('onboarding').style.display = 'none';
                     this.isActivated = true;
                     this.loadUserData();
                     this.startDataSync();
                     setTimeout(() => {
-                        document.getElementById('loading').classList.add('hidden');
+                        document.getElementById('loading').style.opacity = '0';
+                        setTimeout(() => {
+                            document.getElementById('loading').style.display = 'none';
+                        }, 1000);
                     }, 3000);
                 } else {
-                    document.getElementById('loading').classList.add('hidden');
+                    setTimeout(() => {
+                        document.getElementById('loading').style.opacity = '0';
+                        setTimeout(() => {
+                            document.getElementById('loading').style.display = 'none';
+                        }, 1000);
+                    }, 2000);
                 }
             }
 
@@ -264,7 +427,7 @@
             }
 
             activatePhoenix() {
-                document.getElementById('onboarding').classList.remove('active');
+                document.getElementById('onboarding').style.display = 'none';
                 localStorage.setItem('phoenixActivated', 'true');
                 this.isActivated = true;
                 
@@ -284,21 +447,21 @@
                 this.actionMenuOpen = !this.actionMenuOpen;
                 const menu = document.getElementById('action-menu');
                 if (this.actionMenuOpen) {
-                    menu.classList.add('active');
+                    menu.style.display = 'block';
                 } else {
-                    menu.classList.remove('active');
+                    menu.style.display = 'none';
                 }
             }
 
             closeActionMenu() {
                 this.actionMenuOpen = false;
-                document.getElementById('action-menu').classList.remove('active');
+                document.getElementById('action-menu').style.display = 'none';
             }
 
             openPlanetDetail(planetName) {
                 this.currentPlanet = planetName;
                 const detail = document.getElementById('planet-detail');
-                detail.classList.add('active');
+                detail.style.display = 'block';
                 
                 const planetData = {
                     mercury: {
@@ -334,7 +497,7 @@
             }
 
             closePlanetDetail() {
-                document.getElementById('planet-detail').classList.remove('active');
+                document.getElementById('planet-detail').style.display = 'none';
                 this.currentPlanet = null;
             }
 
@@ -636,11 +799,11 @@
 
             activateVoice() {
                 const overlay = document.getElementById('voice-overlay');
-                overlay.classList.add('active');
+                overlay.style.display = 'flex';
                 this.isListening = true;
                 
                 setTimeout(() => {
-                    overlay.classList.remove('active');
+                    overlay.style.display = 'none';
                     this.isListening = false;
                 }, 3000);
             }
@@ -951,5 +1114,216 @@
             console.log('PHOENIX INITIALIZED');
         });
     </script>
+
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(400px); opacity: 0; }
+        }
+
+        .onboarding-title {
+            font-size: 48px;
+            color: #00ffff;
+            margin-bottom: 20px;
+            text-shadow: 0 0 30px rgba(0, 255, 255, 1);
+        }
+
+        .onboarding-text {
+            font-size: 18px;
+            color: rgba(0, 255, 255, 0.7);
+            text-align: center;
+            max-width: 600px;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .activate-btn {
+            padding: 20px 60px;
+            background: rgba(0, 255, 255, 0.1);
+            border: 2px solid #00ffff;
+            color: #00ffff;
+            font-family: inherit;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .activate-btn:hover {
+            background: rgba(0, 255, 255, 0.3);
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.8);
+            transform: scale(1.05);
+        }
+
+        .action-button-circular {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: rgba(0, 10, 20, 0.9);
+            border: 2px solid rgba(0, 255, 255, 0.5);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .action-button-circular:hover {
+            background: rgba(0, 255, 255, 0.2);
+            border-color: #00ffff;
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
+        }
+
+        .action-icon {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .action-label {
+            font-size: 10px;
+            color: #00ffff;
+            letter-spacing: 1px;
+        }
+
+        .planet-detail-header {
+            padding: 40px;
+            text-align: center;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        .planet-detail-title {
+            font-size: 36px;
+            color: #00ffff;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 1);
+            margin-bottom: 10px;
+        }
+
+        .planet-detail-subtitle {
+            font-size: 14px;
+            color: rgba(0, 255, 255, 0.6);
+        }
+
+        .planet-detail-content {
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .close-detail {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 10, 20, 0.9);
+            border: 2px solid rgba(0, 255, 255, 0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 24px;
+            color: #00ffff;
+            transition: all 0.3s;
+            z-index: 7100;
+        }
+
+        .close-detail:hover {
+            background: rgba(255, 0, 0, 0.2);
+            border-color: #ff4444;
+            color: #ff4444;
+            transform: rotate(90deg);
+        }
+
+        .quick-action-btn {
+            padding: 12px 24px;
+            background: rgba(0, 10, 20, 0.9);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            color: #00ffff;
+            font-family: inherit;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+            letter-spacing: 1px;
+        }
+
+        .quick-action-btn:hover {
+            background: rgba(0, 255, 255, 0.2);
+            border-color: #00ffff;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+        }
+
+        .hud-corner {
+            padding: 15px;
+            background: rgba(0, 10, 20, 0.8);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            font-size: 11px;
+            letter-spacing: 1px;
+        }
+
+        .hud-label {
+            color: rgba(0, 255, 255, 0.5);
+            font-size: 9px;
+            margin-bottom: 5px;
+        }
+
+        .hud-value {
+            color: #00ffff;
+            font-size: 16px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+        }
+
+        .recovery-bar {
+            width: 100px;
+            height: 4px;
+            background: rgba(0, 255, 255, 0.2);
+            margin-top: 5px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .recovery-fill {
+            height: 100%;
+            background: #00ffff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+            transition: width 0.5s ease;
+        }
+
+        .waveform-container {
+            width: 200px;
+            height: 100px;
+            position: relative;
+        }
+
+        .greeting-main {
+            font-size: 32px;
+            color: #00ffff;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 1);
+        }
+
+        .greeting-sub {
+            font-size: 14px;
+            color: rgba(0, 255, 255, 0.6);
+        }
+    </style>
 </body>
 </html>
