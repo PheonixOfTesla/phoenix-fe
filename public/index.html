@@ -6,658 +6,19 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Phoenix</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
-            background: #000;
-            color: #00ffff;
-            overflow: hidden;
-            width: 100vw;
-            height: 100vh;
-            position: fixed;
-            touch-action: none;
-        }
-
-        #container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-        .hud {
-            position: fixed;
-            z-index: 1000;
-            pointer-events: none;
-        }
-
-        .hud-corner {
-            padding: 15px;
-            background: rgba(0, 10, 20, 0.8);
-            border: 1px solid rgba(0, 255, 255, 0.3);
-            backdrop-filter: blur(10px);
-            font-size: 11px;
-            letter-spacing: 1px;
-        }
-
-        #hud-tl {
-            top: 20px;
-            left: 20px;
-        }
-
-        #hud-tr {
-            top: 20px;
-            right: 20px;
-            text-align: right;
-        }
-
-        #hud-bl {
-            bottom: 20px;
-            left: 20px;
-        }
-
-        #hud-br {
-            bottom: 20px;
-            right: 20px;
-            text-align: right;
-        }
-
-        .hud-label {
-            color: rgba(0, 255, 255, 0.5);
-            font-size: 9px;
-            margin-bottom: 5px;
-        }
-
-        .hud-value {
-            color: #00ffff;
-            font-size: 16px;
-            font-weight: bold;
-            text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
-        }
-
-        .recovery-bar {
-            width: 100px;
-            height: 4px;
-            background: rgba(0, 255, 255, 0.2);
-            margin-top: 5px;
-            border-radius: 2px;
-            overflow: hidden;
-        }
-
-        .recovery-fill {
-            height: 100%;
-            background: #00ffff;
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
-            transition: width 0.5s ease;
-        }
-
-        #loading {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            transition: opacity 1s ease;
-        }
-
-        #loading.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .loading-text {
-            color: #00ffff;
-            font-size: 24px;
-            margin-bottom: 20px;
-            text-shadow: 0 0 20px rgba(0, 255, 255, 1);
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        .loading-spinner {
-            width: 60px;
-            height: 60px;
-            border: 3px solid rgba(0, 255, 255, 0.2);
-            border-top-color: #00ffff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 1; }
-        }
-
-        #voice-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 9000;
-            flex-direction: column;
-        }
-
-        #voice-overlay.active {
-            display: flex;
-        }
-
-        .voice-text {
-            color: #00ffff;
-            font-size: 18px;
-            text-align: center;
-            padding: 20px;
-            max-width: 80%;
-            margin-top: 20px;
-        }
-
-        .waveform-container {
-            width: 200px;
-            height: 100px;
-            position: relative;
-        }
-
-        .planet-label {
-            position: absolute;
-            color: #00ffff;
-            font-size: 10px;
-            text-align: center;
-            pointer-events: none;
-            text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
-            z-index: 100;
-            transform: translate(-50%, -50%);
-        }
-
-        #greeting {
-            position: fixed;
-            top: 25%;
-            left: 50%;
-            transform: translateX(-50%);
-            text-align: center;
-            z-index: 500;
-            opacity: 0;
-            animation: fadeIn 1s 1s forwards;
-        }
-
-        @keyframes fadeIn {
-            to { opacity: 1; }
-        }
-
-        .greeting-main {
-            font-size: 32px;
-            color: #00ffff;
-            margin-bottom: 10px;
-            text-shadow: 0 0 20px rgba(0, 255, 255, 1);
-        }
-
-        .greeting-sub {
-            font-size: 14px;
-            color: rgba(0, 255, 255, 0.6);
-        }
-
-        .ripple {
-            position: fixed;
-            border: 2px solid rgba(0, 255, 255, 0.6);
-            border-radius: 50%;
-            pointer-events: none;
-            animation: ripple 0.6s ease-out;
-            z-index: 9999;
-        }
-
-        @keyframes ripple {
-            to {
-                transform: scale(3);
-                opacity: 0;
-            }
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideOut {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-        }
-
-        @keyframes alertFlash {
-            0%, 100% {
-                opacity: 0;
-            }
-            50% {
-                opacity: 1;
-            }
-        }
-
-        #action-menu {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 8000;
-            display: none;
-        }
-
-        #action-menu.active {
-            display: block;
-        }
-
-        .action-ring {
-            position: relative;
-            width: 400px;
-            height: 400px;
-        }
-
-        .action-button-circular {
-            position: absolute;
-            width: 80px;
-            height: 80px;
-            background: rgba(0, 10, 20, 0.9);
-            border: 2px solid rgba(0, 255, 255, 0.5);
-            border-radius: 50%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            backdrop-filter: blur(10px);
-        }
-
-        .action-button-circular:hover {
-            background: rgba(0, 255, 255, 0.2);
-            border-color: #00ffff;
-            transform: scale(1.1);
-            box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
-        }
-
-        .action-icon {
-            font-size: 28px;
-            margin-bottom: 5px;
-        }
-
-        .action-label {
-            font-size: 10px;
-            color: #00ffff;
-            letter-spacing: 1px;
-        }
-
-        #planet-detail {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.98);
-            z-index: 7000;
-            display: none;
-            overflow-y: auto;
-        }
-
-        #planet-detail.active {
-            display: block;
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        .planet-detail-header {
-            padding: 40px;
-            text-align: center;
-            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
-        }
-
-        .planet-detail-title {
-            font-size: 36px;
-            color: #00ffff;
-            text-shadow: 0 0 20px rgba(0, 255, 255, 1);
-            margin-bottom: 10px;
-        }
-
-        .planet-detail-subtitle {
-            font-size: 14px;
-            color: rgba(0, 255, 255, 0.6);
-        }
-
-        .planet-detail-content {
-            padding: 40px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .metric-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
-        }
-
-        .metric-card {
-            background: rgba(0, 10, 20, 0.8);
-            border: 1px solid rgba(0, 255, 255, 0.3);
-            padding: 20px;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s;
-        }
-
-        .metric-card:hover {
-            background: rgba(0, 255, 255, 0.05);
-            border-color: #00ffff;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
-        }
-
-        .metric-card-label {
-            font-size: 11px;
-            color: rgba(0, 255, 255, 0.5);
-            margin-bottom: 10px;
-            letter-spacing: 2px;
-        }
-
-        .metric-card-value {
-            font-size: 42px;
-            color: #00ffff;
-            font-weight: bold;
-            text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
-            margin-bottom: 5px;
-        }
-
-        .metric-card-trend {
-            font-size: 14px;
-            color: rgba(0, 255, 255, 0.7);
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .action-btn {
-            padding: 15px 30px;
-            background: rgba(0, 255, 255, 0.1);
-            border: 1px solid rgba(0, 255, 255, 0.5);
-            color: #00ffff;
-            font-family: inherit;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.3s;
-            letter-spacing: 1px;
-        }
-
-        .action-btn:hover {
-            background: rgba(0, 255, 255, 0.3);
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
-            transform: translateY(-2px);
-        }
-
-        .close-detail {
-            position: fixed;
-            top: 30px;
-            right: 30px;
-            width: 50px;
-            height: 50px;
-            background: rgba(0, 10, 20, 0.9);
-            border: 2px solid rgba(0, 255, 255, 0.5);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 24px;
-            color: #00ffff;
-            transition: all 0.3s;
-            z-index: 7100;
-        }
-
-        .close-detail:hover {
-            background: rgba(255, 0, 0, 0.2);
-            border-color: #ff4444;
-            color: #ff4444;
-            transform: rotate(90deg);
-        }
-
-        #quick-actions {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 15px;
-            z-index: 6000;
-            opacity: 0;
-            animation: fadeIn 1s 2s forwards;
-        }
-
-        .quick-action-btn {
-            padding: 12px 24px;
-            background: rgba(0, 10, 20, 0.9);
-            border: 1px solid rgba(0, 255, 255, 0.3);
-            color: #00ffff;
-            font-family: inherit;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-            backdrop-filter: blur(10px);
-            letter-spacing: 1px;
-        }
-
-        .quick-action-btn:hover {
-            background: rgba(0, 255, 255, 0.2);
-            border-color: #00ffff;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
-        }
-
-        #onboarding {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.98);
-            z-index: 11000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-        }
-
-        #onboarding.active {
-            display: flex;
-        }
-
-        .onboarding-title {
-            font-size: 48px;
-            color: #00ffff;
-            margin-bottom: 20px;
-            text-shadow: 0 0 30px rgba(0, 255, 255, 1);
-        }
-
-        .onboarding-text {
-            font-size: 18px;
-            color: rgba(0, 255, 255, 0.7);
-            text-align: center;
-            max-width: 600px;
-            margin-bottom: 40px;
-            line-height: 1.6;
-        }
-
-        .activate-btn {
-            padding: 20px 60px;
-            background: rgba(0, 255, 255, 0.1);
-            border: 2px solid #00ffff;
-            color: #00ffff;
-            font-family: inherit;
-            font-size: 18px;
-            cursor: pointer;
-            transition: all 0.3s;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        .activate-btn:hover {
-            background: rgba(0, 255, 255, 0.3);
-            box-shadow: 0 0 40px rgba(0, 255, 255, 0.8);
-            transform: scale(1.05);
-        }
-
-        .corner-bracket {
-            position: fixed;
-            width: 30px;
-            height: 30px;
-            border: 2px solid rgba(0, 255, 255, 0.3);
-            z-index: 999;
-        }
-
-        .bracket-tl {
-            top: 10px;
-            left: 10px;
-            border-right: none;
-            border-bottom: none;
-        }
-
-        .bracket-tr {
-            top: 10px;
-            right: 10px;
-            border-left: none;
-            border-bottom: none;
-        }
-
-        .bracket-bl {
-            bottom: 10px;
-            left: 10px;
-            border-right: none;
-            border-top: none;
-        }
-
-        .bracket-br {
-            bottom: 10px;
-            right: 10px;
-            border-left: none;
-            border-top: none;
-        }
-
-        .logout-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 10px 20px;
-            background: rgba(255, 68, 68, 0.1);
-            border: 1px solid rgba(255, 68, 68, 0.5);
-            color: #ff4444;
-            font-family: inherit;
-            font-size: 11px;
-            cursor: pointer;
-            transition: all 0.3s;
-            z-index: 1001;
-            letter-spacing: 1px;
-        }
-
-        .logout-btn:hover {
-            background: rgba(255, 68, 68, 0.3);
-            box-shadow: 0 0 20px rgba(255, 68, 68, 0.5);
-        }
-
-        @keyframes coreRotate {
-            from { transform: translate(-50%, -50%) rotate(0deg); }
-            to { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-
-        @keyframes phoenixPulse {
-            0%, 100% {
-                transform: translate(-50%, -50%) scale(1);
-                box-shadow: 
-                    0 0 40px rgba(0, 255, 255, 0.6),
-                    inset 0 0 40px rgba(0, 255, 255, 0.3),
-                    0 0 80px rgba(0, 255, 255, 0.4);
-            }
-            50% {
-                transform: translate(-50%, -50%) scale(1.05);
-                box-shadow: 
-                    0 0 60px rgba(0, 255, 255, 0.8),
-                    inset 0 0 50px rgba(0, 255, 255, 0.5),
-                    0 0 100px rgba(0, 255, 255, 0.6);
-            }
-        }
-
-        @keyframes innerGlow {
-            from {
-                transform: scale(0.8);
-                opacity: 0.6;
-            }
-            to {
-                transform: scale(1.2);
-                opacity: 0.3;
-            }
-        }
-
-        #phoenix-core-container:hover #phoenix-sphere {
-            transform: translate(-50%, -50%) scale(1.1);
-            box-shadow: 
-                0 0 60px rgba(0, 255, 255, 0.9),
-                inset 0 0 50px rgba(0, 255, 255, 0.5),
-                0 0 120px rgba(0, 255, 255, 0.7);
-        }
-
-        @keyframes beamPulse {
-            0%, 100% {
-                opacity: 0.3;
-            }
-            50% {
-                opacity: 0.7;
-            }
-        }
-
-        @keyframes podFloat {
-            0%, 100% {
-                transform: translate(-50%, -50%) translateY(0px);
-            }
-            50% {
-                transform: translate(-50%, -50%) translateY(-20px);
-            }
-        }
-
-        .metric-pod {
-            transition: all 0.3s ease;
-        }
-
-        .metric-pod:hover {
-            animation-play-state: paused;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div class="hud-frame">
+        <div class="corner-bracket top-left"></div>
+        <div class="corner-bracket top-right"></div>
+        <div class="corner-bracket bottom-left"></div>
+        <div class="corner-bracket bottom-right"></div>
+    </div>
+
+    <div class="grid-underlay"></div>
+    <div class="vhs-overlay"></div>
+
     <div id="onboarding" class="active">
         <div class="onboarding-title">PHOENIX</div>
         <div class="onboarding-text">
@@ -669,27 +30,27 @@
 
     <div id="action-menu">
         <div class="action-ring">
-            <div class="action-button-circular" id="action-workout" style="top: 10%; left: 50%; transform: translate(-50%, -50%);">
+            <div class="action-button-circular" id="action-workout">
                 <div class="action-icon">💪</div>
                 <div class="action-label">WORKOUT</div>
             </div>
-            <div class="action-button-circular" id="action-meal" style="top: 30%; right: 10%; transform: translate(50%, -50%);">
+            <div class="action-button-circular" id="action-meal">
                 <div class="action-icon">🍽️</div>
                 <div class="action-label">MEAL</div>
             </div>
-            <div class="action-button-circular" id="action-goals" style="bottom: 30%; right: 10%; transform: translate(50%, 50%);">
+            <div class="action-button-circular" id="action-goals">
                 <div class="action-icon">🎯</div>
                 <div class="action-label">GOALS</div>
             </div>
-            <div class="action-button-circular" id="action-chat" style="bottom: 10%; left: 50%; transform: translate(-50%, 50%);">
+            <div class="action-button-circular" id="action-chat">
                 <div class="action-icon">💬</div>
                 <div class="action-label">CHAT</div>
             </div>
-            <div class="action-button-circular" id="action-sync" style="bottom: 30%; left: 10%; transform: translate(-50%, 50%);">
+            <div class="action-button-circular" id="action-sync">
                 <div class="action-icon">🔄</div>
                 <div class="action-label">SYNC</div>
             </div>
-            <div class="action-button-circular" id="action-insights" style="top: 30%; left: 10%; transform: translate(-50%, -50%);">
+            <div class="action-button-circular" id="action-insights">
                 <div class="action-icon">📊</div>
                 <div class="action-label">INSIGHTS</div>
             </div>
@@ -717,105 +78,25 @@
         <div class="loading-spinner"></div>
     </div>
 
-    <div class="corner-bracket bracket-tl"></div>
-    <div class="corner-bracket bracket-tr"></div>
-    <div class="corner-bracket bracket-bl"></div>
-    <div class="corner-bracket bracket-br"></div>
-
     <button class="logout-btn" id="logout-btn">LOGOUT</button>
 
     <div id="container"></div>
 
-    <div id="phoenix-core-container" style="
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 200px;
-        height: 200px;
-        z-index: 500;
-        pointer-events: auto;
-        cursor: pointer;
-    ">
-        <div class="core-ring-outer" style="
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100%;
-            height: 100%;
-            border: 2px solid rgba(0, 255, 255, 0.3);
-            border-radius: 50%;
-            animation: coreRotate 20s linear infinite;
-        "></div>
-        
-        <div class="core-ring-middle" style="
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 120%;
-            height: 120%;
-            border: 2px solid rgba(0, 255, 255, 0.2);
-            border-radius: 50%;
-            animation: coreRotate 15s linear infinite reverse;
-        "></div>
-        
-        <div class="core-ring-wide" style="
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 140%;
-            height: 140%;
-            border: 1px solid rgba(0, 255, 255, 0.15);
-            border-radius: 50%;
-            animation: coreRotate 25s linear infinite;
-        "></div>
-        
-        <div id="phoenix-sphere" style="
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 120px;
-            height: 120px;
-            background: radial-gradient(circle at 30% 30%, rgba(0, 255, 255, 0.8), rgba(0, 150, 150, 0.4));
-            border-radius: 50%;
-            box-shadow: 
-                0 0 40px rgba(0, 255, 255, 0.6),
-                inset 0 0 40px rgba(0, 255, 255, 0.3),
-                0 0 80px rgba(0, 255, 255, 0.4);
-            animation: phoenixPulse 2s ease-in-out infinite;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        ">
-            <div style="
-                width: 100%;
-                height: 100%;
-                border-radius: 50%;
-                background: radial-gradient(circle, rgba(0, 255, 255, 0.4), transparent);
-                animation: innerGlow 3s ease-in-out infinite alternate;
-            "></div>
+    <div class="mind-map-container">
+        <div id="phoenix-core-container" class="phoenix-core">
+            <div class="core-rings">
+                <div class="core-ring ring-1"></div>
+                <div class="core-ring ring-2"></div>
+                <div class="core-ring ring-3"></div>
+            </div>
             
-            <div style="
-                position: absolute;
-                font-size: 14px;
-                font-weight: bold;
-                color: #00ffff;
-                text-shadow: 0 0 10px rgba(0, 255, 255, 1);
-                letter-spacing: 3px;
-                z-index: 1;
-            ">PHOENIX</div>
+            <div id="phoenix-sphere" class="core-center">
+                <div class="core-glow"></div>
+                <div class="core-text">PHOENIX</div>
+            </div>
+            
+            <canvas id="phoenix-particles" width="200" height="200"></canvas>
         </div>
-        
-        <canvas id="phoenix-particles" width="200" height="200" style="
-            position: absolute;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-        "></canvas>
     </div>
 
     <div id="greeting">
@@ -826,26 +107,26 @@
     <div id="hud-tl" class="hud hud-corner">
         <div class="hud-label">TIME</div>
         <div class="hud-value" id="time-display">--:--</div>
-        <div class="hud-label" style="margin-top: 10px;">DATE</div>
-        <div class="hud-value" style="font-size: 12px;" id="date-display">---</div>
+        <div class="hud-label">DATE</div>
+        <div class="hud-value" id="date-display">---</div>
     </div>
 
     <div id="hud-tr" class="hud hud-corner">
         <div class="hud-label">RECOVERY</div>
         <div class="hud-value" id="recovery-value">--</div>
         <div class="recovery-bar">
-            <div class="recovery-fill" id="recovery-fill" style="width: 0%"></div>
+            <div class="recovery-fill" id="recovery-fill"></div>
         </div>
     </div>
 
     <div id="hud-bl" class="hud hud-corner">
         <div class="hud-label">STATUS</div>
-        <div class="hud-value" style="font-size: 12px;" id="status-display">ONLINE</div>
+        <div class="hud-value" id="status-display">ONLINE</div>
     </div>
 
     <div id="hud-br" class="hud hud-corner">
         <div class="hud-label">MODE</div>
-        <div class="hud-value" style="font-size: 12px;">ACTIVE</div>
+        <div class="hud-value">ACTIVE</div>
     </div>
 
     <div id="voice-overlay">
@@ -855,25 +136,9 @@
         <div class="voice-text" id="voice-text">Listening...</div>
     </div>
     
-    <svg id="energy-beams" style="
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 450;
-    "></svg>
+    <svg id="energy-beams" class="correlation-lines"></svg>
 
-    <div id="data-constellation" style="
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 600;
-    "></div>
+    <div id="data-constellation"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
@@ -1620,7 +885,7 @@
                     pod.style.left = 'calc(50% + ' + (Math.cos(angle) * distance) + 'px)';
                     pod.style.top = 'calc(50% + ' + (Math.sin(angle) * distance) + 'px)';
                     
-  pod.innerHTML = '<div style="font-size: 10px; color: rgba(0, 255, 255, 0.6); margin-bottom: 5px; letter-spacing: 2px;">' + metric.label + '</div><div style="font-size: 24px; font-weight: bold; color: ' + metric.color + '; text-shadow: 0 0 10px ' + metric.color + ';">' + metric.value + '</div>';
+                    pod.innerHTML = '<div style="font-size: 10px; color: rgba(0, 255, 255, 0.6); margin-bottom: 5px; letter-spacing: 2px;">' + metric.label + '</div><div style="font-size: 24px; font-weight: bold; color: ' + metric.color + '; text-shadow: 0 0 10px ' + metric.color + ';">' + metric.value + '</div>';
                     
                     pod.addEventListener('mouseenter', () => {
                         pod.style.transform = 'translate(-50%, -50%) scale(1.1)';
@@ -1634,13 +899,8 @@
                     
                     constellation.appendChild(pod);
                 });
-           }, 2000);
+            }, 2000);
             
-            // ========================================
-            // VOICE AUTO-ACTIVATION (After Onboarding)
-            // ========================================
-            
-            // Check if user just completed onboarding
             const onboardingComplete = localStorage.getItem('phoenixOnboardingComplete');
             const preferences = localStorage.getItem('phoenixPreferences');
             
@@ -1649,13 +909,11 @@
                     const prefs = JSON.parse(preferences);
                     console.log('Loading voice preferences:', prefs);
                     
-                    // Auto-activate voice greeting after 3 seconds
                     setTimeout(async () => {
                         try {
                             const greeting = "Hello, I'm Phoenix. Ready to optimize your life?";
                             console.log('Playing welcome greeting...');
                             
-                            // Call OpenAI TTS
                             const response = await fetch(`${API_BASE}/voice/speak`, {
                                 method: 'POST',
                                 headers: getAuthHeaders(),
