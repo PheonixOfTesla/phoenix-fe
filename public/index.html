@@ -598,6 +598,73 @@
             background: rgba(255, 68, 68, 0.3);
             box-shadow: 0 0 20px rgba(255, 68, 68, 0.5);
         }
+         /* Phoenix Core Animations */
+        @keyframes coreRotate {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        @keyframes phoenixPulse {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+                box-shadow: 
+                    0 0 40px rgba(0, 255, 255, 0.6),
+                    inset 0 0 40px rgba(0, 255, 255, 0.3),
+                    0 0 80px rgba(0, 255, 255, 0.4);
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.05);
+                box-shadow: 
+                    0 0 60px rgba(0, 255, 255, 0.8),
+                    inset 0 0 50px rgba(0, 255, 255, 0.5),
+                    0 0 100px rgba(0, 255, 255, 0.6);
+            }
+        }
+
+        @keyframes innerGlow {
+            from {
+                transform: scale(0.8);
+                opacity: 0.6;
+            }
+            to {
+                transform: scale(1.2);
+                opacity: 0.3;
+            }
+        }
+
+        #phoenix-core-container:hover #phoenix-sphere {
+            transform: translate(-50%, -50%) scale(1.1);
+            box-shadow: 
+                0 0 60px rgba(0, 255, 255, 0.9),
+                inset 0 0 50px rgba(0, 255, 255, 0.5),
+                0 0 120px rgba(0, 255, 255, 0.7);
+        }
+
+        @keyframes beamPulse {
+            0%, 100% {
+                opacity: 0.3;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        @keyframes podFloat {
+            0%, 100% {
+                transform: translate(-50%, -50%) translateY(0px);
+            }
+            50% {
+                transform: translate(-50%, -50%) translateY(-20px);
+            }
+        }
+
+        .metric-pod {
+            transition: all 0.3s ease;
+        }
+
+        .metric-pod:hover {
+            animation-play-state: paused;
+        }
     </style>
 </head>
 <body>
@@ -867,6 +934,28 @@
         </div>
         <div class="voice-text" id="voice-text">Listening...</div>
     </div>
+    
+     <!-- Energy Beams from Phoenix to Planets -->
+    <svg id="energy-beams" style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 450;
+    "></svg>
+
+    <!-- Data Constellation - Floating Metric Cards -->
+    <div id="data-constellation" style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 600;
+    "></div>
 
     <!-- Three.js from CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -2258,6 +2347,77 @@
             
             // Expose to window for iOS bridge and debugging
             window.phoenix = phoenix;
+
+             // Phoenix Core Particle System
+            (function initPhoenixParticles() {
+                const canvas = document.getElementById('phoenix-particles');
+                if (!canvas) return;
+                
+                const ctx = canvas.getContext('2d');
+                const particles = [];
+                const centerX = 100;
+                const centerY = 100;
+                
+                // Create particles
+                for (let i = 0; i < 50; i++) {
+                    particles.push({
+                        angle: Math.random() * Math.PI * 2,
+                        distance: Math.random() * 40 + 20,
+                        size: Math.random() * 2 + 1,
+                        speed: Math.random() * 0.02 + 0.01,
+                        alpha: Math.random() * 0.5 + 0.3
+                    });
+                }
+                
+                function animate() {
+                    ctx.clearRect(0, 0, 200, 200);
+                    
+                    particles.forEach(p => {
+                        p.angle += p.speed;
+                        
+                        const x = centerX + Math.cos(p.angle) * p.distance;
+                        const y = centerY + Math.sin(p.angle) * p.distance;
+                        
+                        // Draw particle
+                        ctx.beginPath();
+                        ctx.arc(x, y, p.size, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(0, 255, 255, ${p.alpha})`;
+                        ctx.fill();
+                        
+                        // Glow
+                        const gradient = ctx.createRadialGradient(x, y, 0, x, y, p.size * 3);
+                        gradient.addColorStop(0, `rgba(0, 255, 255, ${p.alpha * 0.5})`);
+                        gradient.addColorStop(1, 'rgba(0, 255, 255, 0)');
+                        ctx.fillStyle = gradient;
+                        ctx.fillRect(x - p.size * 3, y - p.size * 3, p.size * 6, p.size * 6);
+                    });
+                    
+                    requestAnimationFrame(animate);
+                }
+                
+                animate();
+            })();
+            
+            // Phoenix Core Click Handler
+            const phoenixCoreContainer = document.getElementById('phoenix-core-container');
+            if (phoenixCoreContainer) {
+                phoenixCoreContainer.addEventListener('click', function() {
+                    console.log('🔥 Phoenix Core Activated');
+                    
+                    const sphere = document.getElementById('phoenix-sphere');
+                    if (sphere) {
+                        sphere.style.animation = 'none';
+                        setTimeout(() => {
+                            sphere.style.animation = 'phoenixPulse 0.5s ease-in-out 3';
+                            setTimeout(() => {
+                                sphere.style.animation = 'phoenixPulse 2s ease-in-out infinite';
+                            }, 1500);
+                        }, 10);
+                    }
+                    
+                    phoenix.toggleActionMenu();
+                });
+            }
             
             // Add quick input helpers
             window.logWorkout = (exercise, weight, sets, reps) => {
@@ -2272,6 +2432,123 @@
             console.log('💡 Quick commands:');
             console.log('   window.logWorkout("bench press", 225, 5, 5)');
             console.log('   window.logMeal("chicken breast", 400, 40)');
+
+            / Draw Energy Beams from Phoenix to Planets
+            setTimeout(() => {
+                const svg = document.getElementById('energy-beams');
+                const phoenixCore = document.getElementById('phoenix-core-container');
+                
+                if (!svg || !phoenixCore) return;
+                
+                function drawBeams() {
+                    svg.innerHTML = '';
+                    
+                    const coreRect = phoenixCore.getBoundingClientRect();
+                    const coreX = coreRect.left + coreRect.width / 2;
+                    const coreY = coreRect.top + coreRect.height / 2;
+                    
+                    const planetSelectors = [
+                        '[id*="mercury"]',
+                        '[id*="venus"]', 
+                        '[id*="earth"]',
+                        '[id*="mars"]',
+                        '[id*="jupiter"]',
+                        '[id*="saturn"]'
+                    ];
+                    
+                    planetSelectors.forEach((selector, index) => {
+                        const planet = document.querySelector(selector);
+                        if (!planet) return;
+                        
+                        const planetRect = planet.getBoundingClientRect();
+                        const planetX = planetRect.left + planetRect.width / 2;
+                        const planetY = planetRect.top + planetRect.height / 2;
+                        
+                        // Main beam
+                        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                        line.setAttribute('x1', coreX);
+                        line.setAttribute('y1', coreY);
+                        line.setAttribute('x2', planetX);
+                        line.setAttribute('y2', planetY);
+                        line.setAttribute('stroke', 'rgba(0, 255, 255, 0.2)');
+                        line.setAttribute('stroke-width', '2');
+                        line.style.animation = `beamPulse ${2 + index * 0.3}s ease-in-out infinite`;
+                        svg.appendChild(line);
+                        
+                        // Glow beam
+                        const glowLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                        glowLine.setAttribute('x1', coreX);
+                        glowLine.setAttribute('y1', coreY);
+                        glowLine.setAttribute('x2', planetX);
+                        glowLine.setAttribute('y2', planetY);
+                        glowLine.setAttribute('stroke', 'rgba(0, 255, 255, 0.1)');
+                        glowLine.setAttribute('stroke-width', '6');
+                        glowLine.style.animation = `beamPulse ${2 + index * 0.3}s ease-in-out infinite`;
+                        svg.appendChild(glowLine);
+                    });
+                }
+                
+                drawBeams();
+                window.addEventListener('resize', drawBeams);
+                setInterval(drawBeams, 100);
+            }, 1000);
+            
+            // Spawn Data Constellation Pods
+            setTimeout(() => {
+                const constellation = document.getElementById('data-constellation');
+                if (!constellation) return;
+                
+                const metrics = [
+                    { label: 'HRV', getValue: () => phoenix.userData?.wearable?.hrv || '--', color: '#00ffff' },
+                    { label: 'RECOVERY', getValue: () => Math.round(phoenix.recoveryScore) + '%', color: '#00ff88' },
+                    { label: 'SLEEP', getValue: () => phoenix.userData?.wearable?.sleepDuration ? (phoenix.userData.wearable.sleepDuration / 60).toFixed(1) + 'h' : '--', color: '#88ddff' },
+                    { label: 'WORKOUTS', getValue: () => (phoenix.userData?.intelligence?.recentWorkouts?.length || 0) + 'x', color: '#ff9600' }
+                ];
+                
+                metrics.forEach((metric, index) => {
+                    const pod = document.createElement('div');
+                    pod.className = 'metric-pod';
+                    pod.style.cssText = `
+                        position: absolute;
+                        background: rgba(0, 10, 20, 0.9);
+                        border: 1px solid rgba(0, 255, 255, 0.5);
+                        padding: 12px 20px;
+                        backdrop-filter: blur(10px);
+                        box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+                        animation: podFloat ${5 + index}s ease-in-out infinite;
+                        animation-delay: ${index * 0.5}s;
+                        pointer-events: auto;
+                        cursor: pointer;
+                    `;
+                    
+                    const angle = (index / metrics.length) * Math.PI * 2;
+                    const distance = 300;
+                    pod.style.left = `calc(50% + ${Math.cos(angle) * distance}px)`;
+                    pod.style.top = `calc(50% + ${Math.sin(angle) * distance}px)`;
+                    
+                    const updatePod = () => {
+                        pod.innerHTML = `
+                            <div style="font-size: 10px; color: rgba(0, 255, 255, 0.6); margin-bottom: 5px; letter-spacing: 2px;">${metric.label}</div>
+                            <div style="font-size: 24px; font-weight: bold; color: ${metric.color}; text-shadow: 0 0 10px ${metric.color};">${metric.getValue()}</div>
+                        `;
+                    };
+                    
+                    updatePod();
+                    setInterval(updatePod, 5000);
+                    
+                    pod.addEventListener('mouseenter', () => {
+                        pod.style.transform = 'translate(-50%, -50%) scale(1.1)';
+                        pod.style.boxShadow = '0 0 30px rgba(0, 255, 255, 0.6)';
+                    });
+                    
+                    pod.addEventListener('mouseleave', () => {
+                        pod.style.transform = 'translate(-50%, -50%)';
+                        pod.style.boxShadow = '0 0 20px rgba(0, 255, 255, 0.3)';
+                    });
+                    
+                    constellation.appendChild(pod);
+                });
+            }, 2000);
         });
     </script>
 </body>
