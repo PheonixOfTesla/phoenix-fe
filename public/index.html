@@ -685,6 +685,149 @@
     <!-- Three.js Container -->
     <div id="container"></div>
 
+    <!-- PHOENIX CORE - The Heart of the System -->
+<div id="phoenix-core-container" style="
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 200px;
+    z-index: 500;
+    pointer-events: auto;
+    cursor: pointer;
+">
+    <!-- Outer Rotating Rings -->
+    <div class="core-ring-outer" style="
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        height: 100%;
+        border: 2px solid rgba(0, 255, 255, 0.3);
+        border-radius: 50%;
+        animation: coreRotate 20s linear infinite;
+    "></div>
+    
+    <div class="core-ring-middle" style="
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 120%;
+        height: 120%;
+        border: 2px solid rgba(0, 255, 255, 0.2);
+        border-radius: 50%;
+        animation: coreRotate 15s linear infinite reverse;
+    "></div>
+    
+    <div class="core-ring-wide" style="
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 140%;
+        height: 140%;
+        border: 1px solid rgba(0, 255, 255, 0.15);
+        border-radius: 50%;
+        animation: coreRotate 25s linear infinite;
+    "></div>
+    
+    <!-- Phoenix Core Sphere -->
+    <div id="phoenix-sphere" style="
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 120px;
+        height: 120px;
+        background: radial-gradient(circle at 30% 30%, rgba(0, 255, 255, 0.8), rgba(0, 150, 150, 0.4));
+        border-radius: 50%;
+        box-shadow: 
+            0 0 40px rgba(0, 255, 255, 0.6),
+            inset 0 0 40px rgba(0, 255, 255, 0.3),
+            0 0 80px rgba(0, 255, 255, 0.4);
+        animation: phoenixPulse 2s ease-in-out infinite;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    ">
+        <!-- Inner Glow -->
+        <div style="
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.4), transparent);
+            animation: innerGlow 3s ease-in-out infinite alternate;
+        "></div>
+        
+        <!-- Phoenix Text -->
+        <div style="
+            position: absolute;
+            font-size: 14px;
+            font-weight: bold;
+            color: #00ffff;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 1);
+            letter-spacing: 3px;
+            z-index: 1;
+        ">PHOENIX</div>
+    </div>
+    
+    <!-- Data Stream Particles (Hexagons rotating inside) -->
+    <canvas id="phoenix-particles" width="200" height="200" style="
+        position: absolute;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+    "></canvas>
+</div>
+
+<!-- Add these animations to the style tag in head -->
+<style>
+@keyframes coreRotate {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes phoenixPulse {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 
+            0 0 40px rgba(0, 255, 255, 0.6),
+            inset 0 0 40px rgba(0, 255, 255, 0.3),
+            0 0 80px rgba(0, 255, 255, 0.4);
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.05);
+        box-shadow: 
+            0 0 60px rgba(0, 255, 255, 0.8),
+            inset 0 0 50px rgba(0, 255, 255, 0.5),
+            0 0 100px rgba(0, 255, 255, 0.6);
+    }
+}
+
+@keyframes innerGlow {
+    from {
+        transform: scale(0.8);
+        opacity: 0.6;
+    }
+    to {
+        transform: scale(1.2);
+        opacity: 0.3;
+    }
+}
+
+/* Make Phoenix interactive */
+#phoenix-core-container:hover #phoenix-sphere {
+    transform: translate(-50%, -50%) scale(1.1);
+    box-shadow: 
+        0 0 60px rgba(0, 255, 255, 0.9),
+        inset 0 0 50px rgba(0, 255, 255, 0.5),
+        0 0 120px rgba(0, 255, 255, 0.7);
+}
+</style>
+
     <!-- Greeting -->
     <div id="greeting">
         <div class="greeting-main">Welcome</div>
