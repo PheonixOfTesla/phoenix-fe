@@ -672,11 +672,17 @@
             btn.disabled = true;
 
             try {
+                // Check if token exists
+                const token = localStorage.getItem('phoenixToken');
+                if (!token) {
+                    throw new Error('Authentication token not found');
+                }
+
                 const response = await fetch(`${API_BASE}/voice/speak`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + localStorage.getItem('phoenixToken')
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify({
                         text: 'Hello. I am Phoenix, your AI companion. Ready to optimize your life?',
@@ -686,7 +692,9 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('TTS request failed with status: ' + response.status);
+                    const errorData = await response.json().catch(() => ({}));
+                    const errorMsg = errorData.message || `Server error: ${response.status}`;
+                    throw new Error(errorMsg);
                 }
 
                 const audioBlob = await response.blob();
@@ -717,11 +725,23 @@
             } catch (error) {
                 console.error('Preview failed:', error);
                 btn.innerHTML = '❌ Failed';
-                showToast('Could not generate voice preview. Please try again.', true);
+                
+                // Show more specific error message
+                let errorMessage = 'Could not generate voice preview.';
+                if (error.message.includes('429')) {
+                    errorMessage = 'Rate limit reached. Please wait a moment and try again.';
+                } else if (error.message.includes('Authentication')) {
+                    errorMessage = 'Authentication error. Please refresh and try again.';
+                } else if (error.message.includes('Failed to fetch')) {
+                    errorMessage = 'Cannot connect to server. Please check your connection.';
+                }
+                
+                showToast(errorMessage, true);
+                
                 setTimeout(() => {
                     btn.innerHTML = originalText;
                     btn.disabled = false;
-                }, 2000);
+                }, 3000);
             }
         }
 
@@ -735,11 +755,18 @@
 
         async function playWelcomeGreeting() {
             try {
+                const token = localStorage.getItem('phoenixToken');
+                if (!token) {
+                    console.warn('No auth token, skipping welcome greeting');
+                    window.location.href = '/index';
+                    return;
+                }
+
                 const response = await fetch(`${API_BASE}/voice/speak`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + localStorage.getItem('phoenixToken')
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify({
                         text: 'Hello. I am Phoenix. Ready to optimize your life?',
@@ -759,8 +786,14 @@
                         window.location.href = '/index';
                     };
 
+                    audio.onerror = () => {
+                        URL.revokeObjectURL(audioUrl);
+                        window.location.href = '/index';
+                    };
+
                     await audio.play();
                 } else {
+                    console.warn('TTS failed with status:', response.status);
                     // If TTS fails, just redirect
                     setTimeout(() => {
                         window.location.href = '/index';
