@@ -1064,126 +1064,61 @@
                 });
             }, 2000);
             
-            // ENHANCED WELCOME GREETING (handles both new and returning users)
-const onboardingComplete = localStorage.getItem('phoenixOnboardingComplete');
-const preferences = localStorage.getItem('phoenixPreferences');
-
-if (onboardingComplete && preferences) {
-    try {
-        const prefs = JSON.parse(preferences);
-        console.log('Loading voice preferences:', prefs);
-        
-        // Check if this is a fresh login (not just page refresh)
-        const lastGreeting = sessionStorage.getItem('phoenixLastGreeting');
-        const now = Date.now();
-        const greetingCooldown = 5 * 60 * 1000; // 5 minutes
-        
-        const shouldPlayGreeting = !lastGreeting || (now - parseInt(lastGreeting) > greetingCooldown);
-        
-        if (shouldPlayGreeting) {
-            setTimeout(async () => {
+            const onboardingComplete = localStorage.getItem('phoenixOnboardingComplete');
+            const preferences = localStorage.getItem('phoenixPreferences');
+            
+            if (onboardingComplete && preferences) {
                 try {
-                    // Get user info for personalized greeting
-                    const user = JSON.parse(localStorage.getItem('phoenixUser') || '{}');
-                    const userName = user.name ? user.name.split(' ')[0] : '';
+                    const prefs = JSON.parse(preferences);
+                    console.log('Loading voice preferences:', prefs);
                     
-                    // Determine if first-time user (just completed onboarding)
-                    const isFirstTime = !sessionStorage.getItem('phoenixReturningUser');
+                    setTimeout(async () => {
+                        try {
+                            const greeting = "Hello, I'm Phoenix. Ready to optimize your life?";
+                            console.log('Playing welcome greeting...');
+                            
+                            const response = await fetch(`${API_BASE}/voice/speak`, {
+                                method: 'POST',
+                                headers: getAuthHeaders(),
+                                body: JSON.stringify({
+                                    text: greeting,
+                                    voice: prefs.voice || 'fable',
+                                    speed: prefs.speechSpeed || 1.0
+                                })
+                            });
+                            
+                            if (response.ok) {
+                                const audioBlob = await response.blob();
+                                const audioUrl = URL.createObjectURL(audioBlob);
+                                const audio = new Audio(audioUrl);
+                                
+                                audio.onended = () => {
+                                    console.log('Welcome message complete');
+                                    URL.revokeObjectURL(audioUrl);
+                                };
+                                
+                                audio.onerror = (error) => {
+                                    console.error('Audio playback error:', error);
+                                    URL.revokeObjectURL(audioUrl);
+                                };
+                                
+                                await audio.play();
+                            } else {
+                                console.error('TTS failed:', response.status);
+                                const errorData = await response.json();
+                                console.error('TTS error details:', errorData);
+                            }
+                        } catch (error) {
+                            console.error('Failed to play welcome greeting:', error);
+                        }
+                    }, 3000);
                     
-                    let greeting;
-                    if (isFirstTime) {
-                        // First-time user (just finished onboarding)
-                        greeting = userName 
-                            ? `Welcome, ${userName}. I am Phoenix, your AI companion. All systems are online and ready to optimize your life.`
-                            : `Welcome. I am Phoenix, your AI companion. All systems are online and ready to optimize your life.`;
-                        
-                        // Mark as returning user for next time
-                        sessionStorage.setItem('phoenixReturningUser', 'true');
-                    } else {
-                        // Returning user - shorter greeting
-                        const hour = new Date().getHours();
-                        let timeGreeting = 'Good morning';
-                        if (hour >= 12 && hour < 18) timeGreeting = 'Good afternoon';
-                        if (hour >= 18) timeGreeting = 'Good evening';
-                        
-                        greeting = userName 
-                            ? `${timeGreeting}, ${userName}. Phoenix is online.`
-                            : `${timeGreeting}. Phoenix is online.`;
-                    }
-                    
-                    console.log('Playing welcome greeting...');
-                    
-                    const response = await fetch(`${API_BASE}/voice/speak`, {
-                        method: 'POST',
-                        headers: getAuthHeaders(),
-                        body: JSON.stringify({
-                            text: greeting,
-                            voice: prefs.voice || 'fable',
-                            speed: prefs.speechSpeed || 1.0
-                        })
-                    });
-                    
-                    if (response.ok) {
-                        const audioBlob = await response.blob();
-                        const audioUrl = URL.createObjectURL(audioBlob);
-                        const audio = new Audio(audioUrl);
-                        
-                        audio.onended = () => {
-                            console.log('Welcome message complete');
-                            URL.revokeObjectURL(audioUrl);
-                            // Update last greeting timestamp
-                            sessionStorage.setItem('phoenixLastGreeting', Date.now().toString());
-                        };
-                        
-                        audio.onerror = (error) => {
-                            console.error('Audio playback error:', error);
-                            URL.revokeObjectURL(audioUrl);
-                        };
-                        
-                        await audio.play();
-                    } else {
-                        console.error('TTS failed:', response.status);
-                        const errorData = await response.json();
-                        console.error('TTS error details:', errorData);
-                    }
                 } catch (error) {
-                    console.error('Failed to play welcome greeting:', error);
+                    console.error('Failed to load voice preferences:', error);
                 }
-            }, 3000); // Wait 3 seconds for page to fully load
-        } else {
-            console.log('Skipping greeting (cooldown active)');
-        }
-        
-    } catch (error) {
-        console.error('Failed to load voice preferences:', error);
-    }
-}
-
-console.log('PHOENIX INITIALIZED');
-```
-
----
-
-## What This Does
-
-### **New User Flow:**
-```
-Register → Onboarding → index.html
-                         ↓
-                    First visit detected
-                         ↓
-                    Play full welcome:
-                    "Welcome, John. I am Phoenix, your AI companion..."
-```
-
-### **Returning User Flow:**
-```
-Login → index.html
-         ↓
-    Returning user detected
-         ↓
-    Play short greeting:
-    "Good morning, John. Phoenix is online."
+            }
+            
+            console.log('PHOENIX INITIALIZED');
         });
     </script>
 
