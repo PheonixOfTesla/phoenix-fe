@@ -1,5 +1,5 @@
-// voice.js - WORKING Voice Interface for Phoenix JARVIS
-// Drop-in replacement for your current voice.js
+// src/voice.js - Complete Voice Interface with Settings Modal
+import { getAvailableVoices, textToSpeech, getVoiceStatus } from './api.js';
 
 class VoiceInterface {
     constructor() {
@@ -11,10 +11,20 @@ class VoiceInterface {
         this.currentTranscript = '';
         this.volume = 0;
         this.visualizerActive = false;
-        this.selectedVoice = null;
+        
+        // Voice settings
+        this.selectedVoice = 'nova'; // OpenAI TTS voice
+        this.speechSpeed = 1.0;
+        this.availableVoices = [];
+        this.useServerTTS = true; // Use OpenAI TTS by default
+        this.fallbackVoice = null; // Browser fallback voice
+        
+        // Audio management
+        this.currentAudio = null;
+        this.audioQueue = [];
     }
 
-    init() {
+    async init() {
         console.log('🎙️ Initializing Voice Interface...');
         
         if (!this.checkSupport()) {
@@ -27,9 +37,386 @@ class VoiceInterface {
         this.setupSpeechSynthesis();
         this.setupVoiceButton();
         this.setupWaveform();
+        this.createVoiceSettingsModal();
+        
+        // Load voice settings from localStorage
+        this.loadSettings();
+        
+        // Fetch available voices from server
+        await this.loadServerVoices();
+        
+        // Check server TTS status
+        await this.checkServerStatus();
         
         console.log('✅ Voice Interface Ready');
         return true;
+    }
+
+    // ========================================
+    // VOICE SETTINGS MODAL
+    // ========================================
+
+    createVoiceSettingsModal() {
+        const modal = document.createElement('div');
+        modal.id = 'voice-settings-modal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            backdrop-filter: blur(10px);
+        `;
+
+        modal.innerHTML = `
+            <div style="
+                background: rgba(0, 10, 20, 0.98);
+                border: 2px solid rgba(0, 255, 255, 0.5);
+                padding: 40px;
+                max-width: 600px;
+                width: 90%;
+                box-shadow: 0 0 60px rgba(0, 255, 255, 0.4);
+            ">
+                <div style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 30px;
+                    border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+                    padding-bottom: 20px;
+                ">
+                    <h2 style="
+                        color: #00ffff;
+                        font-size: 24px;
+                        margin: 0;
+                        text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+                    ">VOICE SETTINGS</h2>
+                    <button id="close-voice-settings" style="
+                        background: transparent;
+                        border: 1px solid rgba(255, 68, 68, 0.5);
+                        color: #ff4444;
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 50%;
+                        cursor: pointer;
+                        font-size: 20px;
+                        transition: all 0.3s;
+                    ">✕</button>
+                </div>
+
+                <div style="margin-bottom: 30px;">
+                    <label style="
+                        display: block;
+                        color: rgba(0, 255, 255, 0.7);
+                        font-size: 12px;
+                        margin-bottom: 10px;
+                        letter-spacing: 2px;
+                    ">SELECT VOICE</label>
+                    <select id="voice-select" style="
+                        width: 100%;
+                        padding: 15px;
+                        background: rgba(0, 10, 20, 0.9);
+                        border: 1px solid rgba(0, 255, 255, 0.3);
+                        color: #00ffff;
+                        font-family: 'Courier New', monospace;
+                        font-size: 14px;
+                        cursor: pointer;
+                    ">
+                        <option value="">Loading voices...</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 30px;">
+                    <label style="
+                        display: block;
+                        color: rgba(0, 255, 255, 0.7);
+                        font-size: 12px;
+                        margin-bottom: 10px;
+                        letter-spacing: 2px;
+                    ">SPEECH SPEED: <span id="speed-value">1.0x</span></label>
+                    <input type="range" id="speed-slider" min="0.5" max="2.0" step="0.1" value="1.0" style="
+                        width: 100%;
+                        height: 6px;
+                        background: rgba(0, 255, 255, 0.2);
+                        outline: none;
+                        -webkit-appearance: none;
+                    ">
+                    <div style="
+                        display: flex;
+                        justify-content: space-between;
+                        margin-top: 5px;
+                        font-size: 10px;
+                        color: rgba(0, 255, 255, 0.5);
+                    ">
+                        <span>0.5x (Slower)</span>
+                        <span>2.0x (Faster)</span>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 30px;">
+                    <button id="preview-voice-btn" style="
+                        width: 100%;
+                        padding: 15px;
+                        background: rgba(0, 255, 255, 0.1);
+                        border: 1px solid rgba(0, 255, 255, 0.5);
+                        color: #00ffff;
+                        font-family: 'Courier New', monospace;
+                        font-size: 14px;
+                        cursor: pointer;
+                        letter-spacing: 2px;
+                        transition: all 0.3s;
+                    ">
+                        🔊 PREVIEW VOICE
+                    </button>
+                </div>
+
+                <div style="
+                    display: flex;
+                    gap: 15px;
+                ">
+                    <button id="save-voice-settings" style="
+                        flex: 1;
+                        padding: 15px;
+                        background: rgba(0, 255, 255, 0.2);
+                        border: 2px solid #00ffff;
+                        color: #00ffff;
+                        font-family: 'Courier New', monospace;
+                        font-size: 14px;
+                        cursor: pointer;
+                        letter-spacing: 2px;
+                        transition: all 0.3s;
+                    ">
+                        SAVE SETTINGS
+                    </button>
+                    <button id="cancel-voice-settings" style="
+                        flex: 1;
+                        padding: 15px;
+                        background: transparent;
+                        border: 1px solid rgba(0, 255, 255, 0.3);
+                        color: rgba(0, 255, 255, 0.7);
+                        font-family: 'Courier New', monospace;
+                        font-size: 14px;
+                        cursor: pointer;
+                        letter-spacing: 2px;
+                        transition: all 0.3s;
+                    ">
+                        CANCEL
+                    </button>
+                </div>
+
+                <div id="voice-status-indicator" style="
+                    margin-top: 20px;
+                    padding: 10px;
+                    background: rgba(0, 255, 255, 0.05);
+                    border: 1px solid rgba(0, 255, 255, 0.2);
+                    font-size: 11px;
+                    color: rgba(0, 255, 255, 0.6);
+                    text-align: center;
+                ">
+                    Status: Checking server connection...
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        // Event listeners
+        document.getElementById('close-voice-settings').addEventListener('click', () => {
+            this.closeSettingsModal();
+        });
+
+        document.getElementById('voice-select').addEventListener('change', (e) => {
+            this.selectedVoice = e.target.value;
+        });
+
+        document.getElementById('speed-slider').addEventListener('input', (e) => {
+            this.speechSpeed = parseFloat(e.target.value);
+            document.getElementById('speed-value').textContent = this.speechSpeed.toFixed(1) + 'x';
+        });
+
+        document.getElementById('preview-voice-btn').addEventListener('click', () => {
+            this.previewVoice();
+        });
+
+        document.getElementById('save-voice-settings').addEventListener('click', () => {
+            this.saveSettings();
+            this.closeSettingsModal();
+            this.showNotification('Settings Saved', 'Voice preferences updated successfully');
+        });
+
+        document.getElementById('cancel-voice-settings').addEventListener('click', () => {
+            this.closeSettingsModal();
+        });
+
+        // Add hover effects
+        const buttons = modal.querySelectorAll('button');
+        buttons.forEach(btn => {
+            btn.addEventListener('mouseenter', () => {
+                btn.style.transform = 'translateY(-2px)';
+                btn.style.boxShadow = '0 0 20px rgba(0, 255, 255, 0.5)';
+            });
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = 'translateY(0)';
+                btn.style.boxShadow = 'none';
+            });
+        });
+
+        // Slider styling
+        const style = document.createElement('style');
+        style.textContent = `
+            #speed-slider::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                width: 20px;
+                height: 20px;
+                background: #00ffff;
+                cursor: pointer;
+                border-radius: 50%;
+                box-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+            }
+            #speed-slider::-moz-range-thumb {
+                width: 20px;
+                height: 20px;
+                background: #00ffff;
+                cursor: pointer;
+                border-radius: 50%;
+                box-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+                border: none;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    openSettingsModal() {
+        const modal = document.getElementById('voice-settings-modal');
+        if (modal) {
+            modal.style.display = 'flex';
+            this.populateVoiceSelect();
+        }
+    }
+
+    closeSettingsModal() {
+        const modal = document.getElementById('voice-settings-modal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    async loadServerVoices() {
+        try {
+            const data = await getAvailableVoices();
+            if (data.voices) {
+                this.availableVoices = data.voices;
+                this.populateVoiceSelect();
+            }
+        } catch (error) {
+            console.error('Failed to load server voices:', error);
+            this.useServerTTS = false;
+        }
+    }
+
+    populateVoiceSelect() {
+        const select = document.getElementById('voice-select');
+        if (!select) return;
+
+        select.innerHTML = '';
+
+        if (this.availableVoices.length > 0) {
+            this.availableVoices.forEach(voice => {
+                const option = document.createElement('option');
+                option.value = voice.id;
+                option.textContent = `${voice.name} - ${voice.description}${voice.recommended ? ' ⭐' : ''}`;
+                if (voice.id === this.selectedVoice) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            });
+        } else {
+            const option = document.createElement('option');
+            option.textContent = 'No voices available';
+            select.appendChild(option);
+        }
+    }
+
+    async checkServerStatus() {
+        try {
+            const status = await getVoiceStatus();
+            const indicator = document.getElementById('voice-status-indicator');
+            if (indicator) {
+                if (status.available) {
+                    indicator.innerHTML = `✅ Server TTS: Online | Model: ${status.service}`;
+                    indicator.style.borderColor = 'rgba(0, 255, 136, 0.5)';
+                    indicator.style.color = 'rgba(0, 255, 136, 0.8)';
+                    this.useServerTTS = true;
+                } else {
+                    indicator.innerHTML = '⚠️ Server TTS: Offline | Using browser fallback';
+                    indicator.style.borderColor = 'rgba(255, 136, 0, 0.5)';
+                    indicator.style.color = 'rgba(255, 136, 0, 0.8)';
+                    this.useServerTTS = false;
+                }
+            }
+        } catch (error) {
+            console.error('Failed to check voice status:', error);
+            this.useServerTTS = false;
+        }
+    }
+
+    async previewVoice() {
+        const previewText = 'Hello. I am Phoenix, your AI companion. This is a preview of the selected voice.';
+        
+        const btn = document.getElementById('preview-voice-btn');
+        if (btn) {
+            btn.textContent = '⏳ GENERATING...';
+            btn.disabled = true;
+        }
+
+        try {
+            await this.speak(previewText);
+        } catch (error) {
+            console.error('Preview failed:', error);
+            this.showError('Failed to preview voice');
+        } finally {
+            if (btn) {
+                btn.textContent = '🔊 PREVIEW VOICE';
+                btn.disabled = false;
+            }
+        }
+    }
+
+    saveSettings() {
+        const settings = {
+            selectedVoice: this.selectedVoice,
+            speechSpeed: this.speechSpeed,
+            useServerTTS: this.useServerTTS
+        };
+        localStorage.setItem('phoenixVoiceSettings', JSON.stringify(settings));
+        console.log('Voice settings saved:', settings);
+    }
+
+    loadSettings() {
+        const saved = localStorage.getItem('phoenixVoiceSettings');
+        if (saved) {
+            try {
+                const settings = JSON.parse(saved);
+                this.selectedVoice = settings.selectedVoice || 'nova';
+                this.speechSpeed = settings.speechSpeed || 1.0;
+                this.useServerTTS = settings.useServerTTS !== false;
+                
+                // Update UI if modal exists
+                const speedSlider = document.getElementById('speed-slider');
+                const speedValue = document.getElementById('speed-value');
+                if (speedSlider) speedSlider.value = this.speechSpeed;
+                if (speedValue) speedValue.textContent = this.speechSpeed.toFixed(1) + 'x';
+                
+                console.log('Voice settings loaded:', settings);
+            } catch (error) {
+                console.error('Failed to load voice settings:', error);
+            }
+        }
     }
 
     // ========================================
@@ -155,12 +542,10 @@ class VoiceInterface {
     setupSpeechSynthesis() {
         if (!this.synthesis) return;
 
-        // Wait for voices to load
         const loadVoices = () => {
             const voices = this.synthesis.getVoices();
             
-            // Prefer: Google UK English Female > Microsoft > Default
-            this.selectedVoice = voices.find(v => 
+            this.fallbackVoice = voices.find(v => 
                 v.name.includes('Google UK English Female') ||
                 v.name.includes('Google US English') ||
                 v.name.includes('Microsoft Zira') ||
@@ -168,7 +553,7 @@ class VoiceInterface {
                 v.name.includes('Alex')
             ) || voices[0];
 
-            console.log('🔊 Selected voice:', this.selectedVoice?.name || 'Default');
+            console.log('🔊 Fallback voice:', this.fallbackVoice?.name || 'Default');
         };
 
         if (this.synthesis.getVoices().length > 0) {
@@ -197,6 +582,44 @@ class VoiceInterface {
                 this.startListening();
             }
         });
+
+        // Add settings button
+        const settingsBtn = document.createElement('div');
+        settingsBtn.id = 'voice-settings-button';
+        settingsBtn.innerHTML = '⚙️';
+        settingsBtn.style.cssText = `
+            position: fixed;
+            bottom: 120px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            font-size: 20px;
+            transition: all 0.3s;
+        `;
+        
+        settingsBtn.addEventListener('click', () => {
+            this.openSettingsModal();
+        });
+
+        settingsBtn.addEventListener('mouseenter', () => {
+            settingsBtn.style.background = 'rgba(0, 255, 255, 0.2)';
+            settingsBtn.style.boxShadow = '0 0 20px rgba(0, 255, 255, 0.5)';
+        });
+
+        settingsBtn.addEventListener('mouseleave', () => {
+            settingsBtn.style.background = 'rgba(0, 255, 255, 0.1)';
+            settingsBtn.style.boxShadow = 'none';
+        });
+
+        document.body.appendChild(settingsBtn);
     }
 
     createVoiceButton() {
@@ -273,7 +696,6 @@ class VoiceInterface {
 
         ctx.clearRect(0, 0, width, height);
 
-        // Draw circular waveform
         const centerX = width / 2;
         const centerY = height / 2;
         const radius = Math.min(width, height) / 3;
@@ -310,9 +732,8 @@ class VoiceInterface {
         }
 
         try {
-            // Request microphone permission
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            stream.getTracks().forEach(track => track.stop()); // Stop immediately, we just needed permission
+            stream.getTracks().forEach(track => track.stop());
 
             this.recognition.start();
         } catch (error) {
@@ -327,34 +748,89 @@ class VoiceInterface {
         }
     }
 
-    speak(text, callback) {
+    async speak(text, callback) {
+        console.log('🔊 Speaking:', text);
+
+        if (this.useServerTTS) {
+            try {
+                await this.speakWithServer(text, callback);
+            } catch (error) {
+                console.error('Server TTS failed, falling back to browser:', error);
+                this.speakWithBrowser(text, callback);
+            }
+        } else {
+            this.speakWithBrowser(text, callback);
+        }
+    }
+
+    async speakWithServer(text, callback) {
+        try {
+            this.isSpeaking = true;
+            this.updateUI('speaking');
+            this.displayResponse(text);
+
+            const audioBlob = await textToSpeech(text, this.selectedVoice, this.speechSpeed);
+            const audioUrl = URL.createObjectURL(audioBlob);
+            
+            if (this.currentAudio) {
+                this.currentAudio.pause();
+                this.currentAudio = null;
+            }
+
+            this.currentAudio = new Audio(audioUrl);
+            
+            this.currentAudio.onended = () => {
+                console.log('🔊 Finished speaking');
+                this.isSpeaking = false;
+                this.updateUI('idle');
+                URL.revokeObjectURL(audioUrl);
+                this.currentAudio = null;
+                if (callback) callback();
+            };
+
+            this.currentAudio.onerror = (error) => {
+                console.error('Audio playback error:', error);
+                this.isSpeaking = false;
+                this.updateUI('idle');
+                URL.revokeObjectURL(audioUrl);
+                this.currentAudio = null;
+                if (callback) callback();
+            };
+
+            await this.currentAudio.play();
+        } catch (error) {
+            this.isSpeaking = false;
+            this.updateUI('idle');
+            throw error;
+        }
+    }
+
+    speakWithBrowser(text, callback) {
         if (!this.synthesis) {
             console.error('Speech synthesis not available');
             return;
         }
 
-        // Cancel any ongoing speech
         this.synthesis.cancel();
 
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 1.0;
+        utterance.rate = this.speechSpeed;
         utterance.pitch = 1.0;
         utterance.volume = 1.0;
         utterance.lang = 'en-US';
 
-        if (this.selectedVoice) {
-            utterance.voice = this.selectedVoice;
+        if (this.fallbackVoice) {
+            utterance.voice = this.fallbackVoice;
         }
 
         utterance.onstart = () => {
-            console.log('🔊 Speaking:', text);
             this.isSpeaking = true;
             this.updateUI('speaking');
             this.displayResponse(text);
         };
 
         utterance.onend = () => {
-            console.log('🔊 Finished speaking');
+            console.log('🔊 Finished speaking (browser)');
             this.isSpeaking = false;
             this.updateUI('idle');
             if (callback) callback();
@@ -379,66 +855,49 @@ class VoiceInterface {
         const lowerCmd = command.toLowerCase();
         let response = '';
 
-        // Activation commands
         if (lowerCmd.includes('hello') || lowerCmd.includes('hi phoenix')) {
             response = 'Hello! Phoenix AI companion online. How can I optimize your life today?';
-        }
-        // Health commands
-        else if (lowerCmd.includes('health') || lowerCmd.includes('recovery')) {
+        } else if (lowerCmd.includes('health') || lowerCmd.includes('recovery')) {
             response = 'Analyzing your health metrics. Your recovery score is at 78 percent. Heart rate variability is stable at 52 milliseconds. You are cleared for training today.';
             if (window.jarvisEngine) {
                 setTimeout(() => window.jarvisEngine.openPlanetDetail('mercury'), 2000);
             }
-        }
-        // Fitness commands
-        else if (lowerCmd.includes('fitness') || lowerCmd.includes('workout')) {
+        } else if (lowerCmd.includes('fitness') || lowerCmd.includes('workout')) {
             response = 'You have completed 4 workouts this week. Based on your recovery, I recommend a moderate intensity session today. Focus on compound movements.';
             if (window.jarvisEngine) {
                 setTimeout(() => window.jarvisEngine.openPlanetDetail('mercury'), 2000);
             }
-        }
-        // Calendar commands
-        else if (lowerCmd.includes('calendar') || lowerCmd.includes('schedule')) {
+        } else if (lowerCmd.includes('calendar') || lowerCmd.includes('schedule')) {
             response = 'Checking your schedule. You have 3 events today. Next appointment is at 2 PM. I can optimize your time blocks if needed.';
             if (window.jarvisEngine) {
                 setTimeout(() => window.jarvisEngine.openPlanetDetail('earth'), 2000);
             }
-        }
-        // Goals commands
-        else if (lowerCmd.includes('goals') || lowerCmd.includes('progress')) {
+        } else if (lowerCmd.includes('goals') || lowerCmd.includes('progress')) {
             response = 'Reviewing your goals. You are on track with 3 out of 5 active goals. Your weight loss goal is progressing at 0.8 pounds per week. Excellent consistency.';
             if (window.jarvisEngine) {
                 setTimeout(() => window.jarvisEngine.openPlanetDetail('mars'), 2000);
             }
-        }
-        // Sync commands
-        else if (lowerCmd.includes('sync') || lowerCmd.includes('update data')) {
+        } else if (lowerCmd.includes('sync') || lowerCmd.includes('update data')) {
             response = 'Syncing all data sources. Fitbit connected. Pulling latest biometrics. Sync complete. All systems updated.';
             if (window.phoenix) {
                 window.phoenix.syncAllData();
             }
-        }
-        // Close commands
-        else if (lowerCmd.includes('close') || lowerCmd.includes('go back')) {
+        } else if (lowerCmd.includes('voice settings') || lowerCmd.includes('change voice')) {
+            response = 'Opening voice settings. You can customize my voice and speech speed.';
+            setTimeout(() => this.openSettingsModal(), 1000);
+        } else if (lowerCmd.includes('close') || lowerCmd.includes('go back')) {
             response = 'Closing dashboard';
             if (window.jarvisEngine) {
                 window.jarvisEngine.closePlanetDetail();
             }
-        }
-        // Weather
-        else if (lowerCmd.includes('weather')) {
+        } else if (lowerCmd.includes('weather')) {
             response = 'Current temperature is 72 degrees Fahrenheit. Clear skies. Optimal conditions for outdoor training.';
-        }
-        // Thank you
-        else if (lowerCmd.includes('thank')) {
+        } else if (lowerCmd.includes('thank')) {
             response = 'You are welcome. I am here to optimize your performance. Always.';
-        }
-        // Default
-        else {
+        } else {
             response = 'Command acknowledged. How can I assist you further? Try asking about health, fitness, calendar, or goals.';
         }
 
-        // Speak the response
         this.speak(response);
     }
 
@@ -525,13 +984,11 @@ class VoiceInterface {
 
         responseEl.innerHTML = `<div style="opacity: 0.6; font-size: 10px; margin-bottom: 5px;">PHOENIX:</div>${text}`;
 
-        // Hide transcript when showing response
         const transcriptEl = document.getElementById('voice-transcript');
         if (transcriptEl) {
             transcriptEl.style.display = 'none';
         }
 
-        // Auto-hide after speaking finishes
         setTimeout(() => {
             if (responseEl && !this.isSpeaking) {
                 responseEl.style.animation = 'slideOut 0.3s';
@@ -565,6 +1022,34 @@ class VoiceInterface {
         }, 4000);
     }
 
+    showNotification(title, message) {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 100px;
+            right: 30px;
+            padding: 20px;
+            background: rgba(0, 10, 20, 0.95);
+            border: 2px solid rgba(0, 255, 255, 0.5);
+            max-width: 300px;
+            z-index: 10000;
+            animation: slideIn 0.3s;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+        `;
+        
+        notification.innerHTML = `
+            <div style="font-size: 14px; font-weight: bold; color: #00ffff; margin-bottom: 10px;">${title}</div>
+            <div style="font-size: 12px; color: rgba(0, 255, 255, 0.7);">${message}</div>
+        `;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+
     // ========================================
     // PUBLIC API
     // ========================================
@@ -593,6 +1078,10 @@ class VoiceInterface {
         if (this.synthesis) {
             this.synthesis.cancel();
         }
+        if (this.currentAudio) {
+            this.currentAudio.pause();
+            this.currentAudio = null;
+        }
         this.stopVisualizer();
     }
 }
@@ -604,22 +1093,19 @@ class VoiceInterface {
 const voiceInterface = new VoiceInterface();
 window.voiceInterface = voiceInterface;
 
-// Auto-initialize when DOM is ready
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        voiceInterface.init();
-        
-        // Say greeting after 2 seconds
+    document.addEventListener('DOMContentLoaded', async () => {
+        await voiceInterface.init();
         setTimeout(() => {
             voiceInterface.sayGreeting();
         }, 2000);
     });
 } else {
-    voiceInterface.init();
-    setTimeout(() => voiceInterface.sayGreeting(), 2000);
+    voiceInterface.init().then(() => {
+        setTimeout(() => voiceInterface.sayGreeting(), 2000);
+    });
 }
 
-// Add required CSS animations
 const style = document.createElement('style');
 style.textContent = `
     @keyframes pulse {
