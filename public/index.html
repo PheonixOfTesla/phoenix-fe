@@ -1097,9 +1097,16 @@
                                     URL.revokeObjectURL(audioUrl);
                                 };
                                 
+                                audio.onerror = (error) => {
+                                    console.error('Audio playback error:', error);
+                                    URL.revokeObjectURL(audioUrl);
+                                };
+                                
                                 await audio.play();
                             } else {
                                 console.error('TTS failed:', response.status);
+                                const errorData = await response.json();
+                                console.error('TTS error details:', errorData);
                             }
                         } catch (error) {
                             console.error('Failed to play welcome greeting:', error);
