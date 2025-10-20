@@ -698,13 +698,10 @@
             hideMessages();
         });
 
-        document.getElementById('register-tab').addEventListener('click', () => {
-            document.getElementById('register-tab').classList.add('active');
-            document.getElementById('login-tab').classList.remove('active');
-            document.getElementById('register-form').classList.add('active');
-            document.getElementById('login-form').classList.remove('active');
-            hideMessages();
-        });
+       document.getElementById('register-tab').addEventListener('click', () => {
+    // Redirect to new registration page
+    window.location.href = '/register';
+});
 
         // ========================================
         // AUTHENTICATION
