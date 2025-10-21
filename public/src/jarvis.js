@@ -1,6 +1,5 @@
 // jarvis.js - Phoenix JARVIS Core Intelligence Engine
-
-import { api } from './api.js';
+// ⭐ ENHANCED with phoenixStore Integration, Smart Caching & Real-time Updates
 
 class JARVISEngine {
     constructor() {
@@ -11,12 +10,24 @@ class JARVISEngine {
         this.correlations = [];
         this.proactiveTimer = null;
         this.lastProactiveMessage = Date.now();
+        this.unsubscribe = null;
+        this.storeConnected = false;
+        this.API = null;
+        this.phoenixStore = null;
+        this.interventionHistory = [];
+        this.patternCache = new Map();
     }
 
     async init() {
-        console.log('🔥 Initializing JARVIS Engine...');
+        console.log('🔥 Initializing Enhanced JARVIS Engine...');
         
-        // Load all planetary data
+        // Wait for dependencies
+        await this.waitForDependencies();
+        
+        // ⭐ NEW: Subscribe to phoenixStore instead of connectToBackend()
+        this.subscribeToStore();
+        
+        // Load all planetary data via store
         await this.loadAllData();
         
         // Setup click handlers
@@ -29,50 +40,444 @@ class JARVISEngine {
         // Setup chat interface
         this.setupChatInterface();
         
-        // Detect correlations
-        this.detectCorrelations();
+        // ⭐ NEW: Start real-time correlation detection
+        this.startRealtimeCorrelationDetection();
         
-        console.log('✅ JARVIS Engine initialized');
+        console.log('✅ Enhanced JARVIS Engine initialized');
     }
+
+    // ========================================
+    // ⭐ NEW: WAIT FOR DEPENDENCIES
+    // ========================================
+    
+    async waitForDependencies() {
+        return new Promise((resolve) => {
+            const checkInterval = setInterval(() => {
+                if (window.API && window.phoenixStore) {
+                    clearInterval(checkInterval);
+                    this.API = window.API;
+                    this.phoenixStore = window.phoenixStore;
+                    console.log('✅ Dependencies loaded (API + phoenixStore)');
+                    resolve();
+                }
+            }, 100);
+            
+            // Timeout after 10 seconds
+            setTimeout(() => {
+                if (!this.API || !this.phoenixStore) {
+                    clearInterval(checkInterval);
+                    console.warn('⚠️ Dependencies timeout - running in fallback mode');
+                    resolve();
+                }
+            }, 10000);
+        });
+    }
+
+    // ========================================
+    // ⭐ NEW: SUBSCRIBE TO PHOENIXSTORE
+    // ========================================
+    
+    subscribeToStore() {
+        if (!this.phoenixStore) {
+            console.warn('⚠️ phoenixStore not available');
+            return;
+        }
+        
+        console.log('📡 Subscribing to phoenixStore updates...');
+        
+        // Subscribe to ALL data changes
+        this.unsubscribe = this.phoenixStore.subscribe((key, value) => {
+            this.onDataChange(key, value);
+        });
+        
+        this.storeConnected = true;
+        console.log('✅ JARVIS connected to phoenixStore');
+    }
+
+    // ========================================
+    // ⭐ NEW: ON DATA CHANGE HANDLER
+    // ========================================
+    
+    onDataChange(planet, data) {
+        if (!data) return;
+        
+        console.log(`📊 JARVIS received update: ${planet}`, data);
+        
+        // Update internal data cache
+        this.allData[planet] = data;
+        
+        // Update planet metrics in UI
+        this.updatePlanetMetrics();
+        
+        // Update side panels based on planet
+        switch(planet) {
+            case 'mercury':
+                this.updateVitalsPanel(data);
+                this.updateReactorMetrics(data);
+                break;
+            case 'mars':
+                this.updateGoalsPanel(data);
+                this.updateTrustScore(data);
+                break;
+        }
+        
+        // ⭐ NEW: Real-time correlation detection
+        this.detectRealTimeCorrelations();
+        
+        // ⭐ NEW: Auto-trigger interventions
+        this.analyzeForInterventions(planet, data);
+        
+        // ⭐ NEW: Context-aware voice announcements
+        if (window.voiceInterface) {
+            this.announceDataUpdate(planet, data);
+        }
+    }
+
+    // ========================================
+    // ⭐ NEW: REAL-TIME CORRELATION DETECTION
+    // ========================================
+    
+    detectRealTimeCorrelations() {
+        const { mercury, venus, jupiter, earth, mars } = this.allData;
+        
+        // Correlation 1: Low recovery + High workout frequency
+        if (mercury?.recovery?.recoveryScore < 60 && venus?.workouts?.length > 4) {
+            const correlation = {
+                id: 'low-recovery-high-workouts',
+                planets: ['mercury', 'venus'],
+                insight: 'Low recovery detected despite 4+ workouts this week',
+                recommendation: 'Consider a rest day or active recovery',
+                severity: 'high',
+                timestamp: Date.now()
+            };
+            
+            if (!this.hasRecentCorrelation(correlation.id)) {
+                this.correlations.push(correlation);
+                this.triggerIntervention('recovery', correlation);
+                console.log('🔍 Correlation detected:', correlation.insight);
+            }
+        }
+        
+        // Correlation 2: Poor sleep + Low goal progress
+        if (mercury?.wearable?.sleepDuration && mercury.wearable.sleepDuration < 360 && mars?.goals) {
+            const goals = mars.goals;
+            const avgProgress = goals.reduce((sum, g) => sum + (g.progress || 0), 0) / goals.length;
+            
+            if (avgProgress < 50) {
+                const correlation = {
+                    id: 'poor-sleep-low-goals',
+                    planets: ['mercury', 'mars'],
+                    insight: 'Poor sleep correlates with lower goal progress',
+                    recommendation: 'Prioritize 7+ hours of sleep tonight',
+                    severity: 'medium',
+                    timestamp: Date.now()
+                };
+                
+                if (!this.hasRecentCorrelation(correlation.id)) {
+                    this.correlations.push(correlation);
+                    console.log('🔍 Correlation detected:', correlation.insight);
+                }
+            }
+        }
+        
+        // Correlation 3: High stress + High spending
+        if (mercury?.wearable?.stressLevel > 7 && jupiter?.finance) {
+            const todaySpending = jupiter.finance.todaySpending || 0;
+            const avgSpending = jupiter.finance.avgSpending || 0;
+            
+            if (todaySpending > avgSpending * 1.5) {
+                const correlation = {
+                    id: 'stress-spending',
+                    planets: ['mercury', 'jupiter'],
+                    insight: 'High stress detected. Spending is 50% above average',
+                    recommendation: 'Consider stress management techniques before purchases',
+                    severity: 'urgent',
+                    timestamp: Date.now()
+                };
+                
+                if (!this.hasRecentCorrelation(correlation.id)) {
+                    this.correlations.push(correlation);
+                    this.triggerIntervention('financial', correlation);
+                    console.log('🔍 Correlation detected:', correlation.insight);
+                }
+            }
+        }
+        
+        // Correlation 4: Busy schedule + Low recovery
+        if (earth?.events?.length > 5 && mercury?.recovery?.recoveryScore < 70) {
+            const correlation = {
+                id: 'busy-schedule-low-recovery',
+                planets: ['earth', 'mercury'],
+                insight: 'Busy schedule detected with sub-optimal recovery',
+                recommendation: 'Consider blocking recovery time in calendar',
+                severity: 'medium',
+                timestamp: Date.now()
+            };
+            
+            if (!this.hasRecentCorrelation(correlation.id)) {
+                this.correlations.push(correlation);
+                console.log('🔍 Correlation detected:', correlation.insight);
+            }
+        }
+        
+        // Correlation 5: Low sleep + High workout intensity
+        if (mercury?.wearable?.sleepScore < 70 && venus?.workouts) {
+            const recentWorkout = venus.workouts[0];
+            if (recentWorkout && recentWorkout.intensity > 85) {
+                const correlation = {
+                    id: 'low-sleep-high-intensity',
+                    planets: ['mercury', 'venus'],
+                    insight: 'Low sleep quality after high-intensity training',
+                    recommendation: 'Recovery may be compromised. Monitor closely.',
+                    severity: 'medium',
+                    timestamp: Date.now()
+                };
+                
+                if (!this.hasRecentCorrelation(correlation.id)) {
+                    this.correlations.push(correlation);
+                    console.log('🔍 Correlation detected:', correlation.insight);
+                }
+            }
+        }
+        
+        // Clean up old correlations (older than 1 hour)
+        const oneHourAgo = Date.now() - 3600000;
+        this.correlations = this.correlations.filter(c => c.timestamp > oneHourAgo);
+    }
+
+    hasRecentCorrelation(id) {
+        const fiveMinutesAgo = Date.now() - 300000;
+        return this.correlations.some(c => c.id === id && c.timestamp > fiveMinutesAgo);
+    }
+
+    // ========================================
+    // ⭐ NEW: AUTO-TRIGGER INTERVENTIONS
+    // ========================================
+    
+    analyzeForInterventions(planet, data) {
+        // Intervention 1: Critical low recovery
+        if (planet === 'mercury' && data.recovery?.recoveryScore < 40) {
+            this.triggerIntervention('critical-recovery', {
+                type: 'health',
+                message: 'Recovery critically low. Immediate rest recommended.',
+                action: 'block-high-intensity-workouts',
+                severity: 'urgent'
+            });
+        }
+        
+        // Intervention 2: Workout plateau detected
+        if (planet === 'venus' && data.plateauDetected) {
+            this.triggerIntervention('plateau', {
+                type: 'fitness',
+                message: 'Training plateau detected. Quantum workout available.',
+                action: 'suggest-quantum-workout',
+                severity: 'medium'
+            });
+        }
+        
+        // Intervention 3: Goal slipping
+        if (planet === 'mars' && data.goals) {
+            const slippingGoals = data.goals.filter(g => 
+                !g.completed && g.progress < 30 && g.deadline && 
+                new Date(g.deadline) - Date.now() < 7 * 24 * 60 * 60 * 1000
+            );
+            
+            if (slippingGoals.length > 0) {
+                this.triggerIntervention('goal-slipping', {
+                    type: 'goals',
+                    message: `${slippingGoals.length} goal(s) at risk of missing deadline`,
+                    action: 'review-goals',
+                    severity: 'high'
+                });
+            }
+        }
+    }
+
+    triggerIntervention(type, intervention) {
+        console.log('🚨 Intervention triggered:', type, intervention);
+        
+        // Record intervention
+        this.interventionHistory.push({
+            type,
+            intervention,
+            timestamp: Date.now()
+        });
+        
+        // Voice announcement if urgent
+        if (intervention.severity === 'urgent' && window.voiceInterface) {
+            window.voiceInterface.speak(intervention.message, 'urgent');
+        }
+        
+        // Visual notification
+        this.showNotification(
+            'Phoenix Intervention',
+            intervention.message,
+            intervention.severity === 'urgent' ? 'error' : 'warning'
+        );
+        
+        // Update reactor core if available
+        if (window.reactorCore) {
+            window.reactorCore.triggerEvolutionEffect();
+        }
+    }
+
+    // ========================================
+    // ⭐ NEW: UPDATE REACTOR METRICS
+    // ========================================
+    
+    updateReactorMetrics(healthData) {
+        if (!window.reactorCore) return;
+        
+        const recovery = healthData.recovery?.recoveryScore || 0;
+        const hrv = healthData.hrv?.value || healthData.wearable?.hrv || 0;
+        const rhr = healthData.wearable?.heartRate || 0;
+        const spo2 = healthData.wearable?.spo2 || 98;
+        
+        // Update reactor core live metrics
+        window.reactorCore.liveMetrics = {
+            hrv: hrv,
+            rhr: rhr,
+            recovery: recovery,
+            spo2: spo2
+        };
+        
+        // Update energy level based on recovery
+        if (recovery > 0) {
+            window.reactorCore.setEnergy(recovery);
+        }
+        
+        console.log('⚡ Reactor metrics updated:', window.reactorCore.liveMetrics);
+    }
+
+    updateTrustScore(goalsData) {
+        if (!goalsData || !goalsData.goals) return;
+        
+        const goals = goalsData.goals;
+        if (goals.length === 0) return;
+        
+        const completed = goals.filter(g => g.completed).length;
+        const completionRate = (completed / goals.length) * 100;
+        
+        this.trustScore = completionRate;
+        
+        if (window.reactorCore) {
+            window.reactorCore.setTrustScore(completionRate);
+        }
+        
+        console.log('🎯 Trust score updated:', completionRate);
+    }
+
+    // ========================================
+    // ⭐ NEW: CONTEXT-AWARE ANNOUNCEMENTS
+    // ========================================
+    
+    announceDataUpdate(planet, data) {
+        // Don't announce if user is actively viewing that planet
+        if (this.activePlanet === planet) return;
+        
+        // Only announce significant changes
+        const announcements = {
+            mercury: () => {
+                const recovery = data.recovery?.recoveryScore;
+                if (recovery && recovery < 50) {
+                    return `Recovery score updated to ${Math.round(recovery)} percent. Consider rest.`;
+                }
+                return null;
+            },
+            venus: () => {
+                if (data.workouts && data.workouts.length > 0) {
+                    return 'New workout logged successfully.';
+                }
+                return null;
+            },
+            mars: () => {
+                if (data.goals) {
+                    const completed = data.goals.filter(g => g.completed).length;
+                    const total = data.goals.length;
+                    if (completed > 0) {
+                        return `Goal progress updated. ${completed} of ${total} completed.`;
+                    }
+                }
+                return null;
+            }
+        };
+        
+        const announcement = announcements[planet]?.();
+        if (announcement && !window.voiceInterface.isSpeaking) {
+            // Use normal priority to avoid interrupting
+            window.voiceInterface.speak(announcement, 'normal');
+        }
+    }
+
+    // ========================================
+    // ⭐ NEW: START REAL-TIME CORRELATION DETECTION
+    // ========================================
+    
+    startRealtimeCorrelationDetection() {
+        // Check for correlations every 30 seconds
+        setInterval(() => {
+            this.detectRealTimeCorrelations();
+        }, 30000);
+        
+        console.log('🔍 Real-time correlation detection started');
+    }
+
+    // ========================================
+    // LOAD ALL DATA (ENHANCED WITH STORE)
+    // ========================================
 
     async loadAllData() {
         try {
+            if (!this.phoenixStore) {
+                console.warn('⚠️ phoenixStore not available, skipping data load');
+                return;
+            }
+            
+            console.log('🔄 Loading all planet data via phoenixStore...');
             this.showLoading('all');
             
-            // Fetch all planetary data in parallel
-            const [health, fitness, calendar, goals, finance] = await Promise.all([
-                api.getHealthMetrics(),
-                api.getFitnessData(),
-                api.getCalendarEvents(),
-                api.getGoals(),
-                api.getFinancialData()
-            ]);
-
-            this.allData = {
-                mercury: health,
-                venus: fitness,
-                earth: calendar,
-                mars: goals,
-                jupiter: finance,
-                saturn: { legacy: 'Coming soon' }
-            };
-
-            // Update planet metrics
+            // Load all planets using the store
+            const planets = ['mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn'];
+            
+            for (const planet of planets) {
+                try {
+                    const data = await this.phoenixStore.loadPlanet(planet);
+                    this.allData[planet] = data;
+                } catch (error) {
+                    console.warn(`Failed to load ${planet}:`, error);
+                }
+            }
+            
+            // Update all UI elements
             this.updatePlanetMetrics();
             
-            // Update side panels
-            this.updateVitalsPanel(health);
-            this.updateGoalsPanel(goals);
+            if (this.allData.mercury) {
+                this.updateVitalsPanel(this.allData.mercury);
+                this.updateReactorMetrics(this.allData.mercury);
+            }
             
-            // Calculate trust score
+            if (this.allData.mars) {
+                this.updateGoalsPanel(this.allData.mars);
+                this.updateTrustScore(this.allData.mars);
+            }
+            
+            // Calculate initial trust score
             this.calculateTrustScore();
             
+            // Initial correlation detection
+            this.detectRealTimeCorrelations();
+            
             this.hideLoading('all');
+            console.log('✅ All planet data loaded');
         } catch (error) {
             console.error('Error loading data:', error);
             this.hideLoading('all');
         }
     }
+
+    // ========================================
+    // EXISTING METHODS (UNCHANGED)
+    // ========================================
 
     setupPlanetHandlers() {
         const planets = ['mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn'];
@@ -84,7 +489,6 @@ class JARVISEngine {
             }
         });
 
-        // Core reactor click
         const core = document.getElementById('phoenix-core');
         if (core) {
             core.addEventListener('click', () => {
@@ -101,7 +505,6 @@ class JARVISEngine {
             closeBtn.addEventListener('click', () => this.collapseDashboard());
         }
 
-        // Close on overlay click
         const overlay = document.getElementById('dashboard-overlay');
         if (overlay) {
             overlay.addEventListener('click', (e) => {
@@ -121,15 +524,12 @@ class JARVISEngine {
         this.activePlanet = planetName;
         this.currentZoomLevel = 1;
 
-        // Add active class to planet
         document.querySelectorAll('.planet-gear').forEach(p => p.classList.remove('active'));
         const planetEl = document.getElementById(`planet-${planetName}`);
         if (planetEl) planetEl.classList.add('active');
 
-        // Load dashboard content
         await this.loadDashboardContent(planetName);
         
-        // Show dashboard overlay
         const overlay = document.getElementById('dashboard-overlay');
         if (overlay) {
             overlay.style.display = 'flex';
@@ -153,6 +553,13 @@ class JARVISEngine {
     }
 
     async loadDashboardContent(planetName) {
+        // Delegate to planets.js if available
+        if (window.planetSystem) {
+            window.planetSystem.loadDashboardContent(planetName);
+            return;
+        }
+        
+        // Fallback rendering
         const titleEl = document.getElementById('dashboard-title');
         const subtitleEl = document.getElementById('dashboard-subtitle');
         const contentEl = document.getElementById('dashboard-content');
@@ -187,7 +594,6 @@ class JARVISEngine {
         if (titleEl) titleEl.textContent = planetInfo[planetName].title;
         if (subtitleEl) subtitleEl.textContent = planetInfo[planetName].subtitle;
 
-        // Generate content based on planet
         if (contentEl) {
             contentEl.innerHTML = this.generateDashboardHTML(planetName);
         }
@@ -215,17 +621,17 @@ class JARVISEngine {
     }
 
     generateHealthDashboard(data) {
-        const hrv = data.hrv || '--';
-        const rhr = data.restingHeartRate || '--';
-        const recovery = data.recoveryScore || '--';
-        const sleep = data.sleepScore || '--';
+        const recovery = data.recovery?.recoveryScore || '--';
+        const hrv = data.hrv?.value || data.wearable?.hrv || '--';
+        const rhr = data.wearable?.heartRate || '--';
+        const sleep = data.wearable?.sleepScore || '--';
 
         return `
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; margin-bottom: 30px;">
                 <div style="padding: 20px; background: rgba(0,255,255,0.05); border: 1px solid rgba(0,255,255,0.2);">
                     <h3 style="margin-bottom: 15px;">Heart Rate Variability</h3>
                     <div style="font-size: 48px; font-weight: bold; color: #00ffff;">${hrv} <span style="font-size: 20px;">ms</span></div>
-                    <p style="margin-top: 10px; color: rgba(0,255,255,0.6);">7-day average</p>
+                    <p style="margin-top: 10px; color: rgba(0,255,255,0.6);">Current reading</p>
                 </div>
                 <div style="padding: 20px; background: rgba(0,255,255,0.05); border: 1px solid rgba(0,255,255,0.2);">
                     <h3 style="margin-bottom: 15px;">Resting Heart Rate</h3>
@@ -243,19 +649,12 @@ class JARVISEngine {
                     <p style="margin-top: 10px; color: rgba(0,255,255,0.6);">Last night</p>
                 </div>
             </div>
-            <h3 style="margin-bottom: 15px;">Quick Actions</h3>
-            <div style="display: flex; gap: 15px;">
-                <button class="action-btn" onclick="jarvisEngine.executeTemplate('improve-hrv')">Improve HRV Protocol</button>
-                <button class="action-btn" onclick="jarvisEngine.executeTemplate('sleep-optimization')">Optimize Sleep</button>
-                <button class="action-btn" onclick="jarvisEngine.executeTemplate('recovery')">Recovery Plan</button>
-            </div>
         `;
     }
 
     generateFitnessDashboard(data) {
-        const workouts = data.workoutsThisWeek || 0;
-        const totalMinutes = data.totalMinutes || 0;
-        const avgHR = data.avgHeartRate || '--';
+        const workouts = data.workouts?.length || 0;
+        const totalMinutes = data.workouts?.reduce((sum, w) => sum + (w.duration || 0), 0) || 0;
 
         return `
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px;">
@@ -268,15 +667,9 @@ class JARVISEngine {
                     <div style="font-size: 42px; font-weight: bold; color: #00ffff;">${totalMinutes}</div>
                 </div>
                 <div style="padding: 20px; background: rgba(0,255,255,0.05); border: 1px solid rgba(0,255,255,0.2);">
-                    <h3 style="margin-bottom: 10px;">Avg Heart Rate</h3>
-                    <div style="font-size: 42px; font-weight: bold; color: #00ffff;">${avgHR}</div>
+                    <h3 style="margin-bottom: 10px;">Weekly Volume</h3>
+                    <div style="font-size: 42px; font-weight: bold; color: #00ffff;">--</div>
                 </div>
-            </div>
-            <h3 style="margin-bottom: 15px;">Training Templates</h3>
-            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                <button class="action-btn" onclick="jarvisEngine.executeTemplate('cardio')">Cardio Session</button>
-                <button class="action-btn" onclick="jarvisEngine.executeTemplate('strength')">Strength Training</button>
-                <button class="action-btn" onclick="jarvisEngine.executeTemplate('recovery-workout')">Active Recovery</button>
             </div>
         `;
     }
@@ -293,9 +686,6 @@ class JARVISEngine {
         return `
             <h3 style="margin-bottom: 15px;">Upcoming Events</h3>
             ${upcomingHTML || '<p>No upcoming events</p>'}
-            <div style="margin-top: 30px;">
-                <button class="action-btn" onclick="jarvisEngine.addCalendarEvent()">+ Add Event</button>
-            </div>
         `;
     }
 
@@ -316,9 +706,6 @@ class JARVISEngine {
         return `
             <h3 style="margin-bottom: 15px;">Active Goals</h3>
             ${goalsHTML || '<p>No active goals. Create one to get started!</p>'}
-            <div style="margin-top: 30px;">
-                <button class="action-btn" onclick="jarvisEngine.createGoal()">+ Create Goal</button>
-            </div>
         `;
     }
 
@@ -327,14 +714,13 @@ class JARVISEngine {
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px;">
                 <div style="padding: 20px; background: rgba(0,255,255,0.05); border: 1px solid rgba(0,255,255,0.2);">
                     <h3 style="margin-bottom: 15px;">Monthly Budget</h3>
-                    <div style="font-size: 48px; font-weight: bold; color: #00ffff;">$${data.budget || '0'}</div>
+                    <div style="font-size: 48px; font-weight: bold; color: #00ffff;">$${data.finance?.budget || '0'}</div>
                 </div>
                 <div style="padding: 20px; background: rgba(0,255,255,0.05); border: 1px solid rgba(0,255,255,0.2);">
                     <h3 style="margin-bottom: 15px;">Expenses</h3>
-                    <div style="font-size: 48px; font-weight: bold; color: #00ffff;">$${data.expenses || '0'}</div>
+                    <div style="font-size: 48px; font-weight: bold; color: #00ffff;">$${data.finance?.expenses || '0'}</div>
                 </div>
             </div>
-            <p style="margin-top: 30px; color: rgba(0,255,255,0.6);">Financial tracking features coming soon...</p>
         `;
     }
 
@@ -356,12 +742,12 @@ class JARVISEngine {
 
     calculateHealthScore() {
         const data = this.allData.mercury || {};
-        return data.recoveryScore ? `${data.recoveryScore}%` : '--';
+        return data.recovery?.recoveryScore ? `${Math.round(data.recovery.recoveryScore)}%` : '--';
     }
 
     calculateFitnessScore() {
         const data = this.allData.venus || {};
-        return data.workoutsThisWeek ? `${data.workoutsThisWeek}x` : '--';
+        return data.workouts ? `${data.workouts.length}x` : '--';
     }
 
     calculateCalendarScore() {
@@ -381,11 +767,11 @@ class JARVISEngine {
         if (!healthData) return;
 
         const updates = {
-            'hrv-value': healthData.hrv || '--',
-            'rhr-value': healthData.restingHeartRate || '--',
-            'recovery-value': healthData.recoveryScore || '--',
-            'o2-value': healthData.spo2 || '--',
-            'recovery-status': this.getRecoveryStatus(healthData.recoveryScore)
+            'hrv-value': healthData.hrv?.value || healthData.wearable?.hrv || '--',
+            'rhr-value': healthData.wearable?.heartRate || '--',
+            'recovery-value': healthData.recovery?.recoveryScore ? Math.round(healthData.recovery.recoveryScore) : '--',
+            'o2-value': healthData.wearable?.spo2 || '--',
+            'recovery-status': this.getRecoveryStatus(healthData.recovery?.recoveryScore)
         };
 
         Object.entries(updates).forEach(([id, value]) => {
@@ -426,41 +812,47 @@ class JARVISEngine {
         }
     }
 
-    detectCorrelations() {
-        // Example: Low recovery correlates with poor sleep
-        const health = this.allData.mercury || {};
-        const fitness = this.allData.venus || {};
-
-        if (health.recoveryScore < 60 && health.sleepScore < 70) {
-            this.correlations.push({
-                planets: ['mercury', 'venus'],
-                insight: 'Low recovery linked to poor sleep quality'
-            });
-        }
-
-        console.log('Correlations detected:', this.correlations);
-    }
-
     startProactiveMessaging() {
         this.proactiveTimer = setInterval(() => {
             const elapsed = Date.now() - this.lastProactiveMessage;
-            if (elapsed > 300000) { // 5 minutes
+            if (elapsed > 300000) {
                 this.sendProactiveMessage();
                 this.lastProactiveMessage = Date.now();
             }
-        }, 60000); // Check every minute
+        }, 60000);
     }
 
     sendProactiveMessage() {
-        const messages = [
-            "Your recovery score is looking good. Ready for a workout?",
-            "You have 3 upcoming events today. Want to review them?",
-            "HRV has been trending up this week. Great progress!",
-            "Don't forget to log your workout from this morning."
-        ];
+        const messages = this.generateProactiveMessages();
+        
+        if (messages.length > 0) {
+            const message = messages[Math.floor(Math.random() * messages.length)];
+            this.addChatMessage(message, 'phoenix');
+        }
+    }
 
-        const message = messages[Math.floor(Math.random() * messages.length)];
-        this.addChatMessage(message, 'phoenix');
+    generateProactiveMessages() {
+        const messages = [];
+        const { mercury, venus, earth, mars } = this.allData;
+        
+        if (mercury?.recovery?.recoveryScore >= 80) {
+            messages.push("Your recovery score is excellent today. You're cleared for high-intensity training.");
+        }
+        
+        if (venus?.workouts?.length > 4) {
+            messages.push("Great consistency! You've completed 4+ workouts this week.");
+        }
+        
+        if (earth?.events?.length > 0) {
+            messages.push(`You have ${earth.events.length} upcoming events today.`);
+        }
+        
+        if (this.correlations.length > 0) {
+            const correlation = this.correlations[0];
+            messages.push(correlation.insight);
+        }
+        
+        return messages;
     }
 
     setupChatInterface() {
@@ -495,9 +887,11 @@ class JARVISEngine {
         } else if (lowerCmd.includes('goals')) {
             this.expandPlanet('mars');
             this.addChatMessage('Reviewing your goals...', 'phoenix');
-        } else if (lowerCmd.includes('sync')) {
-            document.getElementById('sync-modal').style.display = 'flex';
-            this.addChatMessage('Opening sync options...', 'phoenix');
+        } else if (lowerCmd.includes('correlations') || lowerCmd.includes('insights')) {
+            const msg = this.correlations.length > 0 
+                ? `I've detected ${this.correlations.length} correlation(s): ${this.correlations[0].insight}` 
+                : 'No significant correlations detected at this time.';
+            this.addChatMessage(msg, 'phoenix');
         } else {
             this.addChatMessage('How can I help you with that?', 'phoenix');
         }
@@ -537,60 +931,43 @@ class JARVISEngine {
         }
     }
 
-    executeTemplate(templateName) {
-        console.log(`Executing template: ${templateName}`);
-        this.addChatMessage(`Activating ${templateName} protocol...`, 'phoenix');
+    showNotification(title, message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 100px;
+            right: 30px;
+            background: rgba(0, 10, 20, 0.95);
+            border: 2px solid ${type === 'error' ? 'rgba(255, 68, 68, 0.5)' : 'rgba(0, 255, 255, 0.5)'};
+            padding: 20px;
+            max-width: 300px;
+            z-index: 10000;
+            animation: slideIn 0.3s ease-out;
+            box-shadow: 0 0 30px ${type === 'error' ? 'rgba(255, 68, 68, 0.3)' : 'rgba(0, 255, 255, 0.3)'};
+        `;
+        
+        notification.innerHTML = `
+            <div style="font-size: 14px; font-weight: bold; color: ${type === 'error' ? '#ff4444' : '#00ffff'}; margin-bottom: 10px;">${title}</div>
+            <div style="font-size: 12px; color: ${type === 'error' ? 'rgba(255, 68, 68, 0.7)' : 'rgba(0, 255, 255, 0.7)'};">${message}</div>
+        `;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease-out';
+            setTimeout(() => notification.remove(), 300);
+        }, 5000);
     }
 
-    createGoal() {
-        this.addChatMessage('Goal creation interface coming soon!', 'phoenix');
-    }
-
-    addCalendarEvent() {
-        this.addChatMessage('Calendar integration coming soon!', 'phoenix');
-    }
-
-    async initiateOAuth(provider) {
-        try {
-            const response = await fetch(`https://pal-backend-production.up.railway.app/api/wearables/connect/${provider}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    // Add auth token if user is logged in
-                    // 'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                credentials: 'include'
-            });
-
-            const data = await response.json();
-            
-            if (data.success && data.authUrl) {
-                // Redirect to OAuth provider
-                window.location.href = data.authUrl;
-            } else {
-                this.addChatMessage(data.message || 'Failed to initiate OAuth', 'phoenix');
-            }
-        } catch (error) {
-            console.error('OAuth initiation error:', error);
-            this.addChatMessage('Failed to connect to wearable service', 'phoenix');
+    // Cleanup
+    destroy() {
+        if (this.unsubscribe) {
+            this.unsubscribe();
+        }
+        if (this.proactiveTimer) {
+            clearInterval(this.proactiveTimer);
         }
     }
-}
-
-// Initialize and expose globally
-const jarvisEngine = new JARVISEngine();
-window.jarvisEngine = jarvisEngine;
-
-// Global OAuth helpers for inline script
-window.connectFitbit = async function() {
-    document.getElementById('fitbit-status').textContent = 'Connecting...';
-    await jarvisEngine.initiateOAuth('fitbit');
-};
-
-window.connectPolar = async function() {
-    document.getElementById('polar-status').textContent = 'Connecting...';
-    await jarvisEngine.initiateOAuth('polar');
-};
 }
 
 // Initialize and expose globally
