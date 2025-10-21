@@ -5,10 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Phoenix</title>
+    <title>Phoenix JARVIS</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- LOADING -->
+    <div id="loading" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10000;transition:opacity 1s">
+        <div style="font-size:64px;color:#00ffff;text-shadow:0 0 30px rgba(0,255,255,1);letter-spacing:12px;margin-bottom:30px;animation:pulse 2s infinite">PHOENIX</div>
+        <div style="width:60px;height:60px;border:3px solid rgba(0,255,255,0.2);border-top-color:#00ffff;border-radius:50%;animation:spin 1s linear infinite"></div>
+    </div>
+
+    <!-- ONBOARDING -->
+    <div id="onboarding" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.98);z-index:9000;display:none;align-items:center;justify-content:center;flex-direction:column">
+        <div style="font-size:48px;color:#00ffff;margin-bottom:20px;text-shadow:0 0 30px rgba(0,255,255,1);letter-spacing:8px">PHOENIX</div>
+        <div style="font-size:18px;color:rgba(0,255,255,0.7);text-align:center;max-width:600px;margin-bottom:40px;line-height:1.6">Your AI companion is ready.<br>Tap to activate.</div>
+        <button id="activate-btn" style="padding:20px 60px;background:rgba(0,255,255,0.1);border:2px solid #00ffff;color:#00ffff;font-family:inherit;font-size:18px;cursor:pointer;transition:all 0.3s;letter-spacing:2px">ACTIVATE PHOENIX</button>
+    </div>
+
+    <!-- HUD FRAME -->
     <div class="hud-frame">
         <div class="corner-bracket top-left"></div>
         <div class="corner-bracket top-right"></div>
@@ -16,1318 +30,489 @@
         <div class="corner-bracket bottom-right"></div>
     </div>
 
+    <!-- EFFECTS -->
     <div class="grid-underlay"></div>
     <div class="vhs-overlay"></div>
 
-    <div id="onboarding" style="
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.98);
-        z-index: 11000;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-    ">
-        <div class="onboarding-title">PHOENIX</div>
-        <div class="onboarding-text">
-            Your AI companion is ready.<br>
-            Tap below or say "Activate Phoenix" to begin.
-        </div>
-        <button class="activate-btn" id="activate-btn">ACTIVATE PHOENIX</button>
+    <!-- GREETING -->
+    <div id="greeting" style="position:fixed;top:25%;left:50%;transform:translateX(-50%);text-align:center;z-index:500;opacity:0;animation:fadeIn 1s 1s forwards">
+        <div class="greeting-main" style="font-size:32px;color:#00ffff;margin-bottom:10px;text-shadow:0 0 20px rgba(0,255,255,1)">Welcome</div>
+        <div class="greeting-sub" style="font-size:14px;color:rgba(0,255,255,0.6)">Initializing AI companion...</div>
     </div>
 
-    <div id="action-menu" style="
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 8000;
-        display: none;
-    ">
-        <div class="action-ring" style="
-            position: relative;
-            width: 400px;
-            height: 400px;
-        ">
-            <div class="action-button-circular" id="action-workout" style="top: 10%; left: 50%; transform: translate(-50%, -50%);">
-                <div class="action-icon">💪</div>
-                <div class="action-label">WORKOUT</div>
-            </div>
-            <div class="action-button-circular" id="action-meal" style="top: 30%; right: 10%; transform: translate(50%, -50%);">
-                <div class="action-icon">🍽️</div>
-                <div class="action-label">MEAL</div>
-            </div>
-            <div class="action-button-circular" id="action-goals" style="bottom: 30%; right: 10%; transform: translate(50%, 50%);">
-                <div class="action-icon">🎯</div>
-                <div class="action-label">GOALS</div>
-            </div>
-            <div class="action-button-circular" id="action-chat" style="bottom: 10%; left: 50%; transform: translate(-50%, 50%);">
-                <div class="action-icon">💬</div>
-                <div class="action-label">CHAT</div>
-            </div>
-            <div class="action-button-circular" id="action-sync" style="bottom: 30%; left: 10%; transform: translate(-50%, 50%);">
-                <div class="action-icon">🔄</div>
-                <div class="action-label">SYNC</div>
-            </div>
-            <div class="action-button-circular" id="action-insights" style="top: 30%; left: 10%; transform: translate(-50%, -50%);">
-                <div class="action-icon">📊</div>
-                <div class="action-label">INSIGHTS</div>
-            </div>
+    <!-- HUD CORNERS -->
+    <div id="hud-tl" style="position:fixed;top:20px;left:20px;z-index:1000;pointer-events:none;padding:15px;background:rgba(0,10,20,0.8);border:1px solid rgba(0,255,255,0.3);backdrop-filter:blur(10px)">
+        <div style="font-size:9px;color:rgba(0,255,255,0.5);letter-spacing:1px">TIME</div>
+        <div id="time-display" style="font-size:16px;color:#00ffff;font-weight:bold;text-shadow:0 0 10px rgba(0,255,255,0.8)">--:--</div>
+        <div style="font-size:9px;color:rgba(0,255,255,0.5);letter-spacing:1px;margin-top:10px">DATE</div>
+        <div id="date-display" style="font-size:12px;color:#00ffff">---</div>
+    </div>
+
+    <div id="hud-tr" style="position:fixed;top:20px;right:20px;z-index:1000;pointer-events:none;text-align:right;padding:15px;background:rgba(0,10,20,0.8);border:1px solid rgba(0,255,255,0.3);backdrop-filter:blur(10px)">
+        <div style="font-size:9px;color:rgba(0,255,255,0.5);letter-spacing:1px">RECOVERY</div>
+        <div id="recovery-value" style="font-size:16px;color:#00ffff;font-weight:bold">--</div>
+        <div style="width:100px;height:4px;background:rgba(0,255,255,0.2);margin-top:5px;border-radius:2px;overflow:hidden">
+            <div id="recovery-fill" style="width:0%;height:100%;background:#00ffff;transition:width 0.5s"></div>
         </div>
     </div>
 
-    <div id="planet-detail" style="
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.98);
-        z-index: 7000;
-        display: none;
-        overflow-y: auto;
-    ">
-        <div class="close-detail" id="close-detail">✕</div>
-        <div class="planet-detail-header">
-            <div class="planet-detail-title" id="detail-title">LOADING...</div>
-            <div class="planet-detail-subtitle" id="detail-subtitle">Fetching data...</div>
+    <div id="hud-bl" style="position:fixed;bottom:20px;left:20px;z-index:1000;pointer-events:none;padding:15px;background:rgba(0,10,20,0.8);border:1px solid rgba(0,255,255,0.3);backdrop-filter:blur(10px)">
+        <div style="font-size:9px;color:rgba(0,255,255,0.5);letter-spacing:1px">STATUS</div>
+        <div id="status-display" style="font-size:12px;color:#00ffff">ONLINE</div>
+    </div>
+
+    <div id="hud-br" style="position:fixed;bottom:20px;right:20px;z-index:1000;pointer-events:none;text-align:right;padding:15px;background:rgba(0,10,20,0.8);border:1px solid rgba(0,255,255,0.3);backdrop-filter:blur(10px)">
+        <div style="font-size:9px;color:rgba(0,255,255,0.5);letter-spacing:1px">MODE</div>
+        <div style="font-size:12px;color:#00ffff">ACTIVE</div>
+    </div>
+
+    <!-- LOGOUT -->
+    <button id="logout-btn" style="position:fixed;top:20px;right:20px;padding:10px 20px;background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.5);color:#ff4444;font-family:inherit;font-size:11px;cursor:pointer;z-index:1001;letter-spacing:1px">LOGOUT</button>
+
+    <!-- ACTION MENU -->
+    <div id="action-menu" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:8000;display:none">
+        <div style="position:relative;width:400px;height:400px">
+            <div class="action-button-circular" id="action-workout" style="position:absolute;top:10%;left:50%;transform:translate(-50%,-50%);width:80px;height:80px;background:rgba(0,10,20,0.9);border:2px solid rgba(0,255,255,0.5);border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s">
+                <div style="font-size:28px;margin-bottom:5px">💪</div>
+                <div style="font-size:10px;color:#00ffff;letter-spacing:1px">WORKOUT</div>
+            </div>
+            <div class="action-button-circular" id="action-meal" style="position:absolute;top:30%;right:10%;transform:translate(50%,-50%);width:80px;height:80px;background:rgba(0,10,20,0.9);border:2px solid rgba(0,255,255,0.5);border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s">
+                <div style="font-size:28px;margin-bottom:5px">🍽️</div>
+                <div style="font-size:10px;color:#00ffff;letter-spacing:1px">MEAL</div>
+            </div>
+            <div class="action-button-circular" id="action-goals" style="position:absolute;bottom:30%;right:10%;transform:translate(50%,50%);width:80px;height:80px;background:rgba(0,10,20,0.9);border:2px solid rgba(0,255,255,0.5);border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s">
+                <div style="font-size:28px;margin-bottom:5px">🎯</div>
+                <div style="font-size:10px;color:#00ffff;letter-spacing:1px">GOALS</div>
+            </div>
+            <div class="action-button-circular" id="action-chat" style="position:absolute;bottom:10%;left:50%;transform:translate(-50%,50%);width:80px;height:80px;background:rgba(0,10,20,0.9);border:2px solid rgba(0,255,255,0.5);border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s">
+                <div style="font-size:28px;margin-bottom:5px">💬</div>
+                <div style="font-size:10px;color:#00ffff;letter-spacing:1px">CHAT</div>
+            </div>
+            <div class="action-button-circular" id="action-sync" style="position:absolute;bottom:30%;left:10%;transform:translate(-50%,50%);width:80px;height:80px;background:rgba(0,10,20,0.9);border:2px solid rgba(0,255,255,0.5);border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s">
+                <div style="font-size:28px;margin-bottom:5px">🔄</div>
+                <div style="font-size:10px;color:#00ffff;letter-spacing:1px">SYNC</div>
+            </div>
+            <div class="action-button-circular" id="action-insights" style="position:absolute;top:30%;left:10%;transform:translate(-50%,-50%);width:80px;height:80px;background:rgba(0,10,20,0.9);border:2px solid rgba(0,255,255,0.5);border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s">
+                <div style="font-size:28px;margin-bottom:5px">📊</div>
+                <div style="font-size:10px;color:#00ffff;letter-spacing:1px">INSIGHTS</div>
+            </div>
         </div>
-        <div class="planet-detail-content" id="detail-content"></div>
     </div>
 
-    <div id="quick-actions" style="
-        position: fixed;
-        bottom: 30px;
-        left: 50%;
-        transform: translateX(-50%);
-        display: flex;
-        gap: 15px;
-        z-index: 6000;
-        opacity: 0;
-        animation: fadeIn 1s 2s forwards;
-    ">
-        <button class="quick-action-btn" id="quick-workout">LOG WORKOUT</button>
-        <button class="quick-action-btn" id="quick-meal">LOG MEAL</button>
-        <button class="quick-action-btn" id="quick-sync">SYNC DATA</button>
-        <button class="quick-action-btn" id="quick-chat">ASK PHOENIX</button>
+    <!-- PLANET DETAIL -->
+    <div id="planet-detail" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.98);z-index:7000;display:none;overflow-y:auto">
+        <div id="close-detail" style="position:fixed;top:30px;right:30px;width:50px;height:50px;background:rgba(0,10,20,0.9);border:2px solid rgba(0,255,255,0.5);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:24px;color:#00ffff;z-index:7100;transition:all 0.3s">✕</div>
+        <div style="padding:40px;text-align:center">
+            <div id="detail-title" style="font-size:36px;color:#00ffff;text-shadow:0 0 20px rgba(0,255,255,1);margin-bottom:10px">LOADING...</div>
+            <div id="detail-subtitle" style="font-size:14px;color:rgba(0,255,255,0.6);margin-bottom:30px">Fetching data...</div>
+        </div>
+        <div id="detail-content" style="padding:40px;max-width:1200px;margin:0 auto"></div>
     </div>
 
-    <div id="loading" style="
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: #000;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        z-index: 10000;
-        transition: opacity 1s ease;
-    ">
-        <div class="loading-text">PHOENIX</div>
-        <div class="loading-spinner"></div>
+    <!-- QUICK ACTIONS -->
+    <div id="quick-actions" style="position:fixed;bottom:30px;left:50%;transform:translateX(-50%);display:flex;gap:15px;z-index:6000;opacity:0;animation:fadeIn 1s 2s forwards">
+        <button id="quick-workout" style="padding:12px 24px;background:rgba(0,10,20,0.9);border:1px solid rgba(0,255,255,0.3);color:#00ffff;font-family:inherit;font-size:12px;cursor:pointer;letter-spacing:1px;transition:all 0.3s">LOG WORKOUT</button>
+        <button id="quick-meal" style="padding:12px 24px;background:rgba(0,10,20,0.9);border:1px solid rgba(0,255,255,0.3);color:#00ffff;font-family:inherit;font-size:12px;cursor:pointer;letter-spacing:1px;transition:all 0.3s">LOG MEAL</button>
+        <button id="quick-sync" style="padding:12px 24px;background:rgba(0,10,20,0.9);border:1px solid rgba(0,255,255,0.3);color:#00ffff;font-family:inherit;font-size:12px;cursor:pointer;letter-spacing:1px;transition:all 0.3s">SYNC DATA</button>
+        <button id="quick-chat" style="padding:12px 24px;background:rgba(0,10,20,0.9);border:1px solid rgba(0,255,255,0.3);color:#00ffff;font-family:inherit;font-size:12px;cursor:pointer;letter-spacing:1px;transition:all 0.3s">ASK PHOENIX</button>
     </div>
 
-    <button class="logout-btn" id="logout-btn" style="
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 10px 20px;
-        background: rgba(255, 68, 68, 0.1);
-        border: 1px solid rgba(255, 68, 68, 0.5);
-        color: #ff4444;
-        font-family: inherit;
-        font-size: 11px;
-        cursor: pointer;
-        transition: all 0.3s;
-        z-index: 1001;
-        letter-spacing: 1px;
-    ">LOGOUT</button>
-
+    <!-- THREE.JS CONTAINER -->
     <div id="container"></div>
 
-    <div class="mind-map-container">
-        <div id="phoenix-core-container" class="phoenix-core" style="
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 200px;
-            height: 200px;
-            z-index: 500;
-            pointer-events: auto;
-            cursor: pointer;
-        ">
-            <div class="core-rings">
-                <div class="core-ring ring-1"></div>
-                <div class="core-ring ring-2"></div>
-                <div class="core-ring ring-3"></div>
-            </div>
-            
-            <div id="phoenix-sphere" class="core-center">
-                <div class="core-glow"></div>
-                <div class="core-text">PHOENIX</div>
-            </div>
-            
-            <canvas id="phoenix-particles" width="200" height="200" style="
-                position: absolute;
-                top: 0;
-                left: 0;
-                pointer-events: none;
-            "></canvas>
+    <!-- PHOENIX CORE -->
+    <div id="phoenix-core-container" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:200px;height:200px;z-index:500;pointer-events:auto;cursor:pointer">
+        <div style="position:absolute;top:0;left:0;width:100%;height:100%">
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:100%;height:100%;border:1px solid rgba(0,255,255,0.4);border-radius:50%;animation:coreRotate 20s linear infinite"></div>
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:120%;height:120%;border:1px dashed rgba(0,255,255,0.3);border-radius:50%;animation:coreRotate 15s linear infinite reverse"></div>
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:140%;height:140%;border:1px dotted rgba(0,255,255,0.2);border-radius:50%;animation:coreRotate 25s linear infinite"></div>
         </div>
-    </div>
-
-    <div id="greeting" style="
-        position: fixed;
-        top: 25%;
-        left: 50%;
-        transform: translateX(-50%);
-        text-align: center;
-        z-index: 500;
-        opacity: 0;
-        animation: fadeIn 1s 1s forwards;
-    ">
-        <div class="greeting-main">Welcome</div>
-        <div class="greeting-sub">Your AI companion is initializing...</div>
-    </div>
-
-    <div id="hud-tl" class="hud hud-corner" style="
-        position: fixed;
-        top: 20px;
-        left: 20px;
-        z-index: 1000;
-        pointer-events: none;
-    ">
-        <div class="hud-label">TIME</div>
-        <div class="hud-value" id="time-display">--:--</div>
-        <div class="hud-label" style="margin-top: 10px;">DATE</div>
-        <div class="hud-value" style="font-size: 12px;" id="date-display">---</div>
-    </div>
-
-    <div id="hud-tr" class="hud hud-corner" style="
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 1000;
-        pointer-events: none;
-        text-align: right;
-    ">
-        <div class="hud-label">RECOVERY</div>
-        <div class="hud-value" id="recovery-value">--</div>
-        <div class="recovery-bar">
-            <div class="recovery-fill" id="recovery-fill" style="width: 0%"></div>
+        <div id="phoenix-sphere" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:100px;height:100px;background:radial-gradient(circle,rgba(0,255,255,0.8),rgba(0,255,255,0.2));border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 0 50px rgba(0,255,255,0.8),inset 0 0 30px rgba(0,255,255,0.4);animation:corePulse 2s ease-in-out infinite">
+            <div style="font-size:14px;font-weight:bold;color:#00ffff;text-shadow:0 0 10px rgba(0,255,255,1);letter-spacing:3px;z-index:1">PHOENIX</div>
         </div>
+        <canvas id="phoenix-particles" width="200" height="200" style="position:absolute;top:0;left:0;pointer-events:none"></canvas>
     </div>
 
-    <div id="hud-bl" class="hud hud-corner" style="
-        position: fixed;
-        bottom: 20px;
-        left: 20px;
-        z-index: 1000;
-        pointer-events: none;
-    ">
-        <div class="hud-label">STATUS</div>
-        <div class="hud-value" style="font-size: 12px;" id="status-display">ONLINE</div>
+    <!-- ENERGY BEAMS SVG -->
+    <svg id="energy-beams" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:450"></svg>
+
+    <!-- DATA CONSTELLATION -->
+    <div id="data-constellation" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:600"></div>
+
+    <!-- VOICE OVERLAY -->
+    <div id="voice-overlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);display:none;align-items:center;justify-content:center;z-index:9000;flex-direction:column">
+        <div style="width:200px;height:100px"><canvas id="waveform-canvas" width="200" height="100"></canvas></div>
+        <div id="voice-text" style="color:#00ffff;font-size:18px;text-align:center;padding:20px;max-width:80%;margin-top:20px">Listening...</div>
     </div>
 
-    <div id="hud-br" class="hud hud-corner" style="
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        z-index: 1000;
-        pointer-events: none;
-        text-align: right;
-    ">
-        <div class="hud-label">MODE</div>
-        <div class="hud-value" style="font-size: 12px;">ACTIVE</div>
-    </div>
-
-    <div id="voice-overlay" style="
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.9);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        z-index: 9000;
-        flex-direction: column;
-    ">
-        <div class="waveform-container">
-            <canvas id="waveform-canvas" width="200" height="100"></canvas>
-        </div>
-        <div class="voice-text" id="voice-text" style="
-            color: #00ffff;
-            font-size: 18px;
-            text-align: center;
-            padding: 20px;
-            max-width: 80%;
-            margin-top: 20px;
-        ">Listening...</div>
-    </div>
-    
-    <svg id="energy-beams" class="correlation-lines" style="
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 450;
-    "></svg>
-
-    <div id="data-constellation" style="
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 600;
-    "></div>
-
+    <!-- THREE.JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
+    <!-- CORE ENGINE -->
     <script>
-        const API_BASE = window.location.hostname === 'localhost' 
-            ? 'http://localhost:5000/api'
-            : 'https://pal-backend-production.up.railway.app/api';
-
+        const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://pal-backend-production.up.railway.app/api';
         const getAuthHeaders = () => {
             const token = localStorage.getItem('phoenixToken');
-            return {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + token
-            };
+            return {'Content-Type':'application/json','Authorization':'Bearer '+token};
         };
 
         class PhoenixEngine {
             constructor() {
-                this.scene = null;
-                this.camera = null;
-                this.renderer = null;
-                this.phoenixCore = null;
-                this.planets = [];
-                this.particles = [];
-                this.time = 0;
-                this.isListening = false;
-                this.recoveryScore = 75;
-                this.mouseX = 0;
-                this.mouseY = 0;
-                this.userId = null;
-                this.userData = {};
-                this.location = {};
-                this.weather = {};
-                this.isActivated = false;
-                this.actionMenuOpen = false;
-                this.currentPlanet = null;
-                this.alpha = 0;
-                this.beta = 0;
-                this.gamma = 0;
+                this.scene=null;this.camera=null;this.renderer=null;this.phoenixCore=null;this.planets=[];this.particles=[];
+                this.time=0;this.isListening=false;this.recoveryScore=75;this.mouseX=0;this.mouseY=0;
+                this.userId=null;this.userData={};this.isActivated=false;this.actionMenuOpen=false;this.currentPlanet=null;
             }
 
             init() {
-                this.authenticate();
-                this.setupScene();
-                this.createPhoenixCore();
-                this.createPlanets();
-                this.createParticleField();
-                this.setupLighting();
-                this.setupEventListeners();
-                this.setupUIHandlers();
-                this.loadLocationAndWeather();
-                this.animate();
-                this.startHUD();
-                
-                const hasActivated = localStorage.getItem('phoenixActivated');
-                if (hasActivated) {
-                    document.getElementById('onboarding').style.display = 'none';
-                    this.isActivated = true;
-                    this.loadUserData();
-                    this.startDataSync();
-                    setTimeout(() => {
-                        document.getElementById('loading').style.opacity = '0';
-                        setTimeout(() => {
-                            document.getElementById('loading').style.display = 'none';
-                        }, 1000);
-                    }, 3000);
-                } else {
-                    setTimeout(() => {
-                        document.getElementById('loading').style.opacity = '0';
-                        setTimeout(() => {
-                            document.getElementById('loading').style.display = 'none';
-                        }, 1000);
-                    }, 2000);
+                this.authenticate();this.setupScene();this.createPhoenixCore();this.createPlanets();
+                this.createParticleField();this.setupLighting();this.setupEventListeners();this.setupUIHandlers();
+                this.animate();this.startHUD();
+                const hasActivated=localStorage.getItem('phoenixActivated');
+                if(hasActivated){
+                    document.getElementById('onboarding').style.display='none';this.isActivated=true;
+                    this.loadUserData();this.startDataSync();
+                    setTimeout(()=>{document.getElementById('loading').style.opacity='0';
+                    setTimeout(()=>document.getElementById('loading').style.display='none',1000);},3000);
+                }else{
+                    setTimeout(()=>{document.getElementById('loading').style.opacity='0';
+                    setTimeout(()=>document.getElementById('loading').style.display='none',1000);},2000);
                 }
             }
 
             setupUIHandlers() {
-                document.getElementById('logout-btn').addEventListener('click', () => {
-                    if (confirm('Are you sure you want to logout?')) {
-                        localStorage.removeItem('phoenixToken');
-                        localStorage.removeItem('phoenixUser');
-                        window.location.href = '/login';
-                    }
+                document.getElementById('logout-btn').addEventListener('click',()=>{
+                    if(confirm('Logout?')){localStorage.removeItem('phoenixToken');localStorage.removeItem('phoenixUser');window.location.href='/login';}
                 });
-
-                document.getElementById('activate-btn').addEventListener('click', () => {
-                    this.activatePhoenix();
+                document.getElementById('activate-btn').addEventListener('click',()=>this.activatePhoenix());
+                ['workout','meal','goals','chat','sync','insights'].forEach(action=>{
+                    document.getElementById('action-'+action).addEventListener('click',()=>{
+                        this.closeActionMenu();
+                        if(action==='workout')this.openPlanetDetail('mercury');
+                        else if(action==='meal')this.openPlanetDetail('venus');
+                        else if(action==='goals')this.openPlanetDetail('mars');
+                        else if(action==='chat')this.activateVoice();
+                        else if(action==='sync')this.syncAllData();
+                        else if(action==='insights')this.showInsights();
+                    });
                 });
-
-                document.getElementById('action-workout').addEventListener('click', () => {
-                    this.closeActionMenu();
-                    this.openPlanetDetail('mercury');
+                ['workout','meal','sync','chat'].forEach(action=>{
+                    document.getElementById('quick-'+action).addEventListener('click',()=>{
+                        if(action==='workout')this.openPlanetDetail('mercury');
+                        else if(action==='meal')this.openPlanetDetail('venus');
+                        else if(action==='sync')this.syncAllData();
+                        else if(action==='chat')this.activateVoice();
+                    });
                 });
-                document.getElementById('action-meal').addEventListener('click', () => {
-                    this.closeActionMenu();
-                    this.openPlanetDetail('venus');
-                });
-                document.getElementById('action-goals').addEventListener('click', () => {
-                    this.closeActionMenu();
-                    this.openPlanetDetail('mars');
-                });
-                document.getElementById('action-chat').addEventListener('click', () => {
-                    this.closeActionMenu();
-                    this.activateVoice();
-                });
-                document.getElementById('action-sync').addEventListener('click', () => {
-                    this.closeActionMenu();
-                    this.syncAllData();
-                });
-                document.getElementById('action-insights').addEventListener('click', () => {
-                    this.closeActionMenu();
-                    this.showInsights();
-                });
-
-                document.getElementById('quick-workout').addEventListener('click', () => {
-                    this.openPlanetDetail('mercury');
-                });
-                document.getElementById('quick-meal').addEventListener('click', () => {
-                    this.openPlanetDetail('venus');
-                });
-                document.getElementById('quick-sync').addEventListener('click', () => {
-                    this.syncAllData();
-                });
-                document.getElementById('quick-chat').addEventListener('click', () => {
-                    this.activateVoice();
-                });
-
-                document.getElementById('close-detail').addEventListener('click', () => {
-                    this.closePlanetDetail();
-                });
+                document.getElementById('close-detail').addEventListener('click',()=>this.closePlanetDetail());
             }
 
             activatePhoenix() {
-                document.getElementById('onboarding').style.display = 'none';
-                localStorage.setItem('phoenixActivated', 'true');
-                this.isActivated = true;
-                
-                if (this.phoenixCore) {
-                    this.phoenixCore.material.emissiveIntensity = 2;
-                    setTimeout(() => {
-                        this.phoenixCore.material.emissiveIntensity = 0.5;
-                    }, 500);
-                }
-
-                this.showNotification('Phoenix Activated', 'Your AI companion is now online. Loading your data...');
-                this.loadUserData();
-                this.startDataSync();
+                document.getElementById('onboarding').style.display='none';
+                localStorage.setItem('phoenixActivated','true');this.isActivated=true;
+                if(this.phoenixCore){this.phoenixCore.material.emissiveIntensity=2;
+                setTimeout(()=>this.phoenixCore.material.emissiveIntensity=0.5,500);}
+                this.showNotification('Phoenix Activated','AI companion online. Loading data...');
+                this.loadUserData();this.startDataSync();
             }
 
             toggleActionMenu() {
-                this.actionMenuOpen = !this.actionMenuOpen;
-                const menu = document.getElementById('action-menu');
-                if (this.actionMenuOpen) {
-                    menu.style.display = 'block';
-                } else {
-                    menu.style.display = 'none';
-                }
+                this.actionMenuOpen=!this.actionMenuOpen;
+                document.getElementById('action-menu').style.display=this.actionMenuOpen?'block':'none';
             }
 
-            closeActionMenu() {
-                this.actionMenuOpen = false;
-                document.getElementById('action-menu').style.display = 'none';
-            }
+            closeActionMenu() {this.actionMenuOpen=false;document.getElementById('action-menu').style.display='none';}
 
             openPlanetDetail(planetName) {
-                this.currentPlanet = planetName;
-                const detail = document.getElementById('planet-detail');
-                detail.style.display = 'block';
-                
-                const planetData = {
-                    mercury: {
-                        title: 'FITNESS & RECOVERY',
-                        subtitle: 'Workouts, Performance, Biometrics'
-                    },
-                    venus: {
-                        title: 'NUTRITION',
-                        subtitle: 'Meals, Macros, Supplements'
-                    },
-                    earth: {
-                        title: 'SCHEDULE & TIME',
-                        subtitle: 'Calendar, Energy Patterns, Optimization'
-                    },
-                    mars: {
-                        title: 'GOALS & HABITS',
-                        subtitle: 'Objectives, Progress, Achievements'
-                    },
-                    jupiter: {
-                        title: 'WEALTH & FINANCE',
-                        subtitle: 'Spending, Budgets, Correlations'
-                    },
-                    saturn: {
-                        title: 'LEGACY & LONGEVITY',
-                        subtitle: 'Long-term Health, Life Timeline'
-                    }
-                };
-
-                const planet = planetData[planetName] || planetData.mercury;
-                document.getElementById('detail-title').textContent = planet.title;
-                document.getElementById('detail-subtitle').textContent = planet.subtitle;
+                this.currentPlanet=planetName;document.getElementById('planet-detail').style.display='block';
+                const planetData={mercury:{title:'FITNESS & RECOVERY',subtitle:'Workouts, Performance, Biometrics'},
+                venus:{title:'NUTRITION',subtitle:'Meals, Macros, Supplements'},
+                earth:{title:'SCHEDULE & TIME',subtitle:'Calendar, Energy, Optimization'},
+                mars:{title:'GOALS & HABITS',subtitle:'Objectives, Progress, Achievements'},
+                jupiter:{title:'WEALTH & FINANCE',subtitle:'Spending, Budgets, Correlations'},
+                saturn:{title:'LEGACY & LONGEVITY',subtitle:'Long-term Health, Life Timeline'}};
+                const planet=planetData[planetName]||planetData.mercury;
+                document.getElementById('detail-title').textContent=planet.title;
+                document.getElementById('detail-subtitle').textContent=planet.subtitle;
                 this.loadPlanetContent(planetName);
             }
 
-            closePlanetDetail() {
-                document.getElementById('planet-detail').style.display = 'none';
-                this.currentPlanet = null;
-            }
+            closePlanetDetail() {document.getElementById('planet-detail').style.display='none';this.currentPlanet=null;}
 
             loadPlanetContent(planetName) {
-    // Use planets.js if available, otherwise show coming soon
-    if (window.planetSystem) {
-        window.planetSystem.loadDashboardContent(planetName);
-    } else {
-        const content = document.getElementById('detail-content');
-        content.innerHTML = '<div style="text-align: center; padding: 60px;"><div style="font-size: 48px; margin-bottom: 20px;">⏳</div><div style="font-size: 24px; color: #00ffff;">Loading Planet System...</div></div>';
-        
-        // Try again after a short delay
-        setTimeout(() => {
-            if (window.planetSystem) {
-                window.planetSystem.loadDashboardContent(planetName);
+                if(window.planetSystem){window.planetSystem.loadDashboardContent(planetName);return;}
+                const content=document.getElementById('detail-content');
+                content.innerHTML='<div style="text-align:center;padding:60px"><div style="font-size:48px;margin-bottom:20px">⏳</div><div style="font-size:24px;color:#00ffff">Loading...</div></div>';
+                setTimeout(()=>{if(window.planetSystem)window.planetSystem.loadDashboardContent(planetName);},500);
             }
-        }, 500);
-    }
-}
 
             async authenticate() {
-                const token = localStorage.getItem('phoenixToken');
-                if (!token) {
-                    console.log('No token found - redirecting to login');
-                    window.location.href = '/login';
-                    return false;
-                }
-
-                try {
-                    const response = await fetch(API_BASE + '/auth/me', {
-                        headers: getAuthHeaders()
-                    });
-                    const data = await response.json();
-                    if (data.success && data.user) {
-                        this.userId = data.user._id;
-                        console.log('Authenticated:', data.user.name);
-                        
-                        const hour = new Date().getHours();
-                        const greeting = hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : 'Good Evening';
-                        document.querySelector('.greeting-main').textContent = greeting + ', ' + data.user.name.split(' ')[0];
-                        
-                        return true;
-                    } else {
-                        localStorage.removeItem('phoenixToken');
-                        localStorage.removeItem('phoenixUser');
-                        window.location.href = '/login.html';
-                        return false;
-                    }
-                } catch (error) {
-                    console.error('Auth error:', error);
-                    localStorage.removeItem('phoenixToken');
-                    localStorage.removeItem('phoenixUser');
-                    window.location.href = '/login.html';
-                    return false;
-                }
+                const token=localStorage.getItem('phoenixToken');
+                if(!token){console.log('No token');window.location.href='/login';return false;}
+                try{
+                    const response=await fetch(API_BASE+'/auth/me',{headers:getAuthHeaders()});
+                    const data=await response.json();
+                    if(data.success&&data.user){this.userId=data.user._id;console.log('Authenticated:',data.user.name);
+                    const hour=new Date().getHours();
+                    const greeting=hour<12?'Good Morning':hour<18?'Good Afternoon':'Good Evening';
+                    document.querySelector('.greeting-main').textContent=greeting+', '+data.user.name.split(' ')[0];
+                    return true;}else{localStorage.removeItem('phoenixToken');localStorage.removeItem('phoenixUser');
+                    window.location.href='/login.html';return false;}
+                }catch(error){console.error('Auth error:',error);
+                localStorage.removeItem('phoenixToken');localStorage.removeItem('phoenixUser');
+                window.location.href='/login.html';return false;}
             }
 
-            async loadLocationAndWeather() {
-                try {
-                    const geoResponse = await fetch('https://ipapi.co/json/');
-                    const geoData = await geoResponse.json();
-                    
-                    if (geoData.city && geoData.region) {
-                        this.location = {
-                            city: geoData.city,
-                            region: geoData.region,
-                            country: geoData.country_name,
-                            lat: geoData.latitude,
-                            lon: geoData.longitude
-                        };
-                        
-                        const weatherResponse = await fetch(
-                            'https://api.open-meteo.com/v1/forecast?latitude=' + geoData.latitude + '&longitude=' + geoData.longitude + '&current=temperature_2m,weathercode&temperature_unit=fahrenheit'
-                        );
-                        const weatherData = await weatherResponse.json();
-                        
-                        if (weatherData.current) {
-                            const temp = Math.round(weatherData.current.temperature_2m);
-                            this.weather = {
-                                temp: temp,
-                                icon: '☀️',
-                                description: 'Clear'
-                            };
-                            
-                            this.updateWeatherDisplay();
-                        }
-                    }
-                } catch (error) {
-                    console.error('Location/Weather error:', error);
-                }
-            }
-
-            updateWeatherDisplay() {
-                const weatherHTML = '<div class="hud-label">WEATHER</div><div style="font-size: 24px; margin: 5px 0;">' + this.weather.icon + '</div><div class="hud-value">' + this.weather.temp + '°F</div><div style="font-size: 9px; color: rgba(0,255,255,0.5); margin-top: 5px;">' + this.weather.description + '</div><div style="font-size: 8px; color: rgba(0,255,255,0.3); margin-top: 3px;">' + this.location.city + '</div>';
-                document.getElementById('hud-bl').innerHTML = weatherHTML;
-            }
-
-            async loadUserData() {
-                if (!this.userId) return;
-                console.log('Loading user data...');
-            }
-
-            startDataSync() {
-                setInterval(() => {
-                    this.loadUserData();
-                }, 30000);
-            }
-
-            async syncAllData() {
-                this.showNotification('Syncing Data', 'Fetching latest from all devices...');
-            }
-
-            async showInsights() {
-                this.showNotification('Analyzing', 'Phoenix is analyzing your data...');
-            }
+            async loadUserData() {if(!this.userId)return;console.log('Loading user data...');}
+            startDataSync() {setInterval(()=>this.loadUserData(),30000);}
+            async syncAllData() {this.showNotification('Syncing Data','Fetching latest...');}
+            async showInsights() {this.showNotification('Analyzing','Phoenix analyzing data...');}
 
             setupScene() {
-                this.scene = new THREE.Scene();
-                this.scene.fog = new THREE.FogExp2(0x000000, 0.0008);
-
-                this.camera = new THREE.PerspectiveCamera(
-                    75,
-                    window.innerWidth / window.innerHeight,
-                    0.1,
-                    1000
-                );
-                this.camera.position.z = 15;
-
-                this.renderer = new THREE.WebGLRenderer({ 
-                    antialias: true,
-                    alpha: true 
-                });
-                this.renderer.setSize(window.innerWidth, window.innerHeight);
-                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                this.scene=new THREE.Scene();this.scene.fog=new THREE.FogExp2(0x000000,0.0008);
+                this.camera=new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,0.1,1000);
+                this.camera.position.z=15;
+                this.renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+                this.renderer.setSize(window.innerWidth,window.innerHeight);
+                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
                 document.getElementById('container').appendChild(this.renderer.domElement);
-
-                window.addEventListener('resize', () => {
-                    this.camera.aspect = window.innerWidth / window.innerHeight;
-                    this.camera.updateProjectionMatrix();
-                    this.renderer.setSize(window.innerWidth, window.innerHeight);
+                window.addEventListener('resize',()=>{
+                    this.camera.aspect=window.innerWidth/window.innerHeight;this.camera.updateProjectionMatrix();
+                    this.renderer.setSize(window.innerWidth,window.innerHeight);
                 });
             }
 
             createPhoenixCore() {
-                const geometry = new THREE.SphereGeometry(1.5, 64, 64);
-                const material = new THREE.MeshPhongMaterial({
-                    color: 0x00ffff,
-                    emissive: 0x00ffff,
-                    emissiveIntensity: 0.5,
-                    shininess: 100,
-                    transparent: true,
-                    opacity: 0.8
-                });
-                
-                this.phoenixCore = new THREE.Mesh(geometry, material);
-                this.scene.add(this.phoenixCore);
-
-                for (let i = 0; i < 3; i++) {
-                    const ringGeometry = new THREE.TorusGeometry(2 + i * 0.5, 0.02, 16, 100);
-                    const ringMaterial = new THREE.MeshBasicMaterial({
-                        color: 0x00ffff,
-                        transparent: true,
-                        opacity: 0.3
-                    });
-                    const ring = new THREE.Mesh(ringGeometry, ringMaterial);
-                    ring.rotation.x = Math.PI / 2;
-                    ring.userData.rotationSpeed = 0.001 * (i + 1);
-                    this.phoenixCore.add(ring);
+                const geometry=new THREE.SphereGeometry(1.5,64,64);
+                const material=new THREE.MeshPhongMaterial({color:0x00ffff,emissive:0x00ffff,emissiveIntensity:0.5,
+                shininess:100,transparent:true,opacity:0.8});
+                this.phoenixCore=new THREE.Mesh(geometry,material);this.scene.add(this.phoenixCore);
+                for(let i=0;i<3;i++){
+                    const ringGeometry=new THREE.TorusGeometry(2+i*0.5,0.02,16,100);
+                    const ringMaterial=new THREE.MeshBasicMaterial({color:0x00ffff,transparent:true,opacity:0.3});
+                    const ring=new THREE.Mesh(ringGeometry,ringMaterial);ring.rotation.x=Math.PI/2;
+                    ring.userData.rotationSpeed=0.001*(i+1);this.phoenixCore.add(ring);
                 }
-
-                const glowGeometry = new THREE.SphereGeometry(1.8, 32, 32);
-                const glowMaterial = new THREE.MeshBasicMaterial({
-                    color: 0x00ffff,
-                    transparent: true,
-                    opacity: 0.1
-                });
-                const glow = new THREE.Mesh(glowGeometry, glowMaterial);
-                this.phoenixCore.add(glow);
+                const glowGeometry=new THREE.SphereGeometry(1.8,32,32);
+                const glowMaterial=new THREE.MeshBasicMaterial({color:0x00ffff,transparent:true,opacity:0.1});
+                const glow=new THREE.Mesh(glowGeometry,glowMaterial);this.phoenixCore.add(glow);
             }
 
             createPlanets() {
-                const planetData = [
-                    { name: 'MERCURY', color: 0xff6b35, angle: 0, distance: 8 },
-                    { name: 'VENUS', color: 0xff66ff, angle: Math.PI / 3, distance: 8 },
-                    { name: 'EARTH', color: 0x00ff88, angle: 2 * Math.PI / 3, distance: 8 },
-                    { name: 'MARS', color: 0xff4444, angle: Math.PI, distance: 8 },
-                    { name: 'JUPITER', color: 0xffaa00, angle: 4 * Math.PI / 3, distance: 8 },
-                    { name: 'SATURN', color: 0x8844ff, angle: 5 * Math.PI / 3, distance: 8 }
+                const planetData=[
+                    {name:'MERCURY',color:0xff6b35,angle:0,distance:8},
+                    {name:'VENUS',color:0xff66ff,angle:Math.PI/3,distance:8},
+                    {name:'EARTH',color:0x00ff88,angle:2*Math.PI/3,distance:8},
+                    {name:'MARS',color:0xff4444,angle:Math.PI,distance:8},
+                    {name:'JUPITER',color:0xffaa00,angle:4*Math.PI/3,distance:8},
+                    {name:'SATURN',color:0x8844ff,angle:5*Math.PI/3,distance:8}
                 ];
-
-                planetData.forEach((data, index) => {
-                    const geometry = new THREE.SphereGeometry(0.6, 32, 32);
-                    const material = new THREE.MeshPhongMaterial({
-                        color: data.color,
-                        emissive: data.color,
-                        emissiveIntensity: 0.3,
-                        shininess: 80
-                    });
-                    
-                    const planet = new THREE.Mesh(geometry, material);
-                    planet.userData = {
-                        angle: data.angle,
-                        distance: data.distance,
-                        speed: 0.0005 + index * 0.0002,
-                        name: data.name
-                    };
-                    
-                    this.scene.add(planet);
-                    this.planets.push(planet);
-
-                    const glowGeometry = new THREE.SphereGeometry(0.8, 16, 16);
-                    const glowMaterial = new THREE.MeshBasicMaterial({
-                        color: data.color,
-                        transparent: true,
-                        opacity: 0.2
-                    });
-                    const glow = new THREE.Mesh(glowGeometry, glowMaterial);
-                    planet.add(glow);
+                planetData.forEach((data,index)=>{
+                    const geometry=new THREE.SphereGeometry(0.6,32,32);
+                    const material=new THREE.MeshPhongMaterial({color:data.color,emissive:data.color,
+                    emissiveIntensity:0.3,shininess:80});
+                    const planet=new THREE.Mesh(geometry,material);
+                    planet.userData={angle:data.angle,distance:data.distance,speed:0.0005+index*0.0002,name:data.name};
+                    this.scene.add(planet);this.planets.push(planet);
+                    const glowGeometry=new THREE.SphereGeometry(0.8,16,16);
+                    const glowMaterial=new THREE.MeshBasicMaterial({color:data.color,transparent:true,opacity:0.2});
+                    const glow=new THREE.Mesh(glowGeometry,glowMaterial);planet.add(glow);
                 });
             }
 
             createParticleField() {
-                const particleCount = 3000;
-                const geometry = new THREE.BufferGeometry();
-                const positions = new Float32Array(particleCount * 3);
-                const velocities = [];
-
-                for (let i = 0; i < particleCount; i++) {
-                    positions[i * 3] = (Math.random() - 0.5) * 50;
-                    positions[i * 3 + 1] = (Math.random() - 0.5) * 50;
-                    positions[i * 3 + 2] = (Math.random() - 0.5) * 50;
-
-                    velocities.push({
-                        x: (Math.random() - 0.5) * 0.02,
-                        y: (Math.random() - 0.5) * 0.02,
-                        z: (Math.random() - 0.5) * 0.02
-                    });
+                const particleCount=3000;const geometry=new THREE.BufferGeometry();
+                const positions=new Float32Array(particleCount*3);const velocities=[];
+                for(let i=0;i<particleCount;i++){
+                    positions[i*3]=(Math.random()-0.5)*50;positions[i*3+1]=(Math.random()-0.5)*50;
+                    positions[i*3+2]=(Math.random()-0.5)*50;
+                    velocities.push({x:(Math.random()-0.5)*0.02,y:(Math.random()-0.5)*0.02,z:(Math.random()-0.5)*0.02});
                 }
-
-                geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-
-                const material = new THREE.PointsMaterial({
-                    color: 0x00ffff,
-                    size: 0.05,
-                    transparent: true,
-                    opacity: 0.6,
-                    blending: THREE.AdditiveBlending
-                });
-
-                const particles = new THREE.Points(geometry, material);
-                particles.userData.velocities = velocities;
-                this.scene.add(particles);
-                this.particles.push(particles);
+                geometry.setAttribute('position',new THREE.BufferAttribute(positions,3));
+                const material=new THREE.PointsMaterial({color:0x00ffff,size:0.05,transparent:true,opacity:0.6,
+                blending:THREE.AdditiveBlending});
+                const particles=new THREE.Points(geometry,material);particles.userData.velocities=velocities;
+                this.scene.add(particles);this.particles.push(particles);
             }
 
             setupLighting() {
-                const ambient = new THREE.AmbientLight(0x404040);
-                this.scene.add(ambient);
-
-                const pointLight = new THREE.PointLight(0x00ffff, 2, 50);
-                this.phoenixCore.add(pointLight);
-
-                const light1 = new THREE.PointLight(0xff6b35, 0.5, 20);
-                light1.position.set(5, 5, 5);
-                this.scene.add(light1);
-
-                const light2 = new THREE.PointLight(0xff66ff, 0.5, 20);
-                light2.position.set(-5, -5, 5);
-                this.scene.add(light2);
+                const ambient=new THREE.AmbientLight(0x404040);this.scene.add(ambient);
+                const pointLight=new THREE.PointLight(0x00ffff,2,50);this.phoenixCore.add(pointLight);
+                const light1=new THREE.PointLight(0xff6b35,0.5,20);light1.position.set(5,5,5);this.scene.add(light1);
+                const light2=new THREE.PointLight(0xff66ff,0.5,20);light2.position.set(-5,-5,5);this.scene.add(light2);
             }
 
             setupEventListeners() {
-                this.raycaster = new THREE.Raycaster();
-                this.mouseVector = new THREE.Vector2();
-
-                const clickHandler = (e) => {
-                    e.preventDefault();
-                    
-                    const x = e.touches ? e.touches[0].clientX : e.clientX;
-                    const y = e.touches ? e.touches[0].clientY : e.clientY;
-                    
-                    this.mouseVector.x = (x / window.innerWidth) * 2 - 1;
-                    this.mouseVector.y = -(y / window.innerHeight) * 2 + 1;
-                    
-                    this.raycaster.setFromCamera(this.mouseVector, this.camera);
-                    
-                    const coreIntersects = this.raycaster.intersectObject(this.phoenixCore);
-                    if (coreIntersects.length > 0 && !this.actionMenuOpen) {
-                        this.toggleActionMenu();
-                        return;
-                    }
-                    
-                    const planetIntersects = this.raycaster.intersectObjects(this.planets);
-                    if (planetIntersects.length > 0) {
-                        const planet = planetIntersects[0].object;
-                        const planetName = planet.userData.name.toLowerCase();
+                this.raycaster=new THREE.Raycaster();this.mouseVector=new THREE.Vector2();
+                const clickHandler=(e)=>{
+                    e.preventDefault();const x=e.touches?e.touches[0].clientX:e.clientX;
+                    const y=e.touches?e.touches[0].clientY:e.clientY;
+                    this.mouseVector.x=(x/window.innerWidth)*2-1;this.mouseVector.y=-(y/window.innerHeight)*2+1;
+                    this.raycaster.setFromCamera(this.mouseVector,this.camera);
+                    const coreIntersects=this.raycaster.intersectObject(this.phoenixCore);
+                    if(coreIntersects.length>0&&!this.actionMenuOpen){this.toggleActionMenu();return;}
+                    const planetIntersects=this.raycaster.intersectObjects(this.planets);
+                    if(planetIntersects.length>0){
+                        const planet=planetIntersects[0].object;
+                        const planetName=planet.userData.name.toLowerCase();
                         this.openPlanetDetail(planetName);
                     }
-                    
-                    if (this.actionMenuOpen && coreIntersects.length === 0) {
-                        this.closeActionMenu();
-                    }
+                    if(this.actionMenuOpen&&coreIntersects.length===0)this.closeActionMenu();
                 };
-
-                document.addEventListener('click', clickHandler);
-                document.addEventListener('mousemove', (e) => {
-                    this.mouseX = (e.clientX / window.innerWidth) * 2 - 1;
-                    this.mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+                document.addEventListener('click',clickHandler);
+                document.addEventListener('mousemove',(e)=>{
+                    this.mouseX=(e.clientX/window.innerWidth)*2-1;this.mouseY=-(e.clientY/window.innerHeight)*2+1;
                 });
             }
 
             activateVoice() {
-                // Trigger voice interface if available
-                if (window.voiceInterface) {
-                    window.voiceInterface.startListening();
-                } else {
-                    const overlay = document.getElementById('voice-overlay');
-                    overlay.style.display = 'flex';
-                    this.isListening = true;
-                    
-                    setTimeout(() => {
-                        overlay.style.display = 'none';
-                        this.isListening = false;
-                    }, 3000);
-                }
+                if(window.voiceInterface){window.voiceInterface.startListening();}
+                else{const overlay=document.getElementById('voice-overlay');overlay.style.display='flex';
+                this.isListening=true;setTimeout(()=>{overlay.style.display='none';this.isListening=false;},3000);}
             }
 
             animate() {
-                requestAnimationFrame(() => this.animate());
-                
-                this.time += 0.01;
-
-                if (this.phoenixCore) {
-                    this.phoenixCore.rotation.y += 0.002;
-                    
-                    const scale = 1 + Math.sin(this.time * 2) * 0.05;
-                    this.phoenixCore.scale.set(scale, scale, scale);
-                    
-                    this.phoenixCore.children.forEach(child => {
-                        if (child.userData.rotationSpeed) {
-                            child.rotation.z += child.userData.rotationSpeed;
-                        }
-                    });
-                }
-
-                this.planets.forEach(planet => {
-                    planet.userData.angle += planet.userData.speed;
-                    planet.position.x = Math.cos(planet.userData.angle) * planet.userData.distance;
-                    planet.position.z = Math.sin(planet.userData.angle) * planet.userData.distance;
-                    planet.rotation.y += 0.01;
+                requestAnimationFrame(()=>this.animate());this.time+=0.01;
+                if(this.phoenixCore){this.phoenixCore.rotation.y+=0.002;
+                const scale=1+Math.sin(this.time*2)*0.05;this.phoenixCore.scale.set(scale,scale,scale);
+                this.phoenixCore.children.forEach(child=>{if(child.userData.rotationSpeed)child.rotation.z+=child.userData.rotationSpeed;});}
+                this.planets.forEach(planet=>{planet.userData.angle+=planet.userData.speed;
+                planet.position.x=Math.cos(planet.userData.angle)*planet.userData.distance;
+                planet.position.z=Math.sin(planet.userData.angle)*planet.userData.distance;planet.rotation.y+=0.01;});
+                this.particles.forEach(particleSystem=>{
+                    const positions=particleSystem.geometry.attributes.position.array;
+                    const velocities=particleSystem.userData.velocities;
+                    for(let i=0;i<positions.length;i+=3){positions[i]+=velocities[i/3].x;positions[i+1]+=velocities[i/3].y;
+                    positions[i+2]+=velocities[i/3].z;if(Math.abs(positions[i])>25)velocities[i/3].x*=-1;
+                    if(Math.abs(positions[i+1])>25)velocities[i/3].y*=-1;if(Math.abs(positions[i+2])>25)velocities[i/3].z*=-1;}
+                    particleSystem.geometry.attributes.position.needsUpdate=true;
                 });
-
-                this.particles.forEach(particleSystem => {
-                    const positions = particleSystem.geometry.attributes.position.array;
-                    const velocities = particleSystem.userData.velocities;
-                    
-                    for (let i = 0; i < positions.length; i += 3) {
-                        positions[i] += velocities[i / 3].x;
-                        positions[i + 1] += velocities[i / 3].y;
-                        positions[i + 2] += velocities[i / 3].z;
-                        
-                        if (Math.abs(positions[i]) > 25) velocities[i / 3].x *= -1;
-                        if (Math.abs(positions[i + 1]) > 25) velocities[i / 3].y *= -1;
-                        if (Math.abs(positions[i + 2]) > 25) velocities[i / 3].z *= -1;
-                    }
-                    
-                    particleSystem.geometry.attributes.position.needsUpdate = true;
-                });
-
-                const targetX = this.mouseX * 2;
-                const targetY = this.mouseY * 2;
-                
-                this.camera.position.x += (targetX - this.camera.position.x) * 0.05;
-                this.camera.position.y += (targetY - this.camera.position.y) * 0.05;
-                
-                this.camera.lookAt(this.scene.position);
-
-                this.renderer.render(this.scene, this.camera);
+                const targetX=this.mouseX*2;const targetY=this.mouseY*2;
+                this.camera.position.x+=(targetX-this.camera.position.x)*0.05;
+                this.camera.position.y+=(targetY-this.camera.position.y)*0.05;
+                this.camera.lookAt(this.scene.position);this.renderer.render(this.scene,this.camera);
             }
 
-            startHUD() {
-                this.updateTime();
-                setInterval(() => this.updateTime(), 1000);
-                
-                this.updateRecovery();
-                setInterval(() => this.updateRecovery(), 30000);
-            }
+            startHUD() {this.updateTime();setInterval(()=>this.updateTime(),1000);
+            this.updateRecovery();setInterval(()=>this.updateRecovery(),30000);}
 
-            updateTime() {
-                const now = new Date();
-                const time = now.toLocaleTimeString('en-US', { 
-                    hour: '2-digit', 
-                    minute: '2-digit',
-                    hour12: false 
-                });
-                const date = now.toLocaleDateString('en-US', { 
-                    weekday: 'short',
-                    month: 'short',
-                    day: 'numeric'
-                });
-                
-                document.getElementById('time-display').textContent = time;
-                document.getElementById('date-display').textContent = date;
+            updateTime() {const now=new Date();
+                const time=now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false});
+                const date=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+                document.getElementById('time-display').textContent=time;
+                document.getElementById('date-display').textContent=date;
             }
 
             updateRecovery() {
-                document.getElementById('recovery-value').textContent = Math.round(this.recoveryScore) + '%';
-                document.getElementById('recovery-fill').style.width = this.recoveryScore + '%';
+                document.getElementById('recovery-value').textContent=Math.round(this.recoveryScore)+'%';
+                document.getElementById('recovery-fill').style.width=this.recoveryScore+'%';
             }
 
-            showNotification(title, message) {
-                const notification = document.createElement('div');
-                notification.style.cssText = 'position: fixed; top: 100px; right: 30px; background: rgba(0, 10, 20, 0.95); border: 2px solid rgba(0, 255, 255, 0.5); padding: 20px; max-width: 300px; z-index: 10000; animation: slideIn 0.3s ease-out; box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);';
-                
-                notification.innerHTML = '<div style="font-size: 14px; font-weight: bold; color: #00ffff; margin-bottom: 10px;">' + title + '</div><div style="font-size: 12px; color: rgba(0, 255, 255, 0.7);">' + message + '</div>';
-
+            showNotification(title,message) {
+                const notification=document.createElement('div');
+                notification.style.cssText='position:fixed;top:100px;right:30px;background:rgba(0,10,20,0.95);border:2px solid rgba(0,255,255,0.5);padding:20px;max-width:300px;z-index:10000;animation:slideIn 0.3s;box-shadow:0 0 30px rgba(0,255,255,0.3)';
+                notification.innerHTML='<div style="font-size:14px;font-weight:bold;color:#00ffff;margin-bottom:10px">'+title+'</div><div style="font-size:12px;color:rgba(0,255,255,0.7)">'+message+'</div>';
                 document.body.appendChild(notification);
-
-                setTimeout(() => {
-                    notification.style.animation = 'slideOut 0.3s ease-out';
-                    setTimeout(() => notification.remove(), 300);
-                }, 5000);
+                setTimeout(()=>{notification.style.animation='slideOut 0.3s';setTimeout(()=>notification.remove(),300);},5000);
             }
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            const phoenix = new PhoenixEngine();
-            phoenix.init();
-            window.phoenix = phoenix;
+        const phoenix=new PhoenixEngine();
+        window.phoenix=phoenix;
 
-            (function initPhoenixParticles() {
-                const canvas = document.getElementById('phoenix-particles');
-                if (!canvas) return;
-                
-                const ctx = canvas.getContext('2d');
-                const particles = [];
-                const centerX = 100;
-                const centerY = 100;
-                
-                for (let i = 0; i < 50; i++) {
-                    particles.push({
-                        angle: Math.random() * Math.PI * 2,
-                        distance: Math.random() * 40 + 20,
-                        size: Math.random() * 2 + 1,
-                        speed: Math.random() * 0.02 + 0.01,
-                        alpha: Math.random() * 0.5 + 0.3
-                    });
-                }
-                
-                function animate() {
-                    ctx.clearRect(0, 0, 200, 200);
-                    
-                    particles.forEach(p => {
-                        p.angle += p.speed;
-                        
-                        const x = centerX + Math.cos(p.angle) * p.distance;
-                        const y = centerY + Math.sin(p.angle) * p.distance;
-                        
-                        ctx.beginPath();
-                        ctx.arc(x, y, p.size, 0, Math.PI * 2);
-                        ctx.fillStyle = 'rgba(0, 255, 255, ' + p.alpha + ')';
-                        ctx.fill();
-                        
-                        const gradient = ctx.createRadialGradient(x, y, 0, x, y, p.size * 3);
-                        gradient.addColorStop(0, 'rgba(0, 255, 255, ' + (p.alpha * 0.5) + ')');
-                        gradient.addColorStop(1, 'rgba(0, 255, 255, 0)');
-                        ctx.fillStyle = gradient;
-                        ctx.fillRect(x - p.size * 3, y - p.size * 3, p.size * 6, p.size * 6);
-                    });
-                    
-                    requestAnimationFrame(animate);
-                }
-                
+        window.addEventListener('DOMContentLoaded',()=>{
+            phoenix.init();
+            (function initPhoenixParticles(){
+                const canvas=document.getElementById('phoenix-particles');
+                if(!canvas)return;const ctx=canvas.getContext('2d');const particles=[];
+                const centerX=100;const centerY=100;
+                for(let i=0;i<50;i++){particles.push({angle:Math.random()*Math.PI*2,
+                distance:Math.random()*40+20,size:Math.random()*2+1,speed:Math.random()*0.02+0.01,
+                alpha:Math.random()*0.5+0.3});}
+                function animate(){ctx.clearRect(0,0,200,200);particles.forEach(p=>{p.angle+=p.speed;
+                const x=centerX+Math.cos(p.angle)*p.distance;const y=centerY+Math.sin(p.angle)*p.distance;
+                ctx.beginPath();ctx.arc(x,y,p.size,0,Math.PI*2);ctx.fillStyle='rgba(0,255,255,'+p.alpha+')';ctx.fill();
+                const gradient=ctx.createRadialGradient(x,y,0,x,y,p.size*3);
+                gradient.addColorStop(0,'rgba(0,255,255,'+(p.alpha*0.5)+')');
+                gradient.addColorStop(1,'rgba(0,255,255,0)');ctx.fillStyle=gradient;
+                ctx.fillRect(x-p.size*3,y-p.size*3,p.size*6,p.size*6);});requestAnimationFrame(animate);}
                 animate();
             })();
-            
-            const phoenixCoreContainer = document.getElementById('phoenix-core-container');
-            if (phoenixCoreContainer) {
-                phoenixCoreContainer.addEventListener('click', function() {
-                    console.log('Phoenix Core Activated');
-                    
-                    const sphere = document.getElementById('phoenix-sphere');
-                    if (sphere) {
-                        sphere.style.animation = 'none';
-                        setTimeout(() => {
-                            sphere.style.animation = 'phoenixPulse 0.5s ease-in-out 3';
-                            setTimeout(() => {
-                                sphere.style.animation = 'phoenixPulse 2s ease-in-out infinite';
-                            }, 1500);
-                        }, 10);
-                    }
-                    
-                    phoenix.toggleActionMenu();
-                });
-            }
-
-            setTimeout(() => {
-                const svg = document.getElementById('energy-beams');
-                const phoenixCore = document.getElementById('phoenix-core-container');
-                
-                if (!svg || !phoenixCore) return;
-                
-                function drawBeams() {
-                    svg.innerHTML = '';
-                    
-                    const coreRect = phoenixCore.getBoundingClientRect();
-                    const coreX = coreRect.left + coreRect.width / 2;
-                    const coreY = coreRect.top + coreRect.height / 2;
-                    
-                    const planetPositions = [
-                        {x: window.innerWidth * 0.5, y: window.innerHeight * 0.25},
-                        {x: window.innerWidth * 0.75, y: window.innerHeight * 0.4},
-                        {x: window.innerWidth * 0.75, y: window.innerHeight * 0.65},
-                        {x: window.innerWidth * 0.25, y: window.innerHeight * 0.65},
-                        {x: window.innerWidth * 0.25, y: window.innerHeight * 0.4},
-                        {x: window.innerWidth * 0.5, y: window.innerHeight * 0.8}
-                    ];
-                    
-                    planetPositions.forEach((pos, index) => {
-                        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                        line.setAttribute('x1', coreX);
-                        line.setAttribute('y1', coreY);
-                        line.setAttribute('x2', pos.x);
-                        line.setAttribute('y2', pos.y);
-                        line.setAttribute('stroke', 'rgba(0, 255, 255, 0.2)');
-                        line.setAttribute('stroke-width', '2');
-                        line.style.animation = 'beamPulse ' + (2 + index * 0.3) + 's ease-in-out infinite';
-                        svg.appendChild(line);
-                        
-                        const glowLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                        glowLine.setAttribute('x1', coreX);
-                        glowLine.setAttribute('y1', coreY);
-                        glowLine.setAttribute('x2', pos.x);
-                        glowLine.setAttribute('y2', pos.y);
-                        glowLine.setAttribute('stroke', 'rgba(0, 255, 255, 0.1)');
-                        glowLine.setAttribute('stroke-width', '6');
-                        glowLine.style.animation = 'beamPulse ' + (2 + index * 0.3) + 's ease-in-out infinite';
-                        svg.appendChild(glowLine);
-                    });
-                }
-                
-                drawBeams();
-                window.addEventListener('resize', drawBeams);
-                setInterval(drawBeams, 100);
-            }, 1000);
-            
-            setTimeout(() => {
-                const constellation = document.getElementById('data-constellation');
-                if (!constellation) return;
-                
-                const metrics = [
-                    { label: 'HRV', value: '52ms', color: '#00ffff' },
-                    { label: 'RECOVERY', value: '78%', color: '#00ff88' },
-                    { label: 'SLEEP', value: '7.2h', color: '#88ddff' },
-                    { label: 'WORKOUTS', value: '4x', color: '#ff9600' }
-                ];
-                
-                metrics.forEach((metric, index) => {
-                    const pod = document.createElement('div');
-                    pod.className = 'metric-pod';
-                    pod.style.cssText = 'position: absolute; background: rgba(0, 10, 20, 0.9); border: 1px solid rgba(0, 255, 255, 0.5); padding: 12px 20px; backdrop-filter: blur(10px); box-shadow: 0 0 20px rgba(0, 255, 255, 0.3); animation: podFloat ' + (5 + index) + 's ease-in-out infinite; animation-delay: ' + (index * 0.5) + 's; pointer-events: auto; cursor: pointer;';
-                    
-                    const angle = (index / metrics.length) * Math.PI * 2;
-                    const distance = 300;
-                    pod.style.left = 'calc(50% + ' + (Math.cos(angle) * distance) + 'px)';
-                    pod.style.top = 'calc(50% + ' + (Math.sin(angle) * distance) + 'px)';
-                    
-                    pod.innerHTML = '<div style="font-size: 10px; color: rgba(0, 255, 255, 0.6); margin-bottom: 5px; letter-spacing: 2px;">' + metric.label + '</div><div style="font-size: 24px; font-weight: bold; color: ' + metric.color + '; text-shadow: 0 0 10px ' + metric.color + ';">' + metric.value + '</div>';
-                    
-                    pod.addEventListener('mouseenter', () => {
-                        pod.style.transform = 'translate(-50%, -50%) scale(1.1)';
-                        pod.style.boxShadow = '0 0 30px rgba(0, 255, 255, 0.6)';
-                    });
-                    
-                    pod.addEventListener('mouseleave', () => {
-                        pod.style.transform = 'translate(-50%, -50%)';
-                        pod.style.boxShadow = '0 0 20px rgba(0, 255, 255, 0.3)';
-                    });
-                    
-                    constellation.appendChild(pod);
-                });
-            }, 2000);
-            
+            const phoenixCoreContainer=document.getElementById('phoenix-core-container');
+            if(phoenixCoreContainer){phoenixCoreContainer.addEventListener('click',function(){
+                console.log('Phoenix Core Activated');const sphere=document.getElementById('phoenix-sphere');
+                if(sphere){sphere.style.animation='none';setTimeout(()=>{sphere.style.animation='phoenixPulse 0.5s ease-in-out 3';
+                setTimeout(()=>sphere.style.animation='phoenixPulse 2s ease-in-out infinite',1500);},10);}
+                phoenix.toggleActionMenu();
+            });}
+            setTimeout(()=>{const svg=document.getElementById('energy-beams');
+                const phoenixCore=document.getElementById('phoenix-core-container');
+                if(!svg||!phoenixCore)return;
+                function drawBeams(){svg.innerHTML='';const coreRect=phoenixCore.getBoundingClientRect();
+                const coreX=coreRect.left+coreRect.width/2;const coreY=coreRect.top+coreRect.height/2;
+                const planetPositions=[{x:window.innerWidth*0.5,y:window.innerHeight*0.25},
+                {x:window.innerWidth*0.75,y:window.innerHeight*0.4},{x:window.innerWidth*0.75,y:window.innerHeight*0.65},
+                {x:window.innerWidth*0.25,y:window.innerHeight*0.65},{x:window.innerWidth*0.25,y:window.innerHeight*0.4},
+                {x:window.innerWidth*0.5,y:window.innerHeight*0.8}];
+                planetPositions.forEach((pos,index)=>{const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+                line.setAttribute('x1',coreX);line.setAttribute('y1',coreY);line.setAttribute('x2',pos.x);
+                line.setAttribute('y2',pos.y);line.setAttribute('stroke','rgba(0,255,255,0.2)');
+                line.setAttribute('stroke-width','2');line.style.animation='beamPulse '+(2+index*0.3)+'s ease-in-out infinite';
+                svg.appendChild(line);const glowLine=document.createElementNS('http://www.w3.org/2000/svg','line');
+                glowLine.setAttribute('x1',coreX);glowLine.setAttribute('y1',coreY);glowLine.setAttribute('x2',pos.x);
+                glowLine.setAttribute('y2',pos.y);glowLine.setAttribute('stroke','rgba(0,255,255,0.1)');
+                glowLine.setAttribute('stroke-width','6');glowLine.style.animation='beamPulse '+(2+index*0.3)+'s ease-in-out infinite';
+                svg.appendChild(glowLine);});}
+                drawBeams();window.addEventListener('resize',drawBeams);setInterval(drawBeams,100);
+            },1000);
+            setTimeout(()=>{const constellation=document.getElementById('data-constellation');if(!constellation)return;
+                const metrics=[{label:'HRV',value:'52ms',color:'#00ffff'},{label:'RECOVERY',value:'78%',color:'#00ff88'},
+                {label:'SLEEP',value:'7.2h',color:'#88ddff'},{label:'WORKOUTS',value:'4x',color:'#ff9600'}];
+                metrics.forEach((metric,index)=>{const pod=document.createElement('div');pod.className='metric-pod';
+                pod.style.cssText='position:absolute;background:rgba(0,10,20,0.9);border:1px solid rgba(0,255,255,0.5);padding:12px 20px;backdrop-filter:blur(10px);box-shadow:0 0 20px rgba(0,255,255,0.3);animation:podFloat '+(5+index)+'s ease-in-out infinite;animation-delay:'+(index*0.5)+'s;pointer-events:auto;cursor:pointer';
+                const angle=(index/metrics.length)*Math.PI*2;const distance=300;
+                pod.style.left='calc(50% + '+(Math.cos(angle)*distance)+'px)';
+                pod.style.top='calc(50% + '+(Math.sin(angle)*distance)+'px)';
+                pod.innerHTML='<div style="font-size:10px;color:rgba(0,255,255,0.6);margin-bottom:5px;letter-spacing:2px">'+metric.label+'</div><div style="font-size:24px;font-weight:bold;color:'+metric.color+';text-shadow:0 0 10px '+metric.color+'">'+metric.value+'</div>';
+                pod.addEventListener('mouseenter',()=>{pod.style.transform='translate(-50%,-50%) scale(1.1)';
+                pod.style.boxShadow='0 0 30px rgba(0,255,255,0.6)';});
+                pod.addEventListener('mouseleave',()=>{pod.style.transform='translate(-50%,-50%)';
+                pod.style.boxShadow='0 0 20px rgba(0,255,255,0.3)';});constellation.appendChild(pod);});
+            },2000);
             console.log('PHOENIX INITIALIZED');
         });
     </script>
 
     <style>
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(400px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        @keyframes slideOut {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(400px); opacity: 0; }
-        }
-
-        .onboarding-title {
-            font-size: 48px;
-            color: #00ffff;
-            margin-bottom: 20px;
-            text-shadow: 0 0 30px rgba(0, 255, 255, 1);
-        }
-
-        .onboarding-text {
-            font-size: 18px;
-            color: rgba(0, 255, 255, 0.7);
-            text-align: center;
-            max-width: 600px;
-            margin-bottom: 40px;
-            line-height: 1.6;
-        }
-
-        .activate-btn {
-            padding: 20px 60px;
-            background: rgba(0, 255, 255, 0.1);
-            border: 2px solid #00ffff;
-            color: #00ffff;
-            font-family: inherit;
-            font-size: 18px;
-            cursor: pointer;
-            transition: all 0.3s;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        .activate-btn:hover {
-            background: rgba(0, 255, 255, 0.3);
-            box-shadow: 0 0 40px rgba(0, 255, 255, 0.8);
-            transform: scale(1.05);
-        }
-
-        .action-button-circular {
-            position: absolute;
-            width: 80px;
-            height: 80px;
-            background: rgba(0, 10, 20, 0.9);
-            border: 2px solid rgba(0, 255, 255, 0.5);
-            border-radius: 50%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            backdrop-filter: blur(10px);
-        }
-
-        .action-button-circular:hover {
-            background: rgba(0, 255, 255, 0.2);
-            border-color: #00ffff;
-            transform: scale(1.1);
-            box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
-        }
-
-        .action-icon {
-            font-size: 28px;
-            margin-bottom: 5px;
-        }
-
-        .action-label {
-            font-size: 10px;
-            color: #00ffff;
-            letter-spacing: 1px;
-        }
-
-        .planet-detail-header {
-            padding: 40px;
-            text-align: center;
-            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
-        }
-
-        .planet-detail-title {
-            font-size: 36px;
-            color: #00ffff;
-            text-shadow: 0 0 20px rgba(0, 255, 255, 1);
-            margin-bottom: 10px;
-        }
-
-        .planet-detail-subtitle {
-            font-size: 14px;
-            color: rgba(0, 255, 255, 0.6);
-        }
-
-        .planet-detail-content {
-            padding: 40px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .close-detail {
-            position: fixed;
-            top: 30px;
-            right: 30px;
-            width: 50px;
-            height: 50px;
-            background: rgba(0, 10, 20, 0.9);
-            border: 2px solid rgba(0, 255, 255, 0.5);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 24px;
-            color: #00ffff;
-            transition: all 0.3s;
-            z-index: 7100;
-        }
-
-        .close-detail:hover {
-            background: rgba(255, 0, 0, 0.2);
-            border-color: #ff4444;
-            color: #ff4444;
-            transform: rotate(90deg);
-        }
-
-        .quick-action-btn {
-            padding: 12px 24px;
-            background: rgba(0, 10, 20, 0.9);
-            border: 1px solid rgba(0, 255, 255, 0.3);
-            color: #00ffff;
-            font-family: inherit;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-            backdrop-filter: blur(10px);
-            letter-spacing: 1px;
-        }
-
-        .quick-action-btn:hover {
-            background: rgba(0, 255, 255, 0.2);
-            border-color: #00ffff;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
-        }
-
-        .hud-corner {
-            padding: 15px;
-            background: rgba(0, 10, 20, 0.8);
-            border: 1px solid rgba(0, 255, 255, 0.3);
-            backdrop-filter: blur(10px);
-            font-size: 11px;
-            letter-spacing: 1px;
-        }
-
-        .hud-label {
-            color: rgba(0, 255, 255, 0.5);
-            font-size: 9px;
-            margin-bottom: 5px;
-        }
-
-        .hud-value {
-            color: #00ffff;
-            font-size: 16px;
-            font-weight: bold;
-            text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
-        }
-
-        .recovery-bar {
-            width: 100px;
-            height: 4px;
-            background: rgba(0, 255, 255, 0.2);
-            margin-top: 5px;
-            border-radius: 2px;
-            overflow: hidden;
-        }
-
-        .recovery-fill {
-            height: 100%;
-            background: #00ffff;
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
-            transition: width 0.5s ease;
-        }
-
-        .waveform-container {
-            width: 200px;
-            height: 100px;
-            position: relative;
-        }
-
-        .greeting-main {
-            font-size: 32px;
-            color: #00ffff;
-            margin-bottom: 10px;
-            text-shadow: 0 0 20px rgba(0, 255, 255, 1);
-        }
-
-        .greeting-sub {
-            font-size: 14px;
-            color: rgba(0, 255, 255, 0.6);
-        }
+        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+        @keyframes slideIn{from{transform:translateX(400px);opacity:0}to{transform:translateX(0);opacity:1}}
+        @keyframes slideOut{from{transform:translateX(0);opacity:1}to{transform:translateX(400px);opacity:0}}
+        @keyframes coreRotate{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+        @keyframes corePulse{0%,100%{transform:translate(-50%,-50%) scale(1);box-shadow:0 0 50px rgba(0,255,255,0.8)}50%{transform:translate(-50%,-50%) scale(1.08);box-shadow:0 0 70px rgba(0,255,255,1)}}
+        @keyframes beamPulse{0%,100%{opacity:0.3}50%{opacity:0.7}}
+        @keyframes podFloat{0%,100%{transform:translate(-50%,-50%) translateY(0)}50%{transform:translate(-50%,-50%) translateY(-20px)}}
+        .action-button-circular:hover{background:rgba(0,255,255,0.2);border-color:#00ffff;transform:scale(1.1);box-shadow:0 0 30px rgba(0,255,255,0.6)}
+        .quick-action-btn:hover,#quick-workout:hover,#quick-meal:hover,#quick-sync:hover,#quick-chat:hover{background:rgba(0,255,255,0.2);border-color:#00ffff;box-shadow:0 0 20px rgba(0,255,255,0.4)}
+        #close-detail:hover{background:rgba(255,0,0,0.2);border-color:#ff4444;color:#ff4444;transform:rotate(90deg)}
+        #logout-btn:hover{transform:translateY(-2px);box-shadow:0 0 20px rgba(255,68,68,0.5)}
     </style>
 
-    <!-- Load Voice Interface -->
+    <!-- LOAD MODULES -->
+    <script type="module" src="./src/api.js"></script>
     <script type="module" src="./src/voice.js"></script>
-    
-    <script>
-        // Voice interface will auto-initialize from voice.js
-        console.log('🎙️ Voice interface loading...');
-        
-        // Wait for voice interface to be available
-        let checkCount = 0;
-        const checkVoice = setInterval(() => {
-            checkCount++;
-            
-            if (window.voiceInterface) {
-                console.log('✅ Voice interface found and active!');
-                clearInterval(checkVoice);
-                
-                // Optionally trigger greeting manually after 1 second
-                setTimeout(() => {
-                    if (window.voiceInterface && !window.voiceInterface.isSpeaking) {
-                        console.log('🔊 Triggering manual greeting...');
-                        window.voiceInterface.sayInitialGreeting();
-                    }
-                }, 1000);
-            } else if (checkCount > 10) {
-                console.error('❌ Voice interface failed to load after 10 seconds');
-                clearInterval(checkVoice);
-            }
-        }, 1000);
-    </script>
-    
-     <!-- ADD THIS LINE HERE -->
     <script type="module" src="./src/planets.js"></script>
-    
+    <script type="module" src="./src/jarvis.js"></script>
+    <script type="module" src="./src/reactor.js"></script>
+    <script type="module" src="./src/shaders.js"></script>
+
+    <script>
+        console.log('🎙️ Voice interface loading...');
+        let checkCount=0;
+        const checkVoice=setInterval(()=>{checkCount++;
+            if(window.voiceInterface){console.log('✅ Voice interface active');clearInterval(checkVoice);
+            setTimeout(()=>{if(window.voiceInterface&&!window.voiceInterface.isSpeaking){
+            console.log('🔊 Triggering greeting');window.voiceInterface.sayInitialGreeting();}},1000);
+            }else if(checkCount>10){console.error('❌ Voice failed to load');clearInterval(checkVoice);}
+        },1000);
+    </script>
 </body>
 </html>
