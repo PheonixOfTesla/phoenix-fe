@@ -1,25 +1,25 @@
 // planets.js - Phoenix Complete 6-Planet Integration System
-// BULLETPROOF ARCHITECTURE - Zero Import Issues, Full Feature Preservation
+// Enhanced with phoenixStore integration, smart caching, and rich dashboards
 
 (function() {
     'use strict';
 
     // ============================================
-    // WAIT FOR API TO BE READY
+    // WAIT FOR API AND STORE TO BE READY
     // ============================================
     
-    function waitForAPI() {
+    function waitForDependencies() {
         return new Promise((resolve) => {
-            if (window.API) {
-                resolve(window.API);
-            } else {
-                const checkInterval = setInterval(() => {
-                    if (window.API) {
-                        clearInterval(checkInterval);
-                        resolve(window.API);
-                    }
-                }, 100);
-            }
+            const checkInterval = setInterval(() => {
+                if (window.API && window.phoenixStore && window.getCached) {
+                    clearInterval(checkInterval);
+                    resolve({
+                        API: window.API,
+                        store: window.phoenixStore,
+                        cache: window.getCached
+                    });
+                }
+            }, 100);
         });
     }
 
@@ -29,263 +29,164 @@
 
     class PlanetSystem {
         constructor() {
-            this.API = null; // Will be set after API loads
-            this.planets = {
-                mercury: { 
-                    name: 'Mercury', icon: '☿️', title: 'HEALTH VITALS',
-                    subtitle: 'Biometrics • Wearables • Recovery',
-                    angle: 0, speed: 0.02, radius: 280, color: '#ff6b35',
-                    data: null, loading: false
-                },
-                venus: { 
-                    name: 'Venus', icon: '♀️', title: 'FITNESS & NUTRITION',
-                    subtitle: 'Training • Meals • Performance',
-                    angle: 60, speed: 0.018, radius: 280, color: '#ff66ff',
-                    data: null, loading: false
-                },
-                earth: { 
-                    name: 'Earth', icon: '🌍', title: 'CALENDAR & TIME',
-                    subtitle: 'Schedule • Energy • Optimization',
-                    angle: 120, speed: 0.015, radius: 280, color: '#00ff88',
-                    data: null, loading: false
-                },
-                mars: { 
-                    name: 'Mars', icon: '♂️', title: 'GOALS & HABITS',
-                    subtitle: 'Objectives • Progress • Achievement',
-                    angle: 180, speed: 0.012, radius: 280, color: '#ff4444',
-                    data: null, loading: false
-                },
-                jupiter: { 
-                    name: 'Jupiter', icon: '♃', title: 'FINANCE & WEALTH',
-                    subtitle: 'Budget • Spending • Correlations',
-                    angle: 240, speed: 0.01, radius: 280, color: '#ffaa00',
-                    data: null, loading: false
-                },
-                saturn: { 
-                    name: 'Saturn', icon: '♄', title: 'LEGACY & VISION',
-                    subtitle: 'Long-term • Timeline • Impact',
-                    angle: 300, speed: 0.008, radius: 280, color: '#8844ff',
-                    data: null, loading: false
-                }
-            };
-            
+            this.API = null;
+            this.phoenixStore = null;
+            this.getCached = null;
             this.selectedPlanet = null;
             this.animationFrame = null;
             this.dataRefreshInterval = null;
+            this.unsubscribe = null;
         }
 
         async init() {
-            console.log('🪐 Initializing Complete Planet System...');
+            console.log('🪐 Initializing Enhanced Planet System...');
             
             try {
-                this.API = await waitForAPI();
-                console.log('✅ API Ready');
+                // Wait for dependencies
+                const deps = await waitForDependencies();
+                this.API = deps.API;
+                this.phoenixStore = deps.store;
+                this.getCached = deps.cache;
                 
+                console.log('✅ Dependencies Ready');
+                
+                // Subscribe to store updates for real-time UI updates
+                this.subscribeToStore();
+                
+                // Load all planet data using the store
                 await this.loadAllPlanetData();
+                
+                // Setup interactions
                 this.setupPlanetInteractions();
-                this.animate();
+                
+                // Start data refresh
                 this.startDataRefresh();
                 
-                console.log('✅ Planet System initialized');
+                console.log('✅ Enhanced Planet System initialized');
             } catch (error) {
                 console.error('❌ Init error:', error);
                 this.initializeFallbackMode();
             }
         }
 
-        initializeFallbackMode() {
-            console.warn('⚠️ Running in fallback mode');
-            this.setupPlanetInteractions();
-            this.animate();
-            this.loadDemoData();
+        // ============================================
+        // SUBSCRIBE TO STORE FOR REAL-TIME UPDATES
+        // ============================================
+
+        subscribeToStore() {
+            this.unsubscribe = this.phoenixStore.subscribe((key, value) => {
+                console.log(`📡 Store update: ${key}`, value);
+                
+                // Update planet UI when data changes
+                this.updatePlanetUI(key, value);
+                
+                // If this planet is currently open, refresh its dashboard
+                if (this.selectedPlanet === key) {
+                    this.loadDashboardContent(key);
+                }
+            });
         }
 
-        loadDemoData() {
-            this.planets.mercury.data = {hrv: 52, restingHeartRate: 58, recoveryScore: 78, sleepDuration: 7.2};
-            this.planets.venus.data = {workoutsThisWeek: 4, totalMinutes: 240, calories: 1850};
-            this.planets.earth.data = {eventsToday: 3, totalEvents: 8};
-            this.planets.mars.data = {activeGoals: 5, completedGoals: 2};
-            this.planets.jupiter.data = {monthlyExpenses: 3200, budgetRemaining: 800};
-            this.planets.saturn.data = {lifeProgress: 32, age: 28};
-            this.updateAllMetrics();
-        }
+        // ============================================
+        // LOAD ALL PLANET DATA USING STORE
+        // ============================================
 
         async loadAllPlanetData() {
-            const loads = [
-                this.safeLoad(() => this.loadMercuryData()),
-                this.safeLoad(() => this.loadVenusData()),
-                this.safeLoad(() => this.loadEarthData()),
-                this.safeLoad(() => this.loadMarsData()),
-                this.safeLoad(() => this.loadJupiterData()),
-                this.safeLoad(() => this.loadSaturnData())
-            ];
+            console.log('🔄 Loading all planet data via phoenixStore...');
+            
+            const planets = ['mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn'];
+            
+            // Load all planets in parallel using the store
+            const loads = planets.map(planet => 
+                this.phoenixStore.loadPlanet(planet).catch(err => {
+                    console.warn(`Failed to load ${planet}:`, err);
+                    return null;
+                })
+            );
+            
             await Promise.allSettled(loads);
+            console.log('✅ All planet data loaded');
         }
 
-        async safeLoad(fn) {
-            try { await fn(); } catch (e) { console.error('Load error:', e); }
-        }
+        // ============================================
+        // UPDATE PLANET UI (Called by store subscription)
+        // ============================================
 
-        async loadMercuryData() {
-            this.showLoadingState('mercury');
-            try {
-                const [w, r, b] = await Promise.allSettled([
-                    this.safeAPICall(() => this.API.getLatestWearableData()),
-                    this.safeAPICall(() => this.API.getRecoveryScore()),
-                    this.safeAPICall(() => this.API.getBiometricData())
-                ]);
-                
-                const wd = this.extractData(w);
-                const rd = this.extractData(r);
-                const bd = this.extractData(b);
-
-                this.planets.mercury.data = {
-                    hrv: wd?.hrv || 0,
-                    restingHeartRate: wd?.heartRate || 0,
-                    recoveryScore: rd?.recoveryScore || 0,
-                    sleepDuration: wd?.sleepDuration ? (wd.sleepDuration / 60).toFixed(1) : 0
-                };
-                
-                this.updateMetric('mercury', `${Math.round(this.planets.mercury.data.recoveryScore)}%`);
-            } finally {
-                this.hideLoadingState('mercury');
+        updatePlanetUI(planetName, data) {
+            if (!data) return;
+            
+            let metricValue = '';
+            
+            switch(planetName) {
+                case 'mercury':
+                    metricValue = data.recovery?.recoveryScore 
+                        ? `${Math.round(data.recovery.recoveryScore)}%` 
+                        : '--';
+                    break;
+                case 'venus':
+                    metricValue = data.workouts?.length 
+                        ? `${data.workouts.length}x` 
+                        : '--';
+                    break;
+                case 'earth':
+                    metricValue = data.events?.length 
+                        ? `${data.events.length}` 
+                        : '--';
+                    break;
+                case 'mars':
+                    const goals = data.goals || [];
+                    const completed = goals.filter(g => g.completed).length;
+                    metricValue = `${completed}/${goals.length}`;
+                    break;
+                case 'jupiter':
+                    metricValue = data.finance?.monthlyExpenses 
+                        ? `$${Math.round(data.finance.monthlyExpenses)}` 
+                        : '--';
+                    break;
+                case 'saturn':
+                    metricValue = data.timeline?.lifeProgress 
+                        ? `${Math.round(data.timeline.lifeProgress)}%` 
+                        : '--';
+                    break;
             }
+            
+            const metricEl = document.getElementById(`${planetName}-metric`);
+            if (metricEl) metricEl.textContent = metricValue;
         }
 
-        async loadVenusData() {
-            this.showLoadingState('venus');
-            try {
-                const [w, n] = await Promise.allSettled([
-                    this.safeAPICall(() => this.API.getRecentWorkouts(10)),
-                    this.safeAPICall(() => this.API.getTodayNutrition())
-                ]);
-                
-                const wd = this.extractData(w);
-                const nd = this.extractData(n);
-
-                this.planets.venus.data = {
-                    workoutsThisWeek: wd?.length || 0,
-                    totalMinutes: this.calcMinutes(wd),
-                    calories: nd?.totalCalories || 0,
-                    protein: nd?.totalProtein || 0
-                };
-                
-                this.updateMetric('venus', `${this.planets.venus.data.workoutsThisWeek}x`);
-            } finally {
-                this.hideLoadingState('venus');
-            }
-        }
-
-        async loadEarthData() {
-            this.showLoadingState('earth');
-            try {
-                const e = await this.safeAPICall(() => this.API.getCalendarEvents());
-                const ed = this.extractData({value: e, status: 'fulfilled'});
-                
-                this.planets.earth.data = {
-                    eventsToday: ed?.filter(x => this.isToday(x.start)).length || 0,
-                    totalEvents: ed?.length || 0
-                };
-                
-                this.updateMetric('earth', `${this.planets.earth.data.eventsToday}`);
-            } finally {
-                this.hideLoadingState('earth');
-            }
-        }
-
-        async loadMarsData() {
-            this.showLoadingState('mars');
-            try {
-                const g = await this.safeAPICall(() => this.API.getActiveGoals());
-                const gd = this.extractData({value: g, status: 'fulfilled'}) || [];
-                const completed = gd.filter(x => x.completed).length;
-                
-                this.planets.mars.data = {
-                    activeGoals: gd.length,
-                    completedGoals: completed,
-                    completionRate: gd.length > 0 ? (completed / gd.length * 100) : 0
-                };
-                
-                this.updateMetric('mars', `${completed}/${gd.length}`);
-            } finally {
-                this.hideLoadingState('mars');
-            }
-        }
-
-        async loadJupiterData() {
-            this.showLoadingState('jupiter');
-            try {
-                const o = await this.safeAPICall(() => this.API.getFinancialOverview());
-                const od = this.extractData({value: o, status: 'fulfilled'});
-                
-                this.planets.jupiter.data = {
-                    monthlyExpenses: od?.monthlyExpenses || 0,
-                    budgetRemaining: od?.budgetRemaining || 0
-                };
-                
-                this.updateMetric('jupiter', `$${Math.round(this.planets.jupiter.data.monthlyExpenses)}`);
-            } finally {
-                this.hideLoadingState('jupiter');
-            }
-        }
-
-        async loadSaturnData() {
-            this.showLoadingState('saturn');
-            try {
-                const t = await this.safeAPICall(() => this.API.getLifeTimeline());
-                const td = this.extractData({value: t, status: 'fulfilled'});
-                
-                this.planets.saturn.data = {
-                    age: td?.age || 0,
-                    lifeExpectancy: td?.lifeExpectancy || 80,
-                    lifeProgress: td?.lifeProgress || 0
-                };
-                
-                this.updateMetric('saturn', `${Math.round(this.planets.saturn.data.lifeProgress)}%`);
-            } finally {
-                this.hideLoadingState('saturn');
-            }
-        }
-
-        async safeAPICall(fn) {
-            try {
-                if (!this.API) throw new Error('API not ready');
-                return await fn();
-            } catch (e) {
-                console.warn('API call failed:', e.message);
-                return {data: null};
-            }
-        }
-
-        extractData(pr) {
-            if (pr.status === 'fulfilled') return pr.value?.data || pr.value;
-            return null;
-        }
-
-        calcMinutes(workouts) {
-            if (!workouts || !Array.isArray(workouts)) return 0;
-            return workouts.reduce((t, w) => t + (w.duration || 0), 0);
-        }
-
-        isToday(d) {
-            const date = new Date(d);
-            const today = new Date();
-            return date.toDateString() === today.toDateString();
-        }
+        // ============================================
+        // SETUP PLANET INTERACTIONS
+        // ============================================
 
         setupPlanetInteractions() {
-            Object.keys(this.planets).forEach(n => {
-                const el = document.getElementById(`planet-${n}`);
-                if (el) el.addEventListener('click', () => this.expandPlanet(n));
+            const planets = ['mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn'];
+            
+            planets.forEach(name => {
+                const el = document.getElementById(`planet-${name}`);
+                if (el) {
+                    el.addEventListener('click', () => this.expandPlanet(name));
+                }
             });
 
             const close = document.getElementById('close-detail');
-            if (close) close.addEventListener('click', () => this.closePlanetDetail());
+            if (close) {
+                close.addEventListener('click', () => this.closePlanetDetail());
+            }
         }
 
+        // ============================================
+        // EXPAND PLANET (Open Dashboard)
+        // ============================================
+
         expandPlanet(name) {
-            console.log(`Expanding ${name}`);
+            console.log(`🌍 Expanding ${name}`);
             this.selectedPlanet = name;
+            
+            // Announce via voice if available
+            if (window.voiceInterface) {
+                window.voiceInterface.announcePlanetOpen(name);
+            }
+            
             this.loadDashboardContent(name);
             
             const overlay = document.getElementById('planet-detail');
@@ -298,148 +199,435 @@
             this.selectedPlanet = null;
         }
 
+        // ============================================
+        // LOAD DASHBOARD CONTENT (RICH DASHBOARDS)
+        // ============================================
+
         loadDashboardContent(name) {
             const title = document.getElementById('detail-title');
             const subtitle = document.getElementById('detail-subtitle');
             const content = document.getElementById('detail-content');
 
-            const p = this.planets[name];
+            const planetInfo = {
+                mercury: { 
+                    icon: '☿️', 
+                    title: 'HEALTH VITALS',
+                    subtitle: 'Biometrics • Wearables • Recovery'
+                },
+                venus: { 
+                    icon: '♀️', 
+                    title: 'FITNESS & NUTRITION',
+                    subtitle: 'Training • Meals • Performance'
+                },
+                earth: { 
+                    icon: '🌍', 
+                    title: 'CALENDAR & TIME',
+                    subtitle: 'Schedule • Energy • Optimization'
+                },
+                mars: { 
+                    icon: '♂️', 
+                    title: 'GOALS & HABITS',
+                    subtitle: 'Objectives • Progress • Achievement'
+                },
+                jupiter: { 
+                    icon: '♃', 
+                    title: 'FINANCE & WEALTH',
+                    subtitle: 'Budget • Spending • Correlations'
+                },
+                saturn: { 
+                    icon: '♄', 
+                    title: 'LEGACY & VISION',
+                    subtitle: 'Long-term • Timeline • Impact'
+                }
+            };
+
+            const p = planetInfo[name];
             if (title) title.textContent = `${p.icon} ${p.title}`;
             if (subtitle) subtitle.textContent = p.subtitle;
             if (content) content.innerHTML = this.genDash(name);
         }
 
+        // ============================================
+        // GENERATE RICH HOLOGRAPHIC DASHBOARDS
+        // ============================================
+
         genDash(name) {
-            const d = this.planets[name]?.data || {};
+            const data = this.phoenixStore.state[name] || {};
             
-            if (name === 'mercury') return `
-                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:30px;margin-bottom:30px">
-                    <div style="padding:20px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.2)">
-                        <h3>HRV</h3>
-                        <div style="font-size:48px;font-weight:bold;color:#00ffff">${d.hrv||'--'}<span style="font-size:20px">ms</span></div>
+            if (name === 'mercury') {
+                const d = data;
+                const wearable = d.wearable || {};
+                const recovery = d.recovery || {};
+                const hrv = d.hrv || {};
+                
+                return `
+                    <div class="holo-grid">
+                        ${this.metricCard('HRV', hrv.value || wearable.hrv || 0, 'ms', '📊', this.calcTrend(hrv.history))}
+                        ${this.metricCard('RHR', wearable.heartRate || 0, 'bpm', '❤️', null)}
+                        ${this.metricCard('Recovery', recovery.recoveryScore || 0, '%', '⚡', this.calcTrend(recovery.history))}
+                        ${this.metricCard('Sleep', wearable.sleepDuration ? (wearable.sleepDuration / 60).toFixed(1) : 0, 'hrs', '😴', null)}
+                        ${this.metricCard('SPO2', wearable.spo2 || 0, '%', '🫁', null)}
+                        ${this.metricCard('Stress', wearable.stressLevel || 0, '/10', '🧠', null)}
                     </div>
-                    <div style="padding:20px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.2)">
-                        <h3>RHR</h3>
-                        <div style="font-size:48px;font-weight:bold;color:#00ffff">${d.restingHeartRate||'--'}<span style="font-size:20px">bpm</span></div>
-                    </div>
-                    <div style="padding:20px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.2)">
-                        <h3>Recovery</h3>
-                        <div style="font-size:48px;font-weight:bold;color:#00ffff">${Math.round(d.recoveryScore||0)}<span style="font-size:20px">%</span></div>
-                    </div>
-                    <div style="padding:20px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.2)">
-                        <h3>Sleep</h3>
-                        <div style="font-size:48px;font-weight:bold;color:#00ffff">${d.sleepDuration||'--'}<span style="font-size:20px">hrs</span></div>
-                    </div>
-                </div>`;
+                    ${this.chartSection('HRV Trend', hrv.history)}
+                    ${this.actionBar([
+                        { icon: '🔄', label: 'SYNC WEARABLES', action: 'planetSystem.syncWearables()' },
+                        { icon: '📈', label: 'VIEW TRENDS', action: 'planetSystem.viewHealthTrends()' },
+                        { icon: '🎯', label: 'SET GOAL', action: 'planetSystem.createHealthGoal()' }
+                    ])}
+                `;
+            }
             
-            if (name === 'venus') return `
-                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:30px">
-                    <div style="padding:20px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.2)">
-                        <h3>Workouts</h3>
-                        <div style="font-size:42px;font-weight:bold;color:#00ffff">${d.workoutsThisWeek||0}</div>
+            if (name === 'venus') {
+                const d = data;
+                const workouts = d.workouts || [];
+                const nutrition = d.nutrition || {};
+                
+                const workoutsThisWeek = workouts.length;
+                const totalMinutes = workouts.reduce((sum, w) => sum + (w.duration || 0), 0);
+                
+                return `
+                    <div class="holo-grid">
+                        ${this.metricCard('Workouts', workoutsThisWeek, 'this week', '💪', null)}
+                        ${this.metricCard('Minutes', totalMinutes, 'trained', '⏱️', null)}
+                        ${this.metricCard('Calories', nutrition.totalCalories || 0, 'consumed', '🔥', null)}
+                        ${this.metricCard('Protein', nutrition.totalProtein || 0, 'g', '🥩', null)}
+                        ${this.metricCard('Volume', this.calcVolume(workouts), 'sets', '📊', null)}
+                        ${this.metricCard('Intensity', this.calcIntensity(workouts), '%', '⚡', null)}
                     </div>
-                    <div style="padding:20px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.2)">
-                        <h3>Minutes</h3>
-                        <div style="font-size:42px;font-weight:bold;color:#00ffff">${d.totalMinutes||0}</div>
+                    ${this.workoutList(workouts)}
+                    ${this.nutritionBreakdown(nutrition)}
+                    ${this.actionBar([
+                        { icon: '➕', label: 'LOG WORKOUT', action: 'planetSystem.logWorkout()' },
+                        { icon: '🍽️', label: 'LOG MEAL', action: 'planetSystem.logMeal()' },
+                        { icon: '🤖', label: 'AI WORKOUT', action: 'planetSystem.generateQuantumWorkout()' }
+                    ])}
+                `;
+            }
+            
+            if (name === 'earth') {
+                const d = data;
+                const events = d.events || [];
+                const todayEvents = events.filter(e => this.isToday(e.start));
+                
+                return `
+                    <div class="holo-grid">
+                        ${this.metricCard('Events Today', todayEvents.length, 'scheduled', '📅', null)}
+                        ${this.metricCard('Total Events', events.length, 'this week', '🗓️', null)}
+                        ${this.metricCard('Free Time', this.calcFreeTime(events), 'hours', '⏰', null)}
                     </div>
-                    <div style="padding:20px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.2)">
-                        <h3>Calories</h3>
-                        <div style="font-size:42px;font-weight:bold;color:#00ffff">${d.calories||0}</div>
+                    ${this.eventList(events.slice(0, 10))}
+                    ${this.actionBar([
+                        { icon: '📅', label: 'VIEW CALENDAR', action: 'planetSystem.viewCalendar()' },
+                        { icon: '⚡', label: 'OPTIMIZE SCHEDULE', action: 'planetSystem.optimizeSchedule()' },
+                        { icon: '➕', label: 'ADD EVENT', action: 'planetSystem.addEvent()' }
+                    ])}
+                `;
+            }
+            
+            if (name === 'mars') {
+                const d = data;
+                const goals = d.goals || [];
+                const active = goals.filter(g => !g.completed);
+                const completed = goals.filter(g => g.completed);
+                
+                return `
+                    <div class="holo-grid">
+                        ${this.metricCard('Active Goals', active.length, 'in progress', '🎯', null)}
+                        ${this.metricCard('Completed', completed.length, 'achieved', '✅', null)}
+                        ${this.metricCard('Completion Rate', goals.length > 0 ? Math.round((completed.length / goals.length) * 100) : 0, '%', '📊', null)}
                     </div>
-                </div>`;
+                    ${this.goalsList(goals)}
+                    ${this.actionBar([
+                        { icon: '➕', label: 'CREATE GOAL', action: 'planetSystem.createGoal()' },
+                        { icon: '📊', label: 'VIEW ALL', action: 'planetSystem.viewGoals()' },
+                        { icon: '🎯', label: 'AI SUGGESTIONS', action: 'planetSystem.suggestGoals()' }
+                    ])}
+                `;
+            }
             
-            if (name === 'earth') return `
-                <div style="padding:20px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.2);margin-bottom:30px">
-                    <h3>Events Today</h3>
-                    <div style="font-size:48px;font-weight:bold;color:#00ffff">${d.eventsToday||0}</div>
-                </div>`;
+            if (name === 'jupiter') {
+                const d = data;
+                const finance = d.finance || {};
+                
+                return `
+                    <div class="holo-grid">
+                        ${this.metricCard('Monthly Expenses', finance.monthlyExpenses || 0, 'spent', '💳', null)}
+                        ${this.metricCard('Budget Remaining', finance.budgetRemaining || 0, 'left', '💰', null)}
+                        ${this.metricCard('Savings Rate', finance.savingsRate || 0, '%', '🏦', null)}
+                    </div>
+                    ${this.spendingChart(finance.categories)}
+                    ${this.actionBar([
+                        { icon: '🏦', label: 'CONNECT BANK', action: 'planetSystem.connectBank()' },
+                        { icon: '📊', label: 'VIEW TRANSACTIONS', action: 'planetSystem.viewTransactions()' },
+                        { icon: '💡', label: 'INSIGHTS', action: 'planetSystem.financialInsights()' }
+                    ])}
+                `;
+            }
             
-            if (name === 'mars') return `
-                <div style="padding:20px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.2);margin-bottom:30px">
-                    <h3>Goals Progress</h3>
-                    <div style="font-size:48px;font-weight:bold;color:#00ffff">${d.completedGoals||0}/${d.activeGoals||0}</div>
-                </div>`;
+            if (name === 'saturn') {
+                const d = data;
+                const timeline = d.timeline || {};
+                
+                return `
+                    <div class="holo-grid">
+                        ${this.metricCard('Age', timeline.age || 0, 'years', '🎂', null)}
+                        ${this.metricCard('Life Progress', timeline.lifeProgress || 0, '%', '⏳', null)}
+                        ${this.metricCard('Healthy Years', timeline.healthyYears || 0, 'projected', '💪', null)}
+                    </div>
+                    ${this.timelineChart(timeline)}
+                    ${this.actionBar([
+                        { icon: '🎯', label: 'SET VISION', action: 'planetSystem.setVision()' },
+                        { icon: '📊', label: 'QUARTERLY REVIEW', action: 'planetSystem.quarterlyReview()' },
+                        { icon: '💡', label: 'LEGACY PLANNING', action: 'planetSystem.legacyPlanning()' }
+                    ])}
+                `;
+            }
             
-            if (name === 'jupiter') return `
-                <div style="padding:20px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.2);margin-bottom:30px">
-                    <h3>Monthly Expenses</h3>
-                    <div style="font-size:48px;font-weight:bold;color:#00ffff">$${Math.round(d.monthlyExpenses||0)}</div>
-                </div>`;
-            
-            if (name === 'saturn') return `
-                <div style="padding:20px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.2);margin-bottom:30px">
-                    <h3>Life Progress</h3>
-                    <div style="font-size:48px;font-weight:bold;color:#00ffff">${Math.round(d.lifeProgress||0)}%</div>
-                </div>`;
-            
-            return '<p>Loading...</p>';
+            return '<p style="text-align: center; padding: 40px; color: rgba(0,255,255,0.6);">Loading data...</p>';
         }
 
-        showLoadingState(n) {
-            const el = document.getElementById(`planet-${n}`);
-            if (el) el.classList.add('loading');
+        // ============================================
+        // HELPER METHODS FOR RICH UI
+        // ============================================
+
+        metricCard(label, value, unit, icon, trend) {
+            const trendHTML = trend ? `<div class="trend ${trend > 0 ? 'up' : 'down'}">${trend > 0 ? '↑' : '↓'} ${Math.abs(trend)}%</div>` : '';
+            
+            return `
+                <div class="metric-card" onclick="planetSystem.announceMetric('${label}', '${value}${unit}')">
+                    <div class="metric-icon">${icon}</div>
+                    <div class="metric-label">${label}</div>
+                    <div class="metric-value">${value || '--'}<span class="unit">${unit}</span></div>
+                    ${trendHTML}
+                </div>
+            `;
         }
 
-        hideLoadingState(n) {
-            const el = document.getElementById(`planet-${n}`);
-            if (el) el.classList.remove('loading');
+        chartSection(title, data) {
+            const chartId = title.replace(/\s+/g, '-').toLowerCase();
+            return `
+                <div class="chart-section">
+                    <h3 class="chart-title">${title}</h3>
+                    <canvas id="chart-${chartId}" class="holo-chart" width="400" height="200"></canvas>
+                </div>
+            `;
         }
 
-        updateMetric(n, v) {
-            const el = document.getElementById(`${n}-metric`);
-            if (el) el.textContent = v;
+        actionBar(actions) {
+            return `
+                <div class="action-bar">
+                    ${actions.map(a => 
+                        `<button class="holo-btn" onclick="${a.action}">${a.icon} ${a.label}</button>`
+                    ).join('')}
+                </div>
+            `;
         }
 
-        updateAllMetrics() {
-            Object.keys(this.planets).forEach(n => {
-                const d = this.planets[n].data;
-                if (!d) return;
-
-                let v = '';
-                switch(n) {
-                    case 'mercury': v = `${Math.round(d.recoveryScore||0)}%`; break;
-                    case 'venus': v = `${d.workoutsThisWeek||0}x`; break;
-                    case 'earth': v = `${d.eventsToday||0}`; break;
-                    case 'mars': v = `${d.completedGoals||0}/${d.activeGoals||0}`; break;
-                    case 'jupiter': v = `${Math.round(d.monthlyExpenses||0)}`; break;
-                    case 'saturn': v = `${Math.round(d.lifeProgress||0)}%`; break;
-                }
-                this.updateMetric(n, v);
-            });
+        workoutList(workouts) {
+            if (!workouts || workouts.length === 0) {
+                return '<p style="text-align: center; padding: 20px; color: rgba(0,255,255,0.6);">No recent workouts</p>';
+            }
+            
+            return `
+                <div class="workout-list">
+                    <h3 style="margin-bottom: 15px; color: #00ffff;">Recent Workouts</h3>
+                    ${workouts.slice(0, 5).map(w => `
+                        <div class="workout-item">
+                            <div class="workout-name">${w.type || 'Workout'}</div>
+                            <div class="workout-stats">${w.duration || 0} min • ${w.exercises?.length || 0} exercises</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
         }
+
+        nutritionBreakdown(nutrition) {
+            if (!nutrition || !nutrition.totalCalories) {
+                return '<p style="text-align: center; padding: 20px; color: rgba(0,255,255,0.6);">No nutrition data today</p>';
+            }
+            
+            return `
+                <div class="nutrition-breakdown">
+                    <h3 style="margin-bottom: 15px; color: #00ffff;">Today's Nutrition</h3>
+                    <div class="macro-bars">
+                        ${this.macroBar('Protein', nutrition.totalProtein || 0, 150)}
+                        ${this.macroBar('Carbs', nutrition.totalCarbs || 0, 250)}
+                        ${this.macroBar('Fat', nutrition.totalFat || 0, 70)}
+                    </div>
+                </div>
+            `;
+        }
+
+        macroBar(name, value, target) {
+            const percent = Math.min((value / target) * 100, 100);
+            return `
+                <div class="macro-item">
+                    <div class="macro-label">${name}: ${Math.round(value)}g / ${target}g</div>
+                    <div class="macro-bar-bg">
+                        <div class="macro-bar-fill" style="width: ${percent}%"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        eventList(events) {
+            if (!events || events.length === 0) {
+                return '<p style="text-align: center; padding: 20px; color: rgba(0,255,255,0.6);">No upcoming events</p>';
+            }
+            
+            return `
+                <div class="event-list">
+                    <h3 style="margin-bottom: 15px; color: #00ffff;">Upcoming Events</h3>
+                    ${events.map(e => `
+                        <div class="event-item">
+                            <div class="event-time">${this.formatTime(e.start)}</div>
+                            <div class="event-name">${e.title || 'Event'}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        goalsList(goals) {
+            if (!goals || goals.length === 0) {
+                return '<p style="text-align: center; padding: 20px; color: rgba(0,255,255,0.6);">No goals yet. Create one to get started!</p>';
+            }
+            
+            return `
+                <div class="goals-list">
+                    ${goals.map(g => `
+                        <div class="goal-item">
+                            <div class="goal-header">
+                                <div class="goal-name">${g.title || 'Goal'}</div>
+                                <div class="goal-progress">${g.progress || 0}%</div>
+                            </div>
+                            <div class="goal-bar-bg">
+                                <div class="goal-bar-fill" style="width: ${g.progress || 0}%"></div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        spendingChart(categories) {
+            return `<div class="spending-chart"><p style="text-align: center; padding: 20px; color: rgba(0,255,255,0.6);">Financial chart coming soon</p></div>`;
+        }
+
+        timelineChart(timeline) {
+            return `<div class="timeline-chart"><p style="text-align: center; padding: 20px; color: rgba(0,255,255,0.6);">Timeline visualization coming soon</p></div>`;
+        }
+
+        // ============================================
+        // UTILITY METHODS
+        // ============================================
+
+        calcTrend(history) {
+            if (!history || history.length < 2) return null;
+            const recent = history.slice(-7);
+            const avg1 = recent.slice(0, 3).reduce((a, b) => a + b, 0) / 3;
+            const avg2 = recent.slice(-3).reduce((a, b) => a + b, 0) / 3;
+            return Math.round(((avg2 - avg1) / avg1) * 100);
+        }
+
+        calcVolume(workouts) {
+            if (!workouts) return 0;
+            return workouts.reduce((sum, w) => {
+                const sets = (w.exercises || []).reduce((s, e) => s + (e.sets || 0), 0);
+                return sum + sets;
+            }, 0);
+        }
+
+        calcIntensity(workouts) {
+            if (!workouts || workouts.length === 0) return 0;
+            const avg = workouts.reduce((sum, w) => sum + (w.intensity || 0), 0) / workouts.length;
+            return Math.round(avg);
+        }
+
+        calcFreeTime(events) {
+            // Simple calculation: 16 waking hours - event hours
+            const eventHours = events.reduce((sum, e) => {
+                const duration = (new Date(e.end) - new Date(e.start)) / (1000 * 60 * 60);
+                return sum + duration;
+            }, 0);
+            return Math.max(0, 16 - eventHours).toFixed(1);
+        }
+
+        isToday(dateString) {
+            const date = new Date(dateString);
+            const today = new Date();
+            return date.toDateString() === today.toDateString();
+        }
+
+        formatTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+        }
+
+        // ============================================
+        // ACTION HANDLERS (Called from dashboard buttons)
+        // ============================================
+
+        announceMetric(label, value) {
+            if (window.voiceInterface) {
+                window.voiceInterface.announceMetric(this.selectedPlanet, label, value);
+            }
+        }
+
+        syncWearables() { console.log('🔄 Syncing wearables...'); }
+        viewHealthTrends() { console.log('📈 Viewing health trends...'); }
+        createHealthGoal() { console.log('🎯 Creating health goal...'); }
+        logWorkout() { console.log('➕ Logging workout...'); }
+        logMeal() { console.log('🍽️ Logging meal...'); }
+        generateQuantumWorkout() { console.log('🤖 Generating quantum workout...'); }
+        viewCalendar() { console.log('📅 Viewing calendar...'); }
+        optimizeSchedule() { console.log('⚡ Optimizing schedule...'); }
+        addEvent() { console.log('➕ Adding event...'); }
+        createGoal() { console.log('➕ Creating goal...'); }
+        viewGoals() { console.log('📊 Viewing all goals...'); }
+        suggestGoals() { console.log('🎯 Getting AI suggestions...'); }
+        connectBank() { console.log('🏦 Connecting bank...'); }
+        viewTransactions() { console.log('📊 Viewing transactions...'); }
+        financialInsights() { console.log('💡 Getting financial insights...'); }
+        setVision() { console.log('🎯 Setting 10-year vision...'); }
+        quarterlyReview() { console.log('📊 Opening quarterly review...'); }
+        legacyPlanning() { console.log('💡 Legacy planning...'); }
+
+        // ============================================
+        // DATA REFRESH
+        // ============================================
 
         startDataRefresh() {
+            // Refresh data every 5 minutes
             this.dataRefreshInterval = setInterval(async () => {
-                console.log('🔄 Refreshing planetary data...');
-                await this.loadAllPlanetData();
-            }, 300000); // Every 5 minutes
+                console.log('🔄 Auto-refreshing planetary data...');
+                const planets = ['mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn'];
+                
+                planets.forEach(planet => {
+                    this.phoenixStore.loadPlanet(planet, true).catch(err => {
+                        console.warn(`Failed to refresh ${planet}:`, err);
+                    });
+                });
+            }, 300000); // 5 minutes
         }
 
-        animate() {
-            Object.entries(this.planets).forEach(([n, p]) => {
-                p.angle += p.speed;
-                if (p.angle >= 360) p.angle -= 360;
-            });
-            this.animationFrame = requestAnimationFrame(() => this.animate());
+        // ============================================
+        // FALLBACK MODE
+        // ============================================
+
+        initializeFallbackMode() {
+            console.warn('⚠️ Running in fallback mode without store');
+            this.setupPlanetInteractions();
         }
 
-        // Action handlers (called from dashboard buttons)
-        syncWearables() { console.log('Syncing wearables...'); }
-        viewHealthTrends() { console.log('Viewing health trends...'); }
-        logWorkout() { console.log('Opening workout logger...'); }
-        logMeal() { console.log('Opening meal logger...'); }
-        viewCalendar() { console.log('Opening calendar...'); }
-        optimizeSchedule() { console.log('Optimizing schedule...'); }
-        createGoal() { console.log('Opening goal creator...'); }
-        viewGoals() { console.log('Viewing all goals...'); }
-        connectBank() { console.log('Connecting bank...'); }
-        viewTransactions() { console.log('Viewing transactions...'); }
-        setVision() { console.log('Setting 10-year vision...'); }
-        quarterlyReview() { console.log('Opening quarterly review...'); }
+        // ============================================
+        // CLEANUP
+        // ============================================
 
         destroy() {
-            if (this.animationFrame) cancelAnimationFrame(this.animationFrame);
             if (this.dataRefreshInterval) clearInterval(this.dataRefreshInterval);
+            if (this.unsubscribe) this.unsubscribe();
         }
     }
 
@@ -457,6 +645,6 @@
         planetSystem.init();
     }
 
-    console.log('✅ Planet System script loaded successfully');
+    console.log('✅ Enhanced Planet System script loaded successfully');
 
 })();
