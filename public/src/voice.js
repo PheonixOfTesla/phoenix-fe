@@ -1,4 +1,4 @@
-// src/voice.js - Complete Voice Interface with Settings Modal
+// src/voice.js - Complete Voice Interface with Queue System & Context-Aware Intelligence
 import { getAvailableVoices, textToSpeech, getVoiceStatus } from './api.js';
 
 class VoiceInterface {
@@ -22,6 +22,11 @@ class VoiceInterface {
         // Audio management
         this.currentAudio = null;
         this.audioQueue = [];
+        
+        // ⭐ NEW: Speech Queue System
+        this.queue = [];
+        this.speaking = false;
+        this.contextAware = true;
         
         // Proactive messaging
         this.proactiveTimer = null;
@@ -65,86 +70,119 @@ class VoiceInterface {
     }
 
     // ========================================
-    // INITIAL GREETING WITH CONTEXT
+    // ⭐ NEW: QUEUE SYSTEM FOR SPEECH
     // ========================================
 
-    async sayInitialGreeting() {
-        const hour = new Date().getHours();
-        let greeting = 'Good morning';
-        if (hour >= 12 && hour < 18) greeting = 'Good afternoon';
-        if (hour >= 18) greeting = 'Good evening';
+    async speak(text, priority = 'normal') {
+        console.log('🔊 Queueing speech:', text, 'Priority:', priority);
         
-        const userName = this.getUserName();
+        // Add to queue based on priority
+        this.queue[priority === 'urgent' ? 'unshift' : 'push']({ text, priority });
         
-        // Get real-time data from backend
-        const recovery = await this.getRecoveryScore();
-        const events = await this.getTodayEvents();
-        const insights = await this.getQuickInsights();
-        
-        let greetingText = `${greeting}${userName ? ', ' + userName : ''}. Phoenix AI companion online and ready.`;
-        
-        if (recovery) {
-            greetingText += ` Your recovery is at ${recovery} percent.`;
-        }
-        
-        if (events > 0) {
-            greetingText += ` You have ${events} event${events === 1 ? '' : 's'} scheduled today.`;
-        }
-        
-        if (insights) {
-            greetingText += ` ${insights}`;
-        }
-        
-        this.speak(greetingText);
-    }
-
-    getUserName() {
-        try {
-            const user = JSON.parse(localStorage.getItem('phoenixUser') || '{}');
-            return user.name ? user.name.split(' ')[0] : null;
-        } catch (error) {
-            return null;
+        // Start processing if not already speaking
+        if (!this.speaking) {
+            this.processQueue();
         }
     }
 
-    async getRecoveryScore() {
-        try {
-            if (window.jarvisEngine && window.jarvisEngine.allData && window.jarvisEngine.allData.mercury) {
-                return window.jarvisEngine.allData.mercury.recoveryScore;
+    async processQueue() {
+        if (this.queue.length === 0) {
+            this.speaking = false;
+            return;
+        }
+        
+        this.speaking = true;
+        const { text, priority } = this.queue.shift();
+        
+        console.log(`🔊 Processing queued message (${priority}):`, text);
+        
+        // Use appropriate TTS method
+        if (this.useServerTTS) {
+            try {
+                await this.speakWithServer(text);
+            } catch (error) {
+                console.error('Server TTS failed, falling back to browser:', error);
+                await this.speakWithBrowser(text);
             }
-            return null;
-        } catch (error) {
-            return null;
+        } else {
+            await this.speakWithBrowser(text);
         }
+        
+        // Process next in queue after current finishes
+        this.processQueue();
     }
 
-    async getTodayEvents() {
+    // ========================================
+    // ⭐ ENHANCED: PROACTIVE MESSAGING WITH BACKEND CORRELATIONS
+    // ========================================
+
+    async generateProactiveMessages() {
+        const messages = [];
+        
         try {
-            if (window.jarvisEngine && window.jarvisEngine.allData && window.jarvisEngine.allData.earth) {
-                const events = window.jarvisEngine.allData.earth.events || [];
-                return events.length;
+            // Get state from phoenixStore if available
+            const state = window.phoenixStore ? window.phoenixStore.state : {};
+            
+            // ⭐ NEW: Backend correlation insights
+            if (state.mercury?.recoveryScore < 60 && state.venus?.workoutsThisWeek > 4) {
+                messages.push('Your recovery is low despite 4+ workouts this week. Consider a rest day.');
             }
-            return 0;
-        } catch (error) {
-            return 0;
-        }
-    }
-
-    async getQuickInsights() {
-        try {
+            
+            // ⭐ NEW: Pattern learning insights
+            if (state.mercury?.sleepDuration < 6 && state.mars?.goalProgress < 50) {
+                messages.push('Poor sleep correlates with lower goal progress. Prioritize 7+ hours tonight.');
+            }
+            
+            // ⭐ NEW: Quantum workout available
+            if (state.venus?.plateauDetected) {
+                messages.push('Plateau detected. Quantum workout generation available to break through.');
+            }
+            
+            // ⭐ NEW: Stress-spending correlation
+            if (state.mercury?.stressLevel > 7 && state.jupiter?.todaySpending > state.jupiter?.avgSpending * 1.5) {
+                messages.push('High stress detected. Spending is 50% above average today. Consider stress management techniques.');
+            }
+            
+            // ⭐ NEW: Sleep-performance correlation
+            if (state.mercury?.sleepScore < 70 && state.venus?.lastWorkoutIntensity > 85) {
+                messages.push('Low sleep quality after high-intensity training. Recovery may be compromised.');
+            }
+            
+            // ⭐ NEW: Calendar-energy correlation
+            if (state.earth?.events?.length > 5 && state.mercury?.recoveryScore < 70) {
+                messages.push('Busy schedule detected with sub-optimal recovery. Consider blocking recovery time.');
+            }
+            
+            // Check recovery score
+            const recovery = state.mercury?.recoveryScore;
+            if (recovery && recovery >= 80) {
+                messages.push("Your recovery score is excellent today. You're cleared for high-intensity training.");
+            } else if (recovery && recovery < 50) {
+                messages.push("Your recovery is low. I recommend active recovery or rest today.");
+            }
+            
+            // Check upcoming events
+            const events = state.earth?.events?.length || 0;
+            if (events > 0) {
+                messages.push(`You have ${events} upcoming event${events === 1 ? '' : 's'} today. Would you like to review your schedule?`);
+            }
+            
+            // Check correlations from jarvisEngine
             if (window.jarvisEngine && window.jarvisEngine.correlations && window.jarvisEngine.correlations.length > 0) {
                 const correlation = window.jarvisEngine.correlations[0];
-                return `I've detected a correlation between ${correlation.insight}.`;
+                messages.push(`I've noticed ${correlation.insight}. This may require attention.`);
             }
-            return null;
+            
+            // Generic helpful messages
+            messages.push("Don't forget to log your meals and workouts for optimal insights.");
+            messages.push("Your HRV trend is stable this week. Great consistency.");
+            
         } catch (error) {
-            return null;
+            console.error('Error generating proactive messages:', error);
         }
+        
+        return messages;
     }
-
-    // ========================================
-    // PROACTIVE MESSAGING (VOICE ANNOUNCEMENTS)
-    // ========================================
 
     startProactiveMessaging() {
         // Check every minute for things to announce
@@ -165,47 +203,12 @@ class VoiceInterface {
         if (messages.length > 0) {
             const message = messages[Math.floor(Math.random() * messages.length)];
             console.log('🔊 Proactive message:', message);
-            this.speak(message);
+            this.speak(message, 'normal');
         }
-    }
-
-    async generateProactiveMessages() {
-        const messages = [];
-        
-        try {
-            // Check recovery score
-            const recovery = await this.getRecoveryScore();
-            if (recovery && recovery >= 80) {
-                messages.push("Your recovery score is excellent today. You're cleared for high-intensity training.");
-            } else if (recovery && recovery < 50) {
-                messages.push("Your recovery is low. I recommend active recovery or rest today.");
-            }
-            
-            // Check upcoming events
-            const events = await this.getTodayEvents();
-            if (events > 0) {
-                messages.push(`You have ${events} upcoming event${events === 1 ? '' : 's'} today. Would you like to review your schedule?`);
-            }
-            
-            // Check correlations
-            if (window.jarvisEngine && window.jarvisEngine.correlations && window.jarvisEngine.correlations.length > 0) {
-                const correlation = window.jarvisEngine.correlations[0];
-                messages.push(`I've noticed ${correlation.insight}. This may require attention.`);
-            }
-            
-            // Generic helpful messages
-            messages.push("Don't forget to log your meals and workouts for optimal insights.");
-            messages.push("Your HRV trend is stable this week. Great consistency.");
-            
-        } catch (error) {
-            console.error('Error generating proactive messages:', error);
-        }
-        
-        return messages;
     }
 
     // ========================================
-    // ANNOUNCEMENT METHODS (Called by other modules)
+    // ⭐ NEW: CONTEXT-AWARE ANNOUNCEMENT METHODS
     // ========================================
 
     announceMetric(planetName, metricName, value) {
@@ -221,26 +224,20 @@ class VoiceInterface {
         };
         
         const message = announcements[planetName] || `${metricName}: ${value}`;
-        this.speak(message);
+        this.speak(message, 'normal');
     }
 
     announceCorrelation(correlation) {
-        if (this.isSpeaking) return;
-        
         const message = `I've detected a correlation: ${correlation.insight}. This may impact your performance.`;
-        this.speak(message);
+        this.speak(message, 'urgent');
     }
 
     announceSchedule(nextEvent) {
-        if (this.isSpeaking) return;
-        
         const message = `Your next event is ${nextEvent.title} at ${nextEvent.time}.`;
-        this.speak(message);
+        this.speak(message, 'normal');
     }
 
     announcePlanetOpen(planetName) {
-        if (this.isSpeaking) return;
-        
         const announcements = {
             mercury: "Loading health metrics. Analyzing recovery, heart rate variability, and sleep quality.",
             venus: "Accessing fitness data. Reviewing workouts and performance trends.",
@@ -251,7 +248,66 @@ class VoiceInterface {
         };
         
         const message = announcements[planetName] || "Loading data.";
-        this.speak(message);
+        this.speak(message, 'normal');
+    }
+
+    announceIntervention(intervention) {
+        const message = `Intervention triggered: ${intervention.type}. ${intervention.message}`;
+        this.speak(message, 'urgent');
+    }
+
+    announceWorkoutRecommendation(recommendation) {
+        const message = `Workout recommendation: ${recommendation.type}. ${recommendation.reasoning}`;
+        this.speak(message, 'normal');
+    }
+
+    announceHealthAlert(alert) {
+        const message = `Health alert: ${alert.message}. Please review immediately.`;
+        this.speak(message, 'urgent');
+    }
+
+    // ========================================
+    // INITIAL GREETING WITH CONTEXT
+    // ========================================
+
+    async sayInitialGreeting() {
+        const hour = new Date().getHours();
+        let greeting = 'Good morning';
+        if (hour >= 12 && hour < 18) greeting = 'Good afternoon';
+        if (hour >= 18) greeting = 'Good evening';
+        
+        const userName = this.getUserName();
+        
+        // Get real-time data from backend/store
+        const state = window.phoenixStore ? window.phoenixStore.state : {};
+        const recovery = state.mercury?.recoveryScore;
+        const events = state.earth?.events?.length || 0;
+        
+        let greetingText = `${greeting}${userName ? ', ' + userName : ''}. Phoenix AI companion online and ready.`;
+        
+        if (recovery) {
+            greetingText += ` Your recovery is at ${Math.round(recovery)} percent.`;
+        }
+        
+        if (events > 0) {
+            greetingText += ` You have ${events} event${events === 1 ? '' : 's'} scheduled today.`;
+        }
+        
+        // Check for urgent insights
+        if (state.mercury?.recoveryScore < 40) {
+            greetingText += ` Warning: Recovery critically low. Rest recommended.`;
+        }
+        
+        this.speak(greetingText, 'normal');
+    }
+
+    getUserName() {
+        try {
+            const user = JSON.parse(localStorage.getItem('phoenixUser') || '{}');
+            return user.name ? user.name.split(' ')[0] : null;
+        } catch (error) {
+            return null;
+        }
     }
 
     // ========================================
@@ -581,7 +637,7 @@ class VoiceInterface {
         }
 
         try {
-            await this.speak(previewText);
+            await this.speak(previewText, 'urgent'); // Use queue with urgent priority
         } catch (error) {
             console.error('Preview failed:', error);
             this.showError('Failed to preview voice: ' + error.message);
@@ -955,22 +1011,7 @@ class VoiceInterface {
         }
     }
 
-    async speak(text, callback) {
-        console.log('🔊 Speaking:', text);
-
-        if (this.useServerTTS) {
-            try {
-                await this.speakWithServer(text, callback);
-            } catch (error) {
-                console.error('Server TTS failed, falling back to browser:', error);
-                this.speakWithBrowser(text, callback);
-            }
-        } else {
-            this.speakWithBrowser(text, callback);
-        }
-    }
-
-    async speakWithServer(text, callback) {
+    async speakWithServer(text) {
         try {
             this.isSpeaking = true;
             this.updateUI('speaking');
@@ -986,26 +1027,28 @@ class VoiceInterface {
 
             this.currentAudio = new Audio(audioUrl);
             
-            this.currentAudio.onended = () => {
-                console.log('🔊 Finished speaking (server TTS)');
-                this.isSpeaking = false;
-                this.updateUI('idle');
-                URL.revokeObjectURL(audioUrl);
-                this.currentAudio = null;
-                if (callback) callback();
-            };
+            return new Promise((resolve, reject) => {
+                this.currentAudio.onended = () => {
+                    console.log('🔊 Finished speaking (server TTS)');
+                    this.isSpeaking = false;
+                    this.updateUI('idle');
+                    URL.revokeObjectURL(audioUrl);
+                    this.currentAudio = null;
+                    resolve();
+                };
 
-            this.currentAudio.onerror = (error) => {
-                console.error('Audio playback error:', error);
-                this.isSpeaking = false;
-                this.updateUI('idle');
-                URL.revokeObjectURL(audioUrl);
-                this.currentAudio = null;
-                throw new Error('Audio playback failed');
-            };
+                this.currentAudio.onerror = (error) => {
+                    console.error('Audio playback error:', error);
+                    this.isSpeaking = false;
+                    this.updateUI('idle');
+                    URL.revokeObjectURL(audioUrl);
+                    this.currentAudio = null;
+                    reject(new Error('Audio playback failed'));
+                };
 
-            await this.currentAudio.play();
-            console.log('✅ Playing audio via OpenAI TTS');
+                this.currentAudio.play();
+                console.log('✅ Playing audio via OpenAI TTS');
+            });
         } catch (error) {
             this.isSpeaking = false;
             this.updateUI('idle');
@@ -1013,45 +1056,49 @@ class VoiceInterface {
         }
     }
 
-    speakWithBrowser(text, callback) {
-        if (!this.synthesis) {
-            console.error('Speech synthesis not available');
-            return;
-        }
+    speakWithBrowser(text) {
+        return new Promise((resolve, reject) => {
+            if (!this.synthesis) {
+                console.error('Speech synthesis not available');
+                reject(new Error('Speech synthesis not available'));
+                return;
+            }
 
-        this.synthesis.cancel();
+            this.synthesis.cancel();
 
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = this.speechSpeed;
-        utterance.pitch = 1.0;
-        utterance.volume = 1.0;
-        utterance.lang = 'en-US';
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = this.speechSpeed;
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+            utterance.lang = 'en-US';
 
-        if (this.fallbackVoice) {
-            utterance.voice = this.fallbackVoice;
-        }
+            if (this.fallbackVoice) {
+                utterance.voice = this.fallbackVoice;
+            }
 
-        utterance.onstart = () => {
-            this.isSpeaking = true;
-            this.updateUI('speaking');
-            this.displayResponse(text);
-            console.log('✅ Using browser TTS fallback');
-        };
+            utterance.onstart = () => {
+                this.isSpeaking = true;
+                this.updateUI('speaking');
+                this.displayResponse(text);
+                console.log('✅ Using browser TTS fallback');
+            };
 
-        utterance.onend = () => {
-            console.log('🔊 Finished speaking (browser)');
-            this.isSpeaking = false;
-            this.updateUI('idle');
-            if (callback) callback();
-        };
+            utterance.onend = () => {
+                console.log('🔊 Finished speaking (browser)');
+                this.isSpeaking = false;
+                this.updateUI('idle');
+                resolve();
+            };
 
-        utterance.onerror = (error) => {
-            console.error('Speech synthesis error:', error);
-            this.isSpeaking = false;
-            this.updateUI('idle');
-        };
+            utterance.onerror = (error) => {
+                console.error('Speech synthesis error:', error);
+                this.isSpeaking = false;
+                this.updateUI('idle');
+                reject(error);
+            };
 
-        this.synthesis.speak(utterance);
+            this.synthesis.speak(utterance);
+        });
     }
 
     // ========================================
@@ -1068,23 +1115,23 @@ class VoiceInterface {
             response = 'Hello! Phoenix AI companion online. How can I optimize your life today?';
         } else if (lowerCmd.includes('health') || lowerCmd.includes('recovery')) {
             response = 'Analyzing your health metrics. Your recovery score is at 78 percent. Heart rate variability is stable at 52 milliseconds. You are cleared for training today.';
-            if (window.jarvisEngine) {
-                setTimeout(() => window.jarvisEngine.openPlanetDetail('mercury'), 2000);
+            if (window.phoenix) {
+                setTimeout(() => window.phoenix.openPlanetDetail('mercury'), 2000);
             }
         } else if (lowerCmd.includes('fitness') || lowerCmd.includes('workout')) {
             response = 'You have completed 4 workouts this week. Based on your recovery, I recommend a moderate intensity session today. Focus on compound movements.';
-            if (window.jarvisEngine) {
-                setTimeout(() => window.jarvisEngine.openPlanetDetail('mercury'), 2000);
+            if (window.phoenix) {
+                setTimeout(() => window.phoenix.openPlanetDetail('venus'), 2000);
             }
         } else if (lowerCmd.includes('calendar') || lowerCmd.includes('schedule')) {
             response = 'Checking your schedule. You have 3 events today. Next appointment is at 2 PM. I can optimize your time blocks if needed.';
-            if (window.jarvisEngine) {
-                setTimeout(() => window.jarvisEngine.openPlanetDetail('earth'), 2000);
+            if (window.phoenix) {
+                setTimeout(() => window.phoenix.openPlanetDetail('earth'), 2000);
             }
         } else if (lowerCmd.includes('goals') || lowerCmd.includes('progress')) {
             response = 'Reviewing your goals. You are on track with 3 out of 5 active goals. Your weight loss goal is progressing at 0.8 pounds per week. Excellent consistency.';
-            if (window.jarvisEngine) {
-                setTimeout(() => window.jarvisEngine.openPlanetDetail('mars'), 2000);
+            if (window.phoenix) {
+                setTimeout(() => window.phoenix.openPlanetDetail('mars'), 2000);
             }
         } else if (lowerCmd.includes('sync') || lowerCmd.includes('update data')) {
             response = 'Syncing all data sources. Fitbit connected. Pulling latest biometrics. Sync complete. All systems updated.';
@@ -1096,8 +1143,8 @@ class VoiceInterface {
             setTimeout(() => this.openSettingsModal(), 1000);
         } else if (lowerCmd.includes('close') || lowerCmd.includes('go back')) {
             response = 'Closing dashboard';
-            if (window.jarvisEngine) {
-                window.jarvisEngine.closePlanetDetail();
+            if (window.phoenix) {
+                window.phoenix.closePlanetDetail();
             }
         } else if (lowerCmd.includes('weather')) {
             response = 'Current temperature is 72 degrees Fahrenheit. Clear skies. Optimal conditions for outdoor training.';
@@ -1107,7 +1154,7 @@ class VoiceInterface {
             response = 'Command acknowledged. How can I assist you further? Try asking about health, fitness, calendar, or goals.';
         }
 
-        this.speak(response);
+        this.speak(response, 'normal');
     }
 
     // ========================================
@@ -1277,7 +1324,7 @@ class VoiceInterface {
         if (hour >= 12 && hour < 18) greeting = 'Good afternoon';
         if (hour >= 18) greeting = 'Good evening';
         
-        this.speak(`${greeting}. Phoenix AI companion online and ready.`);
+        this.speak(`${greeting}. Phoenix AI companion online and ready.`, 'normal');
     }
 
     destroy() {
