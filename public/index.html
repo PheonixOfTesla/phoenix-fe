@@ -502,9 +502,21 @@
             }
 
             loadPlanetContent(planetName) {
-                const content = document.getElementById('detail-content');
-                content.innerHTML = '<div style="text-align: center; padding: 60px;"><div style="font-size: 48px; margin-bottom: 20px;">🚧</div><div style="font-size: 24px; color: #00ffff;">Coming Soon</div></div>';
+    // Use planets.js if available, otherwise show coming soon
+    if (window.planetSystem) {
+        window.planetSystem.loadDashboardContent(planetName);
+    } else {
+        const content = document.getElementById('detail-content');
+        content.innerHTML = '<div style="text-align: center; padding: 60px;"><div style="font-size: 48px; margin-bottom: 20px;">⏳</div><div style="font-size: 24px; color: #00ffff;">Loading Planet System...</div></div>';
+        
+        // Try again after a short delay
+        setTimeout(() => {
+            if (window.planetSystem) {
+                window.planetSystem.loadDashboardContent(planetName);
             }
+        }, 500);
+    }
+}
 
             async authenticate() {
                 const token = localStorage.getItem('phoenixToken');
@@ -1312,10 +1324,10 @@
                 clearInterval(checkVoice);
             }
         }, 1000);
-        
-         <!-- ADD THIS LINE HERE -->
+    </script>
+    
+     <!-- ADD THIS LINE HERE -->
     <script type="module" src="./src/planets.js"></script>
     
-    </script>
 </body>
 </html>
