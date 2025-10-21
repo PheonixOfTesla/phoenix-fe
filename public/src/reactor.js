@@ -1,4 +1,5 @@
-// reactor.js - Phoenix Reactor Core with REAL Backend Data Integration
+// reactor.js - Phoenix Reactor Core with phoenixStore Integration
+// Real-time backend data visualization | Smart particle system | Live biometrics
 
 class ReactorCore {
     constructor() {
@@ -22,47 +23,207 @@ class ReactorCore {
             recovery: 0,
             spo2: 98
         };
+        this.unsubscribe = null;
+        this.storeConnected = false;
     }
 
     init() {
-        console.log('⚡ Initializing Reactor Core...');
+        console.log('⚡ Initializing Enhanced Reactor Core...');
         this.createCanvas();
         this.generateParticles();
         this.setupBeams();
         this.setupDataStreams();
         this.setupHUD();
+        this.connectToStore();
         this.animate();
         this.setupResizeHandler();
-        this.connectToBackend();
         console.log('✅ Reactor Core initialized');
     }
 
     // ========================================
-    // BACKEND CONNECTION
+    // ⭐ NEW: PHOENIXSTORE INTEGRATION
     // ========================================
 
-    connectToBackend() {
-        // Listen for JARVIS engine updates
+    connectToStore() {
+        // Wait for phoenixStore to be available
+        const checkStore = setInterval(() => {
+            if (window.phoenixStore) {
+                clearInterval(checkStore);
+                this.initializeStoreConnection();
+            }
+        }, 100);
+
+        // Fallback timeout after 5 seconds
+        setTimeout(() => {
+            if (!this.storeConnected) {
+                clearInterval(checkStore);
+                console.warn('⚠️ phoenixStore not available, using fallback polling');
+                this.connectToBackendFallback();
+            }
+        }, 5000);
+    }
+
+    initializeStoreConnection() {
+        console.log('📡 Connecting to phoenixStore...');
+        
+        // Subscribe to store updates for real-time data
+        this.unsubscribe = window.phoenixStore.subscribe((key, value) => {
+            this.onStoreUpdate(key, value);
+        });
+
+        this.storeConnected = true;
+        this.syncStatus = 'CONNECTED';
+        console.log('✅ Reactor Core connected to phoenixStore');
+
+        // Load initial data
+        this.loadInitialData();
+    }
+
+    onStoreUpdate(key, value) {
+        if (!value) return;
+
+        console.log(`📊 Store update received: ${key}`, value);
+
+        // Update based on planet data
+        switch(key) {
+            case 'mercury':
+                // Health metrics
+                this.updateHealthMetrics(value);
+                this.activateBeam(0); // Mercury beam pulse
+                setTimeout(() => this.deactivateBeam(0), 1000);
+                break;
+
+            case 'venus':
+                // Fitness metrics
+                this.updateFitnessMetrics(value);
+                this.activateBeam(1); // Venus beam pulse
+                setTimeout(() => this.deactivateBeam(1), 1000);
+                break;
+
+            case 'earth':
+                // Calendar events
+                this.activateBeam(2);
+                setTimeout(() => this.deactivateBeam(2), 1000);
+                break;
+
+            case 'mars':
+                // Goals progress
+                this.updateGoalsMetrics(value);
+                this.activateBeam(3);
+                setTimeout(() => this.deactivateBeam(3), 1000);
+                break;
+
+            case 'jupiter':
+                // Financial data
+                this.activateBeam(4);
+                setTimeout(() => this.deactivateBeam(4), 1000);
+                break;
+
+            case 'saturn':
+                // Legacy data
+                this.activateBeam(5);
+                setTimeout(() => this.deactivateBeam(5), 1000);
+                break;
+        }
+    }
+
+    updateHealthMetrics(data) {
+        // Extract health metrics from mercury data
+        const wearable = data.wearable || {};
+        const recovery = data.recovery || {};
+        const hrv = data.hrv || {};
+
+        // Update live metrics
+        this.liveMetrics.hrv = hrv.value || wearable.hrv || 0;
+        this.liveMetrics.rhr = wearable.heartRate || 0;
+        this.liveMetrics.recovery = recovery.recoveryScore || 0;
+        this.liveMetrics.spo2 = wearable.spo2 || 98;
+
+        // Update energy based on recovery score
+        const recoveryScore = recovery.recoveryScore || 0;
+        if (recoveryScore > 0) {
+            this.setEnergy(recoveryScore);
+        }
+
+        console.log('💓 Health metrics updated:', this.liveMetrics);
+    }
+
+    updateFitnessMetrics(data) {
+        const workouts = data.workouts || [];
+        
+        // Increase energy briefly when workouts are logged
+        if (workouts.length > 0) {
+            const tempEnergy = Math.min(100, this.energy + 10);
+            this.setEnergy(tempEnergy);
+            
+            // Return to normal after animation
+            setTimeout(() => {
+                this.setEnergy(this.liveMetrics.recovery || 100);
+            }, 2000);
+        }
+    }
+
+    updateGoalsMetrics(data) {
+        const goals = data.goals || [];
+        
+        if (goals.length > 0) {
+            const completed = goals.filter(g => g.completed).length;
+            const total = goals.length;
+            const completionRate = total > 0 ? (completed / total) * 100 : 0;
+            
+            this.setTrustScore(completionRate);
+            console.log('🎯 Goals completion rate:', completionRate);
+        }
+    }
+
+    async loadInitialData() {
+        // Try to load initial data from store state
+        const state = window.phoenixStore.state;
+
+        if (state.mercury) {
+            this.updateHealthMetrics(state.mercury);
+        }
+
+        if (state.mars) {
+            this.updateGoalsMetrics(state.mars);
+        }
+
+        // Trigger initial data load if empty
+        if (!state.mercury || !state.venus) {
+            console.log('🔄 Triggering initial planet data load...');
+            this.syncStatus = 'SYNCING';
+            
+            const planets = ['mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn'];
+            for (const planet of planets) {
+                try {
+                    await window.phoenixStore.loadPlanet(planet);
+                } catch (error) {
+                    console.warn(`Failed to load ${planet}:`, error);
+                }
+            }
+            
+            this.syncStatus = 'SYNCED';
+        }
+    }
+
+    // Fallback polling if store not available
+    connectToBackendFallback() {
+        console.log('🔄 Using fallback polling mode');
+        
         setInterval(() => {
             if (window.jarvisEngine) {
                 const userData = window.jarvisEngine.userData || {};
                 
-                // Update live metrics from backend
                 this.liveMetrics.hrv = userData.hrv || 0;
                 this.liveMetrics.rhr = userData.heartRate || 0;
                 this.liveMetrics.recovery = userData.recoveryScore || 0;
                 this.liveMetrics.spo2 = userData.spo2 || 98;
                 
-                // Update energy based on recovery score
                 this.setEnergy(userData.recoveryScore || 100);
-                
-                // Update trust score
                 this.setTrustScore(window.jarvisEngine.trustScore || 0);
-                
-                // Update mode
                 this.mode = window.jarvisEngine.mode || 'PAL';
             }
-        }, 1000);
+        }, 2000);
     }
 
     // ========================================
@@ -107,7 +268,8 @@ class ReactorCore {
                 size: Math.random() * 2 + 1,
                 alpha: Math.random() * 0.5 + 0.3,
                 angle: angle,
-                orbitSpeed: Math.random() * 0.01 + 0.005
+                orbitSpeed: Math.random() * 0.01 + 0.005,
+                baseOrbitSpeed: Math.random() * 0.01 + 0.005
             });
         }
     }
@@ -117,8 +279,14 @@ class ReactorCore {
         const centerY = this.height / 2;
 
         this.particles.forEach(p => {
-            // Orbital motion around center - speed based on REAL recovery score
-            p.angle += p.orbitSpeed * (this.energy / 100);
+            // Orbital motion - speed based on REAL recovery score
+            const energyMultiplier = this.energy / 100;
+            p.orbitSpeed = p.baseOrbitSpeed * energyMultiplier;
+            
+            // Clamp speeds to prevent too slow/fast
+            p.orbitSpeed = Math.max(0.003, Math.min(0.02, p.orbitSpeed));
+            
+            p.angle += p.orbitSpeed;
             const distance = Math.sqrt(Math.pow(p.x - centerX, 2) + Math.pow(p.y - centerY, 2));
             
             p.x = centerX + Math.cos(p.angle) * distance;
@@ -158,7 +326,6 @@ class ReactorCore {
     // ========================================
 
     setupBeams() {
-        // Energy beams from core to planets
         const planetPositions = [
             { x: 0.5, y: 0.25 },  // Mercury (top)
             { x: 0.75, y: 0.4 },  // Venus (top-right)
@@ -174,8 +341,9 @@ class ReactorCore {
                 targetY: this.height * pos.y,
                 intensity: 0,
                 phase: i * Math.PI / 3,
-                active: true, // Always active for real-time connection
-                planetIndex: i
+                active: false, // Inactive by default, activated on data updates
+                planetIndex: i,
+                activationTime: 0
             });
         });
     }
@@ -185,12 +353,21 @@ class ReactorCore {
         const centerY = this.height / 2;
 
         this.beams.forEach((beam, i) => {
-            // Beam intensity based on planet activity and energy
-            const baseIntensity = beam.active ? 0.3 : 0.1;
+            // Beam intensity calculation
+            const baseIntensity = beam.active ? 0.5 : 0.1;
             const pulseIntensity = 0.5 + Math.sin(this.pulsePhase + beam.phase) * 0.5;
             const energyMultiplier = this.energy / 100;
-            const intensity = baseIntensity * pulseIntensity * energyMultiplier;
             
+            // Fade out over time if active
+            let activeFade = 1;
+            if (beam.active && beam.activationTime > 0) {
+                const elapsed = Date.now() - beam.activationTime;
+                activeFade = Math.max(0, 1 - (elapsed / 1000)); // Fade over 1 second
+            }
+            
+            const intensity = baseIntensity * pulseIntensity * energyMultiplier * activeFade;
+            
+            // Main beam
             this.ctx.beginPath();
             this.ctx.moveTo(centerX, centerY);
             this.ctx.lineTo(beam.targetX, beam.targetY);
@@ -202,6 +379,13 @@ class ReactorCore {
             this.ctx.strokeStyle = `rgba(0, 255, 255, ${intensity * 0.1})`;
             this.ctx.lineWidth = 6;
             this.ctx.stroke();
+            
+            // Extra bright pulse when active
+            if (beam.active && activeFade > 0.5) {
+                this.ctx.strokeStyle = `rgba(0, 255, 255, ${intensity * 0.5})`;
+                this.ctx.lineWidth = 3;
+                this.ctx.stroke();
+            }
         });
     }
 
@@ -210,7 +394,6 @@ class ReactorCore {
     // ========================================
 
     setupDataStreams() {
-        // Vertical data streams (Matrix-style)
         for (let i = 0; i < 15; i++) {
             this.dataStreams.push({
                 x: Math.random() * this.width,
@@ -258,7 +441,6 @@ class ReactorCore {
     // ========================================
 
     setupHUD() {
-        // Corner HUD elements with REAL backend data
         this.hudElements = [
             { x: 60, y: 60, label: 'RECOVERY', getValue: () => `${Math.round(this.energy)}%`, align: 'left' },
             { x: this.width - 60, y: 60, label: 'TRUST', getValue: () => `${Math.round(this.trustScore)}%`, align: 'right' },
@@ -286,10 +468,7 @@ class ReactorCore {
             this.ctx.font = 'bold 11px monospace';
         });
 
-        // Draw corner brackets
         this.drawCornerBrackets();
-        
-        // Draw live biometric data
         this.drawLiveBiometrics();
     }
 
@@ -330,7 +509,6 @@ class ReactorCore {
     }
 
     drawLiveBiometrics() {
-        // Draw REAL biometric data from backend
         const metrics = [
             { label: 'HRV', value: this.liveMetrics.hrv, unit: 'ms' },
             { label: 'RHR', value: this.liveMetrics.rhr, unit: 'bpm' },
@@ -386,7 +564,6 @@ class ReactorCore {
     animate() {
         this.ctx.clearRect(0, 0, this.width, this.height);
 
-        // Update and draw components
         this.updateParticles();
         this.drawParticles();
         this.drawEnergyBeams();
@@ -400,7 +577,7 @@ class ReactorCore {
     }
 
     // ========================================
-    // PUBLIC API (Called by jarvis.js)
+    // PUBLIC API
     // ========================================
 
     setEnergy(value) {
@@ -410,12 +587,12 @@ class ReactorCore {
         if (this.energy < 40) {
             // Low energy - slow particles
             this.particles.forEach(p => {
-                p.orbitSpeed = Math.max(0.003, p.orbitSpeed * 0.95);
+                p.baseOrbitSpeed = Math.max(0.003, p.baseOrbitSpeed * 0.95);
             });
         } else if (this.energy > 80) {
             // High energy - fast particles
             this.particles.forEach(p => {
-                p.orbitSpeed = Math.min(0.02, p.orbitSpeed * 1.05);
+                p.baseOrbitSpeed = Math.min(0.02, p.baseOrbitSpeed * 1.05);
             });
         }
     }
@@ -425,6 +602,7 @@ class ReactorCore {
         
         // Visual change at 70% trust (PAL → JARVIS)
         if (this.trustScore >= 70 && this.mode === 'PAL') {
+            this.mode = 'JARVIS';
             this.triggerEvolutionEffect();
         }
     }
@@ -434,7 +612,7 @@ class ReactorCore {
         
         // Visual feedback for sync
         if (status === 'SYNCING' || status === 'CONNECTED') {
-            this.activateBeam(0); // Activate Mercury beam
+            this.activateBeam(0);
         } else if (status === 'SYNCED') {
             setTimeout(() => this.deactivateBeam(0), 2000);
         }
@@ -444,6 +622,7 @@ class ReactorCore {
         if (this.beams[index]) {
             this.beams[index].active = true;
             this.beams[index].intensity = 1;
+            this.beams[index].activationTime = Date.now();
         }
     }
 
@@ -455,7 +634,7 @@ class ReactorCore {
     }
 
     triggerEvolutionEffect() {
-        // Visual effect when evolving to JARVIS
+        console.log('🔥 JARVIS EVOLUTION TRIGGERED');
         const originalEnergy = this.energy;
         
         // Pulse effect
@@ -470,9 +649,10 @@ class ReactorCore {
             }
         }, 300);
         
-        // Activate all beams
+        // Activate all beams sequentially
         this.beams.forEach((beam, i) => {
             setTimeout(() => this.activateBeam(i), i * 200);
+            setTimeout(() => this.deactivateBeam(i), i * 200 + 1000);
         });
     }
 
@@ -487,6 +667,20 @@ class ReactorCore {
             this.canvas.width = this.width;
             this.canvas.height = this.height;
             this.setupHUD();
+            
+            // Update beam targets
+            this.beams.forEach((beam, i) => {
+                const positions = [
+                    { x: 0.5, y: 0.25 },
+                    { x: 0.75, y: 0.4 },
+                    { x: 0.75, y: 0.65 },
+                    { x: 0.25, y: 0.65 },
+                    { x: 0.25, y: 0.4 },
+                    { x: 0.5, y: 0.8 }
+                ];
+                beam.targetX = this.width * positions[i].x;
+                beam.targetY = this.height * positions[i].y;
+            });
         });
     }
 
@@ -497,6 +691,9 @@ class ReactorCore {
     destroy() {
         if (this.animationFrame) {
             cancelAnimationFrame(this.animationFrame);
+        }
+        if (this.unsubscribe) {
+            this.unsubscribe();
         }
         if (this.canvas && this.canvas.parentNode) {
             this.canvas.parentNode.removeChild(this.canvas);
