@@ -706,8 +706,7 @@ const API = {
         const userId = getUserId();
         if (!userId) throw new Error('User not authenticated');
         
-        // This might need a backend route - using biometric/all as fallback
-        const response = await SmartFetch(`${API_BASE_URL}/biometric/${userId}/all`, {
+        const response = await SmartFetch(`${API_BASE_URL}/mercury/${userId}/overview`, {
             headers: getAuthHeaders()
         }, 'getVitalsOverview');
         return await response.json();
@@ -715,7 +714,7 @@ const API = {
 
     // ========================================
     // VENUS - FITNESS & NUTRITION
-    // ✅ CORRECTED ENDPOINTS
+    // ✅ CORRECTED ENDPOINTS TO MATCH BACKEND
     // ========================================
 
     async logWorkout(workoutData) {
@@ -747,16 +746,24 @@ const API = {
         return await response.json();
     },
 
+    // ✅ FIXED: Changed to use client/:clientId format
     async getTodayNutrition() {
-        const response = await SmartFetch(`${API_BASE_URL}/nutrition/today`, {
+        const userId = getUserId();
+        if (!userId) throw new Error('User not authenticated');
+        
+        const response = await SmartFetch(`${API_BASE_URL}/nutrition/client/${userId}`, {
             headers: getAuthHeaders()
         }, 'getTodayNutrition');
         return await response.json();
     },
 
+    // ✅ FIXED: Changed to use client/:clientId/log format
     async logMeal(mealData) {
         if (!mealData) throw new Error('Meal data required');
-        const response = await SmartFetch(`${API_BASE_URL}/nutrition/log`, {
+        const userId = getUserId();
+        if (!userId) throw new Error('User not authenticated');
+        
+        const response = await SmartFetch(`${API_BASE_URL}/nutrition/client/${userId}/log`, {
             method: 'POST',
             headers: getAuthHeaders(),
             body: JSON.stringify(mealData)
@@ -807,9 +814,10 @@ const API = {
         return await response.json();
     },
 
+    // ✅ FIXED: Changed to use standard PUT /:id format
     async updateGoalProgress(goalId, progress) {
         if (!goalId) throw new Error('Goal ID required');
-        const response = await SmartFetch(`${API_BASE_URL}/goals/${goalId}/progress`, {
+        const response = await SmartFetch(`${API_BASE_URL}/goals/${goalId}`, {
             method: 'PUT',
             headers: getAuthHeaders(),
             body: JSON.stringify({ progress })
@@ -877,7 +885,10 @@ const API = {
     // ========================================
 
     async getLifeTimeline() {
-        const response = await SmartFetch(`${API_BASE_URL}/saturn/timeline`, {
+        const userId = getUserId();
+        if (!userId) throw new Error('User not authenticated');
+        
+        const response = await SmartFetch(`${API_BASE_URL}/saturn/${userId}/timeline`, {
             headers: getAuthHeaders()
         }, 'getLifeTimeline');
         return await response.json();
@@ -885,8 +896,11 @@ const API = {
 
     async updateVision(visionData) {
         if (!visionData) throw new Error('Vision data required');
-        const response = await SmartFetch(`${API_BASE_URL}/saturn/vision`, {
-            method: 'PUT',
+        const userId = getUserId();
+        if (!userId) throw new Error('User not authenticated');
+        
+        const response = await SmartFetch(`${API_BASE_URL}/saturn/${userId}/vision`, {
+            method: 'POST',
             headers: getAuthHeaders(),
             body: JSON.stringify(visionData)
         }, 'updateVision');
@@ -894,14 +908,20 @@ const API = {
     },
 
     async getQuarterlyReview() {
-        const response = await SmartFetch(`${API_BASE_URL}/saturn/quarterly-review`, {
+        const userId = getUserId();
+        if (!userId) throw new Error('User not authenticated');
+        
+        const response = await SmartFetch(`${API_BASE_URL}/saturn/${userId}/reviews`, {
             headers: getAuthHeaders()
         }, 'getQuarterlyReview');
         return await response.json();
     },
 
     async getLifeWheelScore() {
-        const response = await SmartFetch(`${API_BASE_URL}/saturn/life-wheel`, {
+        const userId = getUserId();
+        if (!userId) throw new Error('User not authenticated');
+        
+        const response = await SmartFetch(`${API_BASE_URL}/saturn/${userId}/life-wheel`, {
             headers: getAuthHeaders()
         }, 'getLifeWheelScore');
         return await response.json();
