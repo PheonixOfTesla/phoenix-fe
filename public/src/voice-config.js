@@ -1,5 +1,5 @@
-// PHOENIX VOICE CONFIGURATION - ENHANCED SENSITIVITY & OPENAI TTS
-// Fixes: Poor recognition, browser TTS fallback, audio sensitivity
+// PHOENIX VOICE CONFIGURATION - ENHANCED SENSITIVITY & BACKEND TTS
+// ✅ FIXED: Uses backend API, debouncing, no more browser TTS fallback
 
 class VoiceConfiguration {
     constructor() {
@@ -10,6 +10,14 @@ class VoiceConfiguration {
         this.config = this.getOptimalConfig();
         this.recognitionRetries = 0;
         this.maxRetries = 3;
+        
+        // ✅ DEBOUNCING - Prevent command repetition
+        this.lastCommand = '';
+        this.lastCommandTime = 0;
+        this.commandDebounceMs = 3000; // 3 seconds
+        
+        // Backend API URL
+        this.apiBaseURL = process.env.REACT_APP_API_URL || 'https://pal-backend-production.up.railway.app/api';
     }
 
     getOptimalConfig() {
@@ -42,17 +50,16 @@ class VoiceConfiguration {
                 }
             },
             
-            // OpenAI TTS Configuration
+            // OpenAI TTS Configuration via Backend
             tts: {
-                provider: 'openai',  // Force OpenAI
+                provider: 'backend',  // Use backend API
                 openai: {
-                    model: 'tts-1-hd',
+                    model: 'tts-1',
                     voice: 'nova',  // or 'alloy', 'echo', 'fable', 'onyx', 'shimmer'
-                    speed: 1.0,
-                    apiKey: null  // Will be loaded from localStorage
+                    speed: 1.0
                 },
                 fallback: {
-                    voice: 'Alex',
+                    voice: 'Google US English',
                     rate: 1.0,
                     pitch: 1.0,
                     volume: 1.0
@@ -84,8 +91,8 @@ class VoiceConfiguration {
             // 1. Setup recognition with enhanced sensitivity
             await this.setupRecognition();
             
-            // 2. Setup OpenAI TTS
-            await this.setupOpenAITTS();
+            // 2. Test backend TTS connection
+            await this.testBackendTTS();
             
             // 3. Apply audio enhancements
             await this.enhanceAudioInput();
@@ -130,49 +137,30 @@ class VoiceConfiguration {
         console.log('✅ Recognition configured with enhanced sensitivity');
     }
 
-    async setupOpenAITTS() {
-        console.log('🔊 Setting up OpenAI TTS...');
+    async testBackendTTS() {
+        console.log('🔊 Testing backend TTS connection...');
         
-        // Check for API key
-        let apiKey = localStorage.getItem('openai_api_key');
-        
-        if (!apiKey) {
-            // Try to get from environment or API
-            apiKey = await this.getOpenAIKey();
-        }
-        
-        if (apiKey) {
-            this.config.tts.openai.apiKey = apiKey;
-            this.openAIEnabled = true;
-            console.log('✅ OpenAI TTS enabled');
-        } else {
-            console.warn('⚠️ No OpenAI API key found, will use fallback');
-            this.openAIEnabled = false;
-        }
-    }
-
-    async getOpenAIKey() {
-        // Try to get key from backend
         try {
-            if (window.API && window.API.getOpenAIKey) {
-                const response = await window.API.getOpenAIKey();
-                if (response && response.key) {
-                    localStorage.setItem('openai_api_key', response.key);
-                    return response.key;
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.apiBaseURL}/tts/voices`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': token ? `Bearer ${token}` : ''
                 }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                console.log('✅ Backend TTS available:', data.voices);
+                this.openAIEnabled = true;
+            } else {
+                console.warn('⚠️ Backend TTS unavailable, will use browser fallback');
+                this.openAIEnabled = false;
             }
         } catch (error) {
-            console.warn('Could not fetch OpenAI key:', error);
+            console.warn('Backend TTS test failed:', error);
+            this.openAIEnabled = false;
         }
-        
-        // Prompt user for key
-        const key = prompt('Enter OpenAI API key for enhanced voice (or cancel for browser TTS):');
-        if (key) {
-            localStorage.setItem('openai_api_key', key);
-            return key;
-        }
-        
-        return null;
     }
 
     async enhanceAudioInput() {
@@ -248,32 +236,52 @@ class VoiceConfiguration {
         const results = event.results;
         const lastResult = results[results.length - 1];
         
+        // ✅ ONLY PROCESS FINAL RESULTS - prevents duplicates
+        if (!lastResult.isFinal) {
+            return;
+        }
+        
+        const transcript = lastResult[0].transcript.toLowerCase().trim();
+        const confidence = lastResult[0].confidence || 0.5;
+        
+        console.log(`✅ Recognized: "${transcript}" (confidence: ${confidence})`);
+        
+        // ✅ DEBOUNCE: Prevent duplicate commands
+        const now = Date.now();
+        if (transcript === this.lastCommand && (now - this.lastCommandTime) < this.commandDebounceMs) {
+            console.log('🚫 Duplicate command ignored (debounced)');
+            return;
+        }
+        
+        this.lastCommand = transcript;
+        this.lastCommandTime = now;
+        
         // Check all alternatives for better matching
         let bestMatch = null;
         let bestConfidence = 0;
         
         for (let i = 0; i < lastResult.length; i++) {
-            const transcript = lastResult[i].transcript.toLowerCase().trim();
-            const confidence = lastResult[i].confidence || 0.5;
+            const altTranscript = lastResult[i].transcript.toLowerCase().trim();
+            const altConfidence = lastResult[i].confidence || 0.5;
             
-            console.log(`🎤 Alternative ${i}: "${transcript}" (confidence: ${confidence})`);
+            console.log(`🎤 Alternative ${i}: "${altTranscript}" (confidence: ${altConfidence})`);
             
             // Check against aliases
-            const matchedCommand = this.findMatchingCommand(transcript);
+            const matchedCommand = this.findMatchingCommand(altTranscript);
             
-            if (matchedCommand && confidence > bestConfidence) {
+            if (matchedCommand && altConfidence > bestConfidence) {
                 bestMatch = matchedCommand;
-                bestConfidence = confidence;
+                bestConfidence = altConfidence;
             }
         }
         
         if (bestMatch) {
-            console.log(`✅ Recognized command: "${bestMatch}" (confidence: ${bestConfidence})`);
-            this.executeCommand(bestMatch, lastResult[0].transcript);
-        } else if (lastResult.isFinal) {
+            console.log(`✅ Matched command: "${bestMatch}" (confidence: ${bestConfidence})`);
+            this.executeCommand(bestMatch, transcript);
+        } else {
             // Process as general input
-            console.log(`💬 Final transcript: "${lastResult[0].transcript}"`);
-            this.processGeneralInput(lastResult[0].transcript);
+            console.log(`💬 General input: "${transcript}"`);
+            this.processGeneralInput(transcript);
         }
     }
 
@@ -355,7 +363,7 @@ class VoiceConfiguration {
             case 'no-speech':
                 console.log('No speech detected, continuing...');
                 if (this.isListening) {
-                    this.recognition.start(); // Restart
+                    setTimeout(() => this.recognition.start(), 100); // Restart
                 }
                 break;
             case 'audio-capture':
@@ -388,52 +396,71 @@ class VoiceConfiguration {
     async speak(text, priority = 'normal') {
         console.log(`🔊 Speaking: "${text}"`);
         
-        if (this.openAIEnabled && this.config.tts.openai.apiKey) {
-            await this.speakWithOpenAI(text);
+        if (this.openAIEnabled) {
+            try {
+                await this.speakWithBackend(text);
+            } catch (error) {
+                console.error('Backend TTS failed:', error);
+                await this.speakWithBrowser(text, priority);
+            }
         } else {
             await this.speakWithBrowser(text, priority);
         }
     }
 
-    async speakWithOpenAI(text) {
+    // ✅ NEW: Use backend API instead of calling OpenAI directly
+    async speakWithBackend(text) {
         try {
-            const response = await fetch('https://api.openai.com/v1/audio/speech', {
+            console.log('🔊 Calling backend TTS API...');
+            
+            const token = localStorage.getItem('phoenix_token');
+            
+            const response = await fetch(`${this.apiBaseURL}/tts/speak`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${this.config.tts.openai.apiKey}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': token ? `Bearer ${token}` : ''
                 },
                 body: JSON.stringify({
-                    model: this.config.tts.openai.model,
-                    input: text,
+                    text: text,
                     voice: this.config.tts.openai.voice,
                     speed: this.config.tts.openai.speed
                 })
             });
             
             if (!response.ok) {
-                throw new Error(`OpenAI TTS failed: ${response.status}`);
+                throw new Error(`TTS API failed: ${response.status}`);
             }
             
             const audioBlob = await response.blob();
             const audioUrl = URL.createObjectURL(audioBlob);
             const audio = new Audio(audioUrl);
             
-            audio.onended = () => {
-                URL.revokeObjectURL(audioUrl);
-                console.log('✅ OpenAI TTS complete');
-            };
-            
-            await audio.play();
+            return new Promise((resolve, reject) => {
+                audio.onended = () => {
+                    URL.revokeObjectURL(audioUrl);
+                    console.log('✅ OpenAI TTS complete');
+                    resolve();
+                };
+                
+                audio.onerror = (error) => {
+                    URL.revokeObjectURL(audioUrl);
+                    console.error('Audio playback error:', error);
+                    reject(error);
+                };
+                
+                audio.play();
+            });
             
         } catch (error) {
-            console.error('OpenAI TTS error:', error);
-            console.log('Falling back to browser TTS');
-            await this.speakWithBrowser(text);
+            console.error('❌ Backend TTS error:', error);
+            throw error;
         }
     }
 
     async speakWithBrowser(text, priority = 'normal') {
+        console.log('🔊 Falling back to browser TTS');
+        
         return new Promise((resolve) => {
             const utterance = new SpeechSynthesisUtterance(text);
             
@@ -521,9 +548,6 @@ class VoiceConfiguration {
             // Add our recognition
             original.recognition = this.recognition;
             
-            // Prevent restarts
-            original.preventRestart = true;
-            
             console.log('✅ Voice interface patched');
         }
         
@@ -547,13 +571,6 @@ class VoiceConfiguration {
                     <label>Microphone Sensitivity</label>
                     <input type="range" min="1" max="5" value="3" id="sensitivity-slider">
                     <span id="sensitivity-value">3</span>
-                </div>
-                <div class="setting-group">
-                    <label>TTS Provider</label>
-                    <select id="tts-provider">
-                        <option value="openai">OpenAI (Best Quality)</option>
-                        <option value="browser">Browser (Fallback)</option>
-                    </select>
                 </div>
                 <div class="setting-group">
                     <label>OpenAI Voice</label>
@@ -673,7 +690,6 @@ class VoiceConfiguration {
         
         // Save settings button
         panel.querySelector('#save-settings-btn').onclick = () => {
-            this.config.tts.provider = panel.querySelector('#tts-provider').value;
             this.config.tts.openai.voice = panel.querySelector('#openai-voice').value;
             this.savePreferences();
             this.speak("Settings saved successfully.");
