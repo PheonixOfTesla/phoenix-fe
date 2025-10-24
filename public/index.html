@@ -518,24 +518,18 @@
     </style>
 
     <!-- LOAD MODULES -->
+    <script src="src/orchestrator.js"></script>
     <script type="module" src="./src/api.js"></script>
     <script type="module" src="./src/voice.js"></script>
     <script type="module" src="./src/planets.js"></script>
     <script type="module" src="./src/jarvis.js"></script>
     <script type="module" src="./src/reactor.js"></script>
     <script type="module" src="./src/shaders.js"></script>
-    <script type="module" src="./src/orchestrator.js"></script>
     <script type="module" src="./src/wearables.js"></script>
 
     <script>
-        console.log('🎙️ Voice interface loading...');
-        let checkCount=0;
-        const checkVoice=setInterval(()=>{checkCount++;
-            if(window.voiceInterface){console.log('✅ Voice interface active');clearInterval(checkVoice);
-            setTimeout(()=>{if(window.voiceInterface&&!window.voiceInterface.isSpeaking){
-            console.log('🔊 Triggering greeting');window.voiceInterface.sayInitialGreeting();}},1000);
-            }else if(checkCount>10){console.error('❌ Voice failed to load');clearInterval(checkVoice);}
-        },1000);
+        // Orchestrator auto-initializes and fixes voice restart issue
+    console.log('🚀 Phoenix systems loading...');
     </script>
 </body>
 </html>
