@@ -148,6 +148,23 @@
     <!-- THREE.JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
+<script>
+    // ============================================
+    // FIRST-TIME USER DETECTION
+    // ============================================
+    (function checkOnboarding() {
+        const onboardingComplete = localStorage.getItem('phoenixOnboardingComplete');
+        
+        // If onboarding not completed, redirect to onboarding.html
+        if (!onboardingComplete || onboardingComplete !== 'true') {
+            console.log('🎬 First-time user detected, redirecting to onboarding...');
+            window.location.href = '/onboarding.html';
+            return;
+        }
+        
+        console.log('✅ Returning user, loading main app...');
+    })();
+    
     <!-- CORE ENGINE -->
     <script>
         const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : 'https://pal-backend-production.up.railway.app/api';
