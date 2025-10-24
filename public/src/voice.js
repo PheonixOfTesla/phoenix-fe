@@ -1,7 +1,7 @@
 // ============================================================================
-// PHOENIX VOICE INTERFACE - Production Web Version
+// PHOENIX VOICE INTERFACE - Conversational AI Butler with Personalities
 // ============================================================================
-// Ready for testing TODAY - will port to iOS after web validation
+// Each voice has a unique personality that adapts the AI responses
 // ============================================================================
 
 class VoiceInterface {
@@ -13,6 +13,16 @@ class VoiceInterface {
         this.selectedVoice = 'nova';
         this.speechSpeed = 1.0;
         this.volume = 1.0;
+        
+        // Voice-to-Personality Mapping
+        this.voicePersonalities = {
+            'nova': 'friendly_helpful',      // Warm, approachable, encouraging
+            'onyx': 'professional_serious',  // Deep, authoritative, formal
+            'echo': 'british_refined',       // Proper, sophisticated, cultured
+            'fable': 'whimsical_storyteller', // Creative, playful, imaginative
+            'shimmer': 'gentle_nurturing',   // Soft, caring, empathetic
+            'alloy': 'neutral_efficient'     // Direct, no-nonsense, concise
+        };
         
         this.isListening = false;
         this.isSpeaking = false;
@@ -31,19 +41,24 @@ class VoiceInterface {
         this.lastCommandTime = 0;
         this.commandDebounceMs = 2000;
         
-        this.recordingDuration = 3000; // 3 seconds
+        this.recordingDuration = 3000;
         this.recordingTimer = null;
+        
+        // Conversation context
+        this.conversationHistory = [];
+        this.maxHistoryLength = 10;
     }
 
     async init() {
-        console.log('🎙️ Initializing voice interface...');
+        console.log('🎙️ Initializing Phoenix AI Butler...');
         
         try {
             await this.testBackend();
             await this.setupMicrophone();
             this.setupAudioUnlock();
             
-            console.log('✅ Voice ready - click page to activate');
+            console.log('✅ AI Butler ready - click page to activate');
+            console.log(`🎭 Personality: ${this.voicePersonalities[this.selectedVoice]}`);
             return true;
         } catch (error) {
             console.error('❌ Init failed:', error.message);
@@ -53,14 +68,16 @@ class VoiceInterface {
 
     async testBackend() {
         try {
-            const [tts, whisper] = await Promise.all([
+            const [tts, whisper, ai] = await Promise.all([
                 fetch(`${this.API_BASE}/tts/status`).then(r => r.json()),
-                fetch(`${this.API_BASE}/whisper/status`).then(r => r.json())
+                fetch(`${this.API_BASE}/whisper/status`).then(r => r.json()),
+                fetch(`${this.API_BASE}/phoenix/status`).then(r => r.json()).catch(() => ({status: 'unknown'}))
             ]);
             
             console.log('✅ Backend:', {
                 tts: tts.status,
-                whisper: whisper.status
+                whisper: whisper.status,
+                ai: ai.status
             });
             
             if (!tts.hasApiKey || !whisper.hasApiKey) {
@@ -134,12 +151,12 @@ class VoiceInterface {
         
         this.audioChunks = [];
         
-        // Try webm, fall back to mp4/other formats
-let mimeType = 'audio/webm';
-if (!MediaRecorder.isTypeSupported('audio/webm')) {
-    mimeType = 'audio/mp4';
-}
-this.mediaRecorder = new MediaRecorder(this.recordingStream, { mimeType });
+        let mimeType = 'audio/webm';
+        if (!MediaRecorder.isTypeSupported('audio/webm')) {
+            mimeType = 'audio/mp4';
+        }
+        
+        this.mediaRecorder = new MediaRecorder(this.recordingStream, { mimeType });
 
         this.mediaRecorder.ondataavailable = (e) => {
             if (e.data.size > 0) this.audioChunks.push(e.data);
@@ -148,7 +165,7 @@ this.mediaRecorder = new MediaRecorder(this.recordingStream, { mimeType });
         this.mediaRecorder.onstop = async () => {
             if (this.audioChunks.length === 0) return;
             
-            const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+            const audioBlob = new Blob(this.audioChunks, { type: mimeType });
             await this.transcribeAudio(audioBlob);
             
             if (this.isListening) {
@@ -195,7 +212,7 @@ this.mediaRecorder = new MediaRecorder(this.recordingStream, { mimeType });
 
             if (text && text.length > 0) {
                 console.log(`✅ Heard: "${text}"`);
-                this.processCommand(text);
+                this.processInput(text);
             }
 
         } catch (error) {
@@ -203,50 +220,151 @@ this.mediaRecorder = new MediaRecorder(this.recordingStream, { mimeType });
         }
     }
 
-    // COMMAND PROCESSING
-    processCommand(transcript) {
-        const cmd = transcript.toLowerCase().trim();
+    // PROCESS USER INPUT - Send to AI
+    async processInput(transcript) {
+        const input = transcript.trim();
         
         // Debounce duplicates
         const now = Date.now();
-        if (cmd === this.lastCommand && (now - this.lastCommandTime) < this.commandDebounceMs) {
+        if (input === this.lastCommand && (now - this.lastCommandTime) < this.commandDebounceMs) {
             console.log('⏭️ Duplicate ignored');
             return;
         }
-        this.lastCommand = cmd;
+        this.lastCommand = input;
         this.lastCommandTime = now;
 
-        console.log(`🎯 Command: "${cmd}"`);
+        console.log(`💬 User: "${input}"`);
 
-        // Built-in commands
-        if (this.matchCommand(cmd, ['activate phoenix', 'hey phoenix', 'phoenix'])) {
-            this.speak('Phoenix activated. How can I help?');
-        } 
-        else if (this.matchCommand(cmd, ['stop', 'quiet', 'be quiet'])) {
-            this.stopSpeaking();
-            this.speak('Understood.');
-        } 
-        else if (this.matchCommand(cmd, ['status', 'how are you'])) {
-            this.speak('All systems operational.');
+        // Only handle critical system commands directly
+        if (this.matchCommand(input, ['stop listening', 'deactivate', 'shut up', 'be quiet'])) {
+            this.speak('Going silent.');
+            setTimeout(() => this.stopListening(), 1500);
+            return;
         }
-        else if (this.matchCommand(cmd, ['stop listening', 'deactivate'])) {
-            this.speak('Listening deactivated.');
-            setTimeout(() => this.stopListening(), 2000);
-        }
-        else if (this.matchCommand(cmd, ['start listening', 'activate'])) {
-            this.speak('Listening activated.');
+        
+        if (this.matchCommand(input, ['start listening', 'wake up', 'hello phoenix'])) {
+            this.speak('I\'m listening.');
             this.startListening();
+            return;
         }
-        else {
-            // Forward to orchestrator
-            window.dispatchEvent(new CustomEvent('voice:command', {
-                detail: { command: cmd, transcript, confidence: 1.0 }
-            }));
+        
+        // Voice change command
+        if (this.matchCommand(input, ['change voice', 'switch voice', 'different voice'])) {
+            this.speak('Which voice would you like? Nova, Onyx, Echo, Fable, Shimmer, or Alloy?');
+            return;
         }
+
+        // Everything else goes to AI
+        await this.chatWithAI(input);
     }
 
     matchCommand(input, keywords) {
-        return keywords.some(k => input.includes(k));
+        const lower = input.toLowerCase();
+        return keywords.some(k => lower.includes(k));
+    }
+
+    // CONVERSATIONAL AI with Personality
+    async chatWithAI(message) {
+        try {
+            // Add to conversation history
+            this.conversationHistory.push({
+                role: 'user',
+                content: message
+            });
+
+            // Keep history manageable
+            if (this.conversationHistory.length > this.maxHistoryLength) {
+                this.conversationHistory = this.conversationHistory.slice(-this.maxHistoryLength);
+            }
+
+            console.log('🤖 Asking AI with personality:', this.voicePersonalities[this.selectedVoice]);
+            
+            const response = await fetch(`${this.API_BASE}/phoenix/chat`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('phoenix_token') || ''}`
+                },
+                body: JSON.stringify({ 
+                    message: message,
+                    userId: localStorage.getItem('phoenix_user_id'),
+                    conversationHistory: this.conversationHistory,
+                    personality: this.voicePersonalities[this.selectedVoice] || 'friendly_helpful',
+                    voiceName: this.selectedVoice
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`AI chat failed: ${response.status}`);
+            }
+
+            const data = await response.json();
+            
+            if (data.response) {
+                console.log(`🤖 Phoenix: "${data.response}"`);
+                
+                // Add AI response to history
+                this.conversationHistory.push({
+                    role: 'assistant',
+                    content: data.response
+                });
+                
+                this.speak(data.response);
+            } else {
+                this.speak("I'm not sure how to respond to that.");
+            }
+
+        } catch (error) {
+            console.error('❌ AI chat error:', error);
+            
+            // Personality-based fallback responses
+            const fallbacks = this.getPersonalityFallbacks();
+            this.speak(fallbacks[Math.floor(Math.random() * fallbacks.length)]);
+        }
+    }
+
+    getPersonalityFallbacks() {
+        const personality = this.voicePersonalities[this.selectedVoice];
+        
+        switch(personality) {
+            case 'professional_serious':
+                return [
+                    "I'm experiencing technical difficulties. Please stand by.",
+                    "System error encountered. I'll need a moment.",
+                    "Connection interrupted. Allow me to reestablish."
+                ];
+            case 'british_refined':
+                return [
+                    "Terribly sorry, I seem to have lost the thread. Pardon me.",
+                    "My apologies, I'm having a spot of bother with the connection.",
+                    "Dreadfully sorry, technical hiccup. Do carry on."
+                ];
+            case 'whimsical_storyteller':
+                return [
+                    "Oh dear, my story got lost in the clouds! Let's try again.",
+                    "The magic words aren't working right now. Give me a moment!",
+                    "My imagination is taking a coffee break. Be right back!"
+                ];
+            case 'gentle_nurturing':
+                return [
+                    "I'm having a little trouble connecting right now, but don't worry.",
+                    "Give me just a moment, I'll be right with you.",
+                    "Let me gather my thoughts. I want to give you the best answer."
+                ];
+            case 'neutral_efficient':
+                return [
+                    "Connection error. Retry in progress.",
+                    "System unavailable. Standby mode.",
+                    "Processing failed. Attempting recovery."
+                ];
+            default: // friendly_helpful
+                return [
+                    "Oops, my circuits got a bit tangled. Can you say that again?",
+                    "Connection's spotty. Must be the weather in the cloud!",
+                    "Technical hiccup on my end. What were you saying?",
+                    "I'm having trouble connecting. Give me another shot?"
+                ];
+        }
     }
 
     // SPEAKING
@@ -354,8 +472,14 @@ this.mediaRecorder = new MediaRecorder(this.recordingStream, { mimeType });
 
     // SETTINGS
     setVoice(voice) {
-        this.selectedVoice = voice;
-        console.log('🎙️ Voice:', voice);
+        if (this.voicePersonalities[voice]) {
+            this.selectedVoice = voice;
+            console.log('🎙️ Voice changed to:', voice);
+            console.log('🎭 Personality:', this.voicePersonalities[voice]);
+            this.speak(`Voice changed to ${voice}. My personality is now ${this.voicePersonalities[voice].replace('_', ' ')}.`);
+        } else {
+            console.error('Invalid voice:', voice);
+        }
     }
 
     setSpeed(speed) {
@@ -380,13 +504,62 @@ this.mediaRecorder = new MediaRecorder(this.recordingStream, { mimeType });
     }
 
     sayGreeting() {
-        const greetings = [
-            'Phoenix online.',
-            'All systems ready.',
-            'Standing by.',
-            'Phoenix activated.'
-        ];
+        const personality = this.voicePersonalities[this.selectedVoice];
+        
+        let greetings;
+        switch(personality) {
+            case 'professional_serious':
+                greetings = [
+                    'Phoenix systems operational. Standing by for instructions.',
+                    'Ready to assist. How may I be of service?',
+                    'All systems functional. Awaiting your command.'
+                ];
+                break;
+            case 'british_refined':
+                greetings = [
+                    'Good day. Phoenix at your service. How may I assist you?',
+                    'Greetings. I do hope you\'re well. What can I do for you today?',
+                    'Phoenix reporting for duty. What shall we accomplish today?'
+                ];
+                break;
+            case 'whimsical_storyteller':
+                greetings = [
+                    'Once upon a time... just kidding! Phoenix here, ready for adventure!',
+                    'The story begins now! What magical task shall we tackle?',
+                    'Phoenix awakens! What tale shall we write today?'
+                ];
+                break;
+            case 'gentle_nurturing':
+                greetings = [
+                    'Hello there. Phoenix here, ready to help. How are you today?',
+                    'Hi! I\'m here whenever you need me. What can I do for you?',
+                    'Phoenix at your service. Take your time, I\'m listening.'
+                ];
+                break;
+            case 'neutral_efficient':
+                greetings = [
+                    'Phoenix online. Ready.',
+                    'Systems active. Awaiting input.',
+                    'Operational. Proceed.'
+                ];
+                break;
+            default: // friendly_helpful
+                greetings = [
+                    'Phoenix at your service! What can I help you with?',
+                    'Hey there! Your AI butler is ready. What\'s up?',
+                    'Phoenix here! Let\'s make today awesome. What do you need?',
+                    'Ready to go! What\'s on your mind?'
+                ];
+        }
+        
         this.speak(greetings[Math.floor(Math.random() * greetings.length)]);
+    }
+
+    // Clear conversation history
+    resetConversation() {
+        this.conversationHistory = [];
+        console.log('🔄 Conversation reset');
+        this.speak('Starting fresh. What would you like to talk about?');
     }
 
     destroy() {
@@ -411,4 +584,4 @@ if (document.readyState === 'loading') {
 }
 
 export default voiceInterface;
-console.log('📦 Voice interface loaded');
+console.log('📦 Phoenix AI Butler with Personalities loaded');
