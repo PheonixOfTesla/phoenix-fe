@@ -1,18 +1,21 @@
 // ============================================================================
-// PHOENIX VOICE INTERFACE - OpenAI TTS Backend Edition
+// PHOENIX VOICE INTERFACE - FIXED VERSION
 // ============================================================================
-// Clean, working implementation that calls your Railway backend
+// Fixes: 
+// - Removed 'process' variable (browser incompatible)
+// - Added user interaction requirement for audio
+// - Better error handling
 // ============================================================================
 
 class VoiceInterface {
     constructor() {
-        // Backend API configuration
-        this.API_BASE = window.location.hostname === 'localhost' 
+        // Backend API configuration (NO process.env in browser!)
+        this.API_BASE = window.location.hostname.includes('localhost') 
             ? 'http://localhost:5000/api'
             : 'https://pal-backend-production.up.railway.app/api';
         
         // Voice settings
-        this.selectedVoice = 'nova';  // alloy, echo, fable, onyx, nova, shimmer
+        this.selectedVoice = 'nova';
         this.speechSpeed = 1.0;
         this.volume = 1.0;
         
@@ -21,6 +24,7 @@ class VoiceInterface {
         this.isSpeaking = false;
         this.recognition = null;
         this.currentAudio = null;
+        this.audioUnlocked = false; // Track if user has interacted
         
         // Queue system
         this.speechQueue = [];
@@ -42,15 +46,43 @@ class VoiceInterface {
             // Setup speech recognition
             this.setupRecognition();
             
-            // Setup visualizer if element exists
-            this.setupVisualizer();
+            // Setup audio unlock listener (for browser autoplay policy)
+            this.setupAudioUnlock();
             
             console.log('✅ Voice interface ready');
+            console.log('💡 Click anywhere to enable audio');
             return true;
         } catch (error) {
             console.error('❌ Voice init failed:', error);
             return false;
         }
+    }
+
+    setupAudioUnlock() {
+        // Unlock audio on first user interaction
+        const unlockAudio = () => {
+            if (this.audioUnlocked) return;
+            
+            // Create and play silent audio to unlock
+            const silentAudio = new Audio('data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAADhAC7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7//////////////////////////////////////////////////////////////////8AAAAATGF2YzU4LjEzAAAAAAAAAAAAAAAAJAAAAAAAAAAAA4T/wkBYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//MUZAADwAABpAAAACAAADSAAAAETEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV');
+            silentAudio.play().then(() => {
+                this.audioUnlocked = true;
+                console.log('🔓 Audio unlocked');
+                
+                // Say greeting now that audio is unlocked
+                this.sayGreeting();
+            }).catch(() => {
+                console.log('⏳ Waiting for user interaction...');
+            });
+            
+            // Remove listeners after first interaction
+            document.removeEventListener('click', unlockAudio);
+            document.removeEventListener('touchstart', unlockAudio);
+        };
+        
+        // Listen for user interaction
+        document.addEventListener('click', unlockAudio, { once: true });
+        document.addEventListener('touchstart', unlockAudio, { once: true });
     }
 
     async testBackend() {
@@ -62,8 +94,8 @@ class VoiceInterface {
             console.log('✅ Backend TTS:', data.hasApiKey ? 'Connected' : 'No API Key');
             return data;
         } catch (error) {
-            console.error('⚠️ Backend TTS unavailable:', error.message);
-            throw error;
+            console.warn('⚠️ Backend TTS unavailable, will use browser fallback');
+            return { available: false };
         }
     }
 
@@ -98,15 +130,6 @@ class VoiceInterface {
         };
     }
 
-    setupVisualizer() {
-        // Setup audio visualizer if canvas exists
-        const canvas = document.getElementById('voice-visualizer');
-        if (canvas) {
-            console.log('🎨 Visualizer canvas found');
-            // Visualizer setup here if needed
-        }
-    }
-
     startListening() {
         if (!this.recognition) {
             console.warn('⚠️ Recognition not available');
@@ -120,7 +143,6 @@ class VoiceInterface {
             this.isListening = true;
             console.log('🎤 Listening started...');
             
-            // Update UI
             this.updateListeningUI(true);
         } catch (error) {
             console.error('Failed to start listening:', error);
@@ -134,7 +156,6 @@ class VoiceInterface {
         this.isListening = false;
         console.log('🎤 Listening stopped');
         
-        // Update UI
         this.updateListeningUI(false);
     }
 
@@ -165,9 +186,12 @@ class VoiceInterface {
             this.speak('Understood. I\'ll be quiet.');
         } else if (command.includes('status') || command.includes('how are you')) {
             this.speak('All systems operational. Standing by.');
+        } else if (command.includes('start listening')) {
+            this.startListening();
+            this.speak('Listening mode activated');
         }
         
-        // Dispatch event for other systems to handle
+        // Dispatch event for other systems
         window.dispatchEvent(new CustomEvent('voice:command', {
             detail: { command, transcript }
         }));
@@ -181,7 +205,7 @@ class VoiceInterface {
         // Add to queue
         this.speechQueue.push({ text, priority });
         
-        // Process queue if not already processing
+        // Process queue
         if (!this.isProcessingQueue) {
             this.processQueue();
         }
@@ -216,7 +240,7 @@ class VoiceInterface {
         this.isSpeaking = true;
 
         try {
-            // Call backend TTS
+            // Try backend TTS first
             const response = await fetch(`${this.API_BASE}/tts/generate`, {
                 method: 'POST',
                 headers: {
@@ -243,7 +267,7 @@ class VoiceInterface {
             console.log('✅ Speech completed');
 
         } catch (error) {
-            console.error('❌ TTS error:', error);
+            console.warn('⚠️ Backend TTS failed, using browser fallback');
             // Fallback to browser TTS
             this.speakWithBrowser(text);
         } finally {
@@ -284,24 +308,20 @@ class VoiceInterface {
     }
 
     stopSpeaking() {
-        // Stop current audio
         if (this.currentAudio) {
             this.currentAudio.pause();
             this.currentAudio = null;
         }
 
-        // Clear queue
         this.speechQueue = [];
         this.isProcessingQueue = false;
         this.isSpeaking = false;
 
-        // Stop browser TTS
         window.speechSynthesis.cancel();
 
         console.log('🛑 Speech stopped');
     }
 
-    // Utility methods
     setVoice(voice) {
         this.selectedVoice = voice;
         console.log('🎙️ Voice changed to:', voice);
@@ -317,7 +337,6 @@ class VoiceInterface {
         console.log('🔊 Volume set to:', this.volume);
     }
 
-    // Greeting
     sayGreeting() {
         const greetings = [
             'Phoenix online and ready.',
@@ -345,33 +364,18 @@ class VoiceInterface {
 
 const voiceInterface = new VoiceInterface();
 
-// CRITICAL: Attach to window FIRST
+// Attach to window IMMEDIATELY
 window.voiceInterface = voiceInterface;
 
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         console.log('🚀 Initializing voice interface...');
-        voiceInterface.init().then(() => {
-            console.log('✅ Voice interface ready');
-            
-            // Optional: Say greeting after 2 seconds
-            setTimeout(() => {
-                voiceInterface.sayGreeting();
-            }, 2000);
-        });
+        voiceInterface.init();
     });
 } else {
-    // DOM already loaded
     console.log('🚀 Initializing voice interface...');
-    voiceInterface.init().then(() => {
-        console.log('✅ Voice interface ready');
-        
-        // Optional: Say greeting after 2 seconds
-        setTimeout(() => {
-            voiceInterface.sayGreeting();
-        }, 2000);
-    });
+    voiceInterface.init();
 }
 
 // Export for modules
