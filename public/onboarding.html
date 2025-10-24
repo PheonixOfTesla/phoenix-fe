@@ -47,6 +47,285 @@
         }
 
         /* ============================================
+           PHASE 0: VOICE & LANGUAGE SELECTION
+        ============================================ */
+        #phase-0 {
+            background: radial-gradient(circle at center, rgba(0, 15, 30, 1) 0%, rgba(0, 0, 0, 1) 100%);
+        }
+
+        .setup-container {
+            max-width: 1200px;
+            width: 90%;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .setup-header {
+            margin-bottom: 60px;
+        }
+
+        .phoenix-logo-large {
+            font-size: 80px;
+            color: #00ffff;
+            text-shadow: 0 0 60px rgba(0, 255, 255, 1);
+            letter-spacing: 15px;
+            margin-bottom: 20px;
+            animation: logoPulse 2s ease-in-out infinite;
+        }
+
+        .setup-subtitle {
+            font-size: 24px;
+            color: rgba(0, 255, 255, 0.9);
+            margin-bottom: 15px;
+        }
+
+        .setup-description {
+            font-size: 16px;
+            color: rgba(0, 255, 255, 0.7);
+            line-height: 1.6;
+        }
+
+        .setup-section {
+            margin: 50px 0;
+        }
+
+        .section-title {
+            font-size: 20px;
+            color: #00ffff;
+            margin-bottom: 30px;
+            text-align: left;
+            padding-left: 10px;
+            border-left: 4px solid #00ffff;
+        }
+
+        /* Language Grid */
+        .language-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .language-card {
+            padding: 25px;
+            background: rgba(0, 255, 255, 0.05);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            text-align: center;
+        }
+
+        .language-card:hover {
+            background: rgba(0, 255, 255, 0.1);
+            border-color: rgba(0, 255, 255, 0.6);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.3);
+        }
+
+        .language-card.selected {
+            background: rgba(0, 255, 255, 0.2);
+            border-color: #00ffff;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+        }
+
+        .language-flag {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .language-name {
+            font-size: 16px;
+            color: #00ffff;
+            font-weight: bold;
+        }
+
+        .language-checkmark {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 24px;
+            height: 24px;
+            background: #00ffff;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .language-card.selected .language-checkmark {
+            display: flex;
+        }
+
+        /* Voice Grid */
+        .voice-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .voice-card {
+            padding: 30px;
+            background: rgba(0, 255, 255, 0.05);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            text-align: left;
+        }
+
+        .voice-card:hover {
+            background: rgba(0, 255, 255, 0.1);
+            border-color: rgba(0, 255, 255, 0.6);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.3);
+        }
+
+        .voice-card.selected {
+            background: rgba(0, 255, 255, 0.2);
+            border-color: #00ffff;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+        }
+
+        .voice-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .voice-icon {
+            font-size: 32px;
+        }
+
+        .voice-name {
+            font-size: 20px;
+            color: #00ffff;
+            font-weight: bold;
+            flex: 1;
+        }
+
+        .voice-gender {
+            font-size: 12px;
+            color: rgba(0, 255, 255, 0.6);
+            background: rgba(0, 255, 255, 0.1);
+            padding: 4px 10px;
+            border-radius: 4px;
+        }
+
+        .voice-description {
+            font-size: 14px;
+            color: rgba(0, 255, 255, 0.8);
+            margin-bottom: 10px;
+        }
+
+        .voice-personality {
+            font-size: 13px;
+            color: rgba(0, 255, 255, 0.6);
+            margin-bottom: 20px;
+        }
+
+        .voice-preview-btn {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.5);
+            color: #00ffff;
+            font-family: inherit;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .voice-preview-btn:hover {
+            background: rgba(0, 255, 255, 0.2);
+            border-color: #00ffff;
+        }
+
+        .voice-preview-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .preview-icon {
+            font-size: 12px;
+        }
+
+        .voice-checkmark {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 28px;
+            height: 28px;
+            background: #00ffff;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .voice-card.selected .voice-checkmark {
+            display: flex;
+        }
+
+        /* Setup Actions */
+        .setup-actions {
+            margin: 60px 0 40px;
+        }
+
+        .setup-actions .btn {
+            min-width: 300px;
+        }
+
+        .setup-actions .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .setup-actions .btn.enabled {
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 255, 0.4); }
+            50% { box-shadow: 0 0 40px rgba(0, 255, 255, 0.8); }
+        }
+
+        /* Progress Indicator */
+        .setup-progress {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .progress-step {
+            font-size: 12px;
+            color: rgba(0, 255, 255, 0.4);
+            padding: 8px 16px;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 20px;
+        }
+
+        .progress-step.active {
+            color: #00ffff;
+            border-color: #00ffff;
+            background: rgba(0, 255, 255, 0.1);
+        }
+
+        /* ============================================
            PHASE 1: AWAKENING
         ============================================ */
         #phase-1 {
@@ -613,63 +892,6 @@
             background: rgba(0, 255, 255, 0.5);
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .phoenix-logo {
-                font-size: 64px;
-                letter-spacing: 8px;
-            }
-
-            .greeting-title {
-                font-size: 32px;
-            }
-
-            .content-title {
-                font-size: 28px;
-            }
-
-            .split-screen {
-                grid-template-columns: 1fr;
-            }
-
-            .integration-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .button-group {
-                flex-direction: column;
-            }
-
-            .btn {
-                width: 100%;
-            }
-
-            .content-container {
-                width: 95%;
-                padding: 30px 20px;
-            }
-        }
-
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideInUp {
-            from { opacity: 0; transform: translateY(50px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes scaleIn {
-            from { opacity: 0; transform: scale(0.8); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        .animate-in {
-            animation: slideInUp 0.8s ease-out;
-        }
-
         /* Trust Meter */
         .trust-meter {
             margin: 40px 0;
@@ -705,6 +927,85 @@
             from { width: 0%; }
             to { width: var(--trust-level); }
         }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .phoenix-logo {
+                font-size: 64px;
+                letter-spacing: 8px;
+            }
+
+            .phoenix-logo-large {
+                font-size: 48px;
+                letter-spacing: 8px;
+            }
+
+            .greeting-title {
+                font-size: 32px;
+            }
+
+            .content-title {
+                font-size: 28px;
+            }
+
+            .split-screen {
+                grid-template-columns: 1fr;
+            }
+
+            .integration-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .content-container {
+                width: 95%;
+                padding: 30px 20px;
+            }
+
+            .language-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .voice-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .setup-actions .btn {
+                min-width: 100%;
+            }
+
+            .setup-progress {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .animate-in {
+            animation: slideInUp 0.8s ease-out;
+        }
     </style>
 </head>
 <body>
@@ -715,9 +1016,16 @@
     <div class="phase-navigation" id="phase-nav"></div>
 
     <!-- ============================================
+         PHASE 0: VOICE & LANGUAGE SELECTION
+    ============================================ -->
+    <div class="phase-container" id="phase-0">
+        <!-- Content dynamically generated by onboarding.js -->
+    </div>
+
+    <!-- ============================================
          PHASE 1: AWAKENING
     ============================================ -->
-    <div class="phase-container active" id="phase-1">
+    <div class="phase-container" id="phase-1">
         <div class="particle-field" id="particle-field"></div>
         <div class="phoenix-logo">PHOENIX</div>
     </div>
@@ -1208,7 +1516,7 @@
             </div>
 
             <div style="margin: 50px 0;">
-                <div class="prediction-box" style="cursor: pointer; transition: all 0.3s;" onclick="selectOption('simple')">
+                <div class="prediction-box" style="cursor: pointer; transition: all 0.3s;" onclick="window.selectOption && window.selectOption('simple')">
                     <div class="prediction-title">
                         <span>🌱</span>
                         <span>Option 1: Start Simple</span>
@@ -1218,7 +1526,7 @@
                     </div>
                 </div>
 
-                <div class="prediction-box" style="cursor: pointer; transition: all 0.3s; border-color: rgba(0, 255, 255, 0.8);" onclick="selectOption('all-in')">
+                <div class="prediction-box" style="cursor: pointer; transition: all 0.3s; border-color: rgba(0, 255, 255, 0.8);" onclick="window.selectOption && window.selectOption('all-in')">
                     <div class="prediction-title">
                         <span>🚀</span>
                         <span>Option 2: Go All In (Recommended)</span>
@@ -1228,7 +1536,7 @@
                     </div>
                 </div>
 
-                <div class="prediction-box" style="cursor: pointer; transition: all 0.3s;" onclick="selectOption('explore')">
+                <div class="prediction-box" style="cursor: pointer; transition: all 0.3s;" onclick="window.selectOption && window.selectOption('explore')">
                     <div class="prediction-title">
                         <span>👀</span>
                         <span>Option 3: Just Explore</span>
@@ -1264,475 +1572,19 @@
             </div>
 
             <div class="button-group" style="margin-top: 50px;">
-                <button class="btn btn-ghost" onclick="selectOption('explore')">JUST EXPLORE</button>
-                <button class="btn btn-secondary" onclick="selectOption('simple')">START SIMPLE</button>
-                <button class="btn btn-primary" onclick="selectOption('all-in')">GO ALL IN</button>
+                <button class="btn btn-ghost" onclick="window.selectOption && window.selectOption('explore')">JUST EXPLORE</button>
+                <button class="btn btn-secondary" onclick="window.selectOption && window.selectOption('simple')">START SIMPLE</button>
+                <button class="btn btn-primary" onclick="window.selectOption && window.selectOption('all-in')">GO ALL IN</button>
             </div>
         </div>
     </div>
 
-    <!-- Main Script -->
-    <script>
-        // ============================================
-        // CONFIGURATION
-        // ============================================
-        const API_BASE = window.location.hostname === 'localhost' 
-            ? 'http://localhost:5000/api'
-            : 'https://pal-backend-production.up.railway.app/api';
-
-        // ============================================
-        // STATE
-        // ============================================
-        let currentPhase = 1;
-        const totalPhases = 9;
-        let userData = null;
-        let locationData = null;
-
-        // ============================================
-        // INITIALIZATION
-        // ============================================
-        window.addEventListener('DOMContentLoaded', () => {
-            console.log('🎬 Onboarding initialized');
-            
-            // Setup phase navigation
-            setupPhaseNavigation();
-            
-            // Generate particles
-            generateParticles('particle-field', 50);
-            generateParticles('particle-field-2', 30);
-            
-            // Setup button handlers
-            setupButtonHandlers();
-            
-            // Fetch user data
-            fetchUserData();
-            
-            // Fetch location data
-            fetchLocationData();
-            
-            // Auto-advance from Phase 1 to Phase 2
-            setTimeout(() => {
-                goToPhase(2);
-            }, 4000);
-        });
-
-        // ============================================
-        // PHASE NAVIGATION
-        // ============================================
-        function setupPhaseNavigation() {
-            const nav = document.getElementById('phase-nav');
-            for (let i = 1; i <= totalPhases; i++) {
-                const dot = document.createElement('div');
-                dot.className = 'phase-dot';
-                if (i === 1) dot.classList.add('active');
-                dot.dataset.phase = i;
-                nav.appendChild(dot);
-            }
-        }
-
-        function goToPhase(phase) {
-            if (phase < 1 || phase > totalPhases) return;
-            
-            console.log(`📍 Moving to Phase ${phase}`);
-            
-            // Hide current phase
-            document.querySelector('.phase-container.active')?.classList.remove('active');
-            
-            // Show new phase
-            const newPhase = document.getElementById(`phase-${phase}`);
-            if (newPhase) {
-                newPhase.classList.add('active');
-                currentPhase = phase;
-                
-                // Update navigation dots
-                document.querySelectorAll('.phase-dot').forEach((dot, index) => {
-                    dot.classList.remove('active');
-                    if (index + 1 === phase) {
-                        dot.classList.add('active');
-                    }
-                });
-                
-                // Phase-specific actions
-                onPhaseEnter(phase);
-            }
-        }
-
-        function onPhaseEnter(phase) {
-            switch(phase) {
-                case 5:
-                    // Live prediction
-                    setTimeout(() => {
-                        generateLivePrediction();
-                    }, 2000);
-                    break;
-                case 6:
-                    // Correlation web
-                    setTimeout(() => {
-                        generateCorrelationWeb();
-                    }, 500);
-                    break;
-                case 8:
-                    // Trust meter animation
-                    setTimeout(() => {
-                        const trustFill = document.querySelector('.trust-fill');
-                        if (trustFill) {
-                            trustFill.style.setProperty('--trust-level', '75%');
-                        }
-                    }, 1000);
-                    break;
-            }
-        }
-
-        // ============================================
-        // BUTTON HANDLERS
-        // ============================================
-        function setupButtonHandlers() {
-            // Skip button
-            document.getElementById('skip-btn').addEventListener('click', skipOnboarding);
-            
-            // Phase 2
-            document.getElementById('intro-continue').addEventListener('click', () => goToPhase(3));
-            
-            // Phase 3
-            document.getElementById('phase3-back').addEventListener('click', () => goToPhase(2));
-            document.getElementById('phase3-next').addEventListener('click', () => goToPhase(4));
-            
-            // Phase 4
-            document.getElementById('phase4-back').addEventListener('click', () => goToPhase(3));
-            document.getElementById('phase4-next').addEventListener('click', () => goToPhase(5));
-            
-            // Phase 5
-            document.getElementById('phase5-back').addEventListener('click', () => goToPhase(4));
-            document.getElementById('phase5-next').addEventListener('click', () => goToPhase(6));
-            
-            // Phase 6
-            document.getElementById('phase6-back').addEventListener('click', () => goToPhase(5));
-            document.getElementById('phase6-next').addEventListener('click', () => goToPhase(7));
-            
-            // Phase 7
-            document.getElementById('phase7-back').addEventListener('click', () => goToPhase(6));
-            document.getElementById('phase7-next').addEventListener('click', () => goToPhase(8));
-            
-            // Phase 8
-            document.getElementById('phase8-back').addEventListener('click', () => goToPhase(7));
-            document.getElementById('phase8-next').addEventListener('click', () => goToPhase(9));
-        }
-
-        // ============================================
-        // DATA FETCHING
-        // ============================================
-        async function fetchUserData() {
-            try {
-                const token = localStorage.getItem('phoenixToken');
-                if (!token) {
-                    console.warn('No token found');
-                    return;
-                }
-                
-                const response = await fetch(`${API_BASE}/auth/me`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                const data = await response.json();
-                
-                if (data.success && data.user) {
-                    userData = data.user;
-                    console.log('✅ User data loaded:', userData.name);
-                    
-                    // Update greeting
-                    updateGreeting();
-                }
-            } catch (error) {
-                console.error('Failed to fetch user data:', error);
-            }
-        }
-
-        async function fetchLocationData() {
-            try {
-                // Use ipapi.co for free geolocation
-                const response = await fetch('https://ipapi.co/json/');
-                const data = await response.json();
-                
-                locationData = {
-                    city: data.city,
-                    region: data.region,
-                    country: data.country_name,
-                    lat: data.latitude,
-                    lon: data.longitude,
-                    timezone: data.timezone
-                };
-                
-                console.log('✅ Location data loaded:', locationData.city);
-                
-                // Fetch weather
-                await fetchWeatherData();
-                
-                // Update location display
-                updateLocationDisplay();
-            } catch (error) {
-                console.error('Failed to fetch location:', error);
-                // Fallback
-                locationData = {
-                    city: 'Your Location',
-                    region: '',
-                    country: ''
-                };
-                updateLocationDisplay();
-            }
-        }
-
-        async function fetchWeatherData() {
-            if (!locationData) return;
-            
-            try {
-                // Use Open-Meteo (free, no API key needed)
-                const url = `https://api.open-meteo.com/v1/forecast?latitude=${locationData.lat}&longitude=${locationData.lon}&current_weather=true`;
-                const response = await fetch(url);
-                const data = await response.json();
-                
-                locationData.weather = {
-                    temp: Math.round(data.current_weather.temperature * 9/5 + 32), // Convert to Fahrenheit
-                    condition: getWeatherCondition(data.current_weather.weathercode)
-                };
-                
-                console.log('✅ Weather data loaded:', locationData.weather);
-                updateLocationDisplay();
-            } catch (error) {
-                console.error('Failed to fetch weather:', error);
-            }
-        }
-
-        function getWeatherCondition(code) {
-            // Weather code mapping (Open-Meteo)
-            if (code === 0) return 'Clear';
-            if (code <= 3) return 'Partly cloudy';
-            if (code <= 48) return 'Foggy';
-            if (code <= 67) return 'Rainy';
-            if (code <= 77) return 'Snowy';
-            if (code <= 82) return 'Showers';
-            return 'Stormy';
-        }
-
-        // ============================================
-        // UI UPDATES
-        // ============================================
-        function updateGreeting() {
-            const hour = new Date().getHours();
-            let greeting = 'Good Evening';
-            if (hour < 12) greeting = 'Good Morning';
-            else if (hour < 18) greeting = 'Good Afternoon';
-            
-            const name = userData?.name?.split(' ')[0] || 'Friend';
-            
-            document.getElementById('greeting-title').textContent = `${greeting}, ${name}`;
-        }
-
-        function updateLocationDisplay() {
-            const container = document.getElementById('location-info');
-            
-            if (!locationData) {
-                container.innerHTML = '<div class="loading-spinner"></div>';
-                return;
-            }
-            
-            const weatherTemp = locationData.weather?.temp || '--';
-            const weatherCondition = locationData.weather?.condition || 'Loading';
-            
-            container.innerHTML = `
-                <div class="info-item">
-                    <div class="info-icon">📍</div>
-                    <div>You're in ${locationData.city}, ${locationData.region}</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-icon">🌡️</div>
-                    <div>It's ${weatherTemp}°F and ${weatherCondition.toLowerCase()}</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-icon">🌙</div>
-                    <div>I'm here to make your life easier</div>
-                </div>
-            `;
-        }
-
-        async function generateLivePrediction() {
-            const textEl = document.getElementById('live-prediction-text');
-            
-            try {
-                const token = localStorage.getItem('phoenixToken');
-                if (!token) {
-                    textEl.innerHTML = 'Connect your wearable to see personalized predictions.';
-                    return;
-                }
-                
-                // Fetch recovery data
-                const response = await fetch(`${API_BASE}/recovery/score/current`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                const data = await response.json();
-                
-                if (data.success && data.data) {
-                    const recovery = data.data.recoveryScore || 0;
-                    const hrv = data.data.hrv || 0;
-                    
-                    let recommendation = '';
-                    if (recovery >= 80) {
-                        recommendation = 'Your recovery is excellent. You\'re cleared for high-intensity training.';
-                    } else if (recovery >= 60) {
-                        recommendation = 'Your recovery is good. Moderate intensity recommended.';
-                    } else if (recovery >= 40) {
-                        recommendation = 'Your recovery is fair. I recommend low-intensity work today.';
-                    } else {
-                        recommendation = 'Your recovery is low. Rest day recommended. I\'ll handle your schedule.';
-                    }
-                    
-                    textEl.innerHTML = `
-                        Your recovery score is <strong>${Math.round(recovery)}%</strong>. 
-                        Your HRV is <strong>${Math.round(hrv)}ms</strong>.
-                        <br><br>
-                        ${recommendation}
-                    `;
-                } else {
-                    textEl.innerHTML = 'Connect your wearable to see real-time predictions based on your data.';
-                }
-            } catch (error) {
-                console.error('Failed to generate prediction:', error);
-                textEl.innerHTML = 'Connect your wearable to unlock personalized predictions.';
-            }
-        }
-
-        function generateCorrelationWeb() {
-            const container = document.getElementById('correlation-web');
-            container.innerHTML = '';
-            
-            const nodes = [
-                { label: '💤 Sleep', x: '20%', y: '30%' },
-                { label: '🏋️ Workouts', x: '80%', y: '30%' },
-                { label: '💳 Spending', x: '20%', y: '70%' },
-                { label: '😰 Stress', x: '80%', y: '70%' },
-                { label: '📅 Calendar', x: '50%', y: '15%' },
-                { label: '🔋 Energy', x: '50%', y: '85%' }
-            ];
-            
-            // Draw nodes
-            nodes.forEach((node, index) => {
-                const nodeEl = document.createElement('div');
-                nodeEl.className = 'correlation-node';
-                nodeEl.textContent = node.label;
-                nodeEl.style.left = node.x;
-                nodeEl.style.top = node.y;
-                nodeEl.style.animationDelay = `${index * 0.2}s`;
-                container.appendChild(nodeEl);
-            });
-            
-            // Draw lines (simplified)
-            const lines = [
-                { from: 0, to: 1 },
-                { from: 2, to: 3 },
-                { from: 4, to: 5 },
-                { from: 0, to: 5 },
-                { from: 1, to: 3 }
-            ];
-            
-            lines.forEach((line, index) => {
-                setTimeout(() => {
-                    const from = nodes[line.from];
-                    const to = nodes[line.to];
-                    
-                    const lineEl = document.createElement('div');
-                    lineEl.className = 'correlation-line';
-                    
-                    const fromX = parseFloat(from.x);
-                    const fromY = parseFloat(from.y);
-                    const toX = parseFloat(to.x);
-                    const toY = parseFloat(to.y);
-                    
-                    const length = Math.sqrt(Math.pow(toX - fromX, 2) + Math.pow(toY - fromY, 2));
-                    const angle = Math.atan2(toY - fromY, toX - fromX) * 180 / Math.PI;
-                    
-                    lineEl.style.width = `${length}%`;
-                    lineEl.style.left = `${fromX}%`;
-                    lineEl.style.top = `${fromY}%`;
-                    lineEl.style.transform = `rotate(${angle}deg)`;
-                    
-                    container.appendChild(lineEl);
-                }, index * 300);
-            });
-        }
-
-        // ============================================
-        // PARTICLE EFFECTS
-        // ============================================
-        function generateParticles(containerId, count) {
-            const container = document.getElementById(containerId);
-            if (!container) return;
-            
-            for (let i = 0; i < count; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = `${Math.random() * 100}%`;
-                particle.style.top = `${Math.random() * 100}%`;
-                particle.style.animationDelay = `${Math.random() * 3}s`;
-                particle.style.animationDuration = `${3 + Math.random() * 2}s`;
-                container.appendChild(particle);
-            }
-        }
-
-        // ============================================
-        // FINAL SELECTION
-        // ============================================
-        function selectOption(option) {
-            console.log('✅ User selected:', option);
-            
-            // Save selection
-            localStorage.setItem('phoenixOnboardingChoice', option);
-            localStorage.setItem('phoenixOnboardingComplete', 'true');
-            
-            // Show loading
-            const container = document.querySelector('#phase-9 .content-container');
-            container.innerHTML = `
-                <div class="phoenix-orb" style="margin: 80px auto;">
-                    <div class="orb-ring"></div>
-                    <div class="orb-ring"></div>
-                    <div class="orb-ring"></div>
-                    <div class="orb-core"></div>
-                </div>
-                <div class="content-title">Initializing Phoenix...</div>
-                <div class="content-subtitle">
-                    ${option === 'all-in' ? 'Connecting all systems. This will take a moment...' : 
-                      option === 'simple' ? 'Setting up your first connection...' : 
-                      'Preparing your dashboard...'}
-                </div>
-                <div class="loading-spinner" style="margin: 60px auto;"></div>
-            `;
-            
-            // Redirect based on choice
-            setTimeout(() => {
-                if (option === 'explore') {
-                    window.location.href = '/';
-                } else if (option === 'simple') {
-                    // Open wearable connection
-                    window.location.href = '/?connect=wearable';
-                } else if (option === 'all-in') {
-                    // Open full setup
-                    window.location.href = '/?connect=all';
-                }
-            }, 3000);
-        }
-
-        function skipOnboarding() {
-            if (confirm('Skip onboarding? You can always view it later from Settings.')) {
-                localStorage.setItem('phoenixOnboardingComplete', 'true');
-                localStorage.setItem('phoenixOnboardingChoice', 'skipped');
-                window.location.href = '/';
-            }
-        }
+    <!-- Import Onboarding Engine as ES6 Module -->
+    <script type="module">
+        import onboardingEngine from './src/onboarding.js';
+        
+        // Engine auto-initializes when imported
+        console.log('✅ Onboarding module loaded');
     </script>
 </body>
 </html>
