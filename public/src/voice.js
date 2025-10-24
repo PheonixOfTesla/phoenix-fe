@@ -133,9 +133,13 @@ class VoiceInterface {
         if (this.isRecording) return;
         
         this.audioChunks = [];
-        this.mediaRecorder = new MediaRecorder(this.recordingStream, {
-            mimeType: 'audio/webm'
-        });
+        
+        // Try webm, fall back to mp4/other formats
+let mimeType = 'audio/webm';
+if (!MediaRecorder.isTypeSupported('audio/webm')) {
+    mimeType = 'audio/mp4';
+}
+this.mediaRecorder = new MediaRecorder(this.recordingStream, { mimeType });
 
         this.mediaRecorder.ondataavailable = (e) => {
             if (e.data.size > 0) this.audioChunks.push(e.data);
