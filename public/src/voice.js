@@ -1,5 +1,5 @@
-// voice.js - Complete Voice Interface with All Methods Fixed
-// ✅ FIXED: All missing methods added (sayInitialGreeting, startListening, announceMetric, etc.)
+// voice.js - Complete Voice Interface with Backend TTS Integration
+// ✅ FIXED: Backend API, personalized greeting, debouncing, all methods complete
 
 import API from './api.js';
 
@@ -30,12 +30,20 @@ class VoiceInterface {
         this.speaking = false;
         this.contextAware = true;
         
+        // ✅ Debouncing for commands
+        this.lastCommand = '';
+        this.lastCommandTime = 0;
+        this.commandDebounceMs = 2000;
+        
         // Proactive messaging
         this.proactiveTimer = null;
         this.lastProactiveMessage = Date.now();
         
         // Butler integration
         this.butlerEnabled = false;
+        
+        // Backend API URL
+        this.apiBaseURL = process.env.REACT_APP_API_URL || 'https://pal-backend-production.up.railway.app/api';
     }
 
     async init() {
@@ -64,27 +72,44 @@ class VoiceInterface {
     }
 
     // ========================================
-    // ✅ FIXED: INITIAL GREETING METHOD
+    // ✅ FIXED: PERSONALIZED INITIAL GREETING
     // ========================================
 
-    sayInitialGreeting() {
+    async sayInitialGreeting() {
         console.log('🎙️ Saying initial greeting...');
         
-        const hour = new Date().getHours();
-        let greeting = '';
+        // ✅ Get user name from API or localStorage
+        let userName = localStorage.getItem('phoenixUserName');
         
-        if (hour < 12) {
-            greeting = 'Good morning. Phoenix systems online. All modules operational.';
-        } else if (hour < 18) {
-            greeting = 'Good afternoon. Phoenix ready to assist. How may I help you today?';
-        } else {
-            greeting = 'Good evening. Phoenix at your service. Ready to optimize your evening.';
+        if (!userName && window.API) {
+            try {
+                const user = await window.API.getMe();
+                userName = user?.name || user?.firstName || user?.username;
+                if (userName) {
+                    localStorage.setItem('phoenixUserName', userName);
+                }
+            } catch (error) {
+                console.warn('Could not fetch user name:', error);
+            }
         }
         
-        // Check if user name is available
-        const userName = localStorage.getItem('phoenixUserName');
+        const hour = new Date().getHours();
+        let timeGreeting = '';
+        
+        if (hour < 12) {
+            timeGreeting = 'Good morning';
+        } else if (hour < 18) {
+            timeGreeting = 'Good afternoon';
+        } else {
+            timeGreeting = 'Good evening';
+        }
+        
+        // ✅ Personalized greeting
+        let greeting = '';
         if (userName) {
-            greeting = greeting.replace('Phoenix', `Phoenix. Welcome back, ${userName}. I'm`);
+            greeting = `${timeGreeting}, ${userName}. Welcome back. Phoenix systems online. How may I assist you today?`;
+        } else {
+            greeting = `${timeGreeting}. Phoenix systems online. All modules operational. How may I assist you today?`;
         }
         
         this.speak(greeting, 'normal');
@@ -237,7 +262,7 @@ class VoiceInterface {
     }
 
     // ========================================
-    // 🔊 TTS METHODS
+    // 🔊 TTS METHODS - USING BACKEND API
     // ========================================
 
     async speakWithServer(text) {
@@ -246,7 +271,28 @@ class VoiceInterface {
             this.updateUI('speaking');
             this.displayResponse(text);
 
-            const audioBlob = await API.textToSpeech(text, this.selectedVoice, this.speechSpeed);
+            console.log('🔊 Calling backend TTS API...');
+            
+            const token = localStorage.getItem('phoenix_token');
+            
+            const response = await fetch(`${this.apiBaseURL}/tts/speak`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': token ? `Bearer ${token}` : ''
+                },
+                body: JSON.stringify({
+                    text: text,
+                    voice: this.selectedVoice || 'nova',
+                    speed: this.speechSpeed || 1.0
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`TTS failed: ${response.status}`);
+            }
+
+            const audioBlob = await response.blob();
             const audioUrl = URL.createObjectURL(audioBlob);
             
             if (this.currentAudio) {
@@ -258,7 +304,7 @@ class VoiceInterface {
             
             return new Promise((resolve, reject) => {
                 this.currentAudio.onended = () => {
-                    console.log('✅ Finished speaking (OpenAI TTS)');
+                    console.log('✅ TTS complete');
                     this.isSpeaking = false;
                     this.updateUI('idle');
                     URL.revokeObjectURL(audioUrl);
@@ -285,6 +331,8 @@ class VoiceInterface {
     }
 
     async speakWithBrowser(text) {
+        console.log('🔊 Using browser TTS fallback');
+        
         return new Promise((resolve) => {
             if (!this.synthesis) {
                 console.error('Speech synthesis not available');
@@ -414,13 +462,23 @@ class VoiceInterface {
     }
 
     // ========================================
-    // 🤖 COMMAND PROCESSING
+    // 🤖 COMMAND PROCESSING WITH DEBOUNCING
     // ========================================
 
     async processCommand(command) {
         console.log('🤖 Processing command:', command);
         
         const lowerCmd = command.toLowerCase();
+        
+        // ✅ DEBOUNCE: Prevent duplicate commands
+        const now = Date.now();
+        if (command === this.lastCommand && (now - this.lastCommandTime) < this.commandDebounceMs) {
+            console.log('🚫 Duplicate command ignored (debounced)');
+            return;
+        }
+        
+        this.lastCommand = command;
+        this.lastCommandTime = now;
         
         // Stop listening while processing
         this.stopListening();
@@ -625,18 +683,15 @@ class VoiceInterface {
     // ========================================
 
     setupWaveform() {
-        // Waveform setup would go here
         console.log('📊 Waveform visualizer ready');
     }
 
     startVisualizer() {
         this.visualizerActive = true;
-        // Start visualizer animation
     }
 
     stopVisualizer() {
         this.visualizerActive = false;
-        // Stop visualizer animation
     }
 
     // ========================================
@@ -667,10 +722,19 @@ class VoiceInterface {
 
     async loadServerVoices() {
         try {
-            const data = await API.getAvailableVoices();
-            if (data.voices) {
-                this.availableVoices = data.voices;
-                console.log('✅ Loaded', data.voices.length, 'server voices');
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.apiBaseURL}/tts/voices`, {
+                headers: {
+                    'Authorization': token ? `Bearer ${token}` : ''
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.voices) {
+                    this.availableVoices = data.voices;
+                    console.log('✅ Loaded', data.voices.length, 'server voices');
+                }
             }
         } catch (error) {
             console.error('Failed to load server voices:', error);
@@ -680,8 +744,14 @@ class VoiceInterface {
 
     async checkServerStatus() {
         try {
-            const status = await API.getVoiceStatus();
-            if (status.available) {
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.apiBaseURL}/tts/voices`, {
+                headers: {
+                    'Authorization': token ? `Bearer ${token}` : ''
+                }
+            });
+            
+            if (response.ok) {
                 this.useServerTTS = true;
                 console.log('✅ OpenAI TTS available');
             } else {
@@ -851,6 +921,16 @@ if (document.readyState === 'loading') {
 } else {
     voiceInterface.init();
 }
+
+// ✅ TRIGGER GREETING ON LOGIN
+window.addEventListener('phoenixLogin', () => {
+    console.log('🎉 Login detected, triggering greeting');
+    setTimeout(() => {
+        if (window.voiceInterface) {
+            window.voiceInterface.sayInitialGreeting();
+        }
+    }, 1000);
+});
 
 // Add animation styles
 const style = document.createElement('style');
