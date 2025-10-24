@@ -148,7 +148,7 @@
     <!-- THREE.JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-<script>
+    <script>
     // ============================================
     // FIRST-TIME USER DETECTION
     // ============================================
@@ -164,6 +164,7 @@
         
         console.log('✅ Returning user, loading main app...');
     })();
+    </script>
     
     <!-- CORE ENGINE -->
     <script>
@@ -507,6 +508,9 @@
         @keyframes corePulse{0%,100%{transform:translate(-50%,-50%) scale(1);box-shadow:0 0 50px rgba(0,255,255,0.8)}50%{transform:translate(-50%,-50%) scale(1.08);box-shadow:0 0 70px rgba(0,255,255,1)}}
         @keyframes beamPulse{0%,100%{opacity:0.3}50%{opacity:0.7}}
         @keyframes podFloat{0%,100%{transform:translate(-50%,-50%) translateY(0)}50%{transform:translate(-50%,-50%) translateY(-20px)}}
+        @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        @keyframes phoenixPulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.1)}}
         .action-button-circular:hover{background:rgba(0,255,255,0.2);border-color:#00ffff;transform:scale(1.1);box-shadow:0 0 30px rgba(0,255,255,0.6)}
         .quick-action-btn:hover,#quick-workout:hover,#quick-meal:hover,#quick-sync:hover,#quick-chat:hover{background:rgba(0,255,255,0.2);border-color:#00ffff;box-shadow:0 0 20px rgba(0,255,255,0.4)}
         #close-detail:hover{background:rgba(255,0,0,0.2);border-color:#ff4444;color:#ff4444;transform:rotate(90deg)}
@@ -521,7 +525,7 @@
     <script type="module" src="./src/reactor.js"></script>
     <script type="module" src="./src/shaders.js"></script>
     <script type="module" src="./src/orchestrator.js"></script>
-<script type="module" src="./src/wearables.js"></script>
+    <script type="module" src="./src/wearables.js"></script>
 
     <script>
         console.log('🎙️ Voice interface loading...');
