@@ -1,290 +1,231 @@
-// voice.js - Complete Voice Interface with Backend TTS Integration
-// ✅ FIXED: Backend API, personalized greeting, debouncing, all methods complete
-
-import API from './api.js';
+// ============================================================================
+// PHOENIX VOICE INTERFACE - OpenAI TTS Backend Edition
+// ============================================================================
+// Clean, working implementation that calls your Railway backend
+// ============================================================================
 
 class VoiceInterface {
     constructor() {
-        this.recognition = null;
-        this.synthesis = window.speechSynthesis;
-        this.isListening = false;
-        this.isSpeaking = false;
-        this.voiceEnabled = false;
-        this.currentTranscript = '';
-        this.volume = 0;
-        this.visualizerActive = false;
+        // Backend API configuration
+        this.API_BASE = window.location.hostname === 'localhost' 
+            ? 'http://localhost:5000/api'
+            : 'https://pal-backend-production.up.railway.app/api';
         
         // Voice settings
-        this.selectedVoice = 'nova';
+        this.selectedVoice = 'nova';  // alloy, echo, fable, onyx, nova, shimmer
         this.speechSpeed = 1.0;
-        this.availableVoices = [];
-        this.useServerTTS = true;
-        this.fallbackVoice = null;
+        this.volume = 1.0;
         
-        // Audio management
+        // State
+        this.isListening = false;
+        this.isSpeaking = false;
+        this.recognition = null;
         this.currentAudio = null;
-        this.audioQueue = [];
         
-        // Speech Queue System
-        this.queue = [];
-        this.speaking = false;
-        this.contextAware = true;
+        // Queue system
+        this.speechQueue = [];
+        this.isProcessingQueue = false;
         
-        // ✅ Debouncing for commands
+        // Debouncing
         this.lastCommand = '';
         this.lastCommandTime = 0;
         this.commandDebounceMs = 2000;
-        
-        // Proactive messaging
-        this.proactiveTimer = null;
-        this.lastProactiveMessage = Date.now();
-        
-        // Butler integration
-        this.butlerEnabled = false;
-        
-        // Backend API URL
-        this.apiBaseURL = process.env.REACT_APP_API_URL || 'https://pal-backend-production.up.railway.app/api';
     }
 
     async init() {
-        console.log('🎙️ Initializing Complete Voice Interface...');
-        
-        if (!this.checkSupport()) {
-            console.warn('⚠️ Voice features not fully supported');
-            this.showNotSupported();
-            return false;
-        }
-
-        this.setupSpeechRecognition();
-        this.setupSpeechSynthesis();
-        this.setupVoiceButton();
-        this.setupWaveform();
-        this.createVoiceSettingsModal();
-        
-        this.loadSettings();
-        await this.loadServerVoices();
-        await this.checkServerStatus();
-        
-        this.startProactiveMessaging();
-        
-        console.log('✅ Voice Interface Ready');
-        return true;
-    }
-
-    // ========================================
-    // ✅ FIXED: PERSONALIZED INITIAL GREETING
-    // ========================================
-
-    async sayInitialGreeting() {
-        console.log('🎙️ Saying initial greeting...');
-        
-        // ✅ Get user name from API or localStorage
-        let userName = localStorage.getItem('phoenixUserName');
-        
-        if (!userName && window.API) {
-            try {
-                const user = await window.API.getMe();
-                userName = user?.name || user?.firstName || user?.username;
-                if (userName) {
-                    localStorage.setItem('phoenixUserName', userName);
-                }
-            } catch (error) {
-                console.warn('Could not fetch user name:', error);
-            }
-        }
-        
-        const hour = new Date().getHours();
-        let timeGreeting = '';
-        
-        if (hour < 12) {
-            timeGreeting = 'Good morning';
-        } else if (hour < 18) {
-            timeGreeting = 'Good afternoon';
-        } else {
-            timeGreeting = 'Good evening';
-        }
-        
-        // ✅ Personalized greeting
-        let greeting = '';
-        if (userName) {
-            greeting = `${timeGreeting}, ${userName}. Welcome back. Phoenix systems online. How may I assist you today?`;
-        } else {
-            greeting = `${timeGreeting}. Phoenix systems online. All modules operational. How may I assist you today?`;
-        }
-        
-        this.speak(greeting, 'normal');
-    }
-
-    // ========================================
-    // ✅ FIXED: START LISTENING METHOD
-    // ========================================
-
-    startListening() {
-        console.log('🎤 Starting voice listening...');
-        
-        if (!this.recognition) {
-            this.showError('Voice recognition not available');
-            return;
-        }
-        
-        if (this.isListening) {
-            console.log('Already listening');
-            return;
-        }
+        console.log('🎙️ Initializing Phoenix Voice Interface...');
         
         try {
+            // Test backend connection
+            await this.testBackend();
+            
+            // Setup speech recognition
+            this.setupRecognition();
+            
+            // Setup visualizer if element exists
+            this.setupVisualizer();
+            
+            console.log('✅ Voice interface ready');
+            return true;
+        } catch (error) {
+            console.error('❌ Voice init failed:', error);
+            return false;
+        }
+    }
+
+    async testBackend() {
+        try {
+            const response = await fetch(`${this.API_BASE}/tts/status`);
+            if (!response.ok) throw new Error('Backend not responding');
+            
+            const data = await response.json();
+            console.log('✅ Backend TTS:', data.hasApiKey ? 'Connected' : 'No API Key');
+            return data;
+        } catch (error) {
+            console.error('⚠️ Backend TTS unavailable:', error.message);
+            throw error;
+        }
+    }
+
+    setupRecognition() {
+        if (!('webkitSpeechRecognition' in window)) {
+            console.warn('⚠️ Speech recognition not supported');
+            return;
+        }
+
+        this.recognition = new webkitSpeechRecognition();
+        this.recognition.continuous = true;
+        this.recognition.interimResults = true;
+        this.recognition.lang = 'en-US';
+
+        this.recognition.onresult = (event) => {
+            const transcript = Array.from(event.results)
+                .map(result => result[0].transcript)
+                .join('');
+
+            console.log('🎤 Heard:', transcript);
+            this.processCommand(transcript);
+        };
+
+        this.recognition.onerror = (event) => {
+            console.error('🎤 Recognition error:', event.error);
+        };
+
+        this.recognition.onend = () => {
+            if (this.isListening) {
+                this.recognition.start(); // Auto-restart
+            }
+        };
+    }
+
+    setupVisualizer() {
+        // Setup audio visualizer if canvas exists
+        const canvas = document.getElementById('voice-visualizer');
+        if (canvas) {
+            console.log('🎨 Visualizer canvas found');
+            // Visualizer setup here if needed
+        }
+    }
+
+    startListening() {
+        if (!this.recognition) {
+            console.warn('⚠️ Recognition not available');
+            return;
+        }
+
+        if (this.isListening) return;
+
+        try {
             this.recognition.start();
-            this.showVoiceOverlay();
+            this.isListening = true;
+            console.log('🎤 Listening started...');
+            
+            // Update UI
+            this.updateListeningUI(true);
         } catch (error) {
             console.error('Failed to start listening:', error);
-            this.showError('Could not start voice recognition');
         }
     }
 
     stopListening() {
-        console.log('🎤 Stopping voice listening...');
+        if (!this.recognition || !this.isListening) return;
+
+        this.recognition.stop();
+        this.isListening = false;
+        console.log('🎤 Listening stopped');
         
-        if (this.recognition && this.isListening) {
-            this.recognition.stop();
-            this.hideVoiceOverlay();
+        // Update UI
+        this.updateListeningUI(false);
+    }
+
+    updateListeningUI(listening) {
+        const indicator = document.getElementById('voice-indicator');
+        if (indicator) {
+            indicator.style.display = listening ? 'block' : 'none';
         }
     }
 
-    // ========================================
-    // ✅ FIXED: ANNOUNCE METRIC METHOD
-    // ========================================
-
-    announceMetric(planet, label, value) {
-        console.log(`📊 Announcing metric: ${planet} - ${label}: ${value}`);
+    processCommand(transcript) {
+        const command = transcript.toLowerCase().trim();
         
-        const announcements = {
-            mercury: {
-                'HRV': `Heart rate variability is ${value}`,
-                'RHR': `Resting heart rate is ${value}`,
-                'Recovery': `Recovery score is ${value}`,
-                'Sleep': `Sleep duration was ${value}`,
-                'SPO2': `Blood oxygen level is ${value}`,
-                'Stress': `Stress level is ${value}`
-            },
-            venus: {
-                'Workouts': `You've completed ${value} this week`,
-                'Minutes': `Total training time: ${value}`,
-                'Calories': `${value} consumed today`,
-                'Protein': `Protein intake: ${value}`,
-                'Volume': `Training volume: ${value}`,
-                'Intensity': `Average intensity: ${value}`
-            },
-            earth: {
-                'Events Today': `You have ${value} scheduled`,
-                'Total Events': `${value} this week`,
-                'Free Time': `${value} of free time available`
-            },
-            mars: {
-                'Active Goals': `${value} currently active`,
-                'Completed': `${value} goals achieved`,
-                'Completion Rate': `Goal completion rate: ${value}`
-            },
-            jupiter: {
-                'Monthly Expenses': `${value} spent this month`,
-                'Budget Remaining': `${value} remaining in budget`,
-                'Savings Rate': `Savings rate: ${value}`
-            },
-            saturn: {
-                'Age': `Current age: ${value}`,
-                'Life Progress': `Life progress: ${value}`,
-                'Healthy Years': `${value} of healthy years projected`
-            }
-        };
-        
-        const message = announcements[planet]?.[label];
-        if (message) {
-            this.speak(message, 'normal');
-        } else {
-            this.speak(`${label} is ${value}`, 'normal');
+        // Debounce duplicate commands
+        const now = Date.now();
+        if (command === this.lastCommand && (now - this.lastCommandTime) < this.commandDebounceMs) {
+            console.log('⏭️ Duplicate command ignored');
+            return;
         }
-    }
+        this.lastCommand = command;
+        this.lastCommandTime = now;
 
-    // ========================================
-    // ✅ FIXED: ANNOUNCE PLANET OPEN
-    // ========================================
-
-    announcePlanetOpen(planetName) {
-        const announcements = {
-            mercury: 'Opening health vitals dashboard. Loading biometric data.',
-            venus: 'Opening fitness and nutrition dashboard. Analyzing performance metrics.',
-            earth: 'Opening calendar and schedule. Reviewing upcoming events.',
-            mars: 'Opening goals dashboard. Calculating progress metrics.',
-            jupiter: 'Opening financial overview. Analyzing spending patterns.',
-            saturn: 'Opening legacy planning dashboard. Reviewing long-term trajectory.'
-        };
+        // Command matching
+        if (command.includes('activate phoenix') || command.includes('hey phoenix')) {
+            this.speak('Phoenix activated. How can I help you?');
+        } else if (command.includes('stop') || command.includes('quiet')) {
+            this.stopSpeaking();
+            this.speak('Understood. I\'ll be quiet.');
+        } else if (command.includes('status') || command.includes('how are you')) {
+            this.speak('All systems operational. Standing by.');
+        }
         
-        const message = announcements[planetName] || `Opening ${planetName} dashboard.`;
-        this.speak(message, 'normal');
+        // Dispatch event for other systems to handle
+        window.dispatchEvent(new CustomEvent('voice:command', {
+            detail: { command, transcript }
+        }));
     }
-
-    // ========================================
-    // ✅ SPEECH QUEUE SYSTEM
-    // ========================================
 
     async speak(text, priority = 'normal') {
-        console.log('🔊 Queueing speech:', text, 'Priority:', priority);
+        if (!text || text.trim() === '') return;
+
+        console.log(`🗣️ Speaking: "${text}"`);
+
+        // Add to queue
+        this.speechQueue.push({ text, priority });
         
-        this.queue[priority === 'urgent' ? 'unshift' : 'push']({ text, priority });
-        
-        if (!this.speaking) {
+        // Process queue if not already processing
+        if (!this.isProcessingQueue) {
             this.processQueue();
         }
     }
 
     async processQueue() {
-        if (this.queue.length === 0) {
-            this.speaking = false;
+        if (this.speechQueue.length === 0) {
+            this.isProcessingQueue = false;
             return;
         }
-        
-        this.speaking = true;
-        const { text, priority } = this.queue.shift();
-        
-        console.log(`🔊 Speaking (${priority}):`, text);
-        
-        if (this.useServerTTS) {
-            try {
-                await this.speakWithServer(text);
-            } catch (error) {
-                console.error('Server TTS failed, using browser:', error);
-                await this.speakWithBrowser(text);
-            }
-        } else {
-            await this.speakWithBrowser(text);
+
+        this.isProcessingQueue = true;
+        const { text } = this.speechQueue.shift();
+
+        try {
+            await this.speakNow(text);
+        } catch (error) {
+            console.error('Speech error:', error);
         }
-        
-        this.processQueue();
+
+        // Process next in queue
+        setTimeout(() => this.processQueue(), 100);
     }
 
-    // ========================================
-    // 🔊 TTS METHODS - USING BACKEND API
-    // ========================================
+    async speakNow(text) {
+        // Stop any current speech
+        if (this.currentAudio) {
+            this.currentAudio.pause();
+            this.currentAudio = null;
+        }
 
-    async speakWithServer(text) {
+        this.isSpeaking = true;
+
         try {
-            this.isSpeaking = true;
-            this.updateUI('speaking');
-            this.displayResponse(text);
-
-            console.log('🔊 Calling backend TTS API...');
-            
-            const token = localStorage.getItem('phoenix_token');
-            
-            const response = await fetch(`${this.apiBaseURL}/tts/speak`, {
+            // Call backend TTS
+            const response = await fetch(`${this.API_BASE}/tts/generate`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': token ? `Bearer ${token}` : ''
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     text: text,
-                    voice: this.selectedVoice || 'nova',
-                    speed: this.speechSpeed || 1.0
+                    voice: this.selectedVoice,
+                    speed: this.speechSpeed
                 })
             });
 
@@ -292,666 +233,148 @@ class VoiceInterface {
                 throw new Error(`TTS failed: ${response.status}`);
             }
 
+            // Get audio blob
             const audioBlob = await response.blob();
             const audioUrl = URL.createObjectURL(audioBlob);
-            
-            if (this.currentAudio) {
-                this.currentAudio.pause();
-                this.currentAudio = null;
-            }
 
-            this.currentAudio = new Audio(audioUrl);
-            
-            return new Promise((resolve, reject) => {
-                this.currentAudio.onended = () => {
-                    console.log('✅ TTS complete');
-                    this.isSpeaking = false;
-                    this.updateUI('idle');
-                    URL.revokeObjectURL(audioUrl);
-                    this.currentAudio = null;
-                    resolve();
-                };
+            // Play audio
+            await this.playAudio(audioUrl);
 
-                this.currentAudio.onerror = (error) => {
-                    console.error('Audio playback error:', error);
-                    this.isSpeaking = false;
-                    this.updateUI('idle');
-                    URL.revokeObjectURL(audioUrl);
-                    this.currentAudio = null;
-                    reject(error);
-                };
+            console.log('✅ Speech completed');
 
-                this.currentAudio.play();
-            });
         } catch (error) {
+            console.error('❌ TTS error:', error);
+            // Fallback to browser TTS
+            this.speakWithBrowser(text);
+        } finally {
             this.isSpeaking = false;
-            this.updateUI('idle');
-            throw error;
         }
     }
 
-    async speakWithBrowser(text) {
-        console.log('🔊 Using browser TTS fallback');
-        
-        return new Promise((resolve) => {
-            if (!this.synthesis) {
-                console.error('Speech synthesis not available');
-                resolve();
-                return;
-            }
+    async playAudio(url) {
+        return new Promise((resolve, reject) => {
+            this.currentAudio = new Audio(url);
+            this.currentAudio.volume = this.volume;
 
-            this.isSpeaking = true;
-            this.updateUI('speaking');
-            this.displayResponse(text);
-
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.voice = this.fallbackVoice;
-            utterance.rate = this.speechSpeed;
-            utterance.pitch = 1.0;
-            utterance.volume = 1.0;
-
-            utterance.onend = () => {
-                console.log('✅ Finished speaking (browser TTS)');
-                this.isSpeaking = false;
-                this.updateUI('idle');
+            this.currentAudio.onended = () => {
+                URL.revokeObjectURL(url);
+                this.currentAudio = null;
                 resolve();
             };
 
-            utterance.onerror = (error) => {
-                console.error('Browser TTS error:', error);
-                this.isSpeaking = false;
-                this.updateUI('idle');
-                resolve();
+            this.currentAudio.onerror = (error) => {
+                URL.revokeObjectURL(url);
+                this.currentAudio = null;
+                reject(error);
             };
 
-            this.synthesis.speak(utterance);
+            this.currentAudio.play().catch(reject);
         });
     }
 
-    // ========================================
-    // 🎤 SPEECH RECOGNITION
-    // ========================================
-
-    checkSupport() {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        return !!SpeechRecognition && !!window.speechSynthesis;
-    }
-
-    setupSpeechRecognition() {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) return;
-
-        this.recognition = new SpeechRecognition();
-        this.recognition.continuous = false;
-        this.recognition.interimResults = true;
-        this.recognition.lang = 'en-US';
-        this.recognition.maxAlternatives = 1;
-
-        this.recognition.onstart = () => {
-            console.log('🎤 Listening started...');
-            this.isListening = true;
-            this.currentTranscript = '';
-            this.updateUI('listening');
-            this.startVisualizer();
-        };
-
-        this.recognition.onresult = (event) => {
-            let interimTranscript = '';
-            let finalTranscript = '';
-
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-                const transcript = event.results[i][0].transcript;
-                if (event.results[i].isFinal) {
-                    finalTranscript += transcript + ' ';
-                } else {
-                    interimTranscript += transcript;
-                }
-            }
-
-            this.currentTranscript = (finalTranscript || interimTranscript).trim();
-            this.displayTranscript(this.currentTranscript);
-
-            if (finalTranscript) {
-                console.log('📝 Final transcript:', finalTranscript);
-                this.processCommand(finalTranscript.trim());
-            }
-        };
-
-        this.recognition.onerror = (event) => {
-            console.error('❌ Speech recognition error:', event.error);
-            this.isListening = false;
-            this.updateUI('idle');
-            this.stopVisualizer();
-
-            if (event.error === 'not-allowed') {
-                this.showError('Microphone permission denied');
-            } else if (event.error === 'no-speech') {
-                this.showError('No speech detected');
-            }
-        };
-
-        this.recognition.onend = () => {
-            console.log('🎤 Listening stopped');
-            this.isListening = false;
-            this.updateUI('idle');
-            this.stopVisualizer();
-            this.hideVoiceOverlay();
-        };
-    }
-
-    setupSpeechSynthesis() {
-        if (!this.synthesis) return;
-
-        const loadVoices = () => {
-            const voices = this.synthesis.getVoices();
-            
-            this.fallbackVoice = voices.find(v => 
-                v.name.includes('Google UK English Female') ||
-                v.name.includes('Google US English') ||
-                v.name.includes('Microsoft Zira')
-            ) || voices[0];
-
-            console.log('🔊 Fallback voice:', this.fallbackVoice?.name || 'Default');
-        };
-
-        if (this.synthesis.getVoices().length > 0) {
-            loadVoices();
-        } else {
-            this.synthesis.onvoiceschanged = loadVoices;
-        }
-    }
-
-    // ========================================
-    // 🤖 COMMAND PROCESSING WITH DEBOUNCING
-    // ========================================
-
-    async processCommand(command) {
-        console.log('🤖 Processing command:', command);
+    speakWithBrowser(text) {
+        // Fallback to browser's built-in TTS
+        console.log('🔄 Using browser TTS fallback');
         
-        const lowerCmd = command.toLowerCase();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = this.speechSpeed;
+        utterance.volume = this.volume;
         
-        // ✅ DEBOUNCE: Prevent duplicate commands
-        const now = Date.now();
-        if (command === this.lastCommand && (now - this.lastCommandTime) < this.commandDebounceMs) {
-            console.log('🚫 Duplicate command ignored (debounced)');
-            return;
-        }
-        
-        this.lastCommand = command;
-        this.lastCommandTime = now;
-        
-        // Stop listening while processing
-        this.stopListening();
-        
-        // Butler commands
-        if (this.butlerEnabled && window.butlerService) {
-            const butlerKeywords = ['order', 'book', 'uber', 'ride', 'email', 'call', 'restaurant', 'food', 'dinner', 'lunch'];
-            
-            if (butlerKeywords.some(keyword => lowerCmd.includes(keyword))) {
-                const result = await window.butlerService.executeCommand(command);
-                if (result.success !== false) {
-                    return;
-                }
-            }
-        }
-        
-        // Navigation commands
-        if (lowerCmd.includes('health') || lowerCmd.includes('vitals')) {
-            this.speak('Opening health dashboard', 'normal');
-            if (window.planetSystem) window.planetSystem.expandPlanet('mercury');
-        } else if (lowerCmd.includes('fitness') || lowerCmd.includes('workout')) {
-            this.speak('Opening fitness dashboard', 'normal');
-            if (window.planetSystem) window.planetSystem.expandPlanet('venus');
-        } else if (lowerCmd.includes('calendar') || lowerCmd.includes('schedule')) {
-            this.speak('Opening calendar', 'normal');
-            if (window.planetSystem) window.planetSystem.expandPlanet('earth');
-        } else if (lowerCmd.includes('goal')) {
-            this.speak('Opening goals dashboard', 'normal');
-            if (window.planetSystem) window.planetSystem.expandPlanet('mars');
-        } else if (lowerCmd.includes('finance') || lowerCmd.includes('money')) {
-            this.speak('Opening financial overview', 'normal');
-            if (window.planetSystem) window.planetSystem.expandPlanet('jupiter');
-        }
-        
-        // Action commands
-        else if (lowerCmd.includes('sync')) {
-            this.speak('Syncing all data', 'normal');
-            if (window.orchestrator) window.orchestrator.syncAllData();
-        } else if (lowerCmd.includes('quantum workout')) {
-            this.speak('Generating quantum workout', 'normal');
-            if (window.planetSystem) window.planetSystem.generateQuantumWorkout();
-        }
-        
-        // Information queries
-        else if (lowerCmd.includes('recovery')) {
-            const recovery = window.phoenixStore?.state?.mercury?.recovery?.recoveryScore || '--';
-            this.speak(`Your recovery score is ${Math.round(recovery)} percent`, 'normal');
-        } else if (lowerCmd.includes('how are you')) {
-            this.speak('All systems operational. How may I assist you?', 'normal');
-        }
-        
-        // Help
-        else if (lowerCmd.includes('help') || lowerCmd.includes('what can you do')) {
-            this.speak('I can help you track health metrics, manage workouts, optimize your calendar, monitor goals, and handle daily tasks. Try saying "show my health" or "order dinner".', 'normal');
-        }
-        
-        // Default
-        else {
-            this.speak('I didn\'t quite catch that. Try saying "help" for available commands.', 'normal');
-        }
+        window.speechSynthesis.speak(utterance);
     }
 
-    // ========================================
-    // 🎨 UI METHODS
-    // ========================================
-
-    setupVoiceButton() {
-        const voiceBtn = document.createElement('button');
-        voiceBtn.id = 'voice-button';
-        voiceBtn.style.cssText = `
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 60px;
-            height: 60px;
-            background: rgba(0, 10, 20, 0.9);
-            border: 2px solid rgba(0, 255, 255, 0.5);
-            border-radius: 50%;
-            cursor: pointer;
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            transition: all 0.3s;
-            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
-        `;
-        voiceBtn.innerHTML = '🎤';
-        
-        voiceBtn.addEventListener('click', () => {
-            if (!this.isListening) {
-                this.startListening();
-            } else {
-                this.stopListening();
-            }
-        });
-        
-        voiceBtn.addEventListener('mouseenter', () => {
-            voiceBtn.style.transform = 'scale(1.1)';
-            voiceBtn.style.boxShadow = '0 0 40px rgba(0, 255, 255, 0.6)';
-        });
-        
-        voiceBtn.addEventListener('mouseleave', () => {
-            voiceBtn.style.transform = 'scale(1)';
-            voiceBtn.style.boxShadow = '0 0 30px rgba(0, 255, 255, 0.3)';
-        });
-        
-        document.body.appendChild(voiceBtn);
-    }
-
-    showVoiceOverlay() {
-        let overlay = document.getElementById('voice-overlay');
-        if (!overlay) {
-            overlay = document.createElement('div');
-            overlay.id = 'voice-overlay';
-            overlay.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.9);
-                display: none;
-                align-items: center;
-                justify-content: center;
-                z-index: 10000;
-                flex-direction: column;
-            `;
-            overlay.innerHTML = `
-                <div style="width: 200px; height: 100px;">
-                    <canvas id="waveform-canvas" width="200" height="100"></canvas>
-                </div>
-                <div id="voice-text" style="color: #00ffff; font-size: 18px; text-align: center; padding: 20px; max-width: 80%; margin-top: 20px;">
-                    Listening...
-                </div>
-                <button id="stop-listening-btn" style="
-                    margin-top: 30px;
-                    padding: 12px 30px;
-                    background: rgba(255, 68, 68, 0.1);
-                    border: 2px solid rgba(255, 68, 68, 0.5);
-                    color: #ff4444;
-                    font-size: 14px;
-                    cursor: pointer;
-                    letter-spacing: 2px;
-                ">STOP</button>
-            `;
-            document.body.appendChild(overlay);
-            
-            document.getElementById('stop-listening-btn').addEventListener('click', () => {
-                this.stopListening();
-            });
-        }
-        
-        overlay.style.display = 'flex';
-    }
-
-    hideVoiceOverlay() {
-        const overlay = document.getElementById('voice-overlay');
-        if (overlay) {
-            overlay.style.display = 'none';
-        }
-    }
-
-    updateUI(state) {
-        const voiceBtn = document.getElementById('voice-button');
-        if (!voiceBtn) return;
-        
-        if (state === 'listening') {
-            voiceBtn.style.background = 'rgba(255, 0, 0, 0.2)';
-            voiceBtn.style.borderColor = '#ff4444';
-            voiceBtn.innerHTML = '🔴';
-            voiceBtn.style.animation = 'pulse 1s infinite';
-        } else if (state === 'speaking') {
-            voiceBtn.style.background = 'rgba(0, 255, 255, 0.2)';
-            voiceBtn.style.borderColor = '#00ffff';
-            voiceBtn.innerHTML = '🔊';
-            voiceBtn.style.animation = 'pulse 0.5s infinite';
-        } else {
-            voiceBtn.style.background = 'rgba(0, 10, 20, 0.9)';
-            voiceBtn.style.borderColor = 'rgba(0, 255, 255, 0.5)';
-            voiceBtn.innerHTML = '🎤';
-            voiceBtn.style.animation = 'none';
-        }
-    }
-
-    displayTranscript(text) {
-        const voiceText = document.getElementById('voice-text');
-        if (voiceText) {
-            voiceText.textContent = text || 'Listening...';
-        }
-    }
-
-    displayResponse(text) {
-        const voiceText = document.getElementById('voice-text');
-        if (voiceText) {
-            voiceText.innerHTML = `<div style="color: #00ff88;">Phoenix:</div>${text}`;
-        }
-    }
-
-    // ========================================
-    // 🎵 WAVEFORM VISUALIZER
-    // ========================================
-
-    setupWaveform() {
-        console.log('📊 Waveform visualizer ready');
-    }
-
-    startVisualizer() {
-        this.visualizerActive = true;
-    }
-
-    stopVisualizer() {
-        this.visualizerActive = false;
-    }
-
-    // ========================================
-    // ⚙️ SETTINGS
-    // ========================================
-
-    createVoiceSettingsModal() {
-        console.log('⚙️ Voice settings modal created');
-    }
-
-    loadSettings() {
-        this.selectedVoice = localStorage.getItem('phoenixVoice') || 'nova';
-        this.speechSpeed = parseFloat(localStorage.getItem('phoenixSpeechSpeed')) || 1.0;
-        this.butlerEnabled = localStorage.getItem('phoenixButlerEnabled') === 'true';
-        console.log('✅ Settings loaded');
-    }
-
-    saveSettings() {
-        localStorage.setItem('phoenixVoice', this.selectedVoice);
-        localStorage.setItem('phoenixSpeechSpeed', this.speechSpeed);
-        localStorage.setItem('phoenixButlerEnabled', this.butlerEnabled);
-        console.log('✅ Settings saved');
-    }
-
-    // ========================================
-    // 🌐 SERVER VOICES
-    // ========================================
-
-    async loadServerVoices() {
-        try {
-            const token = localStorage.getItem('phoenix_token');
-            const response = await fetch(`${this.apiBaseURL}/tts/voices`, {
-                headers: {
-                    'Authorization': token ? `Bearer ${token}` : ''
-                }
-            });
-            
-            if (response.ok) {
-                const data = await response.json();
-                if (data.voices) {
-                    this.availableVoices = data.voices;
-                    console.log('✅ Loaded', data.voices.length, 'server voices');
-                }
-            }
-        } catch (error) {
-            console.error('Failed to load server voices:', error);
-            this.useServerTTS = false;
-        }
-    }
-
-    async checkServerStatus() {
-        try {
-            const token = localStorage.getItem('phoenix_token');
-            const response = await fetch(`${this.apiBaseURL}/tts/voices`, {
-                headers: {
-                    'Authorization': token ? `Bearer ${token}` : ''
-                }
-            });
-            
-            if (response.ok) {
-                this.useServerTTS = true;
-                console.log('✅ OpenAI TTS available');
-            } else {
-                this.useServerTTS = false;
-                console.log('⚠️ OpenAI TTS unavailable, using browser fallback');
-            }
-        } catch (error) {
-            console.error('Failed to check voice status:', error);
-            this.useServerTTS = false;
-        }
-    }
-
-    // ========================================
-    // 🤖 PROACTIVE MESSAGING
-    // ========================================
-
-    startProactiveMessaging() {
-        this.proactiveTimer = setInterval(() => {
-            const elapsed = Date.now() - this.lastProactiveMessage;
-            if (elapsed > 600000) { // 10 minutes
-                this.sendProactiveMessage();
-                this.lastProactiveMessage = Date.now();
-            }
-        }, 60000);
-    }
-
-    sendProactiveMessage() {
-        const messages = this.generateProactiveMessages();
-        if (messages.length > 0) {
-            const message = messages[Math.floor(Math.random() * messages.length)];
-            this.speak(message, 'normal');
-        }
-    }
-
-    generateProactiveMessages() {
-        const messages = [];
-        const state = window.phoenixStore?.state;
-        
-        if (state?.mercury?.recovery?.recoveryScore >= 80) {
-            messages.push("Your recovery is excellent. You're cleared for high-intensity training.");
-        }
-        
-        if (state?.venus?.workouts?.length > 4) {
-            messages.push("Great consistency! You've completed 4 or more workouts this week.");
-        }
-        
-        const hour = new Date().getHours();
-        if (hour === 12 && !this.hasSpokenToday('lunch_reminder')) {
-            messages.push("It's noon. Would you like me to order lunch?");
-            this.markSpokenToday('lunch_reminder');
-        }
-        
-        if (hour === 22 && !this.hasSpokenToday('sleep_reminder')) {
-            messages.push("It's 10 PM. Consider winding down for optimal recovery.");
-            this.markSpokenToday('sleep_reminder');
-        }
-        
-        return messages;
-    }
-
-    hasSpokenToday(key) {
-        const today = new Date().toDateString();
-        const spoken = localStorage.getItem(`phoenix_spoken_${key}`);
-        return spoken === today;
-    }
-
-    markSpokenToday(key) {
-        const today = new Date().toDateString();
-        localStorage.setItem(`phoenix_spoken_${key}`, today);
-    }
-
-    // ========================================
-    // ❌ ERROR HANDLING
-    // ========================================
-
-    showError(message) {
-        console.error('❌ Voice Error:', message);
-        
-        const notification = document.createElement('div');
-        notification.style.cssText = `
-            position: fixed;
-            top: 100px;
-            right: 30px;
-            background: rgba(255, 68, 68, 0.1);
-            border: 2px solid rgba(255, 68, 68, 0.5);
-            padding: 20px;
-            max-width: 300px;
-            z-index: 10000;
-            animation: slideIn 0.3s;
-        `;
-        notification.innerHTML = `
-            <div style="font-size: 14px; font-weight: bold; color: #ff4444; margin-bottom: 10px;">Voice Error</div>
-            <div style="font-size: 12px; color: rgba(255, 68, 68, 0.7);">${message}</div>
-        `;
-        
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.style.animation = 'slideOut 0.3s';
-            setTimeout(() => notification.remove(), 300);
-        }, 5000);
-    }
-
-    showNotSupported() {
-        const notification = document.createElement('div');
-        notification.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(255, 68, 68, 0.1);
-            border: 2px solid rgba(255, 68, 68, 0.5);
-            padding: 30px;
-            max-width: 400px;
-            z-index: 10000;
-            text-align: center;
-        `;
-        notification.innerHTML = `
-            <div style="font-size: 24px; margin-bottom: 10px;">⚠️</div>
-            <div style="font-size: 16px; color: #ff4444; margin-bottom: 10px;">
-                Voice Features Not Supported
-            </div>
-            <div style="font-size: 12px; color: rgba(255, 68, 68, 0.7);">
-                Please use Chrome, Edge, or Safari for full voice capabilities
-            </div>
-            <button onclick="this.parentElement.remove()" style="
-                margin-top: 20px;
-                padding: 10px 20px;
-                background: rgba(255, 68, 68, 0.2);
-                border: 1px solid rgba(255, 68, 68, 0.5);
-                color: #ff4444;
-                cursor: pointer;
-            ">Close</button>
-        `;
-        document.body.appendChild(notification);
-    }
-
-    // ========================================
-    // 🧹 CLEANUP
-    // ========================================
-
-    destroy() {
-        if (this.proactiveTimer) {
-            clearInterval(this.proactiveTimer);
-        }
-        if (this.recognition) {
-            this.recognition.abort();
-        }
+    stopSpeaking() {
+        // Stop current audio
         if (this.currentAudio) {
             this.currentAudio.pause();
             this.currentAudio = null;
         }
-        console.log('🔴 Voice Interface destroyed');
+
+        // Clear queue
+        this.speechQueue = [];
+        this.isProcessingQueue = false;
+        this.isSpeaking = false;
+
+        // Stop browser TTS
+        window.speechSynthesis.cancel();
+
+        console.log('🛑 Speech stopped');
+    }
+
+    // Utility methods
+    setVoice(voice) {
+        this.selectedVoice = voice;
+        console.log('🎙️ Voice changed to:', voice);
+    }
+
+    setSpeed(speed) {
+        this.speechSpeed = Math.max(0.25, Math.min(4.0, speed));
+        console.log('⚡ Speed set to:', this.speechSpeed);
+    }
+
+    setVolume(volume) {
+        this.volume = Math.max(0, Math.min(1, volume));
+        console.log('🔊 Volume set to:', this.volume);
+    }
+
+    // Greeting
+    sayGreeting() {
+        const greetings = [
+            'Phoenix online and ready.',
+            'All systems operational.',
+            'Standing by for your command.',
+            'Phoenix AI assistant activated.'
+        ];
+        const greeting = greetings[Math.floor(Math.random() * greetings.length)];
+        this.speak(greeting);
+    }
+
+    destroy() {
+        this.stopListening();
+        this.stopSpeaking();
+        if (this.recognition) {
+            this.recognition.abort();
+        }
+        console.log('🔴 Voice interface destroyed');
     }
 }
 
-// ========================================
-// 🚀 INITIALIZE AND EXPOSE GLOBALLY
-// ========================================
+// ============================================================================
+// INITIALIZE AND ATTACH TO WINDOW
+// ============================================================================
 
 const voiceInterface = new VoiceInterface();
+
+// CRITICAL: Attach to window FIRST
 window.voiceInterface = voiceInterface;
 
-// Auto-initialize when DOM is ready
+// Initialize when DOM is ready
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => voiceInterface.init());
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('🚀 Initializing voice interface...');
+        voiceInterface.init().then(() => {
+            console.log('✅ Voice interface ready');
+            
+            // Optional: Say greeting after 2 seconds
+            setTimeout(() => {
+                voiceInterface.sayGreeting();
+            }, 2000);
+        });
+    });
 } else {
-    voiceInterface.init();
+    // DOM already loaded
+    console.log('🚀 Initializing voice interface...');
+    voiceInterface.init().then(() => {
+        console.log('✅ Voice interface ready');
+        
+        // Optional: Say greeting after 2 seconds
+        setTimeout(() => {
+            voiceInterface.sayGreeting();
+        }, 2000);
+    });
 }
 
-// ✅ TRIGGER GREETING ON LOGIN
-window.addEventListener('phoenixLogin', () => {
-    console.log('🎉 Login detected, triggering greeting');
-    setTimeout(() => {
-        if (window.voiceInterface) {
-            window.voiceInterface.sayInitialGreeting();
-        }
-    }, 1000);
-});
-
-// Add animation styles
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes pulse {
-        0%, 100% { transform: scale(1); opacity: 1; }
-        50% { transform: scale(1.1); opacity: 0.8; }
-    }
-    
-    @keyframes slideIn {
-        from { transform: translateX(400px); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-    
-    @keyframes slideOut {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(400px); opacity: 0; }
-    }
-`;
-document.head.appendChild(style);
-
-console.log('✅ Complete Voice Interface loaded');
-
+// Export for modules
 export default voiceInterface;
+
+console.log('📦 Voice Interface module loaded');
