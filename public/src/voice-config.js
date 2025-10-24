@@ -17,7 +17,7 @@ class VoiceConfiguration {
         this.commandDebounceMs = 3000; // 3 seconds
         
         // Backend API URL
-        this.apiBaseURL = process.env.REACT_APP_API_URL || 'https://pal-backend-production.up.railway.app/api';
+        this.apiBaseURL = 'https://pal-backend-production.up.railway.app/api';
     }
 
     getOptimalConfig() {
