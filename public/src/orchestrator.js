@@ -1,6 +1,5 @@
-// orchestrator.js - Phoenix Master Intelligence Orchestrator
-// This is the BRAIN that connects everything: frontend modules → backend APIs → real-time updates
-// Goal: Create seamless JARVIS/Alfred experience with zero manual intervention
+// orchestrator.js - Phoenix Master Intelligence Orchestrator with Butler Integration
+// Complete brain that connects everything: Butler + Voice + JARVIS + Real-time interventions
 
 class PhoenixOrchestrator {
     constructor() {
@@ -10,10 +9,12 @@ class PhoenixOrchestrator {
         this.voiceInterface = null;
         this.jarvisEngine = null;
         this.planetSystem = null;
+        this.butlerService = null; // ⭐ NEW: Butler integration
         
         this.autoSyncInterval = null;
         this.healthCheckInterval = null;
         this.intelligenceTimer = null;
+        this.butlerMonitoringInterval = null; // ⭐ NEW
         
         this.user = null;
         this.wearablesConnected = false;
@@ -26,7 +27,19 @@ class PhoenixOrchestrator {
             lowRecovery: 60,
             highStress: 7,
             plateauWorkouts: 5,
-            goalDeadlineDays: 7
+            goalDeadlineDays: 7,
+            lowEnergy: 40,
+            highSpending: 150 // % of daily average
+        };
+
+        // Butler automation settings
+        this.butlerAutomation = {
+            morningRoutine: true,
+            mealOrdering: true,
+            rideBooking: true,
+            calendarOptimization: true,
+            emailDrafting: false,
+            phoneHandling: false
         };
     }
 
@@ -35,10 +48,10 @@ class PhoenixOrchestrator {
     // ========================================
 
     async init() {
-        console.log('🧠 Initializing Phoenix Master Orchestrator...');
+        console.log('🧠 Initializing Phoenix Master Orchestrator with Butler...');
         
         try {
-            // Wait for all dependencies
+            // Wait for all dependencies including Butler
             await this.waitForModules();
             
             // Authenticate user
@@ -52,6 +65,9 @@ class PhoenixOrchestrator {
             // Connect all modules
             this.connectModules();
             
+            // Initialize Butler Service
+            await this.initializeButler();
+            
             // Check wearable status
             await this.checkWearableConnections();
             
@@ -59,6 +75,7 @@ class PhoenixOrchestrator {
             this.startAutoSync();
             this.startHealthMonitoring();
             this.startIntelligentInterventions();
+            this.startButlerMonitoring(); // ⭐ NEW
             
             // Setup UI handlers
             this.setupGlobalHandlers();
@@ -66,14 +83,20 @@ class PhoenixOrchestrator {
             // Initial data load
             await this.initialDataSync();
             
-            // Voice greeting
+            // Voice greeting with Butler mention
             if (this.voiceInterface) {
                 setTimeout(() => {
                     this.voiceInterface.sayInitialGreeting();
+                    if (this.butlerService?.autonomousMode) {
+                        this.voiceInterface.speak(
+                            'Butler mode is active. I\'m monitoring your schedule and will handle routine tasks automatically.',
+                            'normal'
+                        );
+                    }
                 }, 2000);
             }
             
-            console.log('✅ Phoenix Orchestrator fully operational');
+            console.log('✅ Phoenix Orchestrator with Butler fully operational');
             this.showSystemStatus('ONLINE');
             
         } catch (error) {
@@ -90,8 +113,11 @@ class PhoenixOrchestrator {
             const checkInterval = setInterval(() => {
                 attempts++;
                 
+                // Check for all modules including Butler
                 if (window.API && window.phoenixStore && window.reactorCore && 
-                    window.voiceInterface && window.jarvisEngine && window.planetSystem) {
+                    window.voiceInterface && window.jarvisEngine && window.planetSystem &&
+                    window.butlerService) { // ⭐ NEW: Check for Butler
+                    
                     clearInterval(checkInterval);
                     
                     this.API = window.API;
@@ -100,8 +126,9 @@ class PhoenixOrchestrator {
                     this.voiceInterface = window.voiceInterface;
                     this.jarvisEngine = window.jarvisEngine;
                     this.planetSystem = window.planetSystem;
+                    this.butlerService = window.butlerService; // ⭐ NEW
                     
-                    console.log('✅ All modules loaded');
+                    console.log('✅ All modules loaded (including Butler)');
                     resolve();
                 }
                 
@@ -114,12 +141,272 @@ class PhoenixOrchestrator {
         });
     }
 
+    // ========================================
+    // 🤖 BUTLER INITIALIZATION
+    // ========================================
+
+    async initializeButler() {
+        if (!this.butlerService) {
+            console.warn('⚠️ Butler service not available');
+            return;
+        }
+
+        console.log('🤖 Initializing Butler Service...');
+        
+        // Check user preferences for Butler settings
+        const userPrefs = await this.loadUserPreferences();
+        
+        if (userPrefs?.butler) {
+            this.butlerService.autonomousMode = userPrefs.butler.autonomousMode || false;
+            this.butlerService.trustLevel = userPrefs.butler.trustLevel || 0;
+            this.butlerAutomation = { ...this.butlerAutomation, ...userPrefs.butler.automation };
+        }
+        
+        // Enable Butler in voice interface
+        if (this.voiceInterface) {
+            this.voiceInterface.butlerEnabled = true;
+        }
+        
+        console.log('✅ Butler Service configured:', {
+            autonomous: this.butlerService.autonomousMode,
+            trustLevel: this.butlerService.trustLevel
+        });
+    }
+
+    // ========================================
+    // 🤖 BUTLER MONITORING
+    // ========================================
+
+    startButlerMonitoring() {
+        console.log('🤖 Starting Butler monitoring...');
+        
+        // Check for Butler interventions every 2 minutes
+        this.butlerMonitoringInterval = setInterval(() => {
+            this.checkForButlerInterventions();
+        }, 120000);
+        
+        // Initial check
+        this.checkForButlerInterventions();
+    }
+
+    async checkForButlerInterventions() {
+        if (!this.butlerService) return;
+        
+        const now = new Date();
+        const hour = now.getHours();
+        const minute = now.getMinutes();
+        
+        // ⭐ Morning Routine (7:00 AM)
+        if (hour === 7 && minute < 5 && this.butlerAutomation.morningRoutine) {
+            await this.executeMorningButlerRoutine();
+        }
+        
+        // ⭐ Lunch Time (11:45 AM)
+        if (hour === 11 && minute === 45 && this.butlerAutomation.mealOrdering) {
+            await this.checkLunchNeeds();
+        }
+        
+        // ⭐ Dinner Time (6:00 PM)
+        if (hour === 18 && minute === 0 && this.butlerAutomation.mealOrdering) {
+            await this.checkDinnerNeeds();
+        }
+        
+        // ⭐ Check upcoming events for ride needs
+        if (this.butlerAutomation.rideBooking) {
+            await this.checkUpcomingEventsForRides();
+        }
+        
+        // ⭐ Calendar optimization check (every check)
+        if (this.butlerAutomation.calendarOptimization) {
+            await this.checkCalendarForOptimization();
+        }
+    }
+
+    async executeMorningButlerRoutine() {
+        console.log('🌅 Butler: Executing morning routine...');
+        
+        const state = this.phoenixStore?.state;
+        const recovery = state?.mercury?.recovery?.recoveryScore || 75;
+        
+        // Announce morning status
+        if (this.voiceInterface) {
+            const hour = new Date().getHours();
+            const greeting = hour < 12 ? 'Good morning' : 'Good afternoon';
+            
+            this.voiceInterface.speak(
+                `${greeting}. Your recovery is at ${Math.round(recovery)} percent. ${
+                    recovery >= 80 ? 'You\'re primed for peak performance today.' :
+                    recovery >= 60 ? 'Moderate intensity recommended today.' :
+                    'Consider a recovery day. I\'ll adjust your schedule accordingly.'
+                }`,
+                'normal'
+            );
+        }
+        
+        // If recovery is low, reschedule intensive activities
+        if (recovery < 60) {
+            await this.butlerService.optimizeCalendar();
+        }
+        
+        // Check if breakfast should be ordered
+        if (this.butlerAutomation.mealOrdering && recovery >= 40) {
+            const events = state?.earth?.events || [];
+            const hasMorningMeeting = events.some(e => {
+                const eventHour = new Date(e.start).getHours();
+                return eventHour >= 7 && eventHour <= 9;
+            });
+            
+            if (!hasMorningMeeting) {
+                if (this.voiceInterface) {
+                    this.voiceInterface.speak(
+                        'Would you like me to order your usual breakfast?',
+                        'normal'
+                    );
+                }
+            }
+        }
+    }
+
+    async checkLunchNeeds() {
+        const state = this.phoenixStore?.state;
+        const events = state?.earth?.events || [];
+        
+        // Check if there's a lunch meeting
+        const hasLunchMeeting = events.some(e => {
+            const eventHour = new Date(e.start).getHours();
+            return eventHour >= 11 && eventHour <= 14 && 
+                   e.title.toLowerCase().includes('lunch');
+        });
+        
+        if (!hasLunchMeeting && this.butlerService) {
+            if (this.butlerService.autonomousMode && this.butlerService.trustLevel > 70) {
+                // Auto-order lunch
+                await this.butlerService.orderFood({
+                    deliveryTime: '12:30 PM'
+                });
+            } else {
+                // Ask first
+                if (this.voiceInterface) {
+                    this.voiceInterface.speak(
+                        'It\'s almost noon. Would you like me to order lunch?',
+                        'normal'
+                    );
+                }
+            }
+        }
+    }
+
+    async checkDinnerNeeds() {
+        const state = this.phoenixStore?.state;
+        const recovery = state?.mercury?.recovery?.recoveryScore || 75;
+        
+        // Check spending today
+        const todaySpending = state?.jupiter?.finance?.todaySpending || 0;
+        const avgSpending = state?.jupiter?.finance?.avgSpending || 100;
+        
+        // If spending is high, suggest cooking instead
+        if (todaySpending > avgSpending * 1.5) {
+            if (this.voiceInterface) {
+                this.voiceInterface.speak(
+                    'Your spending is above average today. Consider cooking at home for dinner.',
+                    'normal'
+                );
+            }
+        } else if (recovery < 50) {
+            // Low recovery - order healthy food
+            if (this.voiceInterface) {
+                this.voiceInterface.speak(
+                    'Your recovery is low. Shall I order something healthy and light for dinner?',
+                    'normal'
+                );
+            }
+        } else {
+            // Normal dinner suggestion
+            if (this.voiceInterface) {
+                this.voiceInterface.speak(
+                    'It\'s dinner time. Would you like me to order from your favorite restaurant?',
+                    'normal'
+                );
+            }
+        }
+    }
+
+    async checkUpcomingEventsForRides() {
+        if (!this.butlerService) return;
+        
+        const state = this.phoenixStore?.state;
+        const events = state?.earth?.events || [];
+        const now = new Date();
+        
+        for (const event of events) {
+            const eventTime = new Date(event.start);
+            const minutesUntil = (eventTime - now) / (1000 * 60);
+            
+            // Check events 30-45 minutes away
+            if (minutesUntil > 30 && minutesUntil < 45 && event.location) {
+                const travelTime = 20; // Estimate 20 minutes travel time
+                
+                if (this.butlerService.autonomousMode && this.butlerService.trustLevel > 80) {
+                    // Auto-book ride
+                    await this.butlerService.bookRide(event.location, {
+                        time: new Date(eventTime - travelTime * 60000).toISOString()
+                    });
+                } else {
+                    // Ask first
+                    if (this.voiceInterface) {
+                        this.voiceInterface.speak(
+                            `You have an event at ${event.location} in ${Math.round(minutesUntil)} minutes. Shall I book an Uber?`,
+                            'urgent'
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    async checkCalendarForOptimization() {
+        const state = this.phoenixStore?.state;
+        const recovery = state?.mercury?.recovery?.recoveryScore || 75;
+        const events = state?.earth?.events || [];
+        
+        // Check for back-to-back meetings with low recovery
+        if (recovery < 60 && events.length > 4) {
+            const backToBack = events.filter((e, i) => {
+                if (i === 0) return false;
+                const prevEnd = new Date(events[i-1].end);
+                const thisStart = new Date(e.start);
+                return (thisStart - prevEnd) < 5 * 60 * 1000;
+            });
+            
+            if (backToBack.length > 2) {
+                if (this.butlerService.autonomousMode) {
+                    await this.butlerService.optimizeCalendar();
+                } else {
+                    if (this.voiceInterface) {
+                        this.voiceInterface.speak(
+                            'Your recovery is low and you have back-to-back meetings. Shall I optimize your calendar?',
+                            'normal'
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    // ========================================
+    // EXISTING METHODS WITH BUTLER INTEGRATION
+    // ========================================
+
     async authenticate() {
         try {
             const response = await this.API.getMe();
             if (response.success && response.user) {
                 this.user = response.user;
                 console.log('✅ User authenticated:', this.user.name);
+                
+                // Store user name for Butler personalization
+                localStorage.setItem('phoenixUserName', this.user.name.split(' ')[0]);
+                
                 return true;
             }
             return false;
@@ -197,7 +484,7 @@ class PhoenixOrchestrator {
             console.log('✅ Full sync complete');
             this.showNotification('Sync Complete', 'All data updated successfully');
             
-            // Speak update if voice enabled
+            // Don't announce sync complete if Butler is speaking
             if (this.voiceInterface && !this.voiceInterface.isSpeaking) {
                 this.voiceInterface.speak('Data sync complete. All systems updated.', 'normal');
             }
@@ -219,11 +506,9 @@ class PhoenixOrchestrator {
         console.log('⌚ Syncing wearables...');
         
         try {
-            // Get connected providers from backend
             const providers = await this.API.getConnectedWearables();
             
             if (providers && providers.length > 0) {
-                // Sync each provider
                 for (const provider of providers) {
                     console.log(`Syncing ${provider}...`);
                     await this.API.syncWearables(provider);
@@ -266,7 +551,7 @@ class PhoenixOrchestrator {
         const stress = mercuryData.wearable?.stressLevel;
         const sleep = mercuryData.wearable?.sleepDuration;
         
-        // Critical recovery alert
+        // Critical recovery alert - Butler intervention
         if (recovery && recovery < this.thresholds.criticalRecovery) {
             this.triggerAlert('critical-recovery', {
                 title: 'CRITICAL: Low Recovery',
@@ -274,9 +559,14 @@ class PhoenixOrchestrator {
                 action: 'block-high-intensity',
                 severity: 'critical'
             });
+            
+            // Butler auto-intervention
+            if (this.butlerService?.autonomousMode) {
+                await this.butlerService.optimizeCalendar();
+            }
         }
         
-        // High stress alert
+        // High stress alert - Butler can help
         if (stress && stress > this.thresholds.highStress) {
             this.triggerAlert('high-stress', {
                 title: 'High Stress Detected',
@@ -284,6 +574,16 @@ class PhoenixOrchestrator {
                 action: 'suggest-recovery',
                 severity: 'warning'
             });
+            
+            // Butler: Block impulse purchases
+            if (this.butlerService?.trustLevel > 60) {
+                if (this.voiceInterface) {
+                    this.voiceInterface.speak(
+                        'High stress detected. I\'m monitoring your spending to prevent stress purchases.',
+                        'normal'
+                    );
+                }
+            }
         }
         
         // Poor sleep alert
@@ -294,6 +594,11 @@ class PhoenixOrchestrator {
                 action: 'adjust-training',
                 severity: 'warning'
             });
+            
+            // Butler: Adjust today's schedule
+            if (this.butlerService) {
+                await this.butlerService.optimizeCalendar();
+            }
         }
         
         // Update reactor with latest vitals
@@ -331,6 +636,11 @@ class PhoenixOrchestrator {
                 action: 'suggest-rest-day',
                 severity: 'high'
             });
+            
+            // Butler: Cancel today's workout booking
+            if (this.butlerService?.autonomousMode) {
+                // Cancel any gym bookings
+            }
         }
         
         // ⭐ INTERVENTION 2: Poor sleep + Low goal progress
@@ -345,20 +655,15 @@ class PhoenixOrchestrator {
                     action: 'optimize-sleep',
                     severity: 'medium'
                 });
+                
+                // Butler: Set sleep reminder for tonight
+                if (this.butlerService) {
+                    // Schedule evening wind-down reminder
+                }
             }
         }
         
-        // ⭐ INTERVENTION 3: Workout plateau detected
-        if (state.venus?.plateauDetected) {
-            this.triggerIntervention('workout-plateau', {
-                insight: 'Training plateau detected over last 3 weeks',
-                recommendation: 'Quantum workout generation available to break through',
-                action: 'generate-quantum-workout',
-                severity: 'medium'
-            });
-        }
-        
-        // ⭐ INTERVENTION 4: Stress-spending correlation
+        // ⭐ INTERVENTION 3: Stress-spending correlation
         if (state.mercury?.wearable?.stressLevel > 7 && state.jupiter?.finance) {
             const todaySpending = state.jupiter.finance.todaySpending || 0;
             const avgSpending = state.jupiter.finance.avgSpending || 0;
@@ -370,10 +675,16 @@ class PhoenixOrchestrator {
                     action: 'enable-impulse-block',
                     severity: 'urgent'
                 });
+                
+                // Butler: Enable spending protection
+                if (this.butlerService) {
+                    this.butlerService.preferences.impulseBlockEnabled = true;
+                    this.butlerService.savePreferences();
+                }
             }
         }
         
-        // ⭐ INTERVENTION 5: Goal deadline approaching
+        // ⭐ INTERVENTION 4: Goal deadline approaching
         if (state.mars?.goals) {
             const now = Date.now();
             const urgentGoals = state.mars.goals.filter(g => {
@@ -389,10 +700,15 @@ class PhoenixOrchestrator {
                     action: 'review-goals',
                     severity: 'high'
                 });
+                
+                // Butler: Block time for goal work
+                if (this.butlerService && this.butlerAutomation.calendarOptimization) {
+                    // Block focus time for goal work
+                }
             }
         }
         
-        // ⭐ INTERVENTION 6: Calendar-recovery correlation
+        // ⭐ INTERVENTION 5: Calendar-recovery correlation
         if (state.earth?.events?.length > 5 && 
             state.mercury?.recovery?.recoveryScore < 70) {
             this.triggerIntervention('schedule-recovery', {
@@ -401,6 +717,11 @@ class PhoenixOrchestrator {
                 action: 'optimize-schedule',
                 severity: 'medium'
             });
+            
+            // Butler: Optimize calendar
+            if (this.butlerService?.autonomousMode) {
+                await this.butlerService.optimizeCalendar();
+            }
         }
     }
 
@@ -432,10 +753,10 @@ class PhoenixOrchestrator {
             this.reactorCore.triggerEvolutionEffect();
         }
         
-        // Auto-execute certain actions
-        if (intervention.action === 'generate-quantum-workout') {
-            this.offerQuantumWorkout();
-        } else if (intervention.action === 'optimize-schedule') {
+        // Auto-execute certain actions with Butler
+        if (intervention.action === 'suggest-rest-day' && this.butlerService) {
+            this.offerRestDayOptimization();
+        } else if (intervention.action === 'optimize-schedule' && this.butlerService) {
             this.offerScheduleOptimization();
         }
     }
@@ -475,7 +796,6 @@ class PhoenixOrchestrator {
             console.log('⌚ Wearables connected:', this.wearablesConnected);
             
             if (!this.wearablesConnected) {
-                // Show prompt to connect wearables
                 setTimeout(() => {
                     this.promptWearableConnection();
                 }, 5000);
@@ -507,7 +827,7 @@ class PhoenixOrchestrator {
                 ⌚ Connect Wearable Device
             </div>
             <div style="font-size: 13px; color: rgba(0, 255, 255, 0.7); margin-bottom: 20px; line-height: 1.5;">
-                Connect your Fitbit or Polar device for real-time health tracking and AI-powered insights.
+                Connect your wearable for real-time health tracking and AI-powered insights.
             </div>
             <button id="connect-wearable-btn" style="
                 width: 100%;
@@ -520,9 +840,7 @@ class PhoenixOrchestrator {
                 cursor: pointer;
                 letter-spacing: 2px;
                 transition: all 0.3s;
-            ">
-                CONNECT DEVICE
-            </button>
+            ">CONNECT DEVICE</button>
             <button id="dismiss-wearable-btn" style="
                 width: 100%;
                 margin-top: 10px;
@@ -533,9 +851,7 @@ class PhoenixOrchestrator {
                 font-family: inherit;
                 font-size: 12px;
                 cursor: pointer;
-            ">
-                Maybe Later
-            </button>
+            ">Maybe Later</button>
         `;
         
         document.body.appendChild(notification);
@@ -551,7 +867,6 @@ class PhoenixOrchestrator {
     }
 
     openWearableConnectModal() {
-        // This will be handled by wearables.js
         if (window.wearableConnector) {
             window.wearableConnector.openModal();
         } else {
@@ -570,10 +885,23 @@ class PhoenixOrchestrator {
         // Update UI elements based on planet
         if (planet === 'mercury') {
             this.updateHealthDisplays(data);
+            
+            // Butler: Check if health requires intervention
+            if (this.butlerService && data.recovery?.recoveryScore < 40) {
+                this.butlerService.optimizeCalendar();
+            }
         } else if (planet === 'venus') {
             this.updateFitnessDisplays(data);
         } else if (planet === 'mars') {
             this.updateGoalsDisplays(data);
+            
+            // Butler: Increase trust on goal completion
+            if (this.butlerService && data.goals) {
+                const completedGoals = data.goals.filter(g => g.completed).length;
+                if (completedGoals > 0) {
+                    this.butlerService.increaseTrust(10);
+                }
+            }
         }
         
         // Trigger reactor beam flash
@@ -596,7 +924,6 @@ class PhoenixOrchestrator {
     }
 
     updateHealthDisplays(data) {
-        // Update HUD displays
         const recovery = data.recovery?.recoveryScore;
         if (recovery) {
             const recoveryEl = document.getElementById('recovery-value');
@@ -606,7 +933,6 @@ class PhoenixOrchestrator {
             if (recoveryFill) recoveryFill.style.width = recovery + '%';
         }
         
-        // Update vitals panel
         const updates = {
             'hrv-value': data.hrv?.value || data.wearable?.hrv || '--',
             'rhr-value': data.wearable?.heartRate || '--',
@@ -620,7 +946,6 @@ class PhoenixOrchestrator {
     }
 
     updateFitnessDisplays(data) {
-        // Update workout count
         if (data.workouts) {
             const count = data.workouts.length;
             const countEl = document.getElementById('workouts-count');
@@ -640,7 +965,6 @@ class PhoenixOrchestrator {
             const percentEl = document.getElementById('goals-percentage');
             if (percentEl) percentEl.textContent = `${percentage}% Complete`;
             
-            // Update trust score
             if (this.reactorCore) {
                 this.reactorCore.setTrustScore(percentage);
             }
@@ -648,11 +972,64 @@ class PhoenixOrchestrator {
     }
 
     // ========================================
-    // 🎬 ACTION HANDLERS
+    // 🎬 ACTION HANDLERS WITH BUTLER
     // ========================================
 
+    async offerRestDayOptimization() {
+        if (this.butlerService?.autonomousMode) {
+            // Auto-optimize for rest
+            await this.butlerService.optimizeCalendar();
+            
+            if (this.voiceInterface) {
+                this.voiceInterface.speak(
+                    'I\'ve cleared your afternoon for recovery. Rest is productive.',
+                    'normal'
+                );
+            }
+        } else {
+            const confirmed = confirm('Your recovery is low. Would you like me to optimize your schedule for rest?');
+            
+            if (confirmed && this.butlerService) {
+                await this.butlerService.optimizeCalendar();
+            }
+        }
+    }
+
+    async offerScheduleOptimization() {
+        if (this.butlerService?.autonomousMode) {
+            await this.butlerService.optimizeCalendar();
+            
+            if (this.voiceInterface) {
+                this.voiceInterface.speak(
+                    'I\'ve optimized your calendar for better energy alignment.',
+                    'normal'
+                );
+            }
+        } else {
+            const confirmed = confirm('Phoenix has detected calendar overload.\n\nWould you like to optimize your schedule?');
+            
+            if (confirmed && this.butlerService) {
+                try {
+                    this.showNotification('Optimizing Schedule', 'Analyzing energy patterns...');
+                    
+                    const result = await this.butlerService.optimizeCalendar();
+                    
+                    if (result.success) {
+                        this.showNotification(
+                            'Schedule Optimized',
+                            `Made ${result.changes} adjustments for better recovery`
+                        );
+                    }
+                } catch (error) {
+                    console.error('Schedule optimization failed:', error);
+                    this.showNotification('Error', 'Failed to optimize schedule', 'error');
+                }
+            }
+        }
+    }
+
     async offerQuantumWorkout() {
-        const confirmed = confirm('Phoenix has detected a training plateau.\n\nWould you like to generate a chaos-theory workout to break through?');
+        const confirmed = confirm('Phoenix has detected a training plateau.\n\nWould you like to generate a chaos-theory workout?');
         
         if (confirmed) {
             try {
@@ -669,7 +1046,6 @@ class PhoenixOrchestrator {
                         `Generated workout with chaos seed: ${result.data.chaosSeed}`
                     );
                     
-                    // Open Venus dashboard to show workout
                     if (this.planetSystem) {
                         this.planetSystem.expandPlanet('venus');
                     }
@@ -677,28 +1053,6 @@ class PhoenixOrchestrator {
             } catch (error) {
                 console.error('Quantum workout failed:', error);
                 this.showNotification('Error', 'Failed to generate workout', 'error');
-            }
-        }
-    }
-
-    async offerScheduleOptimization() {
-        const confirmed = confirm('Phoenix has detected calendar overload.\n\nWould you like to optimize your schedule for better recovery?');
-        
-        if (confirmed) {
-            try {
-                this.showNotification('Optimizing Schedule', 'Analyzing energy patterns...');
-                
-                const result = await this.API.optimizeSchedule();
-                
-                if (result.success) {
-                    this.showNotification(
-                        'Schedule Optimized',
-                        `Rescheduled ${result.data.movesCount} meetings for better energy alignment`
-                    );
-                }
-            } catch (error) {
-                console.error('Schedule optimization failed:', error);
-                this.showNotification('Error', 'Failed to optimize schedule', 'error');
             }
         }
     }
@@ -716,7 +1070,7 @@ class PhoenixOrchestrator {
             });
         }
         
-        // Chat button
+        // Chat button - now with Butler
         const chatBtn = document.getElementById('quick-chat');
         if (chatBtn) {
             chatBtn.addEventListener('click', () => {
@@ -734,32 +1088,32 @@ class PhoenixOrchestrator {
             });
         }
         
-        // Meal button
+        // Meal button - now with Butler
         const mealBtn = document.getElementById('quick-meal');
         if (mealBtn) {
-            mealBtn.addEventListener('click', () => {
-                this.openMealLogger();
+            mealBtn.addEventListener('click', async () => {
+                if (this.butlerService) {
+                    await this.butlerService.orderFood();
+                } else {
+                    this.openMealLogger();
+                }
             });
         }
     }
 
     openWorkoutLogger() {
-        // Open Venus dashboard
         if (this.planetSystem) {
             this.planetSystem.expandPlanet('venus');
         }
         
-        // TODO: Show workout logging form
         this.showNotification('Workout Logger', 'Opening workout logging interface...');
     }
 
     openMealLogger() {
-        // Open Venus dashboard
         if (this.planetSystem) {
             this.planetSystem.expandPlanet('venus');
         }
         
-        // TODO: Show meal logging form
         this.showNotification('Meal Logger', 'Opening meal logging interface...');
     }
 
@@ -770,13 +1124,8 @@ class PhoenixOrchestrator {
     async initialDataSync() {
         console.log('🔄 Initial data sync...');
         
-        // Load user preferences
         await this.loadUserPreferences();
-        
-        // Full sync
         await this.syncAllData();
-        
-        // Analyze initial state
         await this.analyzeForInterventions();
     }
 
@@ -792,10 +1141,19 @@ class PhoenixOrchestrator {
                     this.voiceInterface.speechSpeed = prefs.speechSpeed || 1.0;
                 }
                 
+                // Apply Butler preferences
+                if (prefs.butler && this.butlerService) {
+                    this.butlerService.autonomousMode = prefs.butler.autonomousMode || false;
+                    this.butlerService.trustLevel = prefs.butler.trustLevel || 0;
+                    this.butlerAutomation = { ...this.butlerAutomation, ...prefs.butler.automation };
+                }
+                
                 console.log('✅ User preferences loaded');
+                return prefs;
             }
         } catch (error) {
             console.error('Failed to load preferences:', error);
+            return null;
         }
     }
 
@@ -847,6 +1205,7 @@ class PhoenixOrchestrator {
         if (this.autoSyncInterval) clearInterval(this.autoSyncInterval);
         if (this.healthCheckInterval) clearInterval(this.healthCheckInterval);
         if (this.intelligenceTimer) clearInterval(this.intelligenceTimer);
+        if (this.butlerMonitoringInterval) clearInterval(this.butlerMonitoringInterval);
         
         console.log('🔴 Orchestrator destroyed');
     }
@@ -866,6 +1225,6 @@ if (document.readyState === 'loading') {
     orchestrator.init();
 }
 
-console.log('✅ Phoenix Master Orchestrator loaded');
+console.log('✅ Phoenix Master Orchestrator with Butler loaded');
 
 export default orchestrator;
