@@ -415,7 +415,7 @@ class VoiceConfiguration {
             
             const token = localStorage.getItem('phoenix_token');
             
-            const response = await fetch(`${this.apiBaseURL}/tts/speak`, {
+           const response = await fetch(`${this.apiBaseURL}/tts/generate`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
