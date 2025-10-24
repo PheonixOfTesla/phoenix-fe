@@ -184,7 +184,7 @@ class VoiceConfiguration {
             
             // Add gain node to boost input
             const gainNode = audioContext.createGain();
-            gainNode.gain.value = 2.0; // Boost input by 2x
+            gainNode.gain.value = 1.0; // Boost input by 2x
             
             // Add compressor for consistent levels
             const compressor = audioContext.createDynamicsCompressor();
