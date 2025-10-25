@@ -1,7 +1,7 @@
 // ============================================================================
 // PHOENIX VOICE INTERFACE - Multi-Personality AI Butler
 // ============================================================================
-// Works with Phoenix backend: /api/tts, /api/whisper, /api/phoenix/voice
+// COMPLETE VERSION - All browser compatibility fixes included
 // ============================================================================
 
 class PhoenixVoice {
@@ -143,12 +143,16 @@ class PhoenixVoice {
             this.audioChunks = [];
             this.updateStatus('listening', '🟢 Listening...');
             
+            // Detect supported MIME type
+            let mimeType = 'audio/webm';
+            if (!MediaRecorder.isTypeSupported('audio/webm')) {
+                mimeType = 'audio/mp4';
+            }
+            
+            console.log('🎵 Using audio format:', mimeType);
+            
             // Setup media recorder
-           let mimeType = 'audio/webm';
-if (!MediaRecorder.isTypeSupported('audio/webm')) {
-    mimeType = 'audio/mp4';
-}
-this.mediaRecorder = new MediaRecorder(this.recordingStream, { mimeType });
+            this.mediaRecorder = new MediaRecorder(this.recordingStream, { mimeType });
             
             this.mediaRecorder.ondataavailable = (event) => {
                 if (event.data.size > 0) {
@@ -198,7 +202,12 @@ this.mediaRecorder = new MediaRecorder(this.recordingStream, { mimeType });
             this.updateStatus('processing', '🔄 Processing...');
             
             // Create audio blob
-            const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+            const audioBlob = new Blob(this.audioChunks, { type: this.mediaRecorder.mimeType });
+            
+            console.log('📦 Audio blob:', {
+                size: audioBlob.size,
+                type: audioBlob.type
+            });
             
             // Transcribe audio
             const transcription = await this.transcribeAudio(audioBlob);
@@ -242,36 +251,57 @@ this.mediaRecorder = new MediaRecorder(this.recordingStream, { mimeType });
     // Transcribe audio using Whisper
     async transcribeAudio(audioBlob) {
         const formData = new FormData();
-        formData.append('audio', audioBlob, 'recording.webm');
         
-        const token = localStorage.getItem('token'); // Get auth token
+        // Detect actual blob type and set correct extension
+        let extension = 'webm';
+        if (audioBlob.type.includes('mp4')) {
+            extension = 'mp4';
+        } else if (audioBlob.type.includes('wav')) {
+            extension = 'wav';
+        } else if (audioBlob.type.includes('ogg')) {
+            extension = 'ogg';
+        }
+        
+        console.log(`[Transcribe] Audio type: ${audioBlob.type}, extension: ${extension}, size: ${audioBlob.size}`);
+        
+        formData.append('audio', audioBlob, `recording.${extension}`);
+        
+        const token = localStorage.getItem('phoenixToken') || 
+                      localStorage.getItem('token') || 
+                      localStorage.getItem('authToken');
         
         const response = await fetch(`${this.API_BASE}/whisper/transcribe`, {
             method: 'POST',
             headers: {
-                'Authorization': token ? `Bearer ${token}` : ''
+                // Only set Authorization if token exists
+                ...(token && { 'Authorization': `Bearer ${token}` })
             },
             body: formData
         });
         
         if (!response.ok) {
-            throw new Error('Transcription failed');
+            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+            console.error('[Transcribe] Error:', errorData);
+            throw new Error(errorData.error || 'Transcription failed');
         }
         
         const data = await response.json();
+        console.log('[Transcribe] ✅ Success:', data.text);
         return data.text;
     }
 
     // Get AI response from Phoenix
     async getAIResponse(message) {
         const personality = this.voicePersonalities[this.selectedVoice];
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('phoenixToken') || 
+                      localStorage.getItem('token') || 
+                      localStorage.getItem('authToken');
         
         const response = await fetch(`${this.API_BASE}/phoenix/voice/chat`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': token ? `Bearer ${token}` : ''
+                ...(token && { 'Authorization': `Bearer ${token}` })
             },
             body: JSON.stringify({
                 message: message,
@@ -312,13 +342,15 @@ this.mediaRecorder = new MediaRecorder(this.recordingStream, { mimeType });
             this.isSpeaking = true;
             this.updateStatus('speaking', '🔵 Speaking...');
             
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('phoenixToken') || 
+                          localStorage.getItem('token') || 
+                          localStorage.getItem('authToken');
             
             const response = await fetch(`${this.API_BASE}/tts/generate`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': token ? `Bearer ${token}` : ''
+                    ...(token && { 'Authorization': `Bearer ${token}` })
                 },
                 body: JSON.stringify({
                     text: text,
@@ -481,6 +513,10 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (!success) {
         console.error('❌ Phoenix Voice failed to initialize');
     }
+    
+    // Expose to window for orchestrator
+    window.voiceInterface = phoenixVoice;
+    window.phoenixVoice = phoenixVoice;
 });
 
 // Global functions for HTML buttons
