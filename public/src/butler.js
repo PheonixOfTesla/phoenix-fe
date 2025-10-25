@@ -3,6 +3,7 @@
 
 class ButlerService {
     constructor() {
+        this.baseURL = 'https://pal-backend-production.up.railway.app/api';
         this.API = null;
         this.isInitialized = false;
         this.activeTask = null;
@@ -94,20 +95,29 @@ class ButlerService {
                 }
             }
 
-            // Simulate API call (replace with real Uber Eats API)
+            // Real API call
             task.status = 'processing';
             
-            // Mock implementation - replace with actual API
-            const response = await this.mockFoodOrder(order);
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/phoenix/butler/food/order`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(order)
+            });
             
-            if (response.success) {
+            const data = await response.json();
+            
+            if (response.ok && data.success !== false) {
                 task.status = 'completed';
-                task.result = response;
+                task.result = data;
                 
                 // Voice confirmation
                 if (window.voiceInterface) {
                     window.voiceInterface.speak(
-                        `Your ${order.restaurant} order has been placed. Delivery in approximately ${response.estimatedTime} minutes.`,
+                        `Your ${order.restaurant} order has been placed. Delivery in approximately ${data.estimatedTime || '30'} minutes.`,
                         'normal'
                     );
                 }
@@ -116,9 +126,9 @@ class ButlerService {
                 this.taskHistory.push(task);
                 this.saveTaskHistory();
                 
-                return response;
+                return data;
             } else {
-                throw new Error(response.error || 'Order failed');
+                throw new Error(data.error || 'Order failed');
             }
             
         } catch (error) {
@@ -137,18 +147,45 @@ class ButlerService {
         }
     }
 
-    async mockFoodOrder(order) {
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 2000));
+    async reorderFood(orderId) {
+        console.log('🍔 Butler: Reordering food...');
         
-        return {
-            success: true,
-            orderId: 'ORD-' + Math.random().toString(36).substr(2, 9),
-            restaurant: order.restaurant,
-            estimatedTime: 30 + Math.floor(Math.random() * 15),
-            total: '$' + (20 + Math.random() * 30).toFixed(2),
-            trackingUrl: 'https://ubereats.com/track/' + Math.random().toString(36)
-        };
+        try {
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/phoenix/butler/food/reorder`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ orderId })
+            });
+            
+            return await response.json();
+        } catch (error) {
+            console.error('Reorder error:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    async getFoodHistory() {
+        console.log('🍔 Butler: Getting food history...');
+        
+        try {
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/phoenix/butler/food/history`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            return await response.json();
+        } catch (error) {
+            console.error('Food history error:', error);
+            return { success: false, error: error.message };
+        }
     }
 
     // ========================================
@@ -194,24 +231,34 @@ class ButlerService {
 
             task.status = 'processing';
             
-            // Mock implementation - replace with actual Uber API
-            const response = await this.mockRideBooking(booking);
+            // Real API call
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/phoenix/butler/ride`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(booking)
+            });
             
-            if (response.success) {
+            const data = await response.json();
+            
+            if (response.ok && data.success !== false) {
                 task.status = 'completed';
-                task.result = response;
+                task.result = data;
                 
                 // Add to calendar
                 await this.addToCalendar({
                     title: `Uber to ${destination}`,
                     start: booking.time,
-                    duration: response.estimatedDuration
+                    duration: data.estimatedDuration
                 });
                 
                 // Voice confirmation
                 if (window.voiceInterface) {
                     window.voiceInterface.speak(
-                        `Your ${booking.type} is booked. Driver ${response.driverName} will arrive in ${response.estimatedArrival} minutes.`,
+                        `Your ${booking.type} is booked. Driver ${data.driverName || 'is assigned'} will arrive in ${data.estimatedArrival || '5'} minutes.`,
                         'normal'
                     );
                 }
@@ -219,9 +266,9 @@ class ButlerService {
                 this.taskHistory.push(task);
                 this.saveTaskHistory();
                 
-                return response;
+                return data;
             } else {
-                throw new Error(response.error || 'Booking failed');
+                throw new Error(data.error || 'Booking failed');
             }
             
         } catch (error) {
@@ -233,24 +280,106 @@ class ButlerService {
         }
     }
 
-    async mockRideBooking(booking) {
-        await new Promise(resolve => setTimeout(resolve, 1500));
+    async getRides() {
+        console.log('🚗 Butler: Getting ride history...');
         
-        return {
-            success: true,
-            rideId: 'RIDE-' + Math.random().toString(36).substr(2, 9),
-            driverName: ['John', 'Sarah', 'Mike', 'Emma'][Math.floor(Math.random() * 4)],
-            vehicleInfo: 'Toyota Camry - ABC 123',
-            estimatedArrival: 3 + Math.floor(Math.random() * 7),
-            estimatedDuration: 15 + Math.floor(Math.random() * 30),
-            fare: '$' + (10 + Math.random() * 25).toFixed(2),
-            trackingUrl: 'https://uber.com/track/' + Math.random().toString(36)
-        };
+        try {
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/phoenix/butler/rides`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            return await response.json();
+        } catch (error) {
+            console.error('Get rides error:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    // ========================================
+    // 🍽️ RESERVATIONS
+    // ========================================
+
+    async makeReservation(details) {
+        console.log('🍽️ Butler: Making reservation...');
+        
+        try {
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/phoenix/butler/reservation`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(details)
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.success !== false) {
+                if (window.voiceInterface) {
+                    window.voiceInterface.speak(
+                        `Your reservation at ${details.restaurant} has been confirmed.`,
+                        'normal'
+                    );
+                }
+            }
+            
+            return data;
+        } catch (error) {
+            console.error('Reservation error:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    async getReservations() {
+        console.log('🍽️ Butler: Getting reservations...');
+        
+        try {
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/phoenix/butler/reservations`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            return await response.json();
+        } catch (error) {
+            console.error('Get reservations error:', error);
+            return { success: false, error: error.message };
+        }
     }
 
     // ========================================
     // 📅 CALENDAR OPTIMIZATION
     // ========================================
+
+    async addToCalendar(event) {
+        console.log('📅 Butler: Adding to calendar:', event.title);
+        
+        try {
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/phoenix/butler/calendar`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(event)
+            });
+            
+            return await response.json();
+        } catch (error) {
+            console.error('Add to calendar error:', error);
+            return { success: false, error: error.message };
+        }
+    }
 
     async optimizeCalendar() {
         console.log('📅 Butler: Optimizing your calendar...');
@@ -263,39 +392,36 @@ class ButlerService {
             const healthData = await this.API.getRecoveryScore();
             const recoveryScore = healthData?.data?.recoveryScore || 75;
             
-            // Analyze for optimization
-            const optimizations = this.analyzeCalendarForOptimization(events, recoveryScore);
+            // Real API call for optimization
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/phoenix/butler/calendar/optimize`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    events,
+                    recoveryScore
+                })
+            });
             
-            if (optimizations.length === 0) {
+            const data = await response.json();
+            
+            if (response.ok && data.optimizations) {
+                if (window.voiceInterface) {
+                    window.voiceInterface.speak(
+                        `Calendar optimized. I've made ${data.changes || 0} adjustments to align with your energy patterns.`,
+                        'normal'
+                    );
+                }
+            } else {
                 if (window.voiceInterface) {
                     window.voiceInterface.speak('Your calendar is already optimized.', 'normal');
                 }
-                return { success: true, changes: 0 };
             }
             
-            // Apply optimizations
-            let changes = 0;
-            for (const optimization of optimizations) {
-                if (optimization.type === 'reschedule') {
-                    const confirmed = await this.confirmAction('calendar_reschedule', optimization);
-                    if (confirmed) {
-                        await this.rescheduleEvent(optimization.event, optimization.newTime);
-                        changes++;
-                    }
-                } else if (optimization.type === 'block_time') {
-                    await this.blockRecoveryTime(optimization.time, optimization.duration);
-                    changes++;
-                }
-            }
-            
-            if (window.voiceInterface) {
-                window.voiceInterface.speak(
-                    `Calendar optimized. I've made ${changes} adjustments to align with your energy patterns.`,
-                    'normal'
-                );
-            }
-            
-            return { success: true, changes, optimizations };
+            return data;
             
         } catch (error) {
             console.error('Calendar optimization error:', error);
@@ -366,10 +492,20 @@ class ButlerService {
                 return { success: false, reason: 'User cancelled' };
             }
             
-            // Mock send - replace with Gmail API
-            const response = await this.mockSendEmail(email);
+            // Real API call
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/phoenix/butler/email`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(email)
+            });
             
-            if (response.success) {
+            const data = await response.json();
+            
+            if (response.ok && data.success !== false) {
                 if (window.voiceInterface) {
                     window.voiceInterface.speak(
                         `Email to ${recipient} has been sent successfully.`,
@@ -377,13 +513,54 @@ class ButlerService {
                     );
                 }
                 
-                return response;
+                return data;
             }
             
-            throw new Error('Email send failed');
+            throw new Error(data.error || 'Email send failed');
             
         } catch (error) {
             console.error('Email drafting error:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    async replyToEmail(emailId, message) {
+        console.log('✉️ Butler: Replying to email...');
+        
+        try {
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/phoenix/butler/email/reply`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ emailId, message })
+            });
+            
+            return await response.json();
+        } catch (error) {
+            console.error('Email reply error:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    async getEmails() {
+        console.log('✉️ Butler: Getting emails...');
+        
+        try {
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/phoenix/butler/emails`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            return await response.json();
+        } catch (error) {
+            console.error('Get emails error:', error);
             return { success: false, error: error.message };
         }
     }
@@ -403,16 +580,6 @@ Please let me know if you need any additional information.
 
 Best regards,
 ${context.senderName || 'Phoenix User'}`;
-    }
-
-    async mockSendEmail(email) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        return {
-            success: true,
-            messageId: 'MSG-' + Math.random().toString(36).substr(2, 9),
-            timestamp: new Date().toISOString()
-        };
     }
 
     // ========================================
@@ -440,10 +607,18 @@ ${context.senderName || 'Phoenix User'}`;
                 return { success: true, rescheduled: true, time: betterTime };
             }
             
-            // Mock implementation - would integrate with Twilio
-            const response = await this.mockPhoneCall(contact, purpose);
+            // Real API call
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/phoenix/butler/call`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ contact, purpose })
+            });
             
-            return response;
+            return await response.json();
             
         } catch (error) {
             console.error('Phone call error:', error);
@@ -451,15 +626,91 @@ ${context.senderName || 'Phoenix User'}`;
         }
     }
 
-    async mockPhoneCall(contact, purpose) {
-        await new Promise(resolve => setTimeout(resolve, 1500));
+    async getCallHistory() {
+        console.log('📞 Butler: Getting call history...');
         
-        return {
-            success: true,
-            callId: 'CALL-' + Math.random().toString(36).substr(2, 9),
-            duration: Math.floor(Math.random() * 600) + 60,
-            notes: `Call with ${contact} regarding ${purpose}`
-        };
+        try {
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/phoenix/butler/calls`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            return await response.json();
+        } catch (error) {
+            console.error('Get calls error:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    // ========================================
+    // 🌐 WEB TASKS
+    // ========================================
+
+    async searchWeb(query) {
+        console.log('🌐 Butler: Searching web for', query);
+        
+        try {
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/phoenix/butler/web/search`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ query })
+            });
+            
+            return await response.json();
+        } catch (error) {
+            console.error('Web search error:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    async executeWebTask(task) {
+        console.log('🌐 Butler: Executing web task:', task);
+        
+        try {
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/phoenix/butler/web/task`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ task })
+            });
+            
+            return await response.json();
+        } catch (error) {
+            console.error('Web task error:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    async summarizeContent(content) {
+        console.log('📝 Butler: Summarizing content...');
+        
+        try {
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/phoenix/butler/summarize`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ content })
+            });
+            
+            return await response.json();
+        } catch (error) {
+            console.error('Summarize error:', error);
+            return { success: false, error: error.message };
+        }
     }
 
     // ========================================
@@ -879,12 +1130,6 @@ ${context.senderName || 'Phoenix User'}`;
         }
         
         return gaps[0]?.start || '15:00'; // Default to 3 PM
-    }
-
-    async addToCalendar(event) {
-        console.log('📅 Adding to calendar:', event.title);
-        // Implementation would use Calendar API
-        return { success: true };
     }
 
     async rescheduleIntensiveActivities() {

@@ -1,9 +1,10 @@
 // wearables.js - Phoenix Wearable Connection Manager
 // Handles Fitbit & Polar OAuth, device detection, and real-time syncing
+// FIXED: Now uses REAL backend endpoints
 
 class WearableConnector {
     constructor() {
-        this.API = null;
+        this.baseURL = 'https://pal-backend-production.up.railway.app/api';
         this.connected = {
             fitbit: false,
             polar: false
@@ -15,9 +16,6 @@ class WearableConnector {
     async init() {
         console.log('⌚ Initializing Wearable Connector...');
         
-        // Wait for API
-        await this.waitForAPI();
-        
         // Check existing connections
         await this.checkConnections();
         
@@ -27,34 +25,34 @@ class WearableConnector {
         console.log('✅ Wearable Connector ready');
     }
 
-    async waitForAPI() {
-        return new Promise((resolve) => {
-            const checkInterval = setInterval(() => {
-                if (window.API) {
-                    clearInterval(checkInterval);
-                    this.API = window.API;
-                    resolve();
-                }
-            }, 100);
-        });
-    }
-
     // ========================================
     // 🔗 CONNECTION STATUS
     // ========================================
 
     async checkConnections() {
         try {
-            const response = await this.API.getConnectedWearables();
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/mercury/devices`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
             
-            if (response && response.providers) {
-                this.connected.fitbit = response.providers.includes('fitbit');
-                this.connected.polar = response.providers.includes('polar');
+            if (response.ok) {
+                const data = await response.json();
                 
-                console.log('⌚ Connected devices:', {
-                    fitbit: this.connected.fitbit,
-                    polar: this.connected.polar
-                });
+                if (data && data.devices) {
+                    // Check which providers are connected
+                    this.connected.fitbit = data.devices.some(d => d.provider === 'fitbit');
+                    this.connected.polar = data.devices.some(d => d.provider === 'polar');
+                    
+                    console.log('⌚ Connected devices:', {
+                        fitbit: this.connected.fitbit,
+                        polar: this.connected.polar
+                    });
+                }
             }
             
             return this.connected;
@@ -379,13 +377,24 @@ class WearableConnector {
         this.showStatus('Connecting to Fitbit...', 'info');
 
         try {
-            // Get OAuth URL from backend
-            const response = await this.API.startWearableAuth('fitbit');
+            const token = localStorage.getItem('phoenix_token');
             
-            if (response.success && response.authUrl) {
+            // Get OAuth URL from backend
+            const response = await fetch(`${this.baseURL}/mercury/devices/connect`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ provider: 'fitbit' })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.authUrl) {
                 // Open OAuth window
                 this.authWindow = window.open(
-                    response.authUrl,
+                    data.authUrl,
                     'Fitbit Authorization',
                     'width=600,height=700,scrollbars=yes'
                 );
@@ -397,7 +406,7 @@ class WearableConnector {
 
                 this.showStatus('⏳ Waiting for Fitbit authorization...', 'info');
             } else {
-                throw new Error(response.message || 'Failed to get authorization URL');
+                throw new Error(data.message || 'Failed to get authorization URL');
             }
         } catch (error) {
             console.error('Fitbit connection error:', error);
@@ -414,13 +423,24 @@ class WearableConnector {
         this.showStatus('Connecting to Polar...', 'info');
 
         try {
-            // Get OAuth URL from backend
-            const response = await this.API.startWearableAuth('polar');
+            const token = localStorage.getItem('phoenix_token');
             
-            if (response.success && response.authUrl) {
+            // Get OAuth URL from backend
+            const response = await fetch(`${this.baseURL}/mercury/devices/connect`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ provider: 'polar' })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.authUrl) {
                 // Open OAuth window
                 this.authWindow = window.open(
-                    response.authUrl,
+                    data.authUrl,
                     'Polar Authorization',
                     'width=600,height=700,scrollbars=yes'
                 );
@@ -432,7 +452,7 @@ class WearableConnector {
 
                 this.showStatus('⏳ Waiting for Polar authorization...', 'info');
             } else {
-                throw new Error(response.message || 'Failed to get authorization URL');
+                throw new Error(data.message || 'Failed to get authorization URL');
             }
         } catch (error) {
             console.error('Polar connection error:', error);
@@ -452,9 +472,18 @@ class WearableConnector {
         try {
             this.showStatus(`Disconnecting ${provider}...`, 'info');
 
-            const response = await this.API.disconnectWearable(provider);
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/mercury/devices/${provider}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
 
-            if (response.success) {
+            const data = await response.json();
+
+            if (response.ok) {
                 this.connected[provider] = false;
                 this.showStatus(`✅ ${provider} disconnected`, 'success');
                 this.updateModalStatus();
@@ -464,7 +493,7 @@ class WearableConnector {
                     window.orchestrator.checkWearableConnections();
                 }
             } else {
-                throw new Error(response.message || 'Disconnect failed');
+                throw new Error(data.message || 'Disconnect failed');
             }
         } catch (error) {
             console.error('Disconnect error:', error);
@@ -542,22 +571,188 @@ class WearableConnector {
             console.log(`🔄 Syncing ${provider}...`);
             this.syncStatus = 'syncing';
 
-            const response = await this.API.syncWearables(provider);
-
-            if (response.success) {
-                console.log(`✅ ${provider} synced:`, response.data);
-                this.syncStatus = 'complete';
-
-                // Update reactor if available
-                if (window.reactorCore) {
-                    window.reactorCore.activateBeam(0); // Mercury beam
+            const token = localStorage.getItem('phoenix_token');
+            
+            // Get device ID for the provider
+            const devicesResponse = await fetch(`${this.baseURL}/mercury/devices`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
                 }
-            } else {
-                throw new Error(response.message || 'Sync failed');
+            });
+
+            if (devicesResponse.ok) {
+                const devicesData = await devicesResponse.json();
+                const device = devicesData.devices?.find(d => d.provider === provider);
+                
+                if (device) {
+                    // Trigger sync for this device
+                    const syncResponse = await fetch(`${this.baseURL}/mercury/devices/${device.id}/sync`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    if (syncResponse.ok) {
+                        const syncData = await syncResponse.json();
+                        console.log(`✅ ${provider} synced:`, syncData);
+                        this.syncStatus = 'complete';
+
+                        // Update reactor if available
+                        if (window.reactorCore) {
+                            window.reactorCore.activateBeam(0); // Mercury beam
+                        }
+                    } else {
+                        throw new Error('Sync request failed');
+                    }
+                }
             }
         } catch (error) {
             console.error('Sync error:', error);
             this.syncStatus = 'error';
+        }
+    }
+
+    // ========================================
+    // 📊 DATA RETRIEVAL METHODS
+    // ========================================
+
+    async getHealthData(params = {}) {
+        try {
+            const token = localStorage.getItem('phoenix_token');
+            const queryParams = new URLSearchParams(params).toString();
+            const url = `${this.baseURL}/mercury/data${queryParams ? '?' + queryParams : ''}`;
+            
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                return await response.json();
+            }
+            throw new Error('Failed to fetch health data');
+        } catch (error) {
+            console.error('Error fetching health data:', error);
+            return null;
+        }
+    }
+
+    async getRecoveryScore() {
+        try {
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/mercury/recovery/latest`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                return await response.json();
+            }
+            throw new Error('Failed to fetch recovery score');
+        } catch (error) {
+            console.error('Error fetching recovery score:', error);
+            return null;
+        }
+    }
+
+    async getSleepData(params = {}) {
+        try {
+            const token = localStorage.getItem('phoenix_token');
+            const queryParams = new URLSearchParams(params).toString();
+            const url = `${this.baseURL}/mercury/sleep${queryParams ? '?' + queryParams : ''}`;
+            
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                return await response.json();
+            }
+            throw new Error('Failed to fetch sleep data');
+        } catch (error) {
+            console.error('Error fetching sleep data:', error);
+            return null;
+        }
+    }
+
+    async getHRV(params = {}) {
+        try {
+            const token = localStorage.getItem('phoenix_token');
+            const queryParams = new URLSearchParams(params).toString();
+            const url = `${this.baseURL}/mercury/biometrics/hrv${queryParams ? '?' + queryParams : ''}`;
+            
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                return await response.json();
+            }
+            throw new Error('Failed to fetch HRV data');
+        } catch (error) {
+            console.error('Error fetching HRV data:', error);
+            return null;
+        }
+    }
+
+    async getRecoveryDashboard() {
+        try {
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/mercury/recovery/dashboard`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                return await response.json();
+            }
+            throw new Error('Failed to fetch recovery dashboard');
+        } catch (error) {
+            console.error('Error fetching recovery dashboard:', error);
+            return null;
+        }
+    }
+
+    async manualDataEntry(data) {
+        try {
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/mercury/data/manual`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                return await response.json();
+            }
+            throw new Error('Failed to submit manual data');
+        } catch (error) {
+            console.error('Error submitting manual data:', error);
+            return null;
         }
     }
 
@@ -607,6 +802,6 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-console.log('✅ Wearable Connector loaded');
+console.log('✅ Wearable Connector loaded (REAL BACKEND)');
 
 export default wearableConnector;

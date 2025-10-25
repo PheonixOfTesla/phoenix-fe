@@ -1,7 +1,7 @@
 // ============================================================================
 // PHOENIX VOICE INTERFACE - Multi-Personality AI Butler
 // ============================================================================
-// COMPLETE VERSION - All browser compatibility fixes included
+// FIXED VERSION - Updated to use correct backend endpoints
 // ============================================================================
 
 class PhoenixVoice {
@@ -75,19 +75,34 @@ class PhoenixVoice {
     // Test backend connectivity
     async testBackendServices() {
         try {
-            const responses = await Promise.all([
-                fetch(`${this.API_BASE}/tts/status`).then(r => r.json()),
-                fetch(`${this.API_BASE}/whisper/status`).then(r => r.json())
-            ]);
+            const token = this.getAuthToken();
             
-            console.log('✅ Backend services:', responses);
+            // Test voice session endpoint (which handles transcription)
+            const voiceTest = await fetch(`${this.API_BASE}/phoenix/voice/history`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }).then(r => r.json());
             
-            if (!responses[0].success || !responses[1].success) {
-                throw new Error('Backend services not ready');
+            console.log('✅ Backend voice service:', voiceTest);
+            
+            if (!voiceTest.success && voiceTest.error) {
+                console.warn('⚠️ Voice service may not be ready:', voiceTest.error);
             }
+            
         } catch (error) {
-            throw new Error('Cannot connect to voice services');
+            console.warn('⚠️ Backend connectivity check failed:', error.message);
+            // Don't throw - allow initialization to continue
         }
+    }
+
+    // Get authentication token
+    getAuthToken() {
+        return localStorage.getItem('phoenix_token') || 
+               localStorage.getItem('phoenixToken') || 
+               localStorage.getItem('token') || 
+               localStorage.getItem('authToken') || '';
     }
 
     // Request microphone permissions
@@ -248,7 +263,7 @@ class PhoenixVoice {
         }
     }
 
-    // Transcribe audio using Whisper
+    // Transcribe audio using backend voice session endpoint
     async transcribeAudio(audioBlob) {
         const formData = new FormData();
         
@@ -266,15 +281,12 @@ class PhoenixVoice {
         
         formData.append('audio', audioBlob, `recording.${extension}`);
         
-        const token = localStorage.getItem('phoenixToken') || 
-                      localStorage.getItem('token') || 
-                      localStorage.getItem('authToken');
+        const token = this.getAuthToken();
         
-        const response = await fetch(`${this.API_BASE}/whisper/transcribe`, {
+        const response = await fetch(`${this.API_BASE}/phoenix/voice/session`, {
             method: 'POST',
             headers: {
-                // Only set Authorization if token exists
-                ...(token && { 'Authorization': `Bearer ${token}` })
+                'Authorization': `Bearer ${token}`
             },
             body: formData
         });
@@ -286,22 +298,22 @@ class PhoenixVoice {
         }
         
         const data = await response.json();
-        console.log('[Transcribe] ✅ Success:', data.text);
-        return data.text;
+        console.log('[Transcribe] ✅ Success:', data);
+        
+        // Extract transcription text from response
+        return data.transcription || data.text || '';
     }
 
-    // Get AI response from Phoenix
+    // Get AI response from Phoenix Companion
     async getAIResponse(message) {
         const personality = this.voicePersonalities[this.selectedVoice];
-        const token = localStorage.getItem('phoenixToken') || 
-                      localStorage.getItem('token') || 
-                      localStorage.getItem('authToken');
+        const token = this.getAuthToken();
         
-        const response = await fetch(`${this.API_BASE}/phoenix/voice/chat`, {
+        const response = await fetch(`${this.API_BASE}/phoenix/companion/chat`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                ...(token && { 'Authorization': `Bearer ${token}` })
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
                 message: message,
@@ -312,15 +324,20 @@ class PhoenixVoice {
         });
         
         if (!response.ok) {
-            throw new Error('AI response failed');
+            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+            console.error('[AI Response] Error:', errorData);
+            throw new Error(errorData.error || 'AI response failed');
         }
         
         const data = await response.json();
         
+        // Extract response text
+        const responseText = data.response || data.message || data.text || 'I apologize, but I did not receive a proper response.';
+        
         // Update conversation history
         this.conversationHistory.push(
             { role: 'user', content: message },
-            { role: 'assistant', content: data.response }
+            { role: 'assistant', content: responseText }
         );
         
         // Trim history
@@ -328,7 +345,7 @@ class PhoenixVoice {
             this.conversationHistory = this.conversationHistory.slice(-this.maxHistoryLength * 2);
         }
         
-        return data.response;
+        return responseText;
     }
 
     // Convert text to speech and play
@@ -342,15 +359,32 @@ class PhoenixVoice {
             this.isSpeaking = true;
             this.updateStatus('speaking', '🔵 Speaking...');
             
-            const token = localStorage.getItem('phoenixToken') || 
-                          localStorage.getItem('token') || 
-                          localStorage.getItem('authToken');
+            // Try backend TTS first, fall back to browser TTS if not available
+            const usedBrowserTTS = await this.speakWithBackend(text) === false 
+                ? await this.speakWithBrowser(text) 
+                : true;
+            
+            if (usedBrowserTTS === false) {
+                this.updateStatus('idle', '⚪ Ready');
+            }
+            
+        } catch (error) {
+            console.error('❌ Speak error:', error);
+            // Fall back to browser TTS on error
+            await this.speakWithBrowser(text);
+        }
+    }
+
+    // Speak using backend TTS service
+    async speakWithBackend(text) {
+        try {
+            const token = this.getAuthToken();
             
             const response = await fetch(`${this.API_BASE}/tts/generate`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    ...(token && { 'Authorization': `Bearer ${token}` })
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
                     text: text,
@@ -360,7 +394,8 @@ class PhoenixVoice {
             });
             
             if (!response.ok) {
-                throw new Error('TTS failed');
+                console.warn('⚠️ Backend TTS not available, falling back to browser TTS');
+                return false;
             }
             
             const audioBlob = await response.blob();
@@ -379,18 +414,61 @@ class PhoenixVoice {
             
             this.currentAudio.onerror = () => {
                 console.error('❌ Audio playback error');
+                URL.revokeObjectURL(audioUrl);
                 this.isSpeaking = false;
                 this.currentAudio = null;
                 this.processQueue();
             };
             
             await this.currentAudio.play();
+            return true;
             
         } catch (error) {
-            console.error('❌ Speak error:', error);
-            this.isSpeaking = false;
-            this.processQueue();
+            console.warn('⚠️ Backend TTS error:', error.message);
+            return false;
         }
+    }
+
+    // Speak using browser Web Speech API (fallback)
+    async speakWithBrowser(text) {
+        return new Promise((resolve) => {
+            if (!window.speechSynthesis) {
+                console.error('❌ Browser TTS not supported');
+                this.isSpeaking = false;
+                this.processQueue();
+                resolve(false);
+                return;
+            }
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.volume = this.volume;
+            utterance.rate = this.speechSpeed;
+            
+            // Try to select a voice that matches the personality
+            const voices = window.speechSynthesis.getVoices();
+            if (voices.length > 0) {
+                // Try to find British voice for 'echo'
+                if (this.selectedVoice === 'echo') {
+                    const britishVoice = voices.find(v => v.lang.includes('en-GB'));
+                    if (britishVoice) utterance.voice = britishVoice;
+                }
+            }
+            
+            utterance.onend = () => {
+                this.isSpeaking = false;
+                this.processQueue();
+                resolve(true);
+            };
+            
+            utterance.onerror = () => {
+                console.error('❌ Browser TTS error');
+                this.isSpeaking = false;
+                this.processQueue();
+                resolve(false);
+            };
+            
+            window.speechSynthesis.speak(utterance);
+        });
     }
 
     // Process queued speech
@@ -405,11 +483,18 @@ class PhoenixVoice {
 
     // Stop speaking
     stopSpeaking() {
+        // Stop audio playback
         if (this.currentAudio) {
             this.currentAudio.pause();
             this.currentAudio.currentTime = 0;
             this.currentAudio = null;
         }
+        
+        // Stop browser TTS
+        if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+        }
+        
         this.speechQueue = [];
         this.isSpeaking = false;
         this.updateStatus('idle', '⚪ Ready');

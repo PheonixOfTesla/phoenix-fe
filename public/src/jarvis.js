@@ -1,8 +1,13 @@
 // jarvis.js - Phoenix JARVIS Core Intelligence Engine
 // ⭐ ENHANCED with phoenixStore Integration, Smart Caching & Real-time Updates
+// 🔥 NOW WITH REAL BACKEND API INTEGRATION
 
 class JARVISEngine {
     constructor() {
+        // ⭐ NEW: Backend API configuration
+        this.baseURL = 'https://pal-backend-production.up.railway.app/api';
+        
+        // UI state management
         this.currentZoomLevel = 0; // 0 = overview, 1 = planet dashboard, 2 = deep metric
         this.activePlanet = null;
         this.allData = {};
@@ -16,6 +21,10 @@ class JARVISEngine {
         this.phoenixStore = null;
         this.interventionHistory = [];
         this.patternCache = new Map();
+        
+        // ⭐ NEW: Chat history cache
+        this.chatHistory = [];
+        this.personality = null;
     }
 
     async init() {
@@ -29,6 +38,10 @@ class JARVISEngine {
         
         // Load all planetary data via store
         await this.loadAllData();
+        
+        // ⭐ NEW: Load personality and chat history from backend
+        await this.loadPersonality();
+        await this.loadChatHistory();
         
         // Setup click handlers
         this.setupPlanetHandlers();
@@ -44,6 +57,486 @@ class JARVISEngine {
         this.startRealtimeCorrelationDetection();
         
         console.log('✅ Enhanced JARVIS Engine initialized');
+    }
+
+    // ========================================
+    // ⭐ NEW: BACKEND API METHODS
+    // ========================================
+
+    /**
+     * Send a chat message to the AI companion
+     * @param {string} message - User message
+     * @param {object} context - Optional context data
+     */
+    async chat(message, context = null) {
+        try {
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/phoenix/companion/chat`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    message,
+                    context: context || this.buildContextFromData()
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Chat API error: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            // Update local chat history
+            this.chatHistory.push({
+                role: 'user',
+                content: message,
+                timestamp: Date.now()
+            });
+            this.chatHistory.push({
+                role: 'assistant',
+                content: data.response || data.message,
+                timestamp: Date.now()
+            });
+            
+            return data;
+        } catch (error) {
+            console.error('Chat error:', error);
+            return {
+                response: "I'm having trouble connecting to my intelligence core. Let me try a local response...",
+                fallback: true
+            };
+        }
+    }
+
+    /**
+     * Get chat history from backend
+     */
+    async loadChatHistory() {
+        try {
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/phoenix/companion/history`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                this.chatHistory = data.history || [];
+                console.log('✅ Chat history loaded:', this.chatHistory.length, 'messages');
+                
+                // Render existing chat history
+                this.renderChatHistory();
+            }
+        } catch (error) {
+            console.warn('Failed to load chat history:', error);
+        }
+    }
+
+    /**
+     * Clear chat history
+     */
+    async clearHistory() {
+        try {
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/phoenix/companion/history`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                this.chatHistory = [];
+                const messagesEl = document.getElementById('chat-messages');
+                if (messagesEl) messagesEl.innerHTML = '';
+                console.log('✅ Chat history cleared');
+                
+                this.showNotification('Chat Cleared', 'Conversation history has been reset', 'info');
+            }
+        } catch (error) {
+            console.error('Failed to clear history:', error);
+        }
+    }
+
+    /**
+     * Get current conversation context
+     */
+    async getContext() {
+        try {
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/phoenix/companion/context`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                return data.context;
+            }
+        } catch (error) {
+            console.warn('Failed to get context:', error);
+        }
+        
+        return this.buildContextFromData();
+    }
+
+    /**
+     * Get AI personality settings
+     */
+    async getPersonality() {
+        try {
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/phoenix/companion/personality`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                return data.personality;
+            }
+        } catch (error) {
+            console.warn('Failed to get personality:', error);
+        }
+        
+        return null;
+    }
+
+    /**
+     * Load personality on init
+     */
+    async loadPersonality() {
+        this.personality = await this.getPersonality();
+        if (this.personality) {
+            console.log('✅ Personality loaded:', this.personality.style);
+        }
+    }
+
+    /**
+     * Update AI personality settings
+     * @param {object} personality - New personality configuration
+     */
+    async updatePersonality(personality) {
+        try {
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/phoenix/companion/personality`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(personality)
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                this.personality = data.personality;
+                console.log('✅ Personality updated');
+                
+                this.showNotification('Personality Updated', 'JARVIS personality has been modified', 'info');
+                return data;
+            }
+        } catch (error) {
+            console.error('Failed to update personality:', error);
+        }
+        
+        return null;
+    }
+
+    /**
+     * Get intelligence overview
+     */
+    async getIntelligence() {
+        try {
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/phoenix/intelligence`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                return await response.json();
+            }
+        } catch (error) {
+            console.warn('Failed to get intelligence:', error);
+        }
+        
+        return null;
+    }
+
+    /**
+     * Analyze data for patterns and insights
+     * @param {object} data - Data to analyze
+     */
+    async analyzeData(data) {
+        try {
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/phoenix/intelligence/analyze`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ data })
+            });
+            
+            if (response.ok) {
+                return await response.json();
+            }
+        } catch (error) {
+            console.warn('Failed to analyze data:', error);
+        }
+        
+        return null;
+    }
+
+    /**
+     * Get AI-generated insights
+     */
+    async getInsights() {
+        try {
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/phoenix/intelligence/insights`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                
+                // Merge backend insights with local correlations
+                if (data.insights) {
+                    data.insights.forEach(insight => {
+                        if (!this.correlations.some(c => c.id === insight.id)) {
+                            this.correlations.push({
+                                id: insight.id,
+                                planets: insight.planets || [],
+                                insight: insight.message,
+                                recommendation: insight.recommendation,
+                                severity: insight.severity || 'medium',
+                                timestamp: Date.now()
+                            });
+                        }
+                    });
+                }
+                
+                return data;
+            }
+        } catch (error) {
+            console.warn('Failed to get insights:', error);
+        }
+        
+        return null;
+    }
+
+    /**
+     * Query intelligence system with natural language
+     * @param {string} query - Natural language query
+     */
+    async query(query) {
+        try {
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/phoenix/intelligence/query`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ query })
+            });
+            
+            if (response.ok) {
+                return await response.json();
+            }
+        } catch (error) {
+            console.warn('Failed to query intelligence:', error);
+        }
+        
+        return null;
+    }
+
+    /**
+     * Get intelligence summary
+     */
+    async getSummary() {
+        try {
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/phoenix/intelligence/summary`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                return await response.json();
+            }
+        } catch (error) {
+            console.warn('Failed to get summary:', error);
+        }
+        
+        return null;
+    }
+
+    /**
+     * Request deep analysis
+     * @param {string} topic - Topic to analyze
+     * @param {object} parameters - Analysis parameters
+     */
+    async deepDive(topic, parameters = {}) {
+        try {
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/phoenix/intelligence/deep-dive`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ topic, parameters })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                
+                this.showNotification(
+                    'Deep Dive Complete',
+                    `Analysis of "${topic}" is ready`,
+                    'info'
+                );
+                
+                return data;
+            }
+        } catch (error) {
+            console.warn('Failed to perform deep dive:', error);
+        }
+        
+        return null;
+    }
+
+    /**
+     * Get personalized recommendations
+     */
+    async getRecommendations() {
+        try {
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/phoenix/intelligence/recommendations`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                
+                // Display recommendations as proactive messages
+                if (data.recommendations && data.recommendations.length > 0) {
+                    data.recommendations.forEach(rec => {
+                        this.addChatMessage(rec.message || rec.text, 'phoenix');
+                    });
+                }
+                
+                return data;
+            }
+        } catch (error) {
+            console.warn('Failed to get recommendations:', error);
+        }
+        
+        return null;
+    }
+
+    /**
+     * Auto-optimize settings based on AI analysis
+     */
+    async autoOptimize() {
+        try {
+            const token = localStorage.getItem('phoenix_token');
+            const response = await fetch(`${this.baseURL}/phoenix/intelligence/auto-optimize`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    data: this.allData,
+                    correlations: this.correlations
+                })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                
+                this.showNotification(
+                    'Auto-Optimization Complete',
+                    `${data.optimizations?.length || 0} settings optimized`,
+                    'info'
+                );
+                
+                if (data.optimizations) {
+                    // Apply optimizations
+                    data.optimizations.forEach(opt => {
+                        console.log('✅ Applied optimization:', opt.description);
+                    });
+                }
+                
+                return data;
+            }
+        } catch (error) {
+            console.error('Failed to auto-optimize:', error);
+        }
+        
+        return null;
+    }
+
+    // ========================================
+    // ⭐ NEW: HELPER METHODS
+    // ========================================
+
+    buildContextFromData() {
+        return {
+            planets: Object.keys(this.allData).filter(k => this.allData[k]),
+            activePlanet: this.activePlanet,
+            correlations: this.correlations.slice(0, 3),
+            trustScore: this.trustScore,
+            recentMetrics: {
+                recovery: this.allData.mercury?.recovery?.recoveryScore,
+                workouts: this.allData.venus?.workouts?.length,
+                goals: this.allData.mars?.goals?.length
+            }
+        };
+    }
+
+    renderChatHistory() {
+        const messagesEl = document.getElementById('chat-messages');
+        if (!messagesEl) return;
+        
+        messagesEl.innerHTML = '';
+        
+        this.chatHistory.forEach(msg => {
+            const sender = msg.role === 'user' ? 'user' : 'phoenix';
+            this.addChatMessage(msg.content, sender, false);
+        });
     }
 
     // ========================================
@@ -403,7 +896,7 @@ class JARVISEngine {
         };
         
         const announcement = announcements[planet]?.();
-        if (announcement && !window.voiceInterface.isSpeaking) {
+        if (announcement && window.voiceInterface && !window.voiceInterface.isSpeaking) {
             // Use normal priority to avoid interrupting
             window.voiceInterface.speak(announcement, 'normal');
         }
@@ -418,6 +911,11 @@ class JARVISEngine {
         setInterval(() => {
             this.detectRealTimeCorrelations();
         }, 30000);
+        
+        // Also fetch backend insights every 2 minutes
+        setInterval(async () => {
+            await this.getInsights();
+        }, 120000);
         
         console.log('🔍 Real-time correlation detection started');
     }
@@ -858,18 +1356,49 @@ class JARVISEngine {
     setupChatInterface() {
         const input = document.getElementById('chat-input');
         if (input) {
-            input.addEventListener('keypress', (e) => {
+            input.addEventListener('keypress', async (e) => {
                 if (e.key === 'Enter' && input.value.trim()) {
-                    this.handleChatMessage(input.value.trim());
+                    await this.handleChatMessage(input.value.trim());
                     input.value = '';
                 }
             });
         }
     }
 
-    handleChatMessage(message) {
+    async handleChatMessage(message) {
         this.addChatMessage(message, 'user');
-        this.handleVoiceCommand(message);
+        
+        // ⭐ NEW: Call backend AI for intelligent responses
+        const response = await this.chat(message);
+        
+        if (response && response.response) {
+            this.addChatMessage(response.response, 'phoenix');
+            
+            // Execute any actions suggested by the backend
+            if (response.action) {
+                this.executeAction(response.action);
+            }
+        } else {
+            // Fallback to local voice command handling
+            this.handleVoiceCommand(message);
+        }
+    }
+
+    executeAction(action) {
+        switch (action.type) {
+            case 'expand_planet':
+                this.expandPlanet(action.planet);
+                break;
+            case 'show_insights':
+                this.getInsights();
+                break;
+            case 'deep_dive':
+                this.deepDive(action.topic);
+                break;
+            case 'auto_optimize':
+                this.autoOptimize();
+                break;
+        }
     }
 
     handleVoiceCommand(command) {
@@ -892,12 +1421,23 @@ class JARVISEngine {
                 ? `I've detected ${this.correlations.length} correlation(s): ${this.correlations[0].insight}` 
                 : 'No significant correlations detected at this time.';
             this.addChatMessage(msg, 'phoenix');
+        } else if (lowerCmd.includes('optimize')) {
+            this.addChatMessage('Running auto-optimization...', 'phoenix');
+            this.autoOptimize();
+        } else if (lowerCmd.includes('deep dive') || lowerCmd.includes('analyze')) {
+            const topic = lowerCmd.replace(/deep dive|analyze/g, '').trim();
+            if (topic) {
+                this.addChatMessage(`Performing deep dive on "${topic}"...`, 'phoenix');
+                this.deepDive(topic);
+            } else {
+                this.addChatMessage('What would you like me to analyze?', 'phoenix');
+            }
         } else {
             this.addChatMessage('How can I help you with that?', 'phoenix');
         }
     }
 
-    addChatMessage(message, sender) {
+    addChatMessage(message, sender, scrollToBottom = true) {
         const messagesEl = document.getElementById('chat-messages');
         if (!messagesEl) return;
 
@@ -910,7 +1450,10 @@ class JARVISEngine {
         `;
         msgDiv.textContent = message;
         messagesEl.appendChild(msgDiv);
-        messagesEl.scrollTop = messagesEl.scrollHeight;
+        
+        if (scrollToBottom) {
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
     }
 
     showLoading(planetName) {

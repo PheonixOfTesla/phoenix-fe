@@ -1,5 +1,5 @@
-// PHOENIX API AUTHENTICATION FIX
-// Fixes: 411 errors, authentication failures, API connection issues
+// PHOENIX API AUTHENTICATION - FIXED FOR REAL BACKEND
+// Base URL: https://pal-backend-production.up.railway.app/api
 
 class APIAuthFix {
     constructor() {
@@ -11,7 +11,7 @@ class APIAuthFix {
     }
 
     async initialize() {
-        console.log('🔐 Fixing API authentication...');
+        console.log('🔐 Initializing API authentication...');
         
         try {
             // 1. Check existing token
@@ -28,10 +28,10 @@ class APIAuthFix {
             // 4. Setup interceptors
             this.setupInterceptors();
             
-            console.log('✅ API authentication fixed');
+            console.log('✅ API authentication initialized');
             return true;
         } catch (error) {
-            console.error('❌ API fix failed:', error);
+            console.error('❌ API initialization failed:', error);
             return false;
         }
     }
@@ -45,7 +45,8 @@ class APIAuthFix {
         }
         
         try {
-            const response = await fetch(`${this.baseURL}/validate`, {
+            // FIXED: Use /api/auth/me instead of /api/validate
+            const response = await fetch(`${this.baseURL}/auth/me`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${stored}`,
@@ -54,7 +55,9 @@ class APIAuthFix {
             });
             
             if (response.ok) {
+                const userData = await response.json();
                 this.token = stored;
+                this.userId = userData.id || userData.userId;
                 console.log('✅ Existing token valid');
                 return true;
             }
@@ -71,22 +74,23 @@ class APIAuthFix {
         console.log('🔑 Obtaining new authentication token...');
         
         try {
-            // Try anonymous auth first
-            const response = await fetch(`${this.baseURL}/auth/anonymous`, {
+            // FIXED: Use /api/auth/register instead of /api/auth/anonymous
+            const response = await fetch(`${this.baseURL}/auth/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    deviceId: this.getDeviceId(),
-                    timestamp: Date.now()
+                    email: `demo_${Date.now()}@phoenix.ai`,
+                    password: 'demo123456',
+                    name: 'Phoenix User'
                 })
             });
             
             if (response.ok) {
                 const data = await response.json();
                 this.token = data.token;
-                this.userId = data.userId;
+                this.userId = data.user?.id || data.userId;
                 
                 // Store for persistence
                 localStorage.setItem('phoenix_token', this.token);
@@ -94,6 +98,10 @@ class APIAuthFix {
                 
                 console.log('✅ New token obtained');
                 return true;
+            } else {
+                // If registration fails, try login with a default account
+                console.log('Registration failed, trying login...');
+                return await this.tryLogin();
             }
         } catch (error) {
             console.error('Failed to obtain token:', error);
@@ -101,6 +109,37 @@ class APIAuthFix {
         
         // Fallback: Generate local token
         this.generateFallbackToken();
+    }
+
+    async tryLogin() {
+        try {
+            const response = await fetch(`${this.baseURL}/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: 'demo@phoenix.ai',
+                    password: 'demo123456'
+                })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                this.token = data.token;
+                this.userId = data.user?.id || data.userId;
+                
+                localStorage.setItem('phoenix_token', this.token);
+                localStorage.setItem('phoenix_user_id', this.userId);
+                
+                console.log('✅ Login successful');
+                return true;
+            }
+        } catch (error) {
+            console.error('Login failed:', error);
+        }
+        
+        return false;
     }
 
     generateFallbackToken() {
@@ -206,6 +245,7 @@ class APIAuthFix {
     createAPIWrapper() {
         window.API = {
             token: this.token,
+            baseURL: this.baseURL,
             headers: {
                 'Authorization': `Bearer ${this.token}`,
                 'Content-Type': 'application/json'
@@ -216,28 +256,40 @@ class APIAuthFix {
                 this.headers.Authorization = `Bearer ${token}`;
             },
             
-            getCalendarEvents: async () => {
-                return this.getMockData('getCalendarEvents');
-            },
-            
-            getFinancialOverview: async () => {
-                return this.getMockData('getFinancialOverview');
-            },
-            
-            getLifeTimeline: async () => {
-                return this.getMockData('getLifeTimeline');
-            },
-            
-            getGoals: async () => {
-                return this.getMockData('getGoals');
-            },
-            
-            getMe: async () => {
-                return {
-                    id: this.userId,
-                    name: 'Phoenix User',
-                    email: 'user@phoenix.ai'
+            async call(endpoint, method = 'GET', body = null) {
+                const options = {
+                    method,
+                    headers: this.headers
                 };
+                
+                if (body) {
+                    options.body = JSON.stringify(body);
+                }
+                
+                const response = await fetch(`${this.baseURL}${endpoint}`, options);
+                return response.json();
+            },
+            
+            getCalendarEvents: async function() {
+                return this.call('/earth/calendar/events');
+            },
+            
+            getFinancialOverview: async function() {
+                const accounts = await this.call('/jupiter/accounts');
+                const transactions = await this.call('/jupiter/transactions');
+                return { accounts, transactions };
+            },
+            
+            getLifeTimeline: async function() {
+                return this.call('/saturn/quarterly');
+            },
+            
+            getGoals: async function() {
+                return this.call('/mars/goals');
+            },
+            
+            getMe: async function() {
+                return this.call('/auth/me');
             }
         };
         
@@ -283,6 +335,26 @@ class APIAuthFix {
         };
         
         console.log('✅ Fetch interceptor installed');
+    }
+
+    async logout() {
+        try {
+            await fetch(`${this.baseURL}/auth/logout`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${this.token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+        } catch (error) {
+            console.error('Logout error:', error);
+        } finally {
+            // Clear local storage
+            localStorage.removeItem('phoenix_token');
+            localStorage.removeItem('phoenix_user_id');
+            this.token = null;
+            this.userId = null;
+        }
     }
 
     getMockData(method) {
@@ -336,7 +408,7 @@ class APIAuthFix {
 
 // AUTO-INITIALIZE
 (function() {
-    console.log('🔐 Initializing API Authentication Fix...');
+    console.log('🔐 Initializing Phoenix API Authentication...');
     
     const apiFix = new APIAuthFix();
     
@@ -348,6 +420,12 @@ class APIAuthFix {
         apiFix.initialize();
     }
     
-    // Expose for debugging
+    // Expose for debugging and manual control
     window.phoenixAPIFix = apiFix;
+    window.phoenixAPI = {
+        logout: () => apiFix.logout(),
+        getToken: () => apiFix.token,
+        getUserId: () => apiFix.userId,
+        refreshToken: () => apiFix.obtainNewToken()
+    };
 })();

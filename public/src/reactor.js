@@ -25,6 +25,14 @@ class ReactorCore {
         };
         this.unsubscribe = null;
         this.storeConnected = false;
+        
+        // ⭐ NEW: Real backend URL
+        this.baseURL = 'https://pal-backend-production.up.railway.app/api';
+        
+        // Pattern and prediction data
+        this.patterns = [];
+        this.predictions = [];
+        this.burnoutRisk = 0;
     }
 
     init() {
@@ -35,13 +43,293 @@ class ReactorCore {
         this.setupDataStreams();
         this.setupHUD();
         this.connectToStore();
+        this.loadPatternData(); // Load pattern/prediction data
         this.animate();
         this.setupResizeHandler();
         console.log('✅ Reactor Core initialized');
     }
 
     // ========================================
-    // ⭐ NEW: PHOENIXSTORE INTEGRATION
+    // ⭐ NEW: REAL BACKEND API METHODS
+    // ========================================
+
+    getAuthHeaders() {
+        const token = localStorage.getItem('phoenix_token');
+        return {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        };
+    }
+
+    async getPatterns() {
+        try {
+            const response = await fetch(`${this.baseURL}/phoenix/patterns`, {
+                method: 'GET',
+                headers: this.getAuthHeaders()
+            });
+            if (response.ok) {
+                return await response.json();
+            }
+            console.warn('Failed to fetch patterns:', response.status);
+            return [];
+        } catch (error) {
+            console.error('Error fetching patterns:', error);
+            return [];
+        }
+    }
+
+    async analyzePatterns(data) {
+        try {
+            const response = await fetch(`${this.baseURL}/phoenix/patterns/analyze`, {
+                method: 'POST',
+                headers: this.getAuthHeaders(),
+                body: JSON.stringify(data)
+            });
+            if (response.ok) {
+                return await response.json();
+            }
+            return null;
+        } catch (error) {
+            console.error('Error analyzing patterns:', error);
+            return null;
+        }
+    }
+
+    async getRealtimePatterns() {
+        try {
+            const response = await fetch(`${this.baseURL}/phoenix/patterns/realtime`, {
+                method: 'GET',
+                headers: this.getAuthHeaders()
+            });
+            if (response.ok) {
+                return await response.json();
+            }
+            return [];
+        } catch (error) {
+            console.error('Error fetching realtime patterns:', error);
+            return [];
+        }
+    }
+
+    async validatePattern(patternData) {
+        try {
+            const response = await fetch(`${this.baseURL}/phoenix/patterns/validate`, {
+                method: 'POST',
+                headers: this.getAuthHeaders(),
+                body: JSON.stringify(patternData)
+            });
+            if (response.ok) {
+                return await response.json();
+            }
+            return null;
+        } catch (error) {
+            console.error('Error validating pattern:', error);
+            return null;
+        }
+    }
+
+    async deletePattern(patternId) {
+        try {
+            const response = await fetch(`${this.baseURL}/phoenix/patterns/${patternId}`, {
+                method: 'DELETE',
+                headers: this.getAuthHeaders()
+            });
+            return response.ok;
+        } catch (error) {
+            console.error('Error deleting pattern:', error);
+            return false;
+        }
+    }
+
+    async getPredictions() {
+        try {
+            const response = await fetch(`${this.baseURL}/phoenix/predictions`, {
+                method: 'GET',
+                headers: this.getAuthHeaders()
+            });
+            if (response.ok) {
+                return await response.json();
+            }
+            return [];
+        } catch (error) {
+            console.error('Error fetching predictions:', error);
+            return [];
+        }
+    }
+
+    async getActivePredictions() {
+        try {
+            const response = await fetch(`${this.baseURL}/phoenix/predictions/active`, {
+                method: 'GET',
+                headers: this.getAuthHeaders()
+            });
+            if (response.ok) {
+                return await response.json();
+            }
+            return [];
+        } catch (error) {
+            console.error('Error fetching active predictions:', error);
+            return [];
+        }
+    }
+
+    async requestPrediction(predictionRequest) {
+        try {
+            const response = await fetch(`${this.baseURL}/phoenix/predictions/request`, {
+                method: 'POST',
+                headers: this.getAuthHeaders(),
+                body: JSON.stringify(predictionRequest)
+            });
+            if (response.ok) {
+                return await response.json();
+            }
+            return null;
+        } catch (error) {
+            console.error('Error requesting prediction:', error);
+            return null;
+        }
+    }
+
+    async recordPredictionOutcome(predictionId, outcome) {
+        try {
+            const response = await fetch(`${this.baseURL}/phoenix/predictions/${predictionId}/outcome`, {
+                method: 'POST',
+                headers: this.getAuthHeaders(),
+                body: JSON.stringify(outcome)
+            });
+            if (response.ok) {
+                return await response.json();
+            }
+            return null;
+        } catch (error) {
+            console.error('Error recording prediction outcome:', error);
+            return null;
+        }
+    }
+
+    async getPredictionAccuracy() {
+        try {
+            const response = await fetch(`${this.baseURL}/phoenix/predictions/accuracy`, {
+                method: 'GET',
+                headers: this.getAuthHeaders()
+            });
+            if (response.ok) {
+                return await response.json();
+            }
+            return { overall: 0, byType: {} };
+        } catch (error) {
+            console.error('Error fetching prediction accuracy:', error);
+            return { overall: 0, byType: {} };
+        }
+    }
+
+    async getForecast(days = 7) {
+        try {
+            const response = await fetch(`${this.baseURL}/phoenix/predictions/forecast?days=${days}`, {
+                method: 'GET',
+                headers: this.getAuthHeaders()
+            });
+            if (response.ok) {
+                return await response.json();
+            }
+            return [];
+        } catch (error) {
+            console.error('Error fetching forecast:', error);
+            return [];
+        }
+    }
+
+    async getBurnoutRisk() {
+        try {
+            const response = await fetch(`${this.baseURL}/phoenix/predictions/burnout-risk`, {
+                method: 'GET',
+                headers: this.getAuthHeaders()
+            });
+            if (response.ok) {
+                const data = await response.json();
+                return data;
+            }
+            return { risk: 0, factors: [] };
+        } catch (error) {
+            console.error('Error fetching burnout risk:', error);
+            return { risk: 0, factors: [] };
+        }
+    }
+
+    // ========================================
+    // ⭐ NEW: PATTERN DATA LOADING
+    // ========================================
+
+    async loadPatternData() {
+        console.log('🔍 Loading pattern and prediction data...');
+        
+        try {
+            // Load patterns
+            const patterns = await this.getPatterns();
+            if (patterns && patterns.length > 0) {
+                this.patterns = patterns;
+                console.log(`✅ Loaded ${patterns.length} patterns`);
+                
+                // Trigger visual effect for detected patterns
+                this.activateBeam(4); // Jupiter beam for pattern detection
+                setTimeout(() => this.deactivateBeam(4), 1000);
+            }
+
+            // Load active predictions
+            const predictions = await getActivePredictions();
+            if (predictions && predictions.length > 0) {
+                this.predictions = predictions;
+                console.log(`✅ Loaded ${predictions.length} active predictions`);
+            }
+
+            // Load burnout risk
+            const burnoutData = await this.getBurnoutRisk();
+            if (burnoutData && burnoutData.risk !== undefined) {
+                this.burnoutRisk = burnoutData.risk;
+                console.log(`⚠️ Burnout risk: ${this.burnoutRisk}%`);
+                
+                // Visual warning if high burnout risk
+                if (this.burnoutRisk > 70) {
+                    this.activateBeam(5); // Saturn beam for warning
+                    this.energy = Math.min(this.energy, 50); // Lower visual energy
+                }
+            }
+
+            // Load prediction accuracy for trust score
+            const accuracy = await this.getPredictionAccuracy();
+            if (accuracy && accuracy.overall !== undefined) {
+                this.setTrustScore(accuracy.overall * 100);
+                console.log(`🎯 Prediction accuracy: ${Math.round(accuracy.overall * 100)}%`);
+            }
+
+        } catch (error) {
+            console.error('Failed to load pattern data:', error);
+        }
+
+        // Refresh pattern data every 30 seconds
+        setInterval(() => {
+            this.refreshPatternData();
+        }, 30000);
+    }
+
+    async refreshPatternData() {
+        // Silently refresh without console logs
+        try {
+            const realtimePatterns = await this.getRealtimePatterns();
+            if (realtimePatterns && realtimePatterns.length > 0) {
+                this.patterns = realtimePatterns;
+                
+                // Subtle beam pulse for new patterns
+                this.activateBeam(4);
+                setTimeout(() => this.deactivateBeam(4), 500);
+            }
+        } catch (error) {
+            // Silent fail
+        }
+    }
+
+    // ========================================
+    // ⭐ PHOENIXSTORE INTEGRATION
     // ========================================
 
     connectToStore() {
