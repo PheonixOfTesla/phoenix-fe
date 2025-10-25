@@ -144,9 +144,11 @@ class PhoenixVoice {
             this.updateStatus('listening', '🟢 Listening...');
             
             // Setup media recorder
-            this.mediaRecorder = new MediaRecorder(this.recordingStream, {
-                mimeType: 'audio/webm;codecs=opus'
-            });
+           let mimeType = 'audio/webm';
+if (!MediaRecorder.isTypeSupported('audio/webm')) {
+    mimeType = 'audio/mp4';
+}
+this.mediaRecorder = new MediaRecorder(this.recordingStream, { mimeType });
             
             this.mediaRecorder.ondataavailable = (event) => {
                 if (event.data.size > 0) {
