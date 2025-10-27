@@ -15,7 +15,9 @@
             font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
             background: #000;
             color: #00ffff;
-            overflow: hidden;
+            overflow-y: auto;
+            overflow-x: hidden;
+            min-height: 100vh;
         }
 
         .toast {
@@ -49,12 +51,15 @@
             width: 100%;
             height: 100%;
             display: none;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
             flex-direction: column;
             opacity: 0;
             transition: opacity 0.5s ease;
             background: radial-gradient(circle at center, rgba(0, 15, 30, 1) 0%, rgba(0, 0, 0, 1) 100%);
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 40px 20px;
         }
 
         .phase-container.active {
@@ -65,7 +70,10 @@
         .phase-content {
             text-align: center;
             max-width: 600px;
-            padding: 40px;
+            width: 100%;
+            padding: 40px 40px 80px 40px;
+            margin: auto;
+            min-height: fit-content;
         }
 
         .content-title {
@@ -252,6 +260,30 @@
             background: rgba(0, 255, 255, 0.2);
             border-color: #00ffff;
             box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 15, 30, 0.5);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 255, 255, 0.3);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 255, 255, 0.5);
+        }
+
+        /* Firefox scrollbar */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0, 255, 255, 0.3) rgba(0, 15, 30, 0.5);
         }
     </style>
 </head>
