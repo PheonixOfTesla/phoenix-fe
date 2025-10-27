@@ -729,23 +729,33 @@
 
         async function loadDevices() {
             try {
-                const response = await fetch(`${API_BASE}/onboarding/devices`, {
+                // Get list of connected devices
+                const response = await fetch(`${API_BASE}/wearables/connections`, {
                     headers: getAuthHeaders()
                 });
 
-                if (!response.ok) {
-                    throw new Error('Failed to load devices');
+                let connectedProviders = [];
+                if (response.ok) {
+                    const data = await response.json();
+                    connectedProviders = data.connections?.map(c => c.provider) || [];
                 }
 
-                const devices = await response.json();
-                renderDevices(devices);
+                // Render all available devices
+                renderDevices([
+                    { id: 'fitbit', name: 'Fitbit/Google', icon: '⌚', connected: connectedProviders.includes('fitbit') },
+                    { id: 'polar', name: 'Polar', icon: '🏃', connected: connectedProviders.includes('polar') },
+                    { id: 'applehealth', name: 'Apple Health', icon: '❤️', connected: connectedProviders.includes('applehealth') },
+                    { id: 'whoop', name: 'WHOOP', icon: '💪', connected: connectedProviders.includes('whoop') }
+                ]);
+
+                // Update global connected devices list
+                connectedDevices = connectedProviders;
             } catch (error) {
                 console.error('Error loading devices:', error);
-                showToast('Could not load devices. Using defaults.', 'error');
-                // Fallback to default devices
+                // Render defaults without connection status
                 renderDevices([
-                    { id: 'fitbit', name: 'Fitbit', icon: '⌚', connected: false },
-                    { id: 'googlefit', name: 'Google Fit', icon: '🏃', connected: false },
+                    { id: 'fitbit', name: 'Fitbit/Google', icon: '⌚', connected: false },
+                    { id: 'polar', name: 'Polar', icon: '🏃', connected: false },
                     { id: 'applehealth', name: 'Apple Health', icon: '❤️', connected: false },
                     { id: 'whoop', name: 'WHOOP', icon: '💪', connected: false }
                 ]);
@@ -964,25 +974,34 @@
 
         async function connectDevice(deviceId) {
             try {
-                // Get OAuth URL from backend
-                const response = await fetch(`${API_BASE}/mercury/devices/${deviceId}/oauth-url`, {
-                    method: 'GET',
+                showToast(`Connecting to ${deviceId}...`, 'success');
+
+                // Call backend to initiate OAuth - it returns the authUrl
+                const response = await fetch(`${API_BASE}/wearables/connect/${deviceId}`, {
+                    method: 'POST',
                     headers: getAuthHeaders()
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Failed to get OAuth URL for ${deviceId}`);
+                    const error = await response.json();
+                    throw new Error(error.error || `Failed to connect ${deviceId}`);
                 }
 
                 const { authUrl } = await response.json();
 
-                // Redirect to OAuth provider
-                showToast(`Redirecting to ${deviceId} authorization...`, 'success');
+                if (!authUrl) {
+                    throw new Error('No authorization URL received');
+                }
+
+                console.log(`[OAuth] Redirecting to ${deviceId} authorization...`);
+                
+                // Redirect to provider's OAuth page
+                // Provider will redirect back to /fitbit, /polar, etc.
                 window.location.href = authUrl;
 
             } catch (error) {
                 console.error(`Error connecting ${deviceId}:`, error);
-                showToast(`Could not connect ${deviceId}`, 'error');
+                showToast(error.message || `Could not connect ${deviceId}`, 'error');
             }
         }
 
