@@ -1183,6 +1183,36 @@
          * Language Selection
          */
         function setupLanguageSelection() {
+            const welcomeMessages = {
+                'en-GB': 'British English selected. Excellent choice.',
+                'en-US': 'American English selected. Excellent choice.',
+                'es': 'Español seleccionado. Excelente elección.',
+                'fr': 'Français sélectionné. Excellent choix.',
+                'de': 'Deutsch ausgewählt. Ausgezeichnete Wahl.',
+                'it': 'Italiano selezionato. Ottima scelta.',
+                'pt': 'Português selecionado. Excelente escolha.',
+                'nl': 'Nederlands geselecteerd. Uitstekende keuze.',
+                'pl': 'Polski wybrany. Doskonały wybór.',
+                'ru': 'Русский выбран. Отличный выбор.',
+                'ja': '日本語が選択されました。素晴らしい選択です。',
+                'zh': '已选择中文。很好的选择。'
+            };
+
+            const nextMessages = {
+                'en-GB': "Now, let's choose my voice. Listen to each option and select your favourite.",
+                'en-US': "Now, let's choose my voice. Listen to each option and select your favorite.",
+                'es': 'Ahora, elijamos mi voz. Escucha cada opción y selecciona tu favorita.',
+                'fr': 'Maintenant, choisissons ma voix. Écoutez chaque option et sélectionnez votre préférée.',
+                'de': 'Jetzt wählen wir meine Stimme. Hören Sie sich jede Option an und wählen Sie Ihre Lieblingsstimme.',
+                'it': 'Ora scegliamo la mia voce. Ascolta ogni opzione e seleziona la tua preferita.',
+                'pt': 'Agora vamos escolher a minha voz. Ouça cada opção e selecione a sua favorita.',
+                'nl': 'Laten we nu mijn stem kiezen. Luister naar elke optie en selecteer je favoriet.',
+                'pl': 'Teraz wybierzmy mój głos. Posłuchaj każdej opcji i wybierz swoją ulubioną.',
+                'ru': 'Теперь выберем мой голос. Послушайте каждый вариант и выберите свой любимый.',
+                'ja': '次に私の声を選びましょう。各オプションを聞いて、お気に入りを選択してください。',
+                'zh': '现在让我们选择我的声音。听听每个选项并选择你最喜欢的。'
+            };
+
             document.querySelectorAll('#languageGrid .selection-card').forEach(card => {
                 card.addEventListener('click', () => {
                     document.querySelectorAll('#languageGrid .selection-card').forEach(c => c.classList.remove('selected'));
@@ -1191,12 +1221,12 @@
                     userData.languageName = card.dataset.name;
                     document.getElementById('nextPhase1').disabled = false;
                     
-                    phoenixSpeak(`${card.dataset.name} selected. Excellent choice.`, 1);
+                    phoenixSpeak(welcomeMessages[userData.language] || welcomeMessages['en-GB'], 1);
                 });
             });
             
             document.getElementById('nextPhase1').addEventListener('click', () => {
-                phoenixSpeak("Now, let's choose my voice. Listen to each option and select your favorite.", 1);
+                phoenixSpeak(nextMessages[userData.language] || nextMessages['en-GB'], 1);
                 setTimeout(() => nextPhase(), 4000);
             });
         }
@@ -1227,13 +1257,105 @@
             event.stopPropagation();
             
             const samples = {
-                'nova': "Hello. I'm Nova, your friendly helper.",
-                'echo': "Good day. I'm Echo, your butler.",
-                'onyx': "Hello. I'm Onyx, professional assistant.",
-                'shimmer': "Hi there. I'm Shimmer, your gentle guide.",
-                'alloy': "Hello. I'm Alloy, your balanced assistant.",
-                'fable': "Greetings. I'm Fable, your storytelling companion."
+                'en-GB': {
+                    'nova': "Hello. I'm Nova, your friendly helper.",
+                    'echo': "Good day. I'm Echo, your butler.",
+                    'onyx': "Hello. I'm Onyx, professional assistant.",
+                    'shimmer': "Hi there. I'm Shimmer, your gentle guide.",
+                    'alloy': "Hello. I'm Alloy, your balanced assistant.",
+                    'fable': "Greetings. I'm Fable, your storytelling companion."
+                },
+                'en-US': {
+                    'nova': "Hi. I'm Nova, your friendly helper.",
+                    'echo': "Good day. I'm Echo, your assistant.",
+                    'onyx': "Hello. I'm Onyx, professional assistant.",
+                    'shimmer': "Hi there. I'm Shimmer, your gentle guide.",
+                    'alloy': "Hello. I'm Alloy, your balanced assistant.",
+                    'fable': "Greetings. I'm Fable, your storytelling companion."
+                },
+                'es': {
+                    'nova': "Hola. Soy Nova, tu asistente amigable.",
+                    'echo': "Buenos días. Soy Echo, tu mayordomo.",
+                    'onyx': "Hola. Soy Onyx, asistente profesional.",
+                    'shimmer': "Hola. Soy Shimmer, tu guía gentil.",
+                    'alloy': "Hola. Soy Alloy, tu asistente equilibrado.",
+                    'fable': "Saludos. Soy Fable, tu compañero narrador."
+                },
+                'fr': {
+                    'nova': "Bonjour. Je suis Nova, votre assistante amicale.",
+                    'echo': "Bonjour. Je suis Echo, votre majordome.",
+                    'onyx': "Bonjour. Je suis Onyx, assistant professionnel.",
+                    'shimmer': "Bonjour. Je suis Shimmer, votre guide douce.",
+                    'alloy': "Bonjour. Je suis Alloy, votre assistant équilibré.",
+                    'fable': "Salutations. Je suis Fable, votre compagnon conteur."
+                },
+                'de': {
+                    'nova': "Hallo. Ich bin Nova, deine freundliche Helferin.",
+                    'echo': "Guten Tag. Ich bin Echo, dein Butler.",
+                    'onyx': "Hallo. Ich bin Onyx, professioneller Assistent.",
+                    'shimmer': "Hallo. Ich bin Shimmer, dein sanfter Führer.",
+                    'alloy': "Hallo. Ich bin Alloy, dein ausgewogener Assistent.",
+                    'fable': "Grüße. Ich bin Fable, dein Geschichtenerzähler."
+                },
+                'it': {
+                    'nova': "Ciao. Sono Nova, il tuo assistente amichevole.",
+                    'echo': "Buongiorno. Sono Echo, il tuo maggiordomo.",
+                    'onyx': "Ciao. Sono Onyx, assistente professionale.",
+                    'shimmer': "Ciao. Sono Shimmer, la tua guida gentile.",
+                    'alloy': "Ciao. Sono Alloy, il tuo assistente equilibrato.",
+                    'fable': "Saluti. Sono Fable, il tuo compagno narratore."
+                },
+                'pt': {
+                    'nova': "Olá. Sou a Nova, sua assistente amigável.",
+                    'echo': "Bom dia. Sou o Echo, seu mordomo.",
+                    'onyx': "Olá. Sou o Onyx, assistente profissional.",
+                    'shimmer': "Olá. Sou a Shimmer, sua guia gentil.",
+                    'alloy': "Olá. Sou o Alloy, seu assistente equilibrado.",
+                    'fable': "Saudações. Sou o Fable, seu companheiro contador de histórias."
+                },
+                'nl': {
+                    'nova': "Hallo. Ik ben Nova, je vriendelijke helper.",
+                    'echo': "Goedendag. Ik ben Echo, je butler.",
+                    'onyx': "Hallo. Ik ben Onyx, professionele assistent.",
+                    'shimmer': "Hallo. Ik ben Shimmer, je zachte gids.",
+                    'alloy': "Hallo. Ik ben Alloy, je evenwichtige assistent.",
+                    'fable': "Groeten. Ik ben Fable, je verhalende metgezel."
+                },
+                'pl': {
+                    'nova': "Cześć. Jestem Nova, twoim przyjaznym pomocnikiem.",
+                    'echo': "Dzień dobry. Jestem Echo, twoim kamerdynerem.",
+                    'onyx': "Cześć. Jestem Onyx, profesjonalnym asystentem.",
+                    'shimmer': "Cześć. Jestem Shimmer, twoim łagodnym przewodnikiem.",
+                    'alloy': "Cześć. Jestem Alloy, twoim zrównoważonym asystentem.",
+                    'fable': "Pozdrowienia. Jestem Fable, twoim towarzyszem opowieści."
+                },
+                'ru': {
+                    'nova': "Привет. Я Нова, твой дружелюбный помощник.",
+                    'echo': "Добрый день. Я Эхо, твой дворецкий.",
+                    'onyx': "Привет. Я Оникс, профессиональный ассистент.",
+                    'shimmer': "Привет. Я Шиммер, твой мягкий гид.",
+                    'alloy': "Привет. Я Эллой, твой сбалансированный ассистент.",
+                    'fable': "Приветствую. Я Фэйбл, твой рассказчик."
+                },
+                'ja': {
+                    'nova': "こんにちは。私はNova、あなたの親しみやすいヘルパーです。",
+                    'echo': "こんにちは。私はEcho、あなたの執事です。",
+                    'onyx': "こんにちは。私はOnyx、プロフェッショナルなアシスタントです。",
+                    'shimmer': "こんにちは。私はShimmer、あなたの優しいガイドです。",
+                    'alloy': "こんにちは。私はAlloy、あなたのバランスの取れたアシスタントです。",
+                    'fable': "ご挨拶申し上げます。私はFable、あなたの物語の仲間です。"
+                },
+                'zh': {
+                    'nova': "你好。我是Nova，你友好的助手。",
+                    'echo': "您好。我是Echo，您的管家。",
+                    'onyx': "你好。我是Onyx，专业助理。",
+                    'shimmer': "你好。我是Shimmer，你温柔的向导。",
+                    'alloy': "你好。我是Alloy，你平衡的助手。",
+                    'fable': "问候。我是Fable，你的讲故事伙伴。"
+                }
             };
+            
+            const langSamples = samples[userData.language] || samples['en-GB'];
             
             // Stop current audio
             if (currentAudio) {
@@ -1248,7 +1370,7 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        text: samples[voice],
+                        text: langSamples[voice],
                         voice: voice,
                         language: userData.language
                     })
