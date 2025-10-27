@@ -787,15 +787,10 @@
                 <p class="phase-subtitle">CHOOSE YOUR PREFERRED LANGUAGE</p>
             </div>
             <div class="selection-grid" id="languageGrid">
-                <div class="selection-card" data-lang="en-GB" data-name="British English">
+                <div class="selection-card" data-lang="en" data-name="English">
                     <div class="icon">🇬🇧</div>
                     <div class="title">ENGLISH</div>
-                    <div class="subtitle">British</div>
-                </div>
-                <div class="selection-card" data-lang="en-US" data-name="American English">
-                    <div class="icon">🇺🇸</div>
-                    <div class="title">ENGLISH</div>
-                    <div class="subtitle">American</div>
+                    <div class="subtitle">Global</div>
                 </div>
                 <div class="selection-card" data-lang="es" data-name="Spanish">
                     <div class="icon">🇪🇸</div>
@@ -924,8 +919,8 @@
                         <input type="text" id="name" placeholder="John Doe" required>
                     </div>
                     <div class="form-group">
-                        <label>EMAIL ADDRESS</label>
-                        <input type="email" id="email" placeholder="john@example.com" required>
+                        <label>PHONE NUMBER</label>
+                        <input type="tel" id="phone" placeholder="+1 (555) 123-4567" required>
                     </div>
                 </div>
                 <div class="form-grid">
@@ -945,15 +940,15 @@
             </div>
         </div>
 
-        <!-- Phase 4: Email Verification -->
+        <!-- Phase 4: Phone Verification -->
         <div class="phase" id="phase4">
             <div class="phoenix-avatar">
                 <div class="avatar-circle" id="avatarCircle4">🔥</div>
             </div>
             <div class="voice-status" id="voiceStatus4">[ VERIFICATION SENT ]</div>
             <div class="phase-header">
-                <h1 class="phase-title">VERIFY EMAIL</h1>
-                <p class="phase-subtitle">ENTER 6-DIGIT CODE SENT TO <span id="userEmail" style="color: var(--primary-cyan);"></span></p>
+                <h1 class="phase-title">VERIFY PHONE</h1>
+                <p class="phase-subtitle">ENTER 6-DIGIT CODE SENT TO <span id="userPhone" style="color: var(--primary-cyan);"></span></p>
             </div>
             <div class="code-input-wrapper">
                 <input type="text" class="code-digit" maxlength="1" id="code1">
@@ -967,7 +962,7 @@
                 <button class="btn btn-skip" onclick="resendCode()">[ RESEND CODE ]</button>
             </div>
             <div class="button-group">
-                <button class="btn btn-primary" onclick="verifyEmail()">[ VERIFY EMAIL ]</button>
+                <button class="btn btn-primary" onclick="verifyPhone()">[ VERIFY PHONE ]</button>
             </div>
         </div>
 
@@ -1085,8 +1080,8 @@
         // State
         let currentPhase = 0;
         let userData = {
-            language: 'en-GB',
-            languageName: 'British English',
+            language: 'en',
+            languageName: 'English',
             voice: 'echo',
             profile: {},
             authToken: null,
@@ -1134,7 +1129,7 @@
                     body: JSON.stringify({
                         text: text,
                         voice: userData.voice || 'echo',
-                        language: userData.language || 'en-GB'
+                        language: userData.language || 'en'
                     })
                 });
 
@@ -1184,8 +1179,7 @@
          */
         function setupLanguageSelection() {
             const welcomeMessages = {
-                'en-GB': 'British English selected. Excellent choice.',
-                'en-US': 'American English selected. Excellent choice.',
+                'en': 'English selected. Excellent choice.',
                 'es': 'Español seleccionado. Excelente elección.',
                 'fr': 'Français sélectionné. Excellent choix.',
                 'de': 'Deutsch ausgewählt. Ausgezeichnete Wahl.',
@@ -1199,8 +1193,7 @@
             };
 
             const nextMessages = {
-                'en-GB': "Now, let's choose my voice. Listen to each option and select your favourite.",
-                'en-US': "Now, let's choose my voice. Listen to each option and select your favorite.",
+                'en': "Now, let's choose my voice. Listen to each option and select your favourite.",
                 'es': 'Ahora, elijamos mi voz. Escucha cada opción y selecciona tu favorita.',
                 'fr': 'Maintenant, choisissons ma voix. Écoutez chaque option et sélectionnez votre préférée.',
                 'de': 'Jetzt wählen wir meine Stimme. Hören Sie sich jede Option an und wählen Sie Ihre Lieblingsstimme.',
@@ -1221,12 +1214,12 @@
                     userData.languageName = card.dataset.name;
                     document.getElementById('nextPhase1').disabled = false;
                     
-                    phoenixSpeak(welcomeMessages[userData.language] || welcomeMessages['en-GB'], 1);
+                    phoenixSpeak(welcomeMessages[userData.language] || welcomeMessages['en'], 1);
                 });
             });
             
             document.getElementById('nextPhase1').addEventListener('click', () => {
-                phoenixSpeak(nextMessages[userData.language] || nextMessages['en-GB'], 1);
+                phoenixSpeak(nextMessages[userData.language] || nextMessages['en'], 1);
                 setTimeout(() => nextPhase(), 4000);
             });
         }
@@ -1257,17 +1250,9 @@
             event.stopPropagation();
             
             const samples = {
-                'en-GB': {
+                'en': {
                     'nova': "Hello. I'm Nova, your friendly helper.",
                     'echo': "Good day. I'm Echo, your butler.",
-                    'onyx': "Hello. I'm Onyx, professional assistant.",
-                    'shimmer': "Hi there. I'm Shimmer, your gentle guide.",
-                    'alloy': "Hello. I'm Alloy, your balanced assistant.",
-                    'fable': "Greetings. I'm Fable, your storytelling companion."
-                },
-                'en-US': {
-                    'nova': "Hi. I'm Nova, your friendly helper.",
-                    'echo': "Good day. I'm Echo, your assistant.",
                     'onyx': "Hello. I'm Onyx, professional assistant.",
                     'shimmer': "Hi there. I'm Shimmer, your gentle guide.",
                     'alloy': "Hello. I'm Alloy, your balanced assistant.",
@@ -1355,7 +1340,7 @@
                 }
             };
             
-            const langSamples = samples[userData.language] || samples['en-GB'];
+            const langSamples = samples[userData.language] || samples['en'];
             
             // Stop current audio
             if (currentAudio) {
@@ -1415,7 +1400,7 @@
 
             userData.profile = {
                 name: document.getElementById('name').value,
-                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
                 password: password
             };
 
@@ -1423,7 +1408,7 @@
 
             try {
                 const response = await api.auth.register({
-                    email: userData.profile.email,
+                    phone: userData.profile.phone,
                     password: userData.profile.password,
                     name: userData.profile.name,
                     language: userData.language,
@@ -1437,7 +1422,7 @@
                 showLoading(false);
                 showToast('ACCOUNT CREATED SUCCESSFULLY', 'success');
                 
-                phoenixSpeak(`Great. I just sent a verification code to ${userData.profile.email}. Can you enter it for me?`, 3);
+                phoenixSpeak(`Great. I just sent a verification code to ${userData.profile.phone}. Can you enter it for me?`, 3);
                 
                 setTimeout(() => nextPhase(), 4000);
 
@@ -1471,7 +1456,7 @@
         /**
          * Verify Email
          */
-        async function verifyEmail() {
+        async function verifyPhone() {
             const code = Array.from(document.querySelectorAll('.code-digit'))
                 .map(input => input.value)
                 .join('');
@@ -1485,12 +1470,12 @@
 
             try {
                 await api.auth.verify({
-                    email: userData.profile.email,
+                    phone: userData.profile.phone,
                     code: code
                 });
 
                 showLoading(false);
-                showToast('EMAIL VERIFIED', 'success');
+                showToast('PHONE VERIFIED', 'success');
                 
                 phoenixSpeak("Verified. Now, would you like to connect any wearable devices? This helps me track your health data and provide better insights.", 4);
                 
@@ -1508,9 +1493,9 @@
          */
         async function resendCode() {
             try {
-                await api.auth.resendVerification({ email: userData.profile.email });
+                await api.auth.resendVerification({ phone: userData.profile.phone });
                 showToast('CODE RESENT', 'success');
-                phoenixSpeak("I sent a new code to your email.", 4);
+                phoenixSpeak("I sent a new code to your phone.", 4);
             } catch (error) {
                 showToast('RESEND FAILED', 'error');
             }
@@ -1602,7 +1587,7 @@
                 updateProgress();
                 
                 if (currentPhase === 4 && userData.profile.email) {
-                    document.getElementById('userEmail').textContent = userData.profile.email;
+                    document.getElementById('userPhone').textContent = userData.profile.phone;
                 }
                 
                 if (currentPhase === 7 && userData.profile.name) {
