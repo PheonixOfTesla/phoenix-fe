@@ -1605,9 +1605,9 @@
                     localStorage.setItem('phoenixToken', token);
                 }
                 
-                // Send verification code
+                // Send verification code - REQUIRED
                 try {
-                    await fetch(`${API_BASE_URL}/sms-verification/send-verification`, {
+                    const smsResponse = await fetch(`${API_BASE_URL}/sms-verification/send-verification`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -1617,8 +1617,16 @@
                             phone: userData.profile.phone
                         })
                     });
+                    
+                    if (!smsResponse.ok) {
+                        const errorData = await smsResponse.json().catch(() => ({}));
+                        throw new Error(errorData.error || 'Failed to send verification code');
+                    }
+                    
+                    console.log('[SMS] Verification code sent successfully');
                 } catch (verifyError) {
-                    console.log('Verification send error (non-fatal):', verifyError);
+                    console.error('[SMS] CRITICAL: Verification send failed:', verifyError.message);
+                    throw verifyError; // Re-throw to stop registration flow
                 }
 
                 showLoading(false);
@@ -1686,7 +1694,7 @@
             showLoading(true);
 
             try {
-                await api.auth.verify({
+                const response = await api.auth.verify({
                     phone: userData.profile.phone,
                     code: code
                 });
@@ -1714,8 +1722,8 @@
 
             } catch (error) {
                 showLoading(false);
-                console.error('Verification error:', error);
-                showToast('INVALID CODE', 'error');
+                console.error('[Verification] Error:', error);
+                showToast('VERIFICATION FAILED - CHECK CODE', 'error');
             }
         }
 
