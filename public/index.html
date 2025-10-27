@@ -548,6 +548,155 @@
     </div>
 
     <!-- ============================================ -->
+    <!-- WORKOUT LOGGING MODAL -->
+    <!-- ============================================ -->
+    <div id="workout-modal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.98);display:none;align-items:center;justify-content:center;z-index:10000;overflow-y:auto;padding:20px">
+        <div style="background:linear-gradient(135deg, rgba(0,10,20,0.95), rgba(0,10,20,0.9));border:2px solid rgba(0,255,255,0.5);border-radius:12px;padding:40px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 0 50px rgba(0,255,255,0.3)">
+            <!-- Header -->
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;padding-bottom:20px;border-bottom:1px solid rgba(0,255,255,0.3)">
+                <div style="font-size:28px;color:#00ffff;text-shadow:0 0 20px rgba(0,255,255,1);letter-spacing:3px">💪 LOG WORKOUT</div>
+                <button onclick="closeWorkoutModal()" style="width:40px;height:40px;background:rgba(255,68,68,0.2);border:2px solid rgba(255,68,68,0.5);border-radius:50%;color:#ff4444;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+            </div>
+
+            <!-- Workout Form -->
+            <form id="workout-form" onsubmit="submitWorkout(event)">
+                <!-- Workout Type -->
+                <div style="margin-bottom:25px">
+                    <label style="display:block;font-size:12px;color:rgba(0,255,255,0.7);letter-spacing:1px;margin-bottom:8px">WORKOUT TYPE</label>
+                    <select id="workout-type" required style="width:100%;padding:12px 15px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.3);border-radius:6px;color:#00ffff;font-family:inherit;font-size:14px">
+                        <option value="strength">💪 Strength Training</option>
+                        <option value="cardio">🏃 Cardio</option>
+                        <option value="hiit">⚡ HIIT</option>
+                        <option value="yoga">🧘 Yoga</option>
+                        <option value="sports">⚽ Sports</option>
+                        <option value="other">🎯 Other</option>
+                    </select>
+                </div>
+
+                <!-- Exercise Name -->
+                <div style="margin-bottom:25px">
+                    <label style="display:block;font-size:12px;color:rgba(0,255,255,0.7);letter-spacing:1px;margin-bottom:8px">EXERCISE NAME</label>
+                    <input type="text" id="exercise-name" required placeholder="e.g., Bench Press, Running, Squats" style="width:100%;padding:12px 15px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.3);border-radius:6px;color:#00ffff;font-family:inherit;font-size:14px">
+                </div>
+
+                <!-- Sets & Reps -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:25px">
+                    <div>
+                        <label style="display:block;font-size:12px;color:rgba(0,255,255,0.7);letter-spacing:1px;margin-bottom:8px">SETS</label>
+                        <input type="number" id="workout-sets" min="1" placeholder="3" style="width:100%;padding:12px 15px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.3);border-radius:6px;color:#00ffff;font-family:inherit;font-size:14px">
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:12px;color:rgba(0,255,255,0.7);letter-spacing:1px;margin-bottom:8px">REPS</label>
+                        <input type="number" id="workout-reps" min="1" placeholder="10" style="width:100%;padding:12px 15px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.3);border-radius:6px;color:#00ffff;font-family:inherit;font-size:14px">
+                    </div>
+                </div>
+
+                <!-- Weight & Duration -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:25px">
+                    <div>
+                        <label style="display:block;font-size:12px;color:rgba(0,255,255,0.7);letter-spacing:1px;margin-bottom:8px">WEIGHT (lbs)</label>
+                        <input type="number" id="workout-weight" min="0" step="0.5" placeholder="135" style="width:100%;padding:12px 15px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.3);border-radius:6px;color:#00ffff;font-family:inherit;font-size:14px">
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:12px;color:rgba(0,255,255,0.7);letter-spacing:1px;margin-bottom:8px">DURATION (min)</label>
+                        <input type="number" id="workout-duration" min="1" placeholder="45" style="width:100%;padding:12px 15px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.3);border-radius:6px;color:#00ffff;font-family:inherit;font-size:14px">
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div style="margin-bottom:25px">
+                    <label style="display:block;font-size:12px;color:rgba(0,255,255,0.7);letter-spacing:1px;margin-bottom:8px">NOTES (Optional)</label>
+                    <textarea id="workout-notes" placeholder="How did you feel? Any PRs?" rows="3" style="width:100%;padding:12px 15px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.3);border-radius:6px;color:#00ffff;font-family:inherit;font-size:14px;resize:vertical"></textarea>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" style="width:100%;padding:15px;background:linear-gradient(135deg, rgba(0,255,255,0.2), rgba(0,255,136,0.2));border:2px solid #00ffff;color:#00ffff;font-family:inherit;font-size:16px;cursor:pointer;border-radius:8px;letter-spacing:2px;font-weight:bold;transition:all 0.3s">
+                    💪 LOG WORKOUT
+                </button>
+            </form>
+
+            <!-- Loading State -->
+            <div id="workout-loading" style="display:none;text-align:center;padding:20px">
+                <div style="width:40px;height:40px;border:3px solid rgba(0,255,255,0.2);border-top-color:#00ffff;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 15px"></div>
+                <div style="color:#00ffff">Logging workout...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- MEAL LOGGING MODAL -->
+    <!-- ============================================ -->
+    <div id="meal-modal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.98);display:none;align-items:center;justify-content:center;z-index:10000;overflow-y:auto;padding:20px">
+        <div style="background:linear-gradient(135deg, rgba(0,10,20,0.95), rgba(0,10,20,0.9));border:2px solid rgba(255,102,255,0.5);border-radius:12px;padding:40px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 0 50px rgba(255,102,255,0.3)">
+            <!-- Header -->
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;padding-bottom:20px;border-bottom:1px solid rgba(255,102,255,0.3)">
+                <div style="font-size:28px;color:#ff66ff;text-shadow:0 0 20px rgba(255,102,255,1);letter-spacing:3px">🍽️ LOG MEAL</div>
+                <button onclick="closeMealModal()" style="width:40px;height:40px;background:rgba(255,68,68,0.2);border:2px solid rgba(255,68,68,0.5);border-radius:50%;color:#ff4444;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+            </div>
+
+            <!-- Meal Form -->
+            <form id="meal-form" onsubmit="submitMeal(event)">
+                <!-- Meal Type -->
+                <div style="margin-bottom:25px">
+                    <label style="display:block;font-size:12px;color:rgba(255,102,255,0.7);letter-spacing:1px;margin-bottom:8px">MEAL TYPE</label>
+                    <select id="meal-type" required style="width:100%;padding:12px 15px;background:rgba(255,102,255,0.05);border:1px solid rgba(255,102,255,0.3);border-radius:6px;color:#ff66ff;font-family:inherit;font-size:14px">
+                        <option value="breakfast">🌅 Breakfast</option>
+                        <option value="lunch">🌞 Lunch</option>
+                        <option value="dinner">🌙 Dinner</option>
+                        <option value="snack">🍎 Snack</option>
+                        <option value="post-workout">💪 Post-Workout</option>
+                    </select>
+                </div>
+
+                <!-- Meal Name -->
+                <div style="margin-bottom:25px">
+                    <label style="display:block;font-size:12px;color:rgba(255,102,255,0.7);letter-spacing:1px;margin-bottom:8px">WHAT DID YOU EAT?</label>
+                    <input type="text" id="meal-name" required placeholder="e.g., Chicken Breast with Rice and Broccoli" style="width:100%;padding:12px 15px;background:rgba(255,102,255,0.05);border:1px solid rgba(255,102,255,0.3);border-radius:6px;color:#ff66ff;font-family:inherit;font-size:14px">
+                </div>
+
+                <!-- Macros -->
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:25px">
+                    <div>
+                        <label style="display:block;font-size:11px;color:rgba(255,102,255,0.7);letter-spacing:1px;margin-bottom:8px">PROTEIN (g)</label>
+                        <input type="number" id="meal-protein" min="0" placeholder="40" style="width:100%;padding:12px 10px;background:rgba(255,102,255,0.05);border:1px solid rgba(255,102,255,0.3);border-radius:6px;color:#ff66ff;font-family:inherit;font-size:14px">
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:11px;color:rgba(255,102,255,0.7);letter-spacing:1px;margin-bottom:8px">CARBS (g)</label>
+                        <input type="number" id="meal-carbs" min="0" placeholder="50" style="width:100%;padding:12px 10px;background:rgba(255,102,255,0.05);border:1px solid rgba(255,102,255,0.3);border-radius:6px;color:#ff66ff;font-family:inherit;font-size:14px">
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:11px;color:rgba(255,102,255,0.7);letter-spacing:1px;margin-bottom:8px">FATS (g)</label>
+                        <input type="number" id="meal-fats" min="0" placeholder="15" style="width:100%;padding:12px 10px;background:rgba(255,102,255,0.05);border:1px solid rgba(255,102,255,0.3);border-radius:6px;color:#ff66ff;font-family:inherit;font-size:14px">
+                    </div>
+                </div>
+
+                <!-- Calories -->
+                <div style="margin-bottom:25px">
+                    <label style="display:block;font-size:12px;color:rgba(255,102,255,0.7);letter-spacing:1px;margin-bottom:8px">CALORIES</label>
+                    <input type="number" id="meal-calories" min="0" placeholder="500" style="width:100%;padding:12px 15px;background:rgba(255,102,255,0.05);border:1px solid rgba(255,102,255,0.3);border-radius:6px;color:#ff66ff;font-family:inherit;font-size:14px">
+                </div>
+
+                <!-- Notes -->
+                <div style="margin-bottom:25px">
+                    <label style="display:block;font-size:12px;color:rgba(255,102,255,0.7);letter-spacing:1px;margin-bottom:8px">NOTES (Optional)</label>
+                    <textarea id="meal-notes" placeholder="How did you feel after eating? Where did you eat?" rows="3" style="width:100%;padding:12px 15px;background:rgba(255,102,255,0.05);border:1px solid rgba(255,102,255,0.3);border-radius:6px;color:#ff66ff;font-family:inherit;font-size:14px;resize:vertical"></textarea>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" style="width:100%;padding:15px;background:linear-gradient(135deg, rgba(255,102,255,0.2), rgba(255,68,255,0.2));border:2px solid #ff66ff;color:#ff66ff;font-family:inherit;font-size:16px;cursor:pointer;border-radius:8px;letter-spacing:2px;font-weight:bold;transition:all 0.3s">
+                    🍽️ LOG MEAL
+                </button>
+            </form>
+
+            <!-- Loading State -->
+            <div id="meal-loading" style="display:none;text-align:center;padding:20px">
+                <div style="width:40px;height:40px;border:3px solid rgba(255,102,255,0.2);border-top-color:#ff66ff;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 15px"></div>
+                <div style="color:#ff66ff">Logging meal...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
     <!-- COMPONENT STYLES -->
     <!-- ============================================ -->
     <style>
@@ -1143,8 +1292,8 @@
                         btn.addEventListener('click', () => {
                             this.closeActionMenu();
                             
-                            if (action === 'workout') this.openPlanetDetail('mercury');
-                            else if (action === 'meal') this.openPlanetDetail('venus');
+                            if (action === 'workout') openWorkoutModal();
+                            else if (action === 'meal') openMealModal();
                             else if (action === 'goals') this.openPlanetDetail('mars');
                             else if (action === 'chat') {
                                 toggleVoice();
@@ -1161,8 +1310,8 @@
                     const btn = document.getElementById('quick-' + action);
                     if (btn) {
                         btn.addEventListener('click', () => {
-                            if (action === 'workout') this.openPlanetDetail('mercury');
-                            else if (action === 'meal') this.openPlanetDetail('venus');
+                            if (action === 'workout') openWorkoutModal();
+                            else if (action === 'meal') openMealModal();
                             else if (action === 'butler') toggleButlerPanel();
                             else if (action === 'chat') {
                                 toggleVoice();
@@ -1754,6 +1903,159 @@
             }
             
             toggleButlerPanel();
+        };
+
+        /**
+         * WORKOUT LOGGING FUNCTIONS
+         */
+        window.openWorkoutModal = function() {
+            document.getElementById('workout-modal').style.display = 'flex';
+        };
+
+        window.closeWorkoutModal = function() {
+            document.getElementById('workout-modal').style.display = 'none';
+            document.getElementById('workout-form').reset();
+        };
+
+        window.submitWorkout = async function(event) {
+            event.preventDefault();
+            
+            const form = document.getElementById('workout-form');
+            const loading = document.getElementById('workout-loading');
+            
+            // Show loading
+            form.style.display = 'none';
+            loading.style.display = 'block';
+            
+            try {
+                // Step 1: Start workout
+                console.log('🏋️ Starting workout...');
+                const startData = {
+                    workoutType: document.getElementById('workout-type').value,
+                    startTime: new Date().toISOString()
+                };
+                
+                const startResponse = await fetchAPI('/venus/workouts/start', {
+                    method: 'POST',
+                    body: JSON.stringify(startData)
+                });
+                
+                if (!startResponse.success || !startResponse.data.workout) {
+                    throw new Error('Failed to start workout');
+                }
+                
+                const workoutId = startResponse.data.workout._id;
+                console.log('✅ Workout started:', workoutId);
+                
+                // Step 2: Log exercise
+                console.log('💪 Logging exercise...');
+                const exerciseData = {
+                    exerciseName: document.getElementById('exercise-name').value,
+                    sets: parseInt(document.getElementById('workout-sets').value) || 0,
+                    reps: parseInt(document.getElementById('workout-reps').value) || 0,
+                    weight: parseFloat(document.getElementById('workout-weight').value) || 0,
+                    notes: document.getElementById('workout-notes').value
+                };
+                
+                await fetchAPI(`/venus/workouts/${workoutId}/exercise`, {
+                    method: 'POST',
+                    body: JSON.stringify(exerciseData)
+                });
+                
+                console.log('✅ Exercise logged');
+                
+                // Step 3: Complete workout
+                console.log('✅ Completing workout...');
+                const duration = parseInt(document.getElementById('workout-duration').value) || 30;
+                const completeData = {
+                    endTime: new Date().toISOString(),
+                    duration: duration,
+                    notes: document.getElementById('workout-notes').value
+                };
+                
+                await fetchAPI(`/venus/workouts/${workoutId}/complete`, {
+                    method: 'POST',
+                    body: JSON.stringify(completeData)
+                });
+                
+                console.log('✅ Workout completed successfully!');
+                
+                // Show success
+                phoenix.showNotification('Workout Logged', `${exerciseData.exerciseName} - ${duration} minutes`);
+                
+                // Close modal
+                closeWorkoutModal();
+                
+            } catch (error) {
+                console.error('❌ Workout logging error:', error);
+                phoenix.showNotification('Error', 'Failed to log workout. Check console for details.');
+            } finally {
+                form.style.display = 'block';
+                loading.style.display = 'none';
+            }
+        };
+
+        /**
+         * MEAL LOGGING FUNCTIONS
+         */
+        window.openMealModal = function() {
+            document.getElementById('meal-modal').style.display = 'flex';
+        };
+
+        window.closeMealModal = function() {
+            document.getElementById('meal-modal').style.display = 'none';
+            document.getElementById('meal-form').reset();
+        };
+
+        window.submitMeal = async function(event) {
+            event.preventDefault();
+            
+            const form = document.getElementById('meal-form');
+            const loading = document.getElementById('meal-loading');
+            
+            // Show loading
+            form.style.display = 'none';
+            loading.style.display = 'block';
+            
+            try {
+                console.log('🍽️ Logging meal...');
+                
+                const mealData = {
+                    mealType: document.getElementById('meal-type').value,
+                    foodName: document.getElementById('meal-name').value,
+                    macros: {
+                        protein: parseFloat(document.getElementById('meal-protein').value) || 0,
+                        carbs: parseFloat(document.getElementById('meal-carbs').value) || 0,
+                        fats: parseFloat(document.getElementById('meal-fats').value) || 0
+                    },
+                    calories: parseInt(document.getElementById('meal-calories').value) || 0,
+                    notes: document.getElementById('meal-notes').value,
+                    timestamp: new Date().toISOString()
+                };
+                
+                const response = await fetchAPI('/venus/nutrition/log', {
+                    method: 'POST',
+                    body: JSON.stringify(mealData)
+                });
+                
+                if (response.success) {
+                    console.log('✅ Meal logged successfully!');
+                    const totalCals = mealData.calories || 
+                        (mealData.macros.protein * 4 + mealData.macros.carbs * 4 + mealData.macros.fats * 9);
+                    
+                    phoenix.showNotification('Meal Logged', `${mealData.foodName} - ${Math.round(totalCals)} cal`);
+                    closeMealModal();
+                } else {
+                    throw new Error(response.error || 'Failed to log meal');
+                }
+                
+            } catch (error) {
+                console.error('❌ Meal logging error:', error);
+                phoenix.showNotification('Error', 'Failed to log meal. Check console for details.');
+            } finally {
+                form.style.display = 'block';
+                loading.style.display = 'none';
+            }
         };
 
         /**
