@@ -1065,17 +1065,105 @@
         <div class="loading-spinner"></div>
     </div>
 
-    <!-- API Client -->
-    <script src="/src/phoenix-api-client.js"></script>
-    
     <script>
+        /**
+         * PHOENIX ONBOARDING - REAL API INTEGRATION
+         * 
+         * This version uses the actual backend API endpoints:
+         * - POST /api/auth/register - Create account
+         * - POST /api/sms-verification/send-verification - Send SMS code
+         * - POST /api/sms-verification/verify-code - Verify phone
+         * - POST /api/sms-verification/resend-code - Resend verification
+         * - POST /api/tts/generate - Text-to-speech
+         * - POST /api/mercury/devices/:provider/connect - Device integration
+         * - POST /api/mars/goals - Goal creation
+         * 
+         * Backend: https://pal-backend-production.up.railway.app
+         * Frontend: https://phoenix-fe-kappa.vercel.app
+         */
+        
         // Configuration
         const API_BASE_URL = 'https://pal-backend-production.up.railway.app/api';
         const API_URL = 'https://pal-backend-production.up.railway.app';
-        const OPENAI_API_KEY = 'YOUR_OPENAI_API_KEY'; // TODO: Move to backend
         
-        // Initialize API Client
-        const api = new PhoenixAPIClient(API_BASE_URL);
+        // API Helper Functions
+        const api = {
+            authToken: null,
+            
+            setAuthToken(token) {
+                this.authToken = token;
+                localStorage.setItem('phoenixToken', token);
+            },
+            
+            async request(endpoint, options = {}) {
+                const headers = {
+                    'Content-Type': 'application/json',
+                    ...options.headers
+                };
+                
+                if (this.authToken) {
+                    headers['Authorization'] = `Bearer ${this.authToken}`;
+                }
+                
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                    ...options,
+                    headers
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.message || `HTTP ${response.status}`);
+                }
+                
+                return data;
+            },
+            
+            auth: {
+                async register(userData) {
+                    return await api.request('/auth/register', {
+                        method: 'POST',
+                        body: JSON.stringify(userData)
+                    });
+                },
+                
+                async verify(data) {
+                    return await api.request('/sms-verification/verify-code', {
+                        method: 'POST',
+                        body: JSON.stringify(data)
+                    });
+                },
+                
+                async resendVerification(data) {
+                    return await api.request('/sms-verification/resend-code', {
+                        method: 'POST',
+                        body: JSON.stringify(data)
+                    });
+                }
+            },
+            
+            mercury: {
+                devices: {
+                    async connect(provider) {
+                        const response = await api.request(`/mercury/devices/${provider}/connect`, {
+                            method: 'POST'
+                        });
+                        return response.connectUrl || response.url;
+                    }
+                }
+            },
+            
+            mars: {
+                goals: {
+                    async create(goalData) {
+                        return await api.request('/mars/goals', {
+                            method: 'POST',
+                            body: JSON.stringify(goalData)
+                        });
+                    }
+                }
+            }
+        };
         
         // State
         let currentPhase = 0;
@@ -1137,9 +1225,34 @@
                     throw new Error('TTS generation failed');
                 }
 
-                // Get audio blob
-                const audioBlob = await response.blob();
-                const audioUrl = URL.createObjectURL(audioBlob);
+                // Check content type to determine response format
+                const contentType = response.headers.get('content-type');
+                let audioUrl;
+                
+                if (contentType && contentType.includes('application/json')) {
+                    // Handle JSON response with base64 audio
+                    const data = await response.json();
+                    if (data.audio) {
+                        // Convert base64 to blob
+                        const audioData = atob(data.audio);
+                        const arrayBuffer = new ArrayBuffer(audioData.length);
+                        const view = new Uint8Array(arrayBuffer);
+                        for (let i = 0; i < audioData.length; i++) {
+                            view[i] = audioData.charCodeAt(i);
+                        }
+                        const audioBlob = new Blob([arrayBuffer], { type: 'audio/mpeg' });
+                        audioUrl = URL.createObjectURL(audioBlob);
+                    } else if (data.url) {
+                        // Use provided URL
+                        audioUrl = data.url;
+                    } else {
+                        throw new Error('No audio data in response');
+                    }
+                } else {
+                    // Handle blob response
+                    const audioBlob = await response.blob();
+                    audioUrl = URL.createObjectURL(audioBlob);
+                }
 
                 // Play audio
                 currentAudio = new Audio(audioUrl);
@@ -1429,9 +1542,29 @@
                     voice: userData.voice
                 });
 
-                userData.authToken = response.token;
-                api.setAuthToken(response.token);
-                localStorage.setItem('phoenixToken', response.token);
+                // Extract token from response (handle different response structures)
+                const token = response.token || response.data?.token;
+                if (token) {
+                    userData.authToken = token;
+                    api.setAuthToken(token);
+                    localStorage.setItem('phoenixToken', token);
+                }
+                
+                // Send verification code
+                try {
+                    await fetch(`${API_BASE_URL}/sms-verification/send-verification`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': token ? `Bearer ${token}` : ''
+                        },
+                        body: JSON.stringify({
+                            phone: userData.profile.phone
+                        })
+                    });
+                } catch (verifyError) {
+                    console.log('Verification send error (non-fatal):', verifyError);
+                }
 
                 showLoading(false);
                 showToast('ACCOUNT CREATED SUCCESSFULLY', 'success');
@@ -1572,9 +1705,19 @@
                     showLoading(true);
                     
                     try {
-                        const connectUrl = await api.mercury.devices.connect(device);
+                        const response = await api.request(`/mercury/devices/${device}/connect`, {
+                            method: 'POST'
+                        });
+                        
+                        // Get the auth URL from response
+                        const authUrl = response.authUrl || response.connectUrl || response.url;
+                        
+                        if (!authUrl) {
+                            throw new Error('No authorization URL received');
+                        }
+                        
                         localStorage.setItem('phoenixOnboardingData', JSON.stringify(userData));
-                        window.location.href = connectUrl.authUrl;
+                        window.location.href = authUrl;
                     } catch (error) {
                         showLoading(false);
                         console.error('Device connection error:', error);
@@ -1657,7 +1800,8 @@
             phoenixSpeak(welcomeMessages[userData.language] || welcomeMessages['en'], 7);
             
             setTimeout(() => {
-                window.location.href = '/index.html';
+                // Redirect to main app
+                window.location.href = 'https://phoenix-fe-kappa.vercel.app';
             }, 3000);
         }
 
