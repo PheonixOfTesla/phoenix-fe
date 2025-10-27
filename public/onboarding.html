@@ -703,7 +703,7 @@
         // DATA LOADING
         // ============================================
         async function loadLanguages() {
-            // Use hardcoded languages since /api/onboarding/languages doesn't exist yet
+            // Use hardcoded languages - no API call needed
             const defaultLanguages = [
                 { code: 'en', name: 'English', flag: '🇺🇸' },
                 { code: 'es', name: 'Español', flag: '🇪🇸' },
@@ -724,23 +724,24 @@
 
         async function loadDevices() {
             try {
-                // Get list of connected devices
-                const response = await fetch(`${API_BASE}/wearables/connections`, {
+                // Get list of connected devices from Mercury
+                const response = await fetch(`${API_BASE}/mercury/devices`, {
                     headers: getAuthHeaders()
                 });
 
                 let connectedProviders = [];
                 if (response.ok) {
                     const data = await response.json();
-                    connectedProviders = data.connections?.map(c => c.provider) || [];
+                    // Mercury returns {success: true, devices: [...]}
+                    connectedProviders = data.devices?.map(d => d.provider) || [];
                 }
 
                 // Render all available devices
                 renderDevices([
                     { id: 'fitbit', name: 'Fitbit/Google', icon: '⌚', connected: connectedProviders.includes('fitbit') },
                     { id: 'polar', name: 'Polar', icon: '🏃', connected: connectedProviders.includes('polar') },
-                    { id: 'applehealth', name: 'Apple Health', icon: '❤️', connected: connectedProviders.includes('applehealth') },
-                    { id: 'whoop', name: 'WHOOP', icon: '💪', connected: connectedProviders.includes('whoop') }
+                    { id: 'apple', name: 'Apple Health', icon: '❤️', connected: connectedProviders.includes('apple'), disabled: true },
+                    { id: 'whoop', name: 'WHOOP', icon: '💪', connected: connectedProviders.includes('whoop'), disabled: true }
                 ]);
 
                 // Update global connected devices list
@@ -751,8 +752,11 @@
                 renderDevices([
                     { id: 'fitbit', name: 'Fitbit/Google', icon: '⌚', connected: false },
                     { id: 'polar', name: 'Polar', icon: '🏃', connected: false },
-                    { id: 'applehealth', name: 'Apple Health', icon: '❤️', connected: false },
-                    { id: 'whoop', name: 'WHOOP', icon: '💪', connected: false }
+                    { id: 'apple', name: 'Apple Health', icon: '❤️', connected: false, disabled: true },
+                    { id: 'whoop', name: 'WHOOP', icon: '💪', connected: false, disabled: true }
+                ]);
+            }
+        }
                 ]);
             }
         }
@@ -969,33 +973,62 @@
 
         async function connectDevice(deviceId) {
             try {
+                console.log(`[Connect] Attempting to connect ${deviceId}...`);
                 showToast(`Connecting to ${deviceId}...`, 'success');
 
-                // Call backend to initiate OAuth - it returns the authUrl
-                const response = await fetch(`${API_BASE}/wearables/connect/${deviceId}`, {
+                const token = getAuthToken();
+                if (!token) {
+                    throw new Error('You must be logged in to connect devices');
+                }
+
+                // Call Mercury endpoint to initiate OAuth
+                const url = `${API_BASE}/mercury/devices/${deviceId}/connect`;
+                console.log(`[Connect] Calling: ${url}`);
+
+                const response = await fetch(url, {
                     method: 'POST',
-                    headers: getAuthHeaders()
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
                 });
 
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.error || `Failed to connect ${deviceId}`);
+                console.log(`[Connect] Response status: ${response.status}`);
+
+                if (response.status === 404) {
+                    throw new Error(`${deviceId} integration is not configured. Please check Mercury routes.`);
                 }
 
-                const { authUrl } = await response.json();
+                if (response.status === 401) {
+                    throw new Error('Authentication failed. Please log in again.');
+                }
+
+                if (response.status === 501) {
+                    const error = await response.json();
+                    throw new Error(error.message || `${deviceId} is not available yet`);
+                }
+
+                if (!response.ok) {
+                    const error = await response.json().catch(() => ({}));
+                    throw new Error(error.message || `Failed to connect ${deviceId} (${response.status})`);
+                }
+
+                const data = await response.json();
+                console.log(`[Connect] Response data:`, data);
+
+                const { authUrl } = data;
 
                 if (!authUrl) {
-                    throw new Error('No authorization URL received');
+                    throw new Error('No authorization URL received from backend');
                 }
 
-                console.log(`[OAuth] Redirecting to ${deviceId} authorization...`);
+                console.log(`[Connect] Redirecting to OAuth provider...`);
                 
                 // Redirect to provider's OAuth page
-                // Provider will redirect back to /fitbit, /polar, etc.
                 window.location.href = authUrl;
 
             } catch (error) {
-                console.error(`Error connecting ${deviceId}:`, error);
+                console.error(`[Connect] Error connecting ${deviceId}:`, error);
                 showToast(error.message || `Could not connect ${deviceId}`, 'error');
             }
         }
