@@ -106,11 +106,25 @@
             
             console.log(`[Fitbit Callback] Calling: ${API_BASE}/mercury/devices/fitbit/exchange`);
             
+            // Get auth token from localStorage
+            const token = localStorage.getItem('token') || localStorage.getItem('phoenixToken');
+            
+            if (!token) {
+                console.error('[Fitbit Callback] No authentication token found');
+                statusEl.className = 'error';
+                statusEl.textContent = '❌ Authentication required. Please log in first.';
+                setTimeout(() => {
+                    window.location.href = '/login.html';
+                }, 2000);
+                return;
+            }
+            
             // Mercury expects POST with code and state in body
             fetch(`${API_BASE}/mercury/devices/fitbit/exchange`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ code, state })
             })
