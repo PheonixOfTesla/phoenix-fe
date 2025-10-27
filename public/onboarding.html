@@ -757,9 +757,6 @@
                 ]);
             }
         }
-                ]);
-            }
-        }
 
         async function loadVoices() {
             try {
@@ -1225,24 +1222,24 @@
                 // return;
             }
 
+            // Show Phase 0 immediately (don't wait for data)
+            showPhase(0);
+
             // Check for OAuth callback
             checkOAuthCallback();
 
-            // Load initial data
+            // Load initial data gracefully (each function has its own error handling)
             try {
-                await Promise.all([
-                    loadLanguages(),
-                    loadVoices(),
-                    loadDevices()
-                ]);
+                // Load each independently so one failure doesn't block others
+                await loadLanguages().catch(err => console.error('Languages load failed:', err));
+                await loadVoices().catch(err => console.error('Voices load failed:', err));
+                await loadDevices().catch(err => console.error('Devices load failed:', err));
                 
-                console.log('✅ Onboarding data loaded successfully');
+                console.log('✅ Onboarding initialization complete');
             } catch (error) {
-                console.error('Error loading onboarding data:', error);
+                console.error('Error during initialization:', error);
+                // Page will still be functional with fallback data
             }
-
-            // Show Phase 0 (setup)
-            showPhase(0);
         })();
     </script>
 </body>
