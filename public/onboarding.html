@@ -1576,10 +1576,23 @@
             showLoading(true);
 
             try {
+                // Backend requires email, so generate from phone
+                const phoneDigits = userData.profile.phone.replace(/\D/g, '');
+                const email = `${phoneDigits}@phoenix-temp.com`;
+                
+                console.log('[Registration] Submitting:', {
+                    name: userData.profile.name,
+                    email: email,
+                    phone: userData.profile.phone,
+                    language: userData.language,
+                    voice: userData.voice
+                });
+                
                 const response = await api.auth.register({
+                    name: userData.profile.name,
+                    email: email,
                     phone: userData.profile.phone,
                     password: userData.profile.password,
-                    name: userData.profile.name,
                     language: userData.language,
                     voice: userData.voice
                 });
@@ -1631,8 +1644,9 @@
 
             } catch (error) {
                 showLoading(false);
-                console.error('Registration error:', error);
-                showToast('ACCOUNT CREATION FAILED', 'error');
+                console.error('[Registration] Error:', error);
+                const errorMessage = error.message || 'Account creation failed';
+                showToast(errorMessage.toUpperCase(), 'error');
             }
         }
 
