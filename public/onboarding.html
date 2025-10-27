@@ -754,7 +754,7 @@
 
         async function loadVoices() {
             try {
-                const response = await fetch(`${API_BASE}/voice/available`, {
+                const response = await fetch(`${API_BASE}/tts/voices`, {
                     headers: getAuthHeaders()
                 });
 
@@ -762,19 +762,20 @@
                     throw new Error('Failed to load voices');
                 }
 
-                const voices = await response.json();
+                const data = await response.json();
+                const voices = data.voices || data;
                 renderVoices(voices);
             } catch (error) {
                 console.error('Error loading voices:', error);
                 showToast('Could not load voices. Using defaults.', 'error');
                 // Fallback to default voices
                 renderVoices([
-                    { id: 'alloy', name: 'Alloy', description: 'Neutral and balanced', gender: 'neutral' },
-                    { id: 'echo', name: 'Echo', description: 'Warm and friendly', gender: 'male' },
-                    { id: 'fable', name: 'Fable', description: 'Expressive and engaging', gender: 'male' },
-                    { id: 'onyx', name: 'Onyx', description: 'Deep and authoritative', gender: 'male' },
-                    { id: 'nova', name: 'Nova', description: 'Bright and energetic', gender: 'female' },
-                    { id: 'shimmer', name: 'Shimmer', description: 'Soft and gentle', gender: 'female' }
+                    { id: 'alloy', name: 'Alloy', description: 'Neutral and balanced' },
+                    { id: 'echo', name: 'Echo', description: 'British male - warm and friendly' },
+                    { id: 'fable', name: 'Fable', description: 'British storyteller - expressive' },
+                    { id: 'onyx', name: 'Onyx', description: 'Deep male - authoritative' },
+                    { id: 'nova', name: 'Nova', description: 'Warm female - recommended' },
+                    { id: 'shimmer', name: 'Shimmer', description: 'Gentle female - soft and caring' }
                 ]);
             }
         }
@@ -795,13 +796,17 @@
 
         function renderVoices(voices) {
             const grid = document.getElementById('voiceGrid');
+            
+            // Get current language name for button text
+            const langName = LANGUAGE_NAMES[selectedLanguage] || selectedLanguage.toUpperCase();
+            
             grid.innerHTML = voices.map(voice => `
                 <div class="voice-card" onclick="selectVoice('${voice.id}')">
                     <div class="voice-name">${voice.name}</div>
                     <div class="voice-description">${voice.description}</div>
                     <button class="preview-btn" 
                             onclick="event.stopPropagation(); previewVoice('${voice.id}')">
-                        🔊 Preview Voice
+                        🔊 Preview in ${langName}
                     </button>
                 </div>
             `).join('');
@@ -833,6 +838,15 @@
             });
             event.currentTarget.classList.add('selected');
 
+            // Update preview button text to show selected language
+            const langName = LANGUAGE_NAMES[code] || code.toUpperCase();
+            
+            document.querySelectorAll('.preview-btn').forEach(btn => {
+                if (!btn.disabled && !btn.textContent.includes('Loading') && !btn.textContent.includes('Playing')) {
+                    btn.textContent = `🔊 Preview in ${langName}`;
+                }
+            });
+
             // Enable continue button if voice is also selected
             updateContinueButton();
         }
@@ -850,9 +864,41 @@
             updateContinueButton();
         }
 
+        // Preview text in different languages
+        const PREVIEW_TEXTS = {
+            'en': 'Hello. I am Phoenix, your AI companion.',
+            'es': 'Hola. Soy Phoenix, tu compañero de inteligencia artificial.',
+            'fr': 'Bonjour. Je suis Phoenix, votre compagnon IA.',
+            'de': 'Hallo. Ich bin Phoenix, Ihr KI-Begleiter.',
+            'it': 'Ciao. Sono Phoenix, il tuo compagno AI.',
+            'pt': 'Olá. Eu sou Phoenix, seu companheiro de IA.',
+            'zh': '你好。我是Phoenix，你的AI伴侣。',
+            'ja': 'こんにちは。私はPhoenixです、あなたのAIコンパニオンです。',
+            'ko': '안녕하세요. 저는 Phoenix입니다, 당신의 AI 동반자입니다.',
+            'ar': 'مرحبا. أنا Phoenix، رفيقك في الذكاء الاصطناعي.',
+            'hi': 'नमस्ते। मैं Phoenix हूं, आपका AI साथी।',
+            'ru': 'Привет. Я Phoenix, ваш AI-компаньон.'
+        };
+
+        const LANGUAGE_NAMES = {
+            'en': 'English',
+            'es': 'Spanish', 
+            'fr': 'French',
+            'de': 'German',
+            'it': 'Italian',
+            'pt': 'Portuguese',
+            'zh': 'Chinese',
+            'ja': 'Japanese',
+            'ko': 'Korean',
+            'ar': 'Arabic',
+            'hi': 'Hindi',
+            'ru': 'Russian'
+        };
+
         async function previewVoice(voiceId) {
             const button = event.currentTarget;
-            const originalText = button.textContent;
+            const langName = LANGUAGE_NAMES[selectedLanguage] || selectedLanguage.toUpperCase();
+            const originalText = `🔊 Preview in ${langName}`;
             
             try {
                 // Stop any playing audio
@@ -865,19 +911,28 @@
                 button.textContent = '⏳ Loading...';
                 button.disabled = true;
 
-                // Request preview from backend
-                const response = await fetch(`${API_BASE}/voice/speak`, {
+                // Get preview text in selected language
+                const previewText = PREVIEW_TEXTS[selectedLanguage] || PREVIEW_TEXTS['en'];
+
+                console.log(`[Preview] Generating ${voiceId} voice in ${selectedLanguage}: "${previewText}"`);
+
+                // Request preview from backend using correct TTS endpoint
+                const response = await fetch(`${API_BASE}/tts/generate`, {
                     method: 'POST',
-                    headers: getAuthHeaders(),
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...getAuthHeaders()
+                    },
                     body: JSON.stringify({
-                        text: 'Hello. I am Phoenix, your AI companion.',
+                        text: previewText,
                         voice: voiceId,
-                        speed: 1.0
+                        speed: 1.0,
+                        model: 'tts-1'
                     })
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to generate voice preview');
+                    throw new Error(`TTS failed: ${response.status}`);
                 }
 
                 // Play audio
@@ -888,6 +943,12 @@
                 previewAudio.onended = () => {
                     button.textContent = originalText;
                     button.disabled = false;
+                };
+
+                previewAudio.onerror = () => {
+                    button.textContent = originalText;
+                    button.disabled = false;
+                    showToast('Error playing audio', 'error');
                 };
 
                 await previewAudio.play();
