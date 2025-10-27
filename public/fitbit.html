@@ -74,13 +74,22 @@
     </div>
 
     <script>
+        const API_BASE = window.location.hostname === 'localhost' 
+            ? 'http://localhost:5000/api' 
+            : 'https://pal-backend-production.up.railway.app/api';
+        
         const statusEl = document.getElementById('status');
         
         // Get authorization code from URL
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get('code');
+        const state = urlParams.get('state');
         const error = urlParams.get('error');
         const errorDescription = urlParams.get('error_description');
+
+        console.log('[Fitbit Callback] Code:', code ? 'present' : 'missing');
+        console.log('[Fitbit Callback] State:', state);
+        console.log('[Fitbit Callback] Error:', error);
 
         if (error) {
             // OAuth error from Fitbit
@@ -88,68 +97,64 @@
             statusEl.textContent = `Authorization failed: ${errorDescription || error}`;
             
             setTimeout(() => {
-                window.location.href = '/';
+                window.location.href = '/onboarding.html?device=fitbit&status=error';
             }, 3000);
             
         } else if (code) {
-            // Success - send code to backend
+            // Success - call backend callback endpoint
             statusEl.textContent = 'Exchanging authorization code...';
             
-            fetch('https://pal-backend-production.up.railway.app/api/wearables/fitbit/exchange', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ code })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    statusEl.className = 'success';
-                    statusEl.textContent = '✅ Fitbit connected successfully!';
-                    
-                    // Notify main window if opened as popup
-                    if (window.opener) {
-                        window.opener.postMessage({ 
-                            type: 'fitbit_connected',
-                            success: true 
-                        }, '*');
-                    }
-                    
-                    // Redirect back to main app after 2 seconds
-                    setTimeout(() => {
-                        if (window.opener) {
-                            window.close();
-                        } else {
-                            window.location.href = '/';
-                        }
-                    }, 2000);
-                    
-                } else {
-                    statusEl.className = 'error';
-                    statusEl.textContent = `❌ Connection failed: ${data.message || 'Unknown error'}`;
-                    
-                    setTimeout(() => {
-                        window.location.href = '/';
-                    }, 3000);
+            console.log(`[Fitbit Callback] Calling: ${API_BASE}/wearables/callback/fitbit`);
+            
+            // Backend expects GET request with query params
+            fetch(`${API_BASE}/wearables/callback/fitbit?code=${code}&state=${state}`)
+            .then(async res => {
+                console.log('[Fitbit Callback] Response status:', res.status);
+                
+                if (!res.ok) {
+                    const errorData = await res.text();
+                    console.error('[Fitbit Callback] Error:', errorData);
+                    throw new Error(`Backend returned ${res.status}`);
                 }
+                
+                // Backend processes the callback
+                statusEl.className = 'success';
+                statusEl.textContent = '✅ Fitbit connected successfully!';
+                
+                console.log('[Fitbit Callback] Success! Redirecting to onboarding...');
+                
+                // Notify onboarding page via postMessage
+                if (window.opener) {
+                    window.opener.postMessage({ 
+                        type: 'oauth_success',
+                        device: 'fitbit',
+                        status: 'connected'
+                    }, window.location.origin);
+                }
+                
+                // Redirect back to onboarding
+                setTimeout(() => {
+                    window.location.href = '/onboarding.html?device=fitbit&status=connected';
+                }, 1500);
             })
             .catch(error => {
+                console.error('[Fitbit Callback] Fetch error:', error);
                 statusEl.className = 'error';
-                statusEl.textContent = `❌ Network error: ${error.message}`;
+                statusEl.textContent = `❌ Connection failed: ${error.message}`;
                 
                 setTimeout(() => {
-                    window.location.href = '/';
+                    window.location.href = '/onboarding.html?device=fitbit&status=error';
                 }, 3000);
             });
             
         } else {
             // No code or error - shouldn't happen
+            console.error('[Fitbit Callback] No code or error in URL');
             statusEl.className = 'error';
             statusEl.textContent = '❌ No authorization code received from Fitbit';
             
             setTimeout(() => {
-                window.location.href = '/';
+                window.location.href = '/onboarding.html';
             }, 3000);
         }
     </script>
