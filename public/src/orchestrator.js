@@ -404,13 +404,9 @@ class PhoenixOrchestrator {
             // Real-world: "Is this token still valid? Who is this user?"
             // Request headers: { Authorization: "Bearer abc123..." }
             // Expected response: { id: '123', name: 'Alex', email: 'alex@example.com', ... }
-            const response = await fetch('/api/auth/me', {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
+            // Use the API client which has correct base URL
+const userData = await window.API.getMe();
+return true; // Token is valid if this succeeds
             
             if (response.ok) {
                 const userData = await response.json();
