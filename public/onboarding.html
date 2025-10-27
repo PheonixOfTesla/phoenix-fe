@@ -787,10 +787,15 @@
                 <p class="phase-subtitle">CHOOSE YOUR PREFERRED LANGUAGE</p>
             </div>
             <div class="selection-grid" id="languageGrid">
-                <div class="selection-card" data-lang="en" data-name="English">
+                <div class="selection-card" data-lang="en-GB" data-name="British English">
+                    <div class="icon">🇬🇧</div>
+                    <div class="title">ENGLISH</div>
+                    <div class="subtitle">British</div>
+                </div>
+                <div class="selection-card" data-lang="en-US" data-name="American English">
                     <div class="icon">🇺🇸</div>
                     <div class="title">ENGLISH</div>
-                    <div class="subtitle">United States</div>
+                    <div class="subtitle">American</div>
                 </div>
                 <div class="selection-card" data-lang="es" data-name="Spanish">
                     <div class="icon">🇪🇸</div>
@@ -806,6 +811,41 @@
                     <div class="icon">🇩🇪</div>
                     <div class="title">DEUTSCH</div>
                     <div class="subtitle">German</div>
+                </div>
+                <div class="selection-card" data-lang="it" data-name="Italian">
+                    <div class="icon">🇮🇹</div>
+                    <div class="title">ITALIANO</div>
+                    <div class="subtitle">Italian</div>
+                </div>
+                <div class="selection-card" data-lang="pt" data-name="Portuguese">
+                    <div class="icon">🇵🇹</div>
+                    <div class="title">PORTUGUÊS</div>
+                    <div class="subtitle">Portuguese</div>
+                </div>
+                <div class="selection-card" data-lang="nl" data-name="Dutch">
+                    <div class="icon">🇳🇱</div>
+                    <div class="title">NEDERLANDS</div>
+                    <div class="subtitle">Dutch</div>
+                </div>
+                <div class="selection-card" data-lang="pl" data-name="Polish">
+                    <div class="icon">🇵🇱</div>
+                    <div class="title">POLSKI</div>
+                    <div class="subtitle">Polish</div>
+                </div>
+                <div class="selection-card" data-lang="ru" data-name="Russian">
+                    <div class="icon">🇷🇺</div>
+                    <div class="title">РУССКИЙ</div>
+                    <div class="subtitle">Russian</div>
+                </div>
+                <div class="selection-card" data-lang="ja" data-name="Japanese">
+                    <div class="icon">🇯🇵</div>
+                    <div class="title">日本語</div>
+                    <div class="subtitle">Japanese</div>
+                </div>
+                <div class="selection-card" data-lang="zh" data-name="Chinese">
+                    <div class="icon">🇨🇳</div>
+                    <div class="title">中文</div>
+                    <div class="subtitle">Chinese</div>
                 </div>
             </div>
             <div class="button-group">
@@ -847,6 +887,18 @@
                     <div class="title">SHIMMER</div>
                     <div class="subtitle">Gentle Guide</div>
                     <button class="voice-preview-btn" onclick="previewVoice('shimmer', event)">▶ PREVIEW</button>
+                </div>
+                <div class="selection-card" data-voice="alloy">
+                    <div class="icon">⚡</div>
+                    <div class="title">ALLOY</div>
+                    <div class="subtitle">Neutral Balanced</div>
+                    <button class="voice-preview-btn" onclick="previewVoice('alloy', event)">▶ PREVIEW</button>
+                </div>
+                <div class="selection-card" data-voice="fable">
+                    <div class="icon">📖</div>
+                    <div class="title">FABLE</div>
+                    <div class="subtitle">Storyteller</div>
+                    <button class="voice-preview-btn" onclick="previewVoice('fable', event)">▶ PREVIEW</button>
                 </div>
             </div>
             <div class="button-group">
@@ -1032,9 +1084,9 @@
         // State
         let currentPhase = 0;
         let userData = {
-            language: '',
-            languageName: '',
-            voice: '',
+            language: 'en-GB',
+            languageName: 'British English',
+            voice: 'echo',
             profile: {},
             authToken: null,
             devices: [],
@@ -1080,8 +1132,8 @@
                     },
                     body: JSON.stringify({
                         text: text,
-                        voice: userData.voice || 'nova',
-                        language: userData.language || 'en'
+                        voice: userData.voice || 'echo',
+                        language: userData.language || 'en-GB'
                     })
                 });
 
@@ -1108,8 +1160,7 @@
 
             } catch (error) {
                 console.error('TTS Error:', error);
-                // Fallback to browser TTS if API fails
-                fallbackSpeak(text);
+                showToast('VOICE SYNTHESIS FAILED', 'error');
                 if (avatar) avatar.classList.remove('speaking');
                 if (status) {
                     status.classList.remove('speaking');
@@ -1118,15 +1169,6 @@
             }
         }
 
-        /**
-         * Fallback to browser speech synthesis
-         */
-        function fallbackSpeak(text) {
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 0.95;
-            utterance.pitch = 1.0;
-            window.speechSynthesis.speak(utterance);
-        }
 
         /**
          * Start onboarding
@@ -1187,7 +1229,9 @@
                 'nova': "Hello. I'm Nova, your friendly helper.",
                 'echo': "Good day. I'm Echo, your butler.",
                 'onyx': "Hello. I'm Onyx, professional assistant.",
-                'shimmer': "Hi there. I'm Shimmer, your gentle guide."
+                'shimmer': "Hi there. I'm Shimmer, your gentle guide.",
+                'alloy': "Hello. I'm Alloy, your balanced assistant.",
+                'fable': "Greetings. I'm Fable, your storytelling companion."
             };
             
             // Stop current audio
@@ -1205,7 +1249,7 @@
                     body: JSON.stringify({
                         text: samples[voice],
                         voice: voice,
-                        language: userData.language || 'en'
+                        language: userData.language
                     })
                 });
 
@@ -1224,7 +1268,7 @@
 
             } catch (error) {
                 console.error('Preview error:', error);
-                fallbackSpeak(samples[voice]);
+                showToast('VOICE PREVIEW FAILED', 'error');
             }
         }
 
