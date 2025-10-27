@@ -1228,6 +1228,20 @@
          * Voice Selection
          */
         function setupVoiceSelection() {
+            const continueMessages = {
+                'en': "Perfect. From now on, this is how I'll sound. Now let's create your account.",
+                'es': 'Perfecto. De ahora en adelante, así es como sonaré. Ahora creemos tu cuenta.',
+                'fr': "Parfait. À partir de maintenant, c'est ainsi que je sonnerai. Créons maintenant votre compte.",
+                'de': 'Perfekt. Von nun an werde ich so klingen. Lassen Sie uns nun Ihr Konto erstellen.',
+                'it': 'Perfetto. D\'ora in poi, suonerò così. Ora creiamo il tuo account.',
+                'pt': 'Perfeito. De agora em diante, é assim que vou soar. Agora vamos criar sua conta.',
+                'nl': 'Perfect. Vanaf nu klink ik zo. Laten we nu je account aanmaken.',
+                'pl': 'Doskonale. Od teraz tak będę brzmieć. Teraz utwórzmy twoje konto.',
+                'ru': 'Отлично. Отныне я буду звучать так. Теперь давайте создадим вашу учетную запись.',
+                'ja': '完璧です。今後はこのように聞こえます。それでは、アカウントを作成しましょう。',
+                'zh': '完美。从现在开始，我会这样说话。现在让我们创建您的帐户。'
+            };
+
             document.querySelectorAll('#voiceGrid .selection-card').forEach(card => {
                 card.addEventListener('click', () => {
                     document.querySelectorAll('#voiceGrid .selection-card').forEach(c => c.classList.remove('selected'));
@@ -1238,7 +1252,7 @@
             });
             
             document.getElementById('nextPhase2').addEventListener('click', () => {
-                phoenixSpeak("Perfect. From now on, this is how I'll sound. Now let's create your account.", 2);
+                phoenixSpeak(continueMessages[userData.language] || continueMessages['en'], 2);
                 setTimeout(() => nextPhase(), 4000);
             });
         }
@@ -1422,7 +1436,21 @@
                 showLoading(false);
                 showToast('ACCOUNT CREATED SUCCESSFULLY', 'success');
                 
-                phoenixSpeak(`Great. I just sent a verification code to ${userData.profile.phone}. Can you enter it for me?`, 3);
+                const verificationMessages = {
+                    'en': `Great. I just sent a verification code to ${userData.profile.phone}. Can you enter it for me?`,
+                    'es': `Excelente. Acabo de enviar un código de verificación a ${userData.profile.phone}. ¿Puedes ingresarlo por mí?`,
+                    'fr': `Parfait. Je viens d'envoyer un code de vérification au ${userData.profile.phone}. Pouvez-vous le saisir pour moi?`,
+                    'de': `Großartig. Ich habe gerade einen Bestätigungscode an ${userData.profile.phone} gesendet. Können Sie ihn für mich eingeben?`,
+                    'it': `Ottimo. Ho appena inviato un codice di verifica a ${userData.profile.phone}. Puoi inserirlo per me?`,
+                    'pt': `Ótimo. Acabei de enviar um código de verificação para ${userData.profile.phone}. Pode digitá-lo para mim?`,
+                    'nl': `Geweldig. Ik heb zojuist een verificatiecode naar ${userData.profile.phone} gestuurd. Kun je die voor me invoeren?`,
+                    'pl': `Świetnie. Właśnie wysłałem kod weryfikacyjny na ${userData.profile.phone}. Czy możesz go dla mnie wprowadzić?`,
+                    'ru': `Отлично. Я только что отправил код подтверждения на ${userData.profile.phone}. Можете ввести его для меня?`,
+                    'ja': `素晴らしい。${userData.profile.phone}に確認コードを送信しました。入力していただけますか？`,
+                    'zh': `太好了。我刚刚向${userData.profile.phone}发送了验证码。您能为我输入吗？`
+                };
+                
+                phoenixSpeak(verificationMessages[userData.language] || verificationMessages['en'], 3);
                 
                 setTimeout(() => nextPhase(), 4000);
 
@@ -1477,7 +1505,21 @@
                 showLoading(false);
                 showToast('PHONE VERIFIED', 'success');
                 
-                phoenixSpeak("Verified. Now, would you like to connect any wearable devices? This helps me track your health data and provide better insights.", 4);
+                const verifiedMessages = {
+                    'en': "Verified. Now, would you like to connect any wearable devices? This helps me track your health data and provide better insights.",
+                    'es': 'Verificado. Ahora, ¿te gustaría conectar algún dispositivo portátil? Esto me ayuda a rastrear tus datos de salud y proporcionar mejores conocimientos.',
+                    'fr': 'Vérifié. Maintenant, souhaitez-vous connecter des appareils portables? Cela m\'aide à suivre vos données de santé et à fournir de meilleures informations.',
+                    'de': 'Verifiziert. Möchten Sie jetzt tragbare Geräte verbinden? Dies hilft mir, Ihre Gesundheitsdaten zu verfolgen und bessere Einblicke zu geben.',
+                    'it': 'Verificato. Ora, vorresti connettere dispositivi indossabili? Questo mi aiuta a monitorare i tuoi dati sulla salute e fornire informazioni migliori.',
+                    'pt': 'Verificado. Agora, gostaria de conectar dispositivos vestíveis? Isso me ajuda a rastrear seus dados de saúde e fornecer melhores insights.',
+                    'nl': 'Geverifieerd. Wil je nu draagbare apparaten verbinden? Dit helpt me je gezondheidsgegevens bij te houden en betere inzichten te geven.',
+                    'pl': 'Zweryfikowane. Czy chcesz teraz połączyć urządzenia do noszenia? Pomaga mi to śledzić twoje dane zdrowotne i dostarczać lepsze spostrzeżenia.',
+                    'ru': 'Проверено. Теперь хотите подключить носимые устройства? Это помогает мне отслеживать ваши данные о здоровье и предоставлять лучшую информацию.',
+                    'ja': '確認済み。ウェアラブルデバイスを接続しますか？これにより、健康データを追跡し、より良い洞察を提供できます。',
+                    'zh': '已验证。现在您想连接可穿戴设备吗？这可以帮助我追踪您的健康数据并提供更好的见解。'
+                };
+                
+                phoenixSpeak(verifiedMessages[userData.language] || verifiedMessages['en'], 4);
                 
                 setTimeout(() => nextPhase(), 5000);
 
@@ -1492,10 +1534,24 @@
          * Resend Code
          */
         async function resendCode() {
+            const resendMessages = {
+                'en': "I sent a new code to your phone.",
+                'es': 'Envié un nuevo código a tu teléfono.',
+                'fr': 'J\'ai envoyé un nouveau code à votre téléphone.',
+                'de': 'Ich habe einen neuen Code an Ihr Telefon gesendet.',
+                'it': 'Ho inviato un nuovo codice al tuo telefono.',
+                'pt': 'Enviei um novo código para o seu telefone.',
+                'nl': 'Ik heb een nieuwe code naar je telefoon gestuurd.',
+                'pl': 'Wysłałem nowy kod na twój telefon.',
+                'ru': 'Я отправил новый код на ваш телефон.',
+                'ja': '新しいコードを電話に送信しました。',
+                'zh': '我向您的手机发送了新代码。'
+            };
+
             try {
                 await api.auth.resendVerification({ phone: userData.profile.phone });
                 showToast('CODE RESENT', 'success');
-                phoenixSpeak("I sent a new code to your phone.", 4);
+                phoenixSpeak(resendMessages[userData.language] || resendMessages['en'], 4);
             } catch (error) {
                 showToast('RESEND FAILED', 'error');
             }
@@ -1554,7 +1610,22 @@
                     });
 
                     showLoading(false);
-                    phoenixSpeak(`Got it. ${primaryGoal} is an excellent goal. I'll help you track your progress.`, 6);
+                    
+                    const goalMessages = {
+                        'en': `Got it. ${primaryGoal} is an excellent goal. I'll help you track your progress.`,
+                        'es': `Entendido. ${primaryGoal} es un objetivo excelente. Te ayudaré a seguir tu progreso.`,
+                        'fr': `Compris. ${primaryGoal} est un excellent objectif. Je vous aiderai à suivre vos progrès.`,
+                        'de': `Verstanden. ${primaryGoal} ist ein ausgezeichnetes Ziel. Ich helfe Ihnen, Ihren Fortschritt zu verfolgen.`,
+                        'it': `Capito. ${primaryGoal} è un obiettivo eccellente. Ti aiuterò a monitorare i tuoi progressi.`,
+                        'pt': `Entendido. ${primaryGoal} é um objetivo excelente. Vou ajudá-lo a acompanhar seu progresso.`,
+                        'nl': `Begrepen. ${primaryGoal} is een uitstekend doel. Ik zal je helpen je voortgang bij te houden.`,
+                        'pl': `Zrozumiałem. ${primaryGoal} to doskonały cel. Pomogę ci śledzić twoje postępy.`,
+                        'ru': `Понятно. ${primaryGoal} — отличная цель. Я помогу вам отслеживать ваш прогресс.`,
+                        'ja': `了解しました。${primaryGoal}は素晴らしい目標です。進捗を追跡するお手伝いをします。`,
+                        'zh': `明白了。${primaryGoal}是一个很好的目标。我会帮助您跟踪进度。`
+                    };
+                    
+                    phoenixSpeak(goalMessages[userData.language] || goalMessages['en'], 6);
                     
                 } catch (error) {
                     showLoading(false);
@@ -1569,7 +1640,21 @@
          * Launch App
          */
         function launchApp() {
-            phoenixSpeak("Let me show you around your new command center. Welcome aboard.", 7);
+            const welcomeMessages = {
+                'en': "Let me show you around your new command center. Welcome aboard.",
+                'es': 'Déjame mostrarte tu nuevo centro de comando. Bienvenido a bordo.',
+                'fr': 'Laissez-moi vous montrer votre nouveau centre de commandement. Bienvenue à bord.',
+                'de': 'Lassen Sie mich Ihnen Ihr neues Kommandozentrum zeigen. Willkommen an Bord.',
+                'it': 'Lascia che ti mostri il tuo nuovo centro di comando. Benvenuto a bordo.',
+                'pt': 'Deixe-me mostrar seu novo centro de comando. Bem-vindo a bordo.',
+                'nl': 'Laat me je je nieuwe commandocentrum laten zien. Welkom aan boord.',
+                'pl': 'Pozwól, że pokażę ci twoje nowe centrum dowodzenia. Witaj na pokładzie.',
+                'ru': 'Позвольте показать вам ваш новый командный центр. Добро пожаловать на борт.',
+                'ja': '新しいコマンドセンターをご案内します。ようこそ。',
+                'zh': '让我带您参观新的指挥中心。欢迎加入。'
+            };
+
+            phoenixSpeak(welcomeMessages[userData.language] || welcomeMessages['en'], 7);
             
             setTimeout(() => {
                 window.location.href = '/index.html';
