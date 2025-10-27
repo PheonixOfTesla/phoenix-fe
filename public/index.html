@@ -551,7 +551,7 @@
     <!-- WORKOUT LOGGING MODAL -->
     <!-- ============================================ -->
     <div id="workout-modal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.98);display:none;align-items:center;justify-content:center;z-index:10000;overflow-y:auto;padding:20px">
-        <div style="background:linear-gradient(135deg, rgba(0,10,20,0.95), rgba(0,10,20,0.9));border:2px solid rgba(0,255,255,0.5);border-radius:12px;padding:40px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 0 50px rgba(0,255,255,0.3)">
+        <div style="background:linear-gradient(135deg, rgba(0,10,20,0.95), rgba(0,10,20,0.9));border:2px solid rgba(0,255,255,0.5);border-radius:12px;padding:40px;max-width:800px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 0 50px rgba(0,255,255,0.3)">
             <!-- Header -->
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;padding-bottom:20px;border-bottom:1px solid rgba(0,255,255,0.3)">
                 <div style="font-size:28px;color:#00ffff;text-shadow:0 0 20px rgba(0,255,255,1);letter-spacing:3px">💪 LOG WORKOUT</div>
@@ -560,57 +560,43 @@
 
             <!-- Workout Form -->
             <form id="workout-form" onsubmit="submitWorkout(event)">
-                <!-- Workout Type -->
-                <div style="margin-bottom:25px">
-                    <label style="display:block;font-size:12px;color:rgba(0,255,255,0.7);letter-spacing:1px;margin-bottom:8px">WORKOUT TYPE</label>
-                    <select id="workout-type" required style="width:100%;padding:12px 15px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.3);border-radius:6px;color:#00ffff;font-family:inherit;font-size:14px">
-                        <option value="strength">💪 Strength Training</option>
-                        <option value="cardio">🏃 Cardio</option>
-                        <option value="hiit">⚡ HIIT</option>
-                        <option value="yoga">🧘 Yoga</option>
-                        <option value="sports">⚽ Sports</option>
-                        <option value="other">🎯 Other</option>
-                    </select>
-                </div>
-
-                <!-- Exercise Name -->
-                <div style="margin-bottom:25px">
-                    <label style="display:block;font-size:12px;color:rgba(0,255,255,0.7);letter-spacing:1px;margin-bottom:8px">EXERCISE NAME</label>
-                    <input type="text" id="exercise-name" required placeholder="e.g., Bench Press, Running, Squats" style="width:100%;padding:12px 15px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.3);border-radius:6px;color:#00ffff;font-family:inherit;font-size:14px">
-                </div>
-
-                <!-- Sets & Reps -->
+                <!-- Workout Type & Duration -->
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:25px">
                     <div>
-                        <label style="display:block;font-size:12px;color:rgba(0,255,255,0.7);letter-spacing:1px;margin-bottom:8px">SETS</label>
-                        <input type="number" id="workout-sets" min="1" placeholder="3" style="width:100%;padding:12px 15px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.3);border-radius:6px;color:#00ffff;font-family:inherit;font-size:14px">
+                        <label style="display:block;font-size:12px;color:rgba(0,255,255,0.7);letter-spacing:1px;margin-bottom:8px">WORKOUT TYPE</label>
+                        <select id="workout-type" required style="width:100%;padding:12px 15px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.3);border-radius:6px;color:#00ffff;font-family:inherit;font-size:14px">
+                            <option value="strength">💪 Strength Training</option>
+                            <option value="cardio">🏃 Cardio</option>
+                            <option value="hiit">⚡ HIIT</option>
+                            <option value="yoga">🧘 Yoga</option>
+                            <option value="sports">⚽ Sports</option>
+                            <option value="other">🎯 Other</option>
+                        </select>
                     </div>
                     <div>
-                        <label style="display:block;font-size:12px;color:rgba(0,255,255,0.7);letter-spacing:1px;margin-bottom:8px">REPS</label>
-                        <input type="number" id="workout-reps" min="1" placeholder="10" style="width:100%;padding:12px 15px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.3);border-radius:6px;color:#00ffff;font-family:inherit;font-size:14px">
+                        <label style="display:block;font-size:12px;color:rgba(0,255,255,0.7);letter-spacing:1px;margin-bottom:8px">TOTAL DURATION (min)</label>
+                        <input type="number" id="workout-duration" min="1" placeholder="45" required style="width:100%;padding:12px 15px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.3);border-radius:6px;color:#00ffff;font-family:inherit;font-size:14px">
                     </div>
                 </div>
 
-                <!-- Weight & Duration -->
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:25px">
-                    <div>
-                        <label style="display:block;font-size:12px;color:rgba(0,255,255,0.7);letter-spacing:1px;margin-bottom:8px">WEIGHT (lbs)</label>
-                        <input type="number" id="workout-weight" min="0" step="0.5" placeholder="135" style="width:100%;padding:12px 15px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.3);border-radius:6px;color:#00ffff;font-family:inherit;font-size:14px">
-                    </div>
-                    <div>
-                        <label style="display:block;font-size:12px;color:rgba(0,255,255,0.7);letter-spacing:1px;margin-bottom:8px">DURATION (min)</label>
-                        <input type="number" id="workout-duration" min="1" placeholder="45" style="width:100%;padding:12px 15px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.3);border-radius:6px;color:#00ffff;font-family:inherit;font-size:14px">
-                    </div>
+                <!-- Exercises Container -->
+                <div id="exercises-container" style="margin-bottom:20px">
+                    <!-- Exercises dynamically added here -->
                 </div>
 
-                <!-- Notes -->
+                <!-- Add Exercise Button -->
+                <button type="button" onclick="addExercise()" style="width:100%;padding:15px;background:rgba(0,255,255,0.1);border:2px dashed rgba(0,255,255,0.3);border-radius:8px;color:#00ffff;cursor:pointer;font-family:inherit;font-size:14px;letter-spacing:2px;margin-bottom:20px">
+                    ➕ ADD ANOTHER EXERCISE
+                </button>
+
+                <!-- Overall Workout Notes -->
                 <div style="margin-bottom:25px">
-                    <label style="display:block;font-size:12px;color:rgba(0,255,255,0.7);letter-spacing:1px;margin-bottom:8px">NOTES (Optional)</label>
-                    <textarea id="workout-notes" placeholder="How did you feel? Any PRs?" rows="3" style="width:100%;padding:12px 15px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.3);border-radius:6px;color:#00ffff;font-family:inherit;font-size:14px;resize:vertical"></textarea>
+                    <label style="display:block;font-size:12px;color:rgba(0,255,255,0.7);letter-spacing:1px;margin-bottom:8px">OVERALL NOTES (Optional)</label>
+                    <textarea id="workout-notes" placeholder="How was the workout overall?" rows="3" style="width:100%;padding:12px 15px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.3);border-radius:6px;color:#00ffff;font-family:inherit;font-size:14px;resize:vertical"></textarea>
                 </div>
 
                 <!-- Submit Button -->
-                <button type="submit" style="width:100%;padding:15px;background:linear-gradient(135deg, rgba(0,255,255,0.2), rgba(0,255,136,0.2));border:2px solid #00ffff;color:#00ffff;font-family:inherit;font-size:16px;cursor:pointer;border-radius:8px;letter-spacing:2px;font-weight:bold;transition:all 0.3s">
+                <button type="submit" style="width:100%;padding:15px;background:linear-gradient(135deg, rgba(0,255,255,0.2), rgba(0,255,136,0.2));border:2px solid #00ffff;color:#00ffff;font-family:inherit;font-size:16px;cursor:pointer;border-radius:8px;letter-spacing:2px;font-weight:bold">
                     💪 LOG WORKOUT
                 </button>
             </form>
@@ -622,6 +608,16 @@
             </div>
         </div>
     </div>
+
+    <style>
+    .exercise-container {
+        background: rgba(0,255,255,0.03);
+        border: 1px solid rgba(0,255,255,0.2);
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    </style>
 
     <!-- ============================================ -->
     <!-- MEAL LOGGING MODAL -->
@@ -910,25 +906,47 @@
             };
         };
 
-        // Helper function to make API requests with proper error handling
-        async function fetchAPI(endpoint, options = {}) {
+        /**
+         * PROPER API CLIENT - REPLACES fetchAPI
+         */
+        async function apiRequest(endpoint, options = {}) {
+            const token = localStorage.getItem('phoenixToken');
+            
+            const url = endpoint.startsWith('http') ? endpoint : `${API_BASE}${endpoint}`;
+            
+            const config = {
+                method: options.method || 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token && { 'Authorization': `Bearer ${token}` }),
+                    ...options.headers
+                }
+            };
+            
+            if (options.body) {
+                config.body = typeof options.body === 'string' ? options.body : JSON.stringify(options.body);
+            }
+            
+            console.log(`🌐 ${config.method} ${url}`, options.body ? JSON.parse(config.body) : '');
+            
             try {
-                const response = await fetch(`${API_BASE}${endpoint}`, {
-                    ...options,
-                    headers: {
-                        ...getAuthHeaders(),
-                        ...options.headers
-                    }
-                });
-                
+                const response = await fetch(url, config);
                 const data = await response.json();
-                console.log(`API Response (${endpoint}):`, data);
+                
+                if (!response.ok) {
+                    throw new Error(data.error || `HTTP ${response.status}`);
+                }
+                
+                console.log(`✅ Success:`, data);
                 return data;
             } catch (error) {
-                console.error(`API Error (${endpoint}):`, error);
-                return { success: false, error: error.message };
+                console.error(`❌ Error:`, error);
+                throw error;
             }
         }
+
+        // Keep fetchAPI as alias for backwards compatibility
+        const fetchAPI = apiRequest;
 
         /**
          * PHOENIX ENGINE CLASS
@@ -1910,11 +1928,116 @@
          */
         window.openWorkoutModal = function() {
             document.getElementById('workout-modal').style.display = 'flex';
+            document.getElementById('exercises-container').innerHTML = '';
+            addExercise(); // Start with one exercise
         };
 
         window.closeWorkoutModal = function() {
             document.getElementById('workout-modal').style.display = 'none';
             document.getElementById('workout-form').reset();
+            document.getElementById('exercises-container').innerHTML = '';
+        };
+
+        window.addExercise = function() {
+            const exerciseId = Date.now();
+            const container = document.getElementById('exercises-container');
+            const exerciseNum = container.children.length + 1;
+            
+            const html = `
+                <div class="exercise-container" id="exercise-${exerciseId}" style="background:rgba(0,255,255,0.03);border:1px solid rgba(0,255,255,0.2);border-radius:8px;padding:20px;margin-bottom:20px">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
+                        <div style="font-size:16px;color:#00ffff;letter-spacing:1px">EXERCISE ${exerciseNum}</div>
+                        ${exerciseNum > 1 ? `<button type="button" onclick="removeExercise(${exerciseId})" style="padding:6px 12px;background:rgba(255,68,68,0.2);border:1px solid rgba(255,68,68,0.5);border-radius:4px;color:#ff4444;cursor:pointer;font-size:12px">REMOVE</button>` : ''}
+                    </div>
+                    
+                    <div style="margin-bottom:15px">
+                        <label style="display:block;font-size:11px;color:rgba(0,255,255,0.7);letter-spacing:1px;margin-bottom:6px">EXERCISE NAME</label>
+                        <input type="text" class="exercise-name" required placeholder="e.g., Bench Press" style="width:100%;padding:10px 12px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.3);border-radius:6px;color:#00ffff;font-family:inherit;font-size:14px">
+                    </div>
+                    
+                    <div style="margin-bottom:10px">
+                        <label style="display:block;font-size:11px;color:rgba(0,255,255,0.7);letter-spacing:1px;margin-bottom:8px">SETS</label>
+                        <div style="background:rgba(0,255,255,0.02);border:1px solid rgba(0,255,255,0.2);border-radius:6px;padding:10px">
+                            <div style="display:grid;grid-template-columns:40px 1fr 1fr 1fr 40px;gap:8px;margin-bottom:8px;font-size:10px;color:rgba(0,255,255,0.5);font-weight:bold">
+                                <div style="text-align:center">SET</div>
+                                <div style="text-align:center">REPS</div>
+                                <div style="text-align:center">WEIGHT</div>
+                                <div style="text-align:center">RPE</div>
+                                <div></div>
+                            </div>
+                            <div class="sets-container" data-set-count="1">
+                                <div class="set-row" data-set-number="1" style="display:grid;grid-template-columns:40px 1fr 1fr 1fr 40px;gap:8px;margin-bottom:6px;align-items:center">
+                                    <div style="font-size:13px;color:rgba(0,255,255,0.6);text-align:center;font-weight:bold">1</div>
+                                    <input type="number" class="set-reps" min="1" placeholder="10" required style="padding:8px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.3);border-radius:4px;color:#00ffff;font-family:inherit;font-size:13px;text-align:center">
+                                    <input type="number" class="set-weight" min="0" step="0.5" placeholder="135" style="padding:8px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.3);border-radius:4px;color:#00ffff;font-family:inherit;font-size:13px;text-align:center">
+                                    <input type="number" class="set-rpe" min="1" max="10" placeholder="8" style="padding:8px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.3);border-radius:4px;color:#00ffff;font-family:inherit;font-size:13px;text-align:center">
+                                    <button type="button" onclick="removeSet(this)" style="visibility:hidden;padding:6px;background:rgba(255,68,68,0.2);border:1px solid rgba(255,68,68,0.5);border-radius:4px;color:#ff4444;cursor:pointer;font-size:11px">✕</button>
+                                </div>
+                            </div>
+                            <button type="button" onclick="addSet(${exerciseId})" style="width:100%;padding:8px;background:rgba(0,255,255,0.1);border:1px solid rgba(0,255,255,0.3);border-radius:4px;color:#00ffff;cursor:pointer;font-size:11px;letter-spacing:1px;margin-top:8px">+ ADD SET</button>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top:15px">
+                        <label style="display:block;font-size:11px;color:rgba(0,255,255,0.7);letter-spacing:1px;margin-bottom:6px">NOTES (Optional)</label>
+                        <textarea class="exercise-notes" placeholder="How did this feel?" rows="2" style="width:100%;padding:10px 12px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.3);border-radius:6px;color:#00ffff;font-family:inherit;font-size:13px;resize:vertical"></textarea>
+                    </div>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', html);
+        };
+
+        window.addSet = function(exerciseId) {
+            const exercise = document.getElementById(`exercise-${exerciseId}`);
+            const setsContainer = exercise.querySelector('.sets-container');
+            const currentSetCount = parseInt(setsContainer.dataset.setCount);
+            const newSetNumber = currentSetCount + 1;
+            
+            const html = `
+                <div class="set-row" data-set-number="${newSetNumber}" style="display:grid;grid-template-columns:40px 1fr 1fr 1fr 40px;gap:8px;margin-bottom:6px;align-items:center">
+                    <div style="font-size:13px;color:rgba(0,255,255,0.6);text-align:center;font-weight:bold">${newSetNumber}</div>
+                    <input type="number" class="set-reps" min="1" placeholder="10" required style="padding:8px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.3);border-radius:4px;color:#00ffff;font-family:inherit;font-size:13px;text-align:center">
+                    <input type="number" class="set-weight" min="0" step="0.5" placeholder="135" style="padding:8px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.3);border-radius:4px;color:#00ffff;font-family:inherit;font-size:13px;text-align:center">
+                    <input type="number" class="set-rpe" min="1" max="10" placeholder="8" style="padding:8px;background:rgba(0,255,255,0.05);border:1px solid rgba(0,255,255,0.3);border-radius:4px;color:#00ffff;font-family:inherit;font-size:13px;text-align:center">
+                    <button type="button" onclick="removeSet(this)" style="padding:6px;background:rgba(255,68,68,0.2);border:1px solid rgba(255,68,68,0.5);border-radius:4px;color:#ff4444;cursor:pointer;font-size:11px">✕</button>
+                </div>
+            `;
+            
+            setsContainer.insertAdjacentHTML('beforeend', html);
+            setsContainer.dataset.setCount = newSetNumber;
+        };
+
+        window.removeSet = function(button) {
+            const setRow = button.closest('.set-row');
+            const setsContainer = setRow.closest('.sets-container');
+            const currentSetCount = parseInt(setsContainer.dataset.setCount);
+            
+            if (currentSetCount > 1) {
+                setRow.remove();
+                setsContainer.dataset.setCount = currentSetCount - 1;
+                
+                // Renumber remaining sets
+                const setRows = setsContainer.querySelectorAll('.set-row');
+                setRows.forEach((row, index) => {
+                    row.dataset.setNumber = index + 1;
+                    row.querySelector('div').textContent = index + 1;
+                    if (index === 0) {
+                        row.querySelector('button').style.visibility = 'hidden';
+                    }
+                });
+            }
+        };
+
+        window.removeExercise = function(exerciseId) {
+            document.getElementById(`exercise-${exerciseId}`).remove();
+            
+            // Renumber remaining exercises
+            const exercises = document.querySelectorAll('.exercise-container');
+            exercises.forEach((ex, index) => {
+                const header = ex.querySelector('div[style*="font-size:16px"]');
+                if (header) header.textContent = `EXERCISE ${index + 1}`;
+            });
         };
 
         window.submitWorkout = async function(event) {
@@ -1923,72 +2046,91 @@
             const form = document.getElementById('workout-form');
             const loading = document.getElementById('workout-loading');
             
-            // Show loading
             form.style.display = 'none';
             loading.style.display = 'block';
             
             try {
-                // Step 1: Start workout
-                console.log('🏋️ Starting workout...');
-                const startData = {
-                    workoutType: document.getElementById('workout-type').value,
-                    startTime: new Date().toISOString()
-                };
+                const workoutType = document.getElementById('workout-type').value;
+                const totalDuration = parseInt(document.getElementById('workout-duration').value);
+                const workoutNotes = document.getElementById('workout-notes').value;
                 
-                const startResponse = await fetchAPI('/venus/workouts/start', {
-                    method: 'POST',
-                    body: JSON.stringify(startData)
+                const exercises = [];
+                const exerciseContainers = document.querySelectorAll('.exercise-container');
+                
+                exerciseContainers.forEach(container => {
+                    const exerciseName = container.querySelector('.exercise-name').value;
+                    const exerciseNotes = container.querySelector('.exercise-notes').value;
+                    
+                    const sets = [];
+                    const setRows = container.querySelectorAll('.set-row');
+                    
+                    setRows.forEach(row => {
+                        const reps = parseInt(row.querySelector('.set-reps').value);
+                        const weight = parseFloat(row.querySelector('.set-weight').value) || 0;
+                        const rpe = parseInt(row.querySelector('.set-rpe').value) || null;
+                        
+                        if (reps) sets.push({ reps, weight, rpe });
+                    });
+                    
+                    if (exerciseName && sets.length > 0) {
+                        exercises.push({ exerciseName, sets, notes: exerciseNotes });
+                    }
                 });
                 
-                if (!startResponse.success || !startResponse.data.workout) {
+                if (exercises.length === 0) throw new Error('Add at least one exercise');
+                
+                console.log('🏋️ Starting workout:', exercises);
+                
+                // Step 1: Start workout
+                const startResponse = await apiRequest('/venus/workouts/start', {
+                    method: 'POST',
+                    body: { workoutType, startTime: new Date().toISOString() }
+                });
+                
+                if (!startResponse.success || !startResponse.data?.workout) {
                     throw new Error('Failed to start workout');
                 }
                 
                 const workoutId = startResponse.data.workout._id;
                 console.log('✅ Workout started:', workoutId);
                 
-                // Step 2: Log exercise
-                console.log('💪 Logging exercise...');
-                const exerciseData = {
-                    exerciseName: document.getElementById('exercise-name').value,
-                    sets: parseInt(document.getElementById('workout-sets').value) || 0,
-                    reps: parseInt(document.getElementById('workout-reps').value) || 0,
-                    weight: parseFloat(document.getElementById('workout-weight').value) || 0,
-                    notes: document.getElementById('workout-notes').value
-                };
+                // Step 2: Log each exercise
+                for (const exercise of exercises) {
+                    await apiRequest(`/venus/workouts/${workoutId}/exercise`, {
+                        method: 'POST',
+                        body: {
+                            exerciseName: exercise.exerciseName,
+                            sets: exercise.sets,
+                            notes: exercise.notes
+                        }
+                    });
+                }
                 
-                await fetchAPI(`/venus/workouts/${workoutId}/exercise`, {
-                    method: 'POST',
-                    body: JSON.stringify(exerciseData)
-                });
-                
-                console.log('✅ Exercise logged');
+                console.log('✅ Exercises logged');
                 
                 // Step 3: Complete workout
-                console.log('✅ Completing workout...');
-                const duration = parseInt(document.getElementById('workout-duration').value) || 30;
-                const completeData = {
-                    endTime: new Date().toISOString(),
-                    duration: duration,
-                    notes: document.getElementById('workout-notes').value
-                };
-                
-                await fetchAPI(`/venus/workouts/${workoutId}/complete`, {
+                await apiRequest(`/venus/workouts/${workoutId}/complete`, {
                     method: 'POST',
-                    body: JSON.stringify(completeData)
+                    body: {
+                        endTime: new Date().toISOString(),
+                        duration: totalDuration,
+                        notes: workoutNotes
+                    }
                 });
                 
-                console.log('✅ Workout completed successfully!');
+                console.log('✅ Workout complete!');
                 
-                // Show success
-                phoenix.showNotification('Workout Logged', `${exerciseData.exerciseName} - ${duration} minutes`);
+                if (window.phoenix?.showNotification) {
+                    phoenix.showNotification('Workout Logged', `${exercises.length} exercises - ${totalDuration} min`);
+                }
                 
-                // Close modal
                 closeWorkoutModal();
                 
             } catch (error) {
-                console.error('❌ Workout logging error:', error);
-                phoenix.showNotification('Error', 'Failed to log workout. Check console for details.');
+                console.error('❌ Error:', error);
+                if (window.phoenix?.showNotification) {
+                    phoenix.showNotification('Error', error.message);
+                }
             } finally {
                 form.style.display = 'block';
                 loading.style.display = 'none';
@@ -2013,7 +2155,6 @@
             const form = document.getElementById('meal-form');
             const loading = document.getElementById('meal-loading');
             
-            // Show loading
             form.style.display = 'none';
             loading.style.display = 'block';
             
@@ -2028,30 +2169,40 @@
                         carbs: parseFloat(document.getElementById('meal-carbs').value) || 0,
                         fats: parseFloat(document.getElementById('meal-fats').value) || 0
                     },
-                    calories: parseInt(document.getElementById('meal-calories').value) || 0,
                     notes: document.getElementById('meal-notes').value,
                     timestamp: new Date().toISOString()
                 };
                 
-                const response = await fetchAPI('/venus/nutrition/log', {
+                // Auto-calculate calories if not provided
+                const inputCalories = parseInt(document.getElementById('meal-calories').value);
+                mealData.calories = inputCalories || Math.round(
+                    mealData.macros.protein * 4 + 
+                    mealData.macros.carbs * 4 + 
+                    mealData.macros.fats * 9
+                );
+                
+                const response = await apiRequest('/venus/nutrition/log', {
                     method: 'POST',
-                    body: JSON.stringify(mealData)
+                    body: mealData
                 });
                 
                 if (response.success) {
-                    console.log('✅ Meal logged successfully!');
-                    const totalCals = mealData.calories || 
-                        (mealData.macros.protein * 4 + mealData.macros.carbs * 4 + mealData.macros.fats * 9);
+                    console.log('✅ Meal logged!');
                     
-                    phoenix.showNotification('Meal Logged', `${mealData.foodName} - ${Math.round(totalCals)} cal`);
+                    if (window.phoenix?.showNotification) {
+                        phoenix.showNotification('Meal Logged', `${mealData.foodName} - ${mealData.calories} cal`);
+                    }
+                    
                     closeMealModal();
                 } else {
                     throw new Error(response.error || 'Failed to log meal');
                 }
                 
             } catch (error) {
-                console.error('❌ Meal logging error:', error);
-                phoenix.showNotification('Error', 'Failed to log meal. Check console for details.');
+                console.error('❌ Error:', error);
+                if (window.phoenix?.showNotification) {
+                    phoenix.showNotification('Error', error.message);
+                }
             } finally {
                 form.style.display = 'block';
                 loading.style.display = 'none';
