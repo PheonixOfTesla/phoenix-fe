@@ -1179,6 +1179,21 @@
         
         // Audio context for playing TTS
         let currentAudio = null;
+        
+        // Language code mapper for TTS API
+        const languageMap = {
+            'en': 'en-GB',
+            'es': 'es',
+            'fr': 'fr',
+            'de': 'de',
+            'it': 'it',
+            'pt': 'pt',
+            'nl': 'nl',
+            'pl': 'pl',
+            'ru': 'ru',
+            'ja': 'ja',
+            'zh': 'zh'
+        };
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
@@ -1186,6 +1201,13 @@
             setupVoiceSelection();
             setupDeviceCards();
             setupCodeInputs();
+            
+            // Enable audio on first user interaction (required by browsers)
+            document.body.addEventListener('click', () => {
+                if (!currentAudio) {
+                    console.log('[Audio] User interaction detected, audio enabled');
+                }
+            }, { once: true });
         });
 
         /**
@@ -1208,6 +1230,8 @@
             }
 
             try {
+                console.log('[TTS] Requesting:', text.substring(0, 50) + '...');
+                
                 // Call backend TTS API
                 const response = await fetch(`${API_URL}/api/tts/generate`, {
                     method: 'POST',
@@ -1217,48 +1241,46 @@
                     body: JSON.stringify({
                         text: text,
                         voice: userData.voice || 'echo',
-                        language: userData.language || 'en'
+                        language: languageMap[userData.language] || 'en-GB'
                     })
                 });
 
+                console.log('[TTS] Response status:', response.status);
+                console.log('[TTS] Content-Type:', response.headers.get('content-type'));
+
                 if (!response.ok) {
-                    throw new Error('TTS generation failed');
+                    throw new Error(`TTS failed: ${response.status}`);
                 }
 
-                // Check content type to determine response format
-                const contentType = response.headers.get('content-type');
-                let audioUrl;
+                // Backend returns audio/mpeg buffer directly
+                const audioBlob = await response.blob();
+                console.log('[TTS] Audio blob size:', audioBlob.size, 'bytes');
                 
-                if (contentType && contentType.includes('application/json')) {
-                    // Handle JSON response with base64 audio
-                    const data = await response.json();
-                    if (data.audio) {
-                        // Convert base64 to blob
-                        const audioData = atob(data.audio);
-                        const arrayBuffer = new ArrayBuffer(audioData.length);
-                        const view = new Uint8Array(arrayBuffer);
-                        for (let i = 0; i < audioData.length; i++) {
-                            view[i] = audioData.charCodeAt(i);
-                        }
-                        const audioBlob = new Blob([arrayBuffer], { type: 'audio/mpeg' });
-                        audioUrl = URL.createObjectURL(audioBlob);
-                    } else if (data.url) {
-                        // Use provided URL
-                        audioUrl = data.url;
-                    } else {
-                        throw new Error('No audio data in response');
-                    }
-                } else {
-                    // Handle blob response
-                    const audioBlob = await response.blob();
-                    audioUrl = URL.createObjectURL(audioBlob);
+                if (audioBlob.size === 0) {
+                    throw new Error('Empty audio response');
                 }
+                
+                const audioUrl = URL.createObjectURL(audioBlob);
+                console.log('[TTS] Audio URL created');
 
                 // Play audio
                 currentAudio = new Audio(audioUrl);
-                currentAudio.play();
-
+                
+                currentAudio.onloadeddata = () => {
+                    console.log('[TTS] Audio loaded, duration:', currentAudio.duration);
+                };
+                
+                currentAudio.onerror = (e) => {
+                    console.error('[TTS] Audio playback error:', e);
+                    if (avatar) avatar.classList.remove('speaking');
+                    if (status) {
+                        status.classList.remove('speaking');
+                        status.textContent = '[ VOICE STANDBY ]';
+                    }
+                };
+                
                 currentAudio.onended = () => {
+                    console.log('[TTS] Audio finished playing');
                     if (avatar) avatar.classList.remove('speaking');
                     if (status) {
                         status.classList.remove('speaking');
@@ -1267,8 +1289,36 @@
                     URL.revokeObjectURL(audioUrl);
                 };
 
+                // Start playback
+                const playPromise = currentAudio.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise
+                        .then(() => {
+                            console.log('[TTS] Playback started successfully');
+                        })
+                        .catch(error => {
+                            console.error('[TTS] Playback error:', error);
+                            // Browsers require user interaction for audio
+                            // This is expected on first load
+                            if (avatar) avatar.classList.remove('speaking');
+                            if (status) {
+                                status.classList.remove('speaking');
+                                status.textContent = '[ VOICE STANDBY ]';
+                            }
+                        });
+                }
+
             } catch (error) {
-                console.error('TTS Error:', error);
+                console.error('[TTS] Error:', error);
+                // Silent fail - voice is optional
+                if (avatar) avatar.classList.remove('speaking');
+                if (status) {
+                    status.classList.remove('speaking');
+                    status.textContent = '[ VOICE STANDBY ]';
+                }
+            }
+        }
                 showToast('VOICE SYNTHESIS FAILED', 'error');
                 if (avatar) avatar.classList.remove('speaking');
                 if (status) {
