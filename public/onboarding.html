@@ -18,7 +18,6 @@
             overflow: hidden;
         }
 
-        /* Toast Notifications */
         .toast {
             position: fixed;
             top: 20px;
@@ -43,7 +42,6 @@
             to { transform: translateX(0); opacity: 1; }
         }
 
-        /* Phase Container */
         .phase-container {
             position: fixed;
             top: 0;
@@ -82,7 +80,6 @@
             margin-bottom: 30px;
         }
 
-        /* Form Styles */
         .form-group {
             margin-bottom: 25px;
             text-align: left;
@@ -115,7 +112,6 @@
             box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
         }
 
-        /* Button Styles */
         .btn {
             padding: 15px 40px;
             background: rgba(0, 255, 255, 0.2);
@@ -155,7 +151,6 @@
             margin-left: 15px;
         }
 
-        /* Device Grid */
         .device-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -184,6 +179,11 @@
             background: rgba(0, 255, 0, 0.1);
         }
 
+        .device-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
         .device-icon {
             font-size: 40px;
             margin-bottom: 10px;
@@ -204,7 +204,6 @@
             color: #00ff00;
         }
 
-        /* Progress Bar */
         .progress-bar {
             position: fixed;
             top: 0;
@@ -222,7 +221,6 @@
             box-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
         }
 
-        /* Language/Voice Grid */
         .selection-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -234,10 +232,15 @@
             background: rgba(0, 255, 255, 0.05);
             border: 2px solid rgba(0, 255, 255, 0.3);
             border-radius: 12px;
-            padding: 20px;
+            padding: 20px 15px;
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: center;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
         .selection-card:hover {
@@ -253,12 +256,10 @@
     </style>
 </head>
 <body>
-    <!-- Progress Bar -->
     <div class="progress-bar">
         <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
     </div>
 
-    <!-- Toast -->
     <div class="toast" id="toast"></div>
 
     <!-- Phase 0: Welcome -->
@@ -278,7 +279,7 @@
             <div class="content-title">CHOOSE YOUR LANGUAGE</div>
             <div class="selection-grid" id="languageGrid"></div>
             
-            <div class="content-subtitle" style="margin-top: 40px;">SELECT YOUR VOICE</div>
+            <div class="content-subtitle" style="margin-top: 40px;">SELECT YOUR AI VOICE</div>
             <div class="selection-grid" id="voiceGrid"></div>
             
             <button class="btn btn-primary" id="phase1Continue" disabled onclick="nextPhase()" style="margin-top: 40px;">
@@ -291,7 +292,7 @@
     <div id="phase-2" class="phase-container">
         <div class="phase-content">
             <div class="content-title">CREATE YOUR ACCOUNT</div>
-            <div class="content-subtitle">Let's get you set up</div>
+            <div class="content-subtitle">Join the Phoenix ecosystem</div>
             
             <div class="form-group">
                 <label>Full Name</label>
@@ -314,30 +315,11 @@
         </div>
     </div>
 
-    <!-- Phase 3: Verification Code -->
+    <!-- Phase 3: Connect Devices -->
     <div id="phase-3" class="phase-container">
-        <div class="phase-content">
-            <div class="content-title">VERIFY YOUR EMAIL</div>
-            <div class="content-subtitle">Enter the code sent to <span id="userEmail"></span></div>
-            
-            <div class="form-group">
-                <input type="text" id="verificationCode" placeholder="000000" maxlength="6" style="text-align: center; font-size: 32px; letter-spacing: 10px;">
-            </div>
-            
-            <button class="btn btn-primary" onclick="verifyCode()" style="margin-top: 20px;">
-                VERIFY
-            </button>
-            <button class="btn btn-skip" onclick="resendCode()">
-                RESEND CODE
-            </button>
-        </div>
-    </div>
-
-    <!-- Phase 4: Connect Devices -->
-    <div id="phase-4" class="phase-container">
         <div class="phase-content" style="max-width: 700px;">
             <div class="content-title">CONNECT YOUR DEVICES</div>
-            <div class="content-subtitle">Sync your health data automatically</div>
+            <div class="content-subtitle">Sync your health data automatically (optional)</div>
             
             <div class="device-grid" id="deviceGrid"></div>
             
@@ -350,11 +332,11 @@
         </div>
     </div>
 
-    <!-- Phase 5: Goals & Nutrition -->
-    <div id="phase-5" class="phase-container">
+    <!-- Phase 4: Goals -->
+    <div id="phase-4" class="phase-container">
         <div class="phase-content">
             <div class="content-title">SET YOUR GOALS</div>
-            <div class="content-subtitle">What do you want to achieve?</div>
+            <div class="content-subtitle">What do you want to achieve? (optional)</div>
             
             <div class="form-group">
                 <label>Primary Goal</label>
@@ -366,8 +348,8 @@
                 <input type="number" id="targetWeight" placeholder="180">
             </div>
             
-            <button class="btn btn-primary" onclick="nextPhase()" style="margin-top: 20px;">
-                CONTINUE
+            <button class="btn btn-primary" onclick="saveGoal()" style="margin-top: 20px;">
+                SAVE & CONTINUE
             </button>
             <button class="btn btn-skip" onclick="nextPhase()">
                 SKIP FOR NOW
@@ -375,60 +357,21 @@
         </div>
     </div>
 
-    <!-- Phase 6: Calendar -->
-    <div id="phase-6" class="phase-container">
+    <!-- Phase 5: Launch -->
+    <div id="phase-5" class="phase-container">
         <div class="phase-content">
-            <div class="content-title">CONNECT YOUR CALENDAR</div>
-            <div class="content-subtitle">Let Phoenix optimize your schedule</div>
+            <div class="content-title">🔥 READY TO LAUNCH</div>
+            <div class="content-subtitle">Your Phoenix is awakening...</div>
             
-            <button class="btn btn-primary" onclick="connectGoogle()" style="margin: 20px 10px;">
-                📅 CONNECT GOOGLE CALENDAR
-            </button>
-            <button class="btn btn-primary" onclick="connectOutlook()" style="margin: 20px 10px;">
-                📅 CONNECT OUTLOOK
-            </button>
-            
-            <br><button class="btn btn-skip" onclick="nextPhase()" style="margin-top: 20px;">
-                SKIP FOR NOW
-            </button>
-        </div>
-    </div>
-
-    <!-- Phase 7: Finance -->
-    <div id="phase-7" class="phase-container">
-        <div class="phase-content">
-            <div class="content-title">CONNECT YOUR BANK</div>
-            <div class="content-subtitle">Track spending and financial health</div>
-            
-            <button class="btn btn-primary" onclick="connectPlaid()" style="margin-top: 20px;">
-                🏦 CONNECT BANK ACCOUNT
-            </button>
-            
-            <br><button class="btn btn-skip" onclick="nextPhase()" style="margin-top: 30px;">
-                SKIP FOR NOW
-            </button>
-        </div>
-    </div>
-
-    <!-- Phase 8: Subscription -->
-    <div id="phase-8" class="phase-container">
-        <div class="phase-content">
-            <div class="content-title">START YOUR FREE TRIAL</div>
-            <div class="content-subtitle">7 days free, then $29/month</div>
-            
-            <div style="margin: 30px 0; font-size: 18px; line-height: 1.8;">
-                ✓ Unlimited AI conversations<br>
-                ✓ All planetary systems<br>
-                ✓ Autonomous butler<br>
-                ✓ Real-time insights<br>
-                ✓ Device integrations
+            <div style="margin: 40px 0; font-size: 18px; line-height: 2; text-align: left;">
+                ✓ Account created<br>
+                ✓ Preferences saved<br>
+                ✓ AI companion activated<br>
+                ✓ Systems online
             </div>
             
-            <button class="btn btn-primary" onclick="startTrial()" style="margin-top: 20px;">
-                START FREE TRIAL
-            </button>
-            <button class="btn btn-skip" onclick="goToDashboard()">
-                SKIP TRIAL
+            <button class="btn btn-primary" onclick="goToDashboard()" style="margin-top: 20px; font-size: 20px; padding: 20px 60px;">
+                ENTER PHOENIX
             </button>
         </div>
     </div>
@@ -441,10 +384,9 @@
         let currentPhase = 0;
         let userData = {
             language: 'en',
-            voice: null,
+            voice: 'nova',
             name: '',
             email: '',
-            password: '',
             token: null
         };
 
@@ -454,16 +396,22 @@
             { code: 'fr', name: 'Français', flag: '🇫🇷' },
             { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
             { code: 'it', name: 'Italiano', flag: '🇮🇹' },
-            { code: 'pt', name: 'Português', flag: '🇵🇹' }
+            { code: 'pt', name: 'Português', flag: '🇧🇷' },
+            { code: 'zh', name: '中文', flag: '🇨🇳' },
+            { code: 'ja', name: '日本語', flag: '🇯🇵' },
+            { code: 'ko', name: '한국어', flag: '🇰🇷' },
+            { code: 'ar', name: 'العربية', flag: '🇸🇦' },
+            { code: 'hi', name: 'हिन्दी', flag: '🇮🇳' },
+            { code: 'ru', name: 'Русский', flag: '🇷🇺' }
         ];
 
         const VOICES = [
-            { id: 'alloy', name: 'Alloy' },
-            { id: 'echo', name: 'Echo' },
-            { id: 'fable', name: 'Fable' },
-            { id: 'onyx', name: 'Onyx' },
-            { id: 'nova', name: 'Nova' },
-            { id: 'shimmer', name: 'Shimmer' }
+            { id: 'alloy', name: 'Alloy', desc: 'Neutral' },
+            { id: 'echo', name: 'Echo', desc: 'Warm' },
+            { id: 'fable', name: 'Fable', desc: 'Expressive' },
+            { id: 'onyx', name: 'Onyx', desc: 'Authoritative' },
+            { id: 'nova', name: 'Nova', desc: 'Friendly' },
+            { id: 'shimmer', name: 'Shimmer', desc: 'Gentle' }
         ];
 
         const DEVICES = [
@@ -473,7 +421,6 @@
             { id: 'whoop', name: 'WHOOP', icon: '💪', disabled: true }
         ];
 
-        // Initialize
         (function init() {
             renderLanguages();
             renderVoices();
@@ -494,8 +441,9 @@
         function renderVoices() {
             const grid = document.getElementById('voiceGrid');
             grid.innerHTML = VOICES.map(voice => `
-                <div class="selection-card" onclick="selectVoice('${voice.id}')">
-                    <div style="font-size: 16px;">${voice.name}</div>
+                <div class="selection-card ${voice.id === 'nova' ? 'selected' : ''}" onclick="selectVoice('${voice.id}')">
+                    <div style="font-size: 16px; font-weight: bold;">${voice.name}</div>
+                    <div style="font-size: 11px; color: rgba(0, 255, 255, 0.6); margin-top: 5px;">${voice.desc}</div>
                 </div>
             `).join('');
         }
@@ -540,11 +488,26 @@
                 return;
             }
 
+            if (password.length < 6) {
+                showToast('Password must be at least 6 characters', 'error');
+                return;
+            }
+
             try {
+                showToast('Creating your account...', 'info');
+
                 const response = await fetch(`${API_BASE}/auth/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, email, password, language: userData.language, voice: userData.voice })
+                    body: JSON.stringify({ 
+                        name, 
+                        email, 
+                        password,
+                        preferences: {
+                            language: userData.language,
+                            voice: userData.voice
+                        }
+                    })
                 });
 
                 const data = await response.json();
@@ -556,57 +519,15 @@
                 userData.name = name;
                 userData.email = email;
                 userData.token = data.token;
+                
                 localStorage.setItem('phoenixToken', data.token);
+                localStorage.setItem('phoenixUser', JSON.stringify(data.user));
 
-                document.getElementById('userEmail').textContent = email;
-                showToast('Account created! Check your email for verification code', 'success');
-                nextPhase();
+                showToast('Account created successfully!', 'success');
+                setTimeout(nextPhase, 1000);
+
             } catch (error) {
                 showToast(error.message, 'error');
-            }
-        }
-
-        async function verifyCode() {
-            const code = document.getElementById('verificationCode').value;
-
-            if (!code || code.length !== 6) {
-                showToast('Please enter 6-digit code', 'error');
-                return;
-            }
-
-            try {
-                const response = await fetch(`${API_BASE}/auth/verify`, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${userData.token}`
-                    },
-                    body: JSON.stringify({ code })
-                });
-
-                if (!response.ok) {
-                    throw new Error('Invalid code');
-                }
-
-                showToast('Email verified!', 'success');
-                nextPhase();
-            } catch (error) {
-                showToast(error.message, 'error');
-            }
-        }
-
-        async function resendCode() {
-            try {
-                await fetch(`${API_BASE}/auth/resend-code`, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${userData.token}`
-                    }
-                });
-                showToast('Code resent to your email', 'success');
-            } catch (error) {
-                showToast('Failed to resend code', 'error');
             }
         }
 
@@ -617,6 +538,8 @@
             }
 
             try {
+                showToast('Connecting...', 'info');
+
                 const response = await fetch(`${API_BASE}/mercury/devices/${deviceId}/connect`, {
                     method: 'POST',
                     headers: { 
@@ -633,31 +556,44 @@
 
                 // Redirect to OAuth
                 window.location.href = data.authUrl;
+
             } catch (error) {
                 showToast(error.message, 'error');
             }
         }
 
-        function connectGoogle() {
-            showToast('Google Calendar integration coming soon', 'info');
-        }
+        async function saveGoal() {
+            const goal = document.getElementById('primaryGoal').value;
+            const weight = document.getElementById('targetWeight').value;
 
-        function connectOutlook() {
-            showToast('Outlook integration coming soon', 'info');
-        }
-
-        function connectPlaid() {
-            showToast('Bank integration coming soon', 'info');
-        }
-
-        function startTrial() {
-            showToast('Starting free trial...', 'success');
-            setTimeout(goToDashboard, 1500);
+            if (goal && userData.token) {
+                try {
+                    await fetch(`${API_BASE}/mars/goals`, {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${userData.token}`
+                        },
+                        body: JSON.stringify({ 
+                            title: goal,
+                            targetWeight: weight ? parseInt(weight) : null
+                        })
+                    });
+                    showToast('Goal saved!', 'success');
+                } catch (error) {
+                    console.error('Goal save failed:', error);
+                }
+            }
+            
+            nextPhase();
         }
 
         function goToDashboard() {
             localStorage.setItem('phoenixOnboardingComplete', 'true');
-            window.location.href = '/index.html';
+            showToast('Launching Phoenix...', 'success');
+            setTimeout(() => {
+                window.location.href = '/index.html';
+            }, 1000);
         }
 
         function nextPhase() {
@@ -668,7 +604,7 @@
         }
 
         function updateProgress() {
-            const progress = (currentPhase / 8) * 100;
+            const progress = (currentPhase / 5) * 100;
             document.getElementById('progressFill').style.width = progress + '%';
         }
 
@@ -677,6 +613,16 @@
             toast.textContent = message;
             toast.className = `toast ${type} show`;
             setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Check for OAuth callback
+        const urlParams = new URLSearchParams(window.location.search);
+        const device = urlParams.get('device');
+        const status = urlParams.get('status');
+
+        if (device && status === 'connected') {
+            showToast(`${device.charAt(0).toUpperCase() + device.slice(1)} connected!`, 'success');
+            window.history.replaceState({}, '', '/onboarding.html');
         }
     </script>
 </body>
