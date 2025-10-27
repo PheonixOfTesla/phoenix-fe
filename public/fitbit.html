@@ -116,59 +116,58 @@
                 setTimeout(() => {
                     window.location.href = '/login.html';
                 }, 2000);
-                return;
+            } else {
+                // Mercury expects POST with code and state in body
+                fetch(`${API_BASE}/mercury/devices/fitbit/exchange`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ code, state })
+                })
+                .then(async res => {
+                    console.log('[Fitbit Callback] Response status:', res.status);
+                    
+                    if (!res.ok) {
+                        const errorData = await res.json().catch(() => ({}));
+                        console.error('[Fitbit Callback] Error:', errorData);
+                        throw new Error(errorData.message || `Backend returned ${res.status}`);
+                    }
+                    
+                    const data = await res.json();
+                    console.log('[Fitbit Callback] Success:', data);
+                    
+                    // Backend processes the callback
+                    statusEl.className = 'success';
+                    statusEl.textContent = '✅ Fitbit connected successfully!';
+                    
+                    console.log('[Fitbit Callback] Success! Redirecting to onboarding...');
+                    
+                    // Notify onboarding page via postMessage
+                    if (window.opener) {
+                        window.opener.postMessage({ 
+                            type: 'oauth_success',
+                            device: 'fitbit',
+                            status: 'connected'
+                        }, window.location.origin);
+                    }
+                    
+                    // Redirect back to onboarding
+                    setTimeout(() => {
+                        window.location.href = '/onboarding.html?device=fitbit&status=connected';
+                    }, 1500);
+                })
+                .catch(error => {
+                    console.error('[Fitbit Callback] Fetch error:', error);
+                    statusEl.className = 'error';
+                    statusEl.textContent = `❌ Connection failed: ${error.message}`;
+                    
+                    setTimeout(() => {
+                        window.location.href = '/onboarding.html?device=fitbit&status=error';
+                    }, 3000);
+                });
             }
-            
-            // Mercury expects POST with code and state in body
-            fetch(`${API_BASE}/mercury/devices/fitbit/exchange`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ code, state })
-            })
-            .then(async res => {
-                console.log('[Fitbit Callback] Response status:', res.status);
-                
-                if (!res.ok) {
-                    const errorData = await res.json().catch(() => ({}));
-                    console.error('[Fitbit Callback] Error:', errorData);
-                    throw new Error(errorData.message || `Backend returned ${res.status}`);
-                }
-                
-                const data = await res.json();
-                console.log('[Fitbit Callback] Success:', data);
-                
-                // Backend processes the callback
-                statusEl.className = 'success';
-                statusEl.textContent = '✅ Fitbit connected successfully!';
-                
-                console.log('[Fitbit Callback] Success! Redirecting to onboarding...');
-                
-                // Notify onboarding page via postMessage
-                if (window.opener) {
-                    window.opener.postMessage({ 
-                        type: 'oauth_success',
-                        device: 'fitbit',
-                        status: 'connected'
-                    }, window.location.origin);
-                }
-                
-                // Redirect back to onboarding
-                setTimeout(() => {
-                    window.location.href = '/onboarding.html?device=fitbit&status=connected';
-                }, 1500);
-            })
-            .catch(error => {
-                console.error('[Fitbit Callback] Fetch error:', error);
-                statusEl.className = 'error';
-                statusEl.textContent = `❌ Connection failed: ${error.message}`;
-                
-                setTimeout(() => {
-                    window.location.href = '/onboarding.html?device=fitbit&status=error';
-                }, 3000);
-            });
             
         } else {
             // No code or error - shouldn't happen
