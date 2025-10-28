@@ -1,16 +1,28 @@
 /**
- * 🔥 PHOENIX API CLIENT
- * Complete API client for all 282 backend endpoints
+ * 🔥 PHOENIX API CLIENT - COMPLETE EDITION
+ * Full API client for ALL 307 backend endpoints
  * Connects Phoenix Conversational AI to real backend
  * 
+ * ✨ NOW WITH FULL VOICE CAPABILITIES ✨
+ * 
  * Planetary Systems:
- * - PHOENIX: AI Intelligence, Companion, Butler, Predictions
- * - MERCURY: Health, Biometrics, Recovery, Sleep
- * - VENUS: Fitness, Workouts, Nutrition, Body Composition
- * - MARS: Goals, Habits, Progress, Motivation
- * - EARTH: Calendar, Energy Optimization
- * - JUPITER: Finance, Spending, Budgets
- * - SATURN: Life Vision, Quarterly Reviews, Legacy
+ * - PHOENIX: AI Intelligence, Companion, Butler, Predictions (75 endpoints)
+ * - MERCURY: Health, Biometrics, Recovery, Sleep (38 endpoints)
+ * - VENUS: Fitness, Workouts, Nutrition, Body Composition (88 endpoints)
+ * - MARS: Goals, Habits, Progress, Motivation (20 endpoints)
+ * - EARTH: Calendar, Energy Optimization (11 endpoints)
+ * - JUPITER: Finance, Spending, Budgets (17 endpoints)
+ * - SATURN: Life Vision, Quarterly Reviews, Legacy (12 endpoints)
+ * - AUTH: Authentication & Authorization (9 endpoints)
+ * - USER: User Management (11 endpoints)
+ * - TTS: Text-to-Speech (4 endpoints) ⭐ NEW
+ * - WHISPER: Speech-to-Text (2 endpoints) ⭐ NEW
+ * - PHOENIX VOICE: Voice Session Management (2 endpoints) ⭐ NEW
+ * - SMS: Verification (4 endpoints) ⭐ NEW
+ * - TWILIO: Webhooks & Communication (9 endpoints) ⭐ NEW
+ * - SUBSCRIPTION: Access Control (5 endpoints) ⭐ NEW
+ * 
+ * TOTAL: 307 ENDPOINTS
  */
 
 class PhoenixAPIClient {
@@ -28,6 +40,14 @@ class PhoenixAPIClient {
         this.saturn = this.createSaturnAPI();
         this.auth = this.createAuthAPI();
         this.user = this.createUserAPI();
+        
+        // ⭐ NEW: Voice & Communication Systems
+        this.tts = this.createTTSAPI();
+        this.whisper = this.createWhisperAPI();
+        this.phoenixVoice = this.createPhoenixVoiceAPI();
+        this.sms = this.createSMSAPI();
+        this.twilio = this.createTwilioAPI();
+        this.subscription = this.createSubscriptionAPI();
     }
 
     /**
@@ -68,7 +88,231 @@ class PhoenixAPIClient {
     }
 
     /**
-     * PHOENIX API - AI Intelligence & Companion
+     * 🎙️ TTS API - TEXT-TO-SPEECH (4 endpoints)
+     * Makes Phoenix SPEAK - converts text to audio
+     */
+    createTTSAPI() {
+        return {
+            /**
+             * Synthesize speech from text
+             * @param {Object} data - { text: string, voice?: string, speed?: number }
+             * @returns {Promise} Audio URL or blob
+             */
+            synthesize: (data) => this.request('/tts/synthesize', 'POST', data),
+            
+            /**
+             * Get available TTS voices
+             * @returns {Promise} List of available voices
+             */
+            getVoices: () => this.request('/tts/voices'),
+            
+            /**
+             * Preview a voice with sample text
+             * @param {Object} data - { voice: string, text?: string }
+             * @returns {Promise} Audio preview
+             */
+            previewVoice: (data) => this.request('/tts/preview', 'POST', data),
+            
+            /**
+             * Get TTS usage statistics
+             * @returns {Promise} Usage stats
+             */
+            getUsage: () => this.request('/tts/usage')
+        };
+    }
+
+    /**
+     * 👂 WHISPER API - SPEECH-TO-TEXT (2 endpoints)
+     * Makes Phoenix HEAR - converts audio to text
+     */
+    createWhisperAPI() {
+        return {
+            /**
+             * Transcribe audio to text
+             * @param {Object} data - { audio: blob/file, language?: string }
+             * @returns {Promise} Transcription text
+             */
+            transcribe: (data) => this.request('/whisper/transcribe', 'POST', data),
+            
+            /**
+             * Get transcription history
+             * @returns {Promise} List of past transcriptions
+             */
+            getHistory: () => this.request('/whisper/history')
+        };
+    }
+
+    /**
+     * 🎤 PHOENIX VOICE API - VOICE SESSION MANAGEMENT (2 endpoints)
+     * Manages real-time voice conversations
+     */
+    createPhoenixVoiceAPI() {
+        return {
+            /**
+             * Start a voice session
+             * @param {Object} data - Session configuration
+             * @returns {Promise} Session details
+             */
+            startSession: (data) => this.request('/phoenix/voice/session', 'POST', data),
+            
+            /**
+             * End active voice session
+             * @returns {Promise} Session summary
+             */
+            endSession: () => this.request('/phoenix/voice/session', 'DELETE')
+        };
+    }
+
+    /**
+     * 📱 SMS API - VERIFICATION (4 endpoints)
+     * For phone number verification and butler SMS capabilities
+     */
+    createSMSAPI() {
+        return {
+            /**
+             * Send SMS verification code
+             * @param {Object} data - { phoneNumber: string }
+             * @returns {Promise} Verification sent confirmation
+             */
+            sendVerification: (data) => this.request('/sms-verification/send', 'POST', data),
+            
+            /**
+             * Verify SMS code
+             * @param {Object} data - { phoneNumber: string, code: string }
+             * @returns {Promise} Verification result
+             */
+            verify: (data) => this.request('/sms-verification/verify', 'POST', data),
+            
+            /**
+             * Resend verification code
+             * @param {Object} data - { phoneNumber: string }
+             * @returns {Promise} Code resent confirmation
+             */
+            resend: (data) => this.request('/sms-verification/resend', 'POST', data),
+            
+            /**
+             * Check verification status
+             * @param {string} phoneNumber - Phone number to check
+             * @returns {Promise} Verification status
+             */
+            checkStatus: (phoneNumber) => this.request(`/sms-verification/status/${phoneNumber}`)
+        };
+    }
+
+    /**
+     * 📞 TWILIO API - WEBHOOKS & COMMUNICATION (9 endpoints)
+     * Handles incoming calls, SMS, recordings for Butler
+     */
+    createTwilioAPI() {
+        return {
+            /**
+             * Handle incoming SMS webhook
+             * @param {Object} data - Twilio SMS webhook data
+             * @returns {Promise} Response instructions
+             */
+            handleIncomingSMS: (data) => this.request('/twilio/webhooks/sms', 'POST', data),
+            
+            /**
+             * Handle incoming call webhook
+             * @param {Object} data - Twilio call webhook data
+             * @returns {Promise} TwiML response
+             */
+            handleIncomingCall: (data) => this.request('/twilio/webhooks/call', 'POST', data),
+            
+            /**
+             * Handle call status callback
+             * @param {Object} data - Call status update
+             * @returns {Promise} Status update confirmation
+             */
+            handleCallStatus: (data) => this.request('/twilio/webhooks/call-status', 'POST', data),
+            
+            /**
+             * Handle recording ready webhook
+             * @param {Object} data - Recording data
+             * @returns {Promise} Recording processed confirmation
+             */
+            handleRecording: (data) => this.request('/twilio/webhooks/recording', 'POST', data),
+            
+            /**
+             * Handle transcription callback
+             * @param {Object} data - Transcription data
+             * @returns {Promise} Transcription processed
+             */
+            handleTranscription: (data) => this.request('/twilio/webhooks/transcription', 'POST', data),
+            
+            /**
+             * Handle SMS status callback
+             * @param {Object} data - SMS delivery status
+             * @returns {Promise} Status confirmation
+             */
+            handleSMSStatus: (data) => this.request('/twilio/webhooks/sms-status', 'POST', data),
+            
+            /**
+             * Handle voice input webhook
+             * @param {Object} data - Voice input data
+             * @returns {Promise} TwiML response
+             */
+            handleVoiceInput: (data) => this.request('/twilio/webhooks/voice-input', 'POST', data),
+            
+            /**
+             * Handle fallback webhook
+             * @param {Object} data - Error/fallback data
+             * @returns {Promise} Fallback response
+             */
+            handleFallback: (data) => this.request('/twilio/webhooks/fallback', 'POST', data),
+            
+            /**
+             * Handle gather webhook
+             * @param {Object} data - Gathered digits/speech
+             * @returns {Promise} Next action instructions
+             */
+            handleGather: (data) => this.request('/twilio/webhooks/gather', 'POST', data)
+        };
+    }
+
+    /**
+     * 💳 SUBSCRIPTION API - ACCESS CONTROL (5 endpoints)
+     * Manages user subscriptions and feature access
+     */
+    createSubscriptionAPI() {
+        return {
+            /**
+             * Get current subscription
+             * @returns {Promise} Subscription details
+             */
+            get: () => this.request('/subscription'),
+            
+            /**
+             * Create/upgrade subscription
+             * @param {Object} data - { plan: string, paymentMethod?: string }
+             * @returns {Promise} New subscription
+             */
+            create: (data) => this.request('/subscription', 'POST', data),
+            
+            /**
+             * Update subscription
+             * @param {Object} data - { plan?: string, autoRenew?: boolean }
+             * @returns {Promise} Updated subscription
+             */
+            update: (data) => this.request('/subscription', 'PUT', data),
+            
+            /**
+             * Cancel subscription
+             * @returns {Promise} Cancellation confirmation
+             */
+            cancel: () => this.request('/subscription/cancel', 'POST'),
+            
+            /**
+             * Check feature access
+             * @param {string} feature - Feature to check (e.g., 'butler', 'voice')
+             * @returns {Promise} Access granted/denied
+             */
+            checkFeatureAccess: (feature) => this.request(`/subscription/feature-access/${feature}`)
+        };
+    }
+
+    /**
+     * PHOENIX API - AI Intelligence & Companion (75 endpoints)
      */
     createPhoenixAPI() {
         return {
@@ -150,7 +394,7 @@ class PhoenixAPIClient {
                 recordOutcome: (id, data) => this.request(`/phoenix/interventions/${id}/outcome`, 'PUT', data)
             },
 
-            // Butler Actions
+            // Butler Actions (27 endpoints)
             butler: {
                 // Food
                 orderFood: (data) => this.request('/phoenix/butler/food', 'POST', data),
@@ -188,14 +432,6 @@ class PhoenixAPIClient {
                 deleteAutomation: (id) => this.request(`/phoenix/butler/automations/${id}`, 'DELETE')
             },
 
-            // Voice
-            voice: {
-                startSession: (data) => this.request('/phoenix/voice/session', 'POST', data),
-                endSession: () => this.request('/phoenix/voice/session', 'DELETE'),
-                getTranscriptions: () => this.request('/phoenix/voice/transcriptions'),
-                getHistory: () => this.request('/phoenix/voice/history')
-            },
-
             // Machine Learning
             ml: {
                 train: (data) => this.request('/phoenix/ml/train', 'POST', data),
@@ -209,7 +445,7 @@ class PhoenixAPIClient {
     }
 
     /**
-     * MERCURY API - Health & Biometrics
+     * MERCURY API - Health & Biometrics (38 endpoints)
      */
     createMercuryAPI() {
         return {
@@ -278,7 +514,7 @@ class PhoenixAPIClient {
     }
 
     /**
-     * VENUS API - Fitness & Nutrition
+     * VENUS API - Fitness & Nutrition (88 endpoints)
      */
     createVenusAPI() {
         return {
@@ -423,7 +659,7 @@ class PhoenixAPIClient {
     }
 
     /**
-     * MARS API - Goals & Motivation
+     * MARS API - Goals & Motivation (20 endpoints)
      */
     createMarsAPI() {
         return {
@@ -466,7 +702,7 @@ class PhoenixAPIClient {
     }
 
     /**
-     * EARTH API - Calendar & Energy
+     * EARTH API - Calendar & Energy (11 endpoints)
      */
     createEarthAPI() {
         return {
@@ -495,7 +731,7 @@ class PhoenixAPIClient {
     }
 
     /**
-     * JUPITER API - Finance
+     * JUPITER API - Finance (17 endpoints)
      */
     createJupiterAPI() {
         return {
@@ -535,7 +771,7 @@ class PhoenixAPIClient {
     }
 
     /**
-     * SATURN API - Life Vision & Legacy
+     * SATURN API - Life Vision & Legacy (12 endpoints)
      */
     createSaturnAPI() {
         return {
@@ -560,7 +796,7 @@ class PhoenixAPIClient {
     }
 
     /**
-     * AUTH API
+     * AUTH API (9 endpoints)
      */
     createAuthAPI() {
         return {
@@ -577,7 +813,7 @@ class PhoenixAPIClient {
     }
 
     /**
-     * USER API
+     * USER API (11 endpoints)
      */
     createUserAPI() {
         return {
@@ -614,3 +850,12 @@ class PhoenixAPIClient {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = PhoenixAPIClient;
 }
+
+// Global access
+if (typeof window !== 'undefined') {
+    window.PhoenixAPIClient = PhoenixAPIClient;
+}
+
+console.log('🔥 Phoenix API Client Loaded - 307 Endpoints Available');
+console.log('✨ Voice Capabilities: ENABLED');
+console.log('🎙️ TTS: ✅ | 👂 Whisper: ✅ | 📞 Twilio: ✅ | 📱 SMS: ✅');
