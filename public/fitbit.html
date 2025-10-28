@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connecting Fitbit...</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000;
+            color: #00ffff;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .container {
+            text-align: center;
+            padding: 50px;
+            background: rgba(0, 10, 20, 0.95);
+            border: 2px solid rgba(0, 255, 255, 0.5);
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.3);
+            max-width: 500px;
+        }
+        
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(0, 255, 255, 0.2);
+            border-top-color: #00ffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 30px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+        }
+        
+        #status {
+            color: rgba(0, 255, 255, 0.7);
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        
+        .success {
+            color: #00ff00;
+        }
+        
+        .error {
+            color: #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="spinner"></div>
+        <h1>Connecting Fitbit...</h1>
+        <p id="status">Authorizing with Phoenix backend...</p>
+    </div>
+
+    <script>
+        const API_BASE = window.location.hostname === 'localhost' 
+            ? 'http://localhost:5000/api' 
+            : 'https://pal-backend-production.up.railway.app/api';
+        
+        const statusEl = document.getElementById('status');
+        
+        // Get authorization code from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const state = urlParams.get('state');
+        const error = urlParams.get('error');
+        const errorDescription = urlParams.get('error_description');
+
+        console.log('[Fitbit Callback] Code:', code ? 'present' : 'missing');
+        console.log('[Fitbit Callback] State:', state);
+        console.log('[Fitbit Callback] Error:', error);
+
+        if (error) {
+            // OAuth error from Fitbit
+            statusEl.className = 'error';
+            statusEl.textContent = `Authorization failed: ${errorDescription || error}`;
+            
+            setTimeout(() => {
+                window.location.href = '/onboarding.html?device=fitbit&status=error';
+            }, 3000);
+            
+        } else if (code) {
+            // Success - call Mercury callback endpoint
+            statusEl.textContent = 'Exchanging authorization code...';
+            
+            console.log(`[Fitbit Callback] Calling: ${API_BASE}/mercury/devices/fitbit/exchange`);
+            
+            // Get auth token from localStorage
+            const token = localStorage.getItem('token') || localStorage.getItem('phoenixToken');
+            
+            if (!token) {
+                console.error('[Fitbit Callback] No authentication token found');
+                statusEl.className = 'error';
+                statusEl.textContent = '❌ Authentication required. Please log in first.';
+                setTimeout(() => {
+                    window.location.href = '/login.html';
+                }, 2000);
+            } else {
+                // Mercury expects POST with code and state in body
+                fetch(`${API_BASE}/mercury/devices/fitbit/exchange`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ code, state })
+                })
+                .then(async res => {
+                    console.log('[Fitbit Callback] Response status:', res.status);
+                    
+                    if (!res.ok) {
+                        const errorData = await res.json().catch(() => ({}));
+                        console.error('[Fitbit Callback] Error:', errorData);
+                        throw new Error(errorData.message || `Backend returned ${res.status}`);
+                    }
+                    
+                    const data = await res.json();
+                    console.log('[Fitbit Callback] Success:', data);
+                    
+                    // Backend processes the callback
+                    statusEl.className = 'success';
+                    statusEl.textContent = '✅ Fitbit connected successfully!';
+                    
+                    console.log('[Fitbit Callback] Success! Redirecting to onboarding...');
+                    
+                    // Notify onboarding page via postMessage
+                    if (window.opener) {
+                        window.opener.postMessage({ 
+                            type: 'oauth_success',
+                            device: 'fitbit',
+                            status: 'connected'
+                        }, window.location.origin);
+                    }
+                    
+                    // Redirect back to onboarding
+                    setTimeout(() => {
+                        window.location.href = '/onboarding.html?device=fitbit&status=connected';
+                    }, 1500);
+                })
+                .catch(error => {
+                    console.error('[Fitbit Callback] Fetch error:', error);
+                    statusEl.className = 'error';
+                    statusEl.textContent = `❌ Connection failed: ${error.message}`;
+                    
+                    setTimeout(() => {
+                        window.location.href = '/onboarding.html?device=fitbit&status=error';
+                    }, 3000);
+                });
+            }
+            
+        } else {
+            // No code or error - shouldn't happen
+            console.error('[Fitbit Callback] No code or error in URL');
+            statusEl.className = 'error';
+            statusEl.textContent = '❌ No authorization code received from Fitbit';
+            
+            setTimeout(() => {
+                window.location.href = '/onboarding.html';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
