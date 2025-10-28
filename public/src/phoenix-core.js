@@ -24,7 +24,7 @@
 
 const PHOENIX_CONFIG = {
     // API Configuration
-    BASE_URL: 'pal-backend-production.up.railway.app',
+    BASE_URL: 'https://pal-backend-production.up.railway.app',
     API_VERSION: 'v1',
     TIMEOUT: 30000,
     
