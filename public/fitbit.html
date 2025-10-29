@@ -107,7 +107,7 @@
             console.log(`[Fitbit Callback] Calling: ${API_BASE}/mercury/devices/fitbit/exchange`);
             
             // Get auth token from localStorage
-            const token = localStorage.getItem('token') || localStorage.getItem('phoenixToken');
+            const token = localStorage.getItem('phoenixToken');
             
             if (!token) {
                 console.error('[Fitbit Callback] No authentication token found');

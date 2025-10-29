@@ -759,7 +759,11 @@
                     <p>I'M PHOENIX, AND I'LL HELP YOU OPTIMIZE YOUR LIFE.</p>
                 </div>
                 <div class="button-group">
-                    <button class="btn btn-primary" onclick="window.location.href='dashboard.html'" style="font-size:14px;padding:18px 48px">
+                    <button class="btn btn-primary" onclick="
+                        localStorage.setItem('phoenixOnboardingComplete', 'true');
+                        localStorage.setItem('phoenixOnboardingChoice', 'explore');
+                        window.location.href='dashboard.html'
+                    " style="font-size:14px;padding:18px 48px">
                         [ LAUNCH PHOENIX ]
                     </button>
                 </div>
@@ -1043,6 +1047,7 @@
                 });
 
                 document.getElementById('nextPhase0').addEventListener('click', () => {
+                    localStorage.setItem('phoenixLanguage', this.userData.language);
                     this.nextPhase();
                 });
             },
@@ -1058,6 +1063,7 @@
                 });
 
                 document.getElementById('nextPhase1').addEventListener('click', () => {
+                    localStorage.setItem('phoenixVoice', this.userData.voice);
                     this.nextPhase();
                 });
             },

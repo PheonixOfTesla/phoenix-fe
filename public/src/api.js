@@ -12,7 +12,7 @@
 class PhoenixAPI {
     constructor() {
         this.baseURL = 'https://pal-backend-production.up.railway.app/api';
-        this.token = localStorage.getItem('phoenix_token');
+        this.token = localStorage.getItem('phoenixToken');
         this.userId = localStorage.getItem('phoenix_user_id');
         this.retryCount = 0;
         this.maxRetries = 3;
@@ -1625,12 +1625,12 @@ class PhoenixAPI {
     setAuthToken(token, userId) {
         this.token = token;
         this.userId = userId;
-        localStorage.setItem('phoenix_token', token);
+        localStorage.setItem('phoenixToken', token);
         localStorage.setItem('phoenix_user_id', userId);
     }
 
     clearAuth() {
-        localStorage.removeItem('phoenix_token');
+        localStorage.removeItem('phoenixToken');
         localStorage.removeItem('phoenix_user_id');
         this.token = null;
         this.userId = null;

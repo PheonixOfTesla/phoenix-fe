@@ -303,7 +303,7 @@
         let connectedDevices = [];
 
         async function loadDevices() {
-            const token = localStorage.getItem('authToken');
+            const token = localStorage.getItem('phoenixToken');
             
             if (!token) {
                 window.location.href = '/login.html';
@@ -370,7 +370,7 @@
         }
 
         async function connectDevice(provider) {
-            const token = localStorage.getItem('authToken');
+            const token = localStorage.getItem('phoenixToken');
             
             if (!token) {
                 alert('Please login first');
@@ -407,7 +407,7 @@
                 return;
             }
 
-            const token = localStorage.getItem('authToken');
+            const token = localStorage.getItem('phoenixToken');
 
             try {
                 const response = await fetch(`${API_URL}/api/mercury/devices/${provider}`, {
@@ -432,7 +432,7 @@
         }
 
         async function syncDevice(provider) {
-            const token = localStorage.getItem('authToken');
+            const token = localStorage.getItem('phoenixToken');
 
             try {
                 const response = await fetch(`${API_URL}/api/mercury/devices/${provider}/sync`, {

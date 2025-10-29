@@ -325,7 +325,7 @@ class PhoenixOrchestrator {
         
         try {
             // Check for existing token
-            const storedToken = localStorage.getItem('phoenix_token');
+            const storedToken = localStorage.getItem('phoenixToken');
             const storedUserId = localStorage.getItem('phoenix_user_id');
             
             if (storedToken && storedUserId) {
@@ -455,7 +455,7 @@ return true; // Token is valid if this succeeds
                 this.state.authenticated = true;
                 this.state.health.auth = 'healthy';
                 
-                localStorage.setItem('phoenix_token', token);
+                localStorage.setItem('phoenixToken', token);
                 localStorage.setItem('phoenix_user_id', userId);
                 
                 this.performanceMetrics.endpointsCalled++;
@@ -501,7 +501,7 @@ return true; // Token is valid if this succeeds
                     this.state.authenticated = true;
                     this.state.health.auth = 'healthy';
                     
-                    localStorage.setItem('phoenix_token', token);
+                    localStorage.setItem('phoenixToken', token);
                     localStorage.setItem('phoenix_user_id', userId);
                     
                     this.performanceMetrics.endpointsCalled++;
@@ -556,7 +556,7 @@ return true; // Token is valid if this succeeds
                     this.state.authenticated = true;
                     this.state.health.auth = 'healthy';
                     
-                    localStorage.setItem('phoenix_token', token);
+                    localStorage.setItem('phoenixToken', token);
                     localStorage.setItem('phoenix_user_id', userId);
                     
                     this.performanceMetrics.endpointsCalled++;
