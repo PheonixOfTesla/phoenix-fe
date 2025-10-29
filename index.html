@@ -3,310 +3,344 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phoenix JARVIS - AI Life Operating System</title>
+    <title>Phoenix - Personal Operating System</title>
     <link rel="stylesheet" href="phoenix.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="/icon.png">
+    <meta name="description" content="Phoenix - Your AI-powered personal operating system for health, fitness, goals, and life optimization.">
 </head>
 <body>
-    <!-- MAIN CONTAINER -->
-    <div id="phoenix-app" class="phoenix-app">
-        
-        <!-- LOADING SCREEN -->
-        <div id="loading-screen" class="loading-screen">
-            <div class="arc-reactor">
-                <div class="arc-core"></div>
-                <div class="arc-ring ring-1"></div>
-                <div class="arc-ring ring-2"></div>
-                <div class="arc-ring ring-3"></div>
+    <div class="app-container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">⚡ PHOENIX</div>
             </div>
-            <div class="loading-text">INITIALIZING PHOENIX...</div>
-            <div class="loading-progress">
-                <div class="progress-bar"></div>
-            </div>
-            <div class="loading-steps"></div>
-        </div>
 
-        <!-- LOGIN/REGISTER VIEW -->
-        <div id="auth-view" class="view hidden">
-            <div class="auth-container">
-                <div class="auth-left">
-                    <div class="arc-reactor-large">
-                        <div class="arc-core"></div>
-                        <div class="arc-ring ring-1"></div>
-                        <div class="arc-ring ring-2"></div>
-                        <div class="arc-ring ring-3"></div>
-                    </div>
-                    <h1 class="auth-title">PHOENIX</h1>
-                    <p class="auth-subtitle">Your AI Life Operating System</p>
-                    <div class="auth-features">
-                        <div class="feature-item">⚡ Quantum Workout Generation</div>
-                        <div class="feature-item">🧠 $10M Pattern Discovery Engine</div>
-                        <div class="feature-item">🤖 Autonomous Life Interventions</div>
-                        <div class="feature-item">🔮 7-Day Predictive Intelligence</div>
-                        <div class="feature-item">🤵 Real-World Butler Actions</div>
-                    </div>
+            <nav class="nav-section">
+                <div class="nav-item active" data-view="dashboard">
+                    <span class="icon">🏠</span>
+                    <span>Dashboard</span>
                 </div>
-                <div class="auth-right">
-                    <!-- LOGIN FORM -->
-                    <div id="login-form" class="auth-form">
-                        <h2>Welcome Back</h2>
-                        <div class="input-group">
-                            <label>Email</label>
-                            <input type="email" id="login-email" placeholder="your@email.com">
-                        </div>
-                        <div class="input-group">
-                            <label>Password</label>
-                            <input type="password" id="login-password" placeholder="••••••••">
-                        </div>
-                        <button class="btn-primary" id="login-btn">Login</button>
-                        <div class="auth-toggle">
-                            Don't have an account? <span class="link" onclick="Phoenix.showRegister()">Register</span>
-                        </div>
-                    </div>
-
-                    <!-- REGISTER FORM -->
-                    <div id="register-form" class="auth-form hidden">
-                        <h2>Create Account</h2>
-                        <div class="input-group">
-                            <label>Name</label>
-                            <input type="text" id="register-name" placeholder="Tony Stark">
-                        </div>
-                        <div class="input-group">
-                            <label>Email</label>
-                            <input type="email" id="register-email" placeholder="your@email.com">
-                        </div>
-                        <div class="input-group">
-                            <label>Password</label>
-                            <input type="password" id="register-password" placeholder="••••••••">
-                        </div>
-                        <button class="btn-primary" id="register-btn">Create Account</button>
-                        <div class="auth-toggle">
-                            Already have an account? <span class="link" onclick="Phoenix.showLogin()">Login</span>
-                        </div>
-                    </div>
+                
+                <div class="nav-separator" style="margin: 16px 24px; height: 1px; background: var(--border-color);"></div>
+                
+                <div class="nav-item" data-view="planet" data-planet="mercury">
+                    <span class="icon">🏥</span>
+                    <span>Mercury</span>
                 </div>
-            </div>
-        </div>
-
-        <!-- MAIN DASHBOARD -->
-        <div id="main-view" class="view hidden">
-            <!-- HEADER -->
-            <header class="phoenix-header">
-                <div class="header-left">
-                    <div class="arc-reactor-small">
-                        <div class="arc-core"></div>
-                        <div class="arc-ring"></div>
-                    </div>
-                    <h1 class="app-title">PHOENIX</h1>
+                
+                <div class="nav-item" data-view="planet" data-planet="venus">
+                    <span class="icon">💪</span>
+                    <span>Venus</span>
                 </div>
-                <div class="header-center">
-                    <div class="system-status">
-                        <span class="status-indicator online"></span>
-                        <span>SYSTEMS ONLINE</span>
-                    </div>
+                
+                <div class="nav-item" data-view="planet" data-planet="earth">
+                    <span class="icon">📅</span>
+                    <span>Earth</span>
                 </div>
-                <div class="header-right">
-                    <div class="user-info">
-                        <span class="user-name">Loading...</span>
-                        <div class="user-avatar">
-                            <img src="" alt="User" id="user-avatar">
-                        </div>
-                    </div>
+                
+                <div class="nav-item" data-view="planet" data-planet="mars">
+                    <span class="icon">🎯</span>
+                    <span>Mars</span>
                 </div>
-            </header>
-
-            <!-- SIDEBAR NAVIGATION -->
-            <nav class="phoenix-sidebar">
-                <div class="nav-section">
-                    <div class="nav-title">CORE SYSTEMS</div>
-                    <div class="nav-item active" data-view="dashboard">
-                        <span class="nav-icon">🏠</span>
-                        <span class="nav-label">Dashboard</span>
-                    </div>
-                    <div class="nav-item" data-view="intelligence">
-                        <span class="nav-icon">🧠</span>
-                        <span class="nav-label">Intelligence</span>
-                        <span class="nav-badge">NEW</span>
-                    </div>
-                    <div class="nav-item" data-view="interventions">
-                        <span class="nav-icon">⚡</span>
-                        <span class="nav-label">Interventions</span>
-                        <span class="nav-badge pending" id="interventions-badge">0</span>
-                    </div>
-                    <div class="nav-item" data-view="butler">
-                        <span class="nav-icon">🤵</span>
-                        <span class="nav-label">Butler</span>
-                    </div>
+                
+                <div class="nav-item" data-view="planet" data-planet="jupiter">
+                    <span class="icon">💰</span>
+                    <span>Jupiter</span>
                 </div>
-
-                <div class="nav-section">
-                    <div class="nav-title">PLANETARY SYSTEMS</div>
-                    <div class="nav-item" data-view="mercury">
-                        <span class="nav-icon">🔬</span>
-                        <span class="nav-label">Mercury</span>
-                        <span class="nav-sublabel">Health</span>
-                    </div>
-                    <div class="nav-item" data-view="venus">
-                        <span class="nav-icon">💪</span>
-                        <span class="nav-label">Venus</span>
-                        <span class="nav-sublabel">Fitness</span>
-                    </div>
-                    <div class="nav-item" data-view="earth">
-                        <span class="nav-icon">📅</span>
-                        <span class="nav-label">Earth</span>
-                        <span class="nav-sublabel">Calendar</span>
-                    </div>
-                    <div class="nav-item" data-view="mars">
-                        <span class="nav-icon">🎯</span>
-                        <span class="nav-label">Mars</span>
-                        <span class="nav-sublabel">Goals</span>
-                    </div>
-                    <div class="nav-item" data-view="jupiter">
-                        <span class="nav-icon">💰</span>
-                        <span class="nav-label">Jupiter</span>
-                        <span class="nav-sublabel">Finance</span>
-                    </div>
-                    <div class="nav-item" data-view="saturn">
-                        <span class="nav-icon">🗓️</span>
-                        <span class="nav-label">Saturn</span>
-                        <span class="nav-sublabel">Legacy</span>
-                    </div>
+                
+                <div class="nav-item" data-view="planet" data-planet="saturn">
+                    <span class="icon">♾️</span>
+                    <span>Saturn</span>
                 </div>
-
-                <div class="nav-section">
-                    <div class="nav-title">ADVANCED</div>
-                    <div class="nav-item" data-view="voice">
-                        <span class="nav-icon">🗣️</span>
-                        <span class="nav-label">Voice Mode</span>
-                    </div>
-                    <div class="nav-item" data-view="settings">
-                        <span class="nav-icon">⚙️</span>
-                        <span class="nav-label">Settings</span>
-                    </div>
+                
+                <div class="nav-separator" style="margin: 16px 24px; height: 1px; background: var(--border-color);"></div>
+                
+                <div class="nav-item" data-view="wearables">
+                    <span class="icon">⌚</span>
+                    <span>Wearables</span>
                 </div>
-
-                <div class="sidebar-footer">
-                    <button class="btn-secondary btn-logout" onclick="Phoenix.logout()">Logout</button>
+                
+                <div class="nav-item" data-view="settings">
+                    <span class="icon">⚙️</span>
+                    <span>Settings</span>
                 </div>
             </nav>
 
-            <!-- MAIN CONTENT AREA -->
-            <main class="phoenix-content" id="main-content">
-                <!-- Content dynamically loaded here -->
-            </main>
-
-            <!-- FLOATING JARVIS ASSISTANT -->
-            <div class="jarvis-float" id="jarvis-float">
-                <div class="jarvis-avatar">
-                    <div class="arc-reactor-tiny">
-                        <div class="arc-core"></div>
-                        <div class="arc-ring"></div>
-                    </div>
-                </div>
-                <div class="jarvis-chat hidden" id="jarvis-chat">
-                    <div class="chat-header">
-                        <span>JARVIS</span>
-                        <button class="chat-close" onclick="Phoenix.toggleJarvis()">×</button>
-                    </div>
-                    <div class="chat-messages" id="chat-messages">
-                        <div class="message jarvis">
-                            <div class="message-content">Hello! I'm JARVIS, your AI assistant. How can I help you today?</div>
-                            <div class="message-time">Just now</div>
-                        </div>
-                    </div>
-                    <div class="chat-input-container">
-                        <input type="text" class="chat-input" id="chat-input" placeholder="Ask JARVIS anything...">
-                        <button class="chat-send" onclick="Phoenix.sendMessage()">➤</button>
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar" id="user-avatar">U</div>
+                    <div class="user-info">
+                        <div class="user-name" id="user-name">Loading...</div>
+                        <div class="user-status">Online</div>
                     </div>
                 </div>
             </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <!-- TOP BAR -->
+            <header class="top-bar">
+                <div class="search-bar">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" placeholder="Search Phoenix..." id="global-search">
+                </div>
+
+                <div class="top-bar-actions">
+                    <button class="icon-btn" id="voice-btn" title="Voice Assistant">
+                        🎤
+                    </button>
+                    
+                    <button class="icon-btn" id="notifications-btn" title="Notifications">
+                        🔔
+                    </button>
+                    
+                    <button class="icon-btn" id="theme-toggle" title="Toggle Theme">
+                        🌙
+                    </button>
+                    
+                    <button class="icon-btn" id="logout-btn" title="Logout">
+                        🚪
+                    </button>
+                </div>
+            </header>
+
+            <!-- CONTENT AREA -->
+            <div class="content-area">
+                <!-- DASHBOARD VIEW -->
+                <div class="view-container active" id="view-dashboard">
+                    <div id="dashboard-content">
+                        <!-- Dashboard will be dynamically loaded -->
+                    </div>
+                </div>
+
+                <!-- MERCURY VIEW (Health) -->
+                <div class="view-container" id="view-planet">
+                    <div id="mercury-content" style="display: none;">
+                        <!-- Mercury dashboard will be dynamically loaded -->
+                    </div>
+                    
+                    <div id="venus-content" style="display: none;">
+                        <!-- Venus dashboard will be dynamically loaded -->
+                    </div>
+                    
+                    <div id="earth-content" style="display: none;">
+                        <!-- Earth dashboard will be dynamically loaded -->
+                    </div>
+                    
+                    <div id="mars-content" style="display: none;">
+                        <!-- Mars dashboard will be dynamically loaded -->
+                    </div>
+                    
+                    <div id="jupiter-content" style="display: none;">
+                        <!-- Jupiter dashboard will be dynamically loaded -->
+                    </div>
+                    
+                    <div id="saturn-content" style="display: none;">
+                        <!-- Saturn dashboard will be dynamically loaded -->
+                    </div>
+                </div>
+
+                <!-- WEARABLES VIEW -->
+                <div class="view-container" id="view-wearables">
+                    <div class="planet-header">
+                        <h1>⌚ Connected Devices</h1>
+                        <div class="planet-subtitle">Manage your wearable integrations</div>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card">
+                            <h3>Fitbit</h3>
+                            <p>Connect your Fitbit to sync health and activity data</p>
+                            <button class="btn btn-primary" style="margin-top: 16px;" onclick="phoenixAPI.connectDevice('fitbit')">
+                                Connect Fitbit
+                            </button>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <h3>Polar</h3>
+                            <p>Sync heart rate and training data from Polar devices</p>
+                            <button class="btn btn-primary" style="margin-top: 16px;" onclick="phoenixAPI.connectDevice('polar')">
+                                Connect Polar
+                            </button>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <h3>Garmin</h3>
+                            <p>Import workouts and health metrics from Garmin</p>
+                            <button class="btn btn-primary" style="margin-top: 16px;" onclick="phoenixAPI.connectDevice('garmin')">
+                                Connect Garmin
+                            </button>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <h3>Oura Ring</h3>
+                            <p>Track sleep and recovery with Oura integration</p>
+                            <button class="btn btn-primary" style="margin-top: 16px;" onclick="phoenixAPI.connectDevice('oura')">
+                                Connect Oura
+                            </button>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <h3>WHOOP</h3>
+                            <p>Sync strain, recovery, and sleep data from WHOOP</p>
+                            <button class="btn btn-primary" style="margin-top: 16px;" onclick="phoenixAPI.connectDevice('whoop')">
+                                Connect WHOOP
+                            </button>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <h3>Manual Entry</h3>
+                            <p>Manually log health and fitness data</p>
+                            <button class="btn btn-secondary" style="margin-top: 16px;" onclick="phoenixAPI.manualDataEntry()">
+                                Enter Data
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SETTINGS VIEW -->
+                <div class="view-container" id="view-settings">
+                    <div class="planet-header">
+                        <h1>⚙️ Settings</h1>
+                        <div class="planet-subtitle">Customize your Phoenix experience</div>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card card-full-width">
+                            <h3>Profile Settings</h3>
+                            <form id="profile-settings-form">
+                                <div class="form-group">
+                                    <label>Name</label>
+                                    <input type="text" class="form-control" id="settings-name" placeholder="Your name">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <input type="email" class="form-control" id="settings-email" placeholder="your@email.com">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Timezone</label>
+                                    <select class="form-control" id="settings-timezone">
+                                        <option>America/New_York</option>
+                                        <option>America/Chicago</option>
+                                        <option>America/Denver</option>
+                                        <option>America/Los_Angeles</option>
+                                    </select>
+                                </div>
+                                
+                                <button type="button" class="btn btn-primary" onclick="phoenixAPI.updateUserProfile({ name: document.getElementById('settings-name').value, email: document.getElementById('settings-email').value })">
+                                    Save Changes
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="dashboard-card card-full-width">
+                            <h3>JARVIS Personality</h3>
+                            <form id="jarvis-settings-form">
+                                <div class="form-group">
+                                    <label>Personality Type</label>
+                                    <select class="form-control" id="jarvis-personality">
+                                        <option>Professional</option>
+                                        <option>Friendly</option>
+                                        <option>Motivational</option>
+                                        <option>Scientific</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Response Style</label>
+                                    <select class="form-control" id="jarvis-style">
+                                        <option>Concise</option>
+                                        <option>Detailed</option>
+                                        <option>Conversational</option>
+                                    </select>
+                                </div>
+                                
+                                <button type="button" class="btn btn-primary" onclick="phoenixAPI.updatePersonality({ type: document.getElementById('jarvis-personality').value })">
+                                    Update Personality
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="dashboard-card card-full-width">
+                            <h3>Notification Preferences</h3>
+                            <div style="display: flex; flex-direction: column; gap: 16px;">
+                                <label style="display: flex; align-items: center; gap: 12px;">
+                                    <input type="checkbox" checked>
+                                    <span>Pattern Discovery Alerts</span>
+                                </label>
+                                
+                                <label style="display: flex; align-items: center; gap: 12px;">
+                                    <input type="checkbox" checked>
+                                    <span>Intervention Notifications</span>
+                                </label>
+                                
+                                <label style="display: flex; align-items: center; gap: 12px;">
+                                    <input type="checkbox" checked>
+                                    <span>Recovery Alerts</span>
+                                </label>
+                                
+                                <label style="display: flex; align-items: center; gap: 12px;">
+                                    <input type="checkbox">
+                                    <span>Financial Alerts</span>
+                                </label>
+                                
+                                <label style="display: flex; align-items: center; gap: 12px;">
+                                    <input type="checkbox" checked>
+                                    <span>Goal Progress Updates</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <h3>Data Export</h3>
+                            <p style="margin-bottom: 16px;">Download all your Phoenix data</p>
+                            <button class="btn btn-secondary" onclick="phoenixAPI.exportData()">
+                                Export Data
+                            </button>
+                        </div>
+
+                        <div class="dashboard-card">
+                            <h3>Danger Zone</h3>
+                            <p style="margin-bottom: 16px; color: var(--accent-red);">Permanently delete your account</p>
+                            <button class="btn btn-secondary" style="background: var(--accent-red); border-color: var(--accent-red);" onclick="confirm('Are you sure? This cannot be undone!') && phoenixAPI.deleteAccount()">
+                                Delete Account
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- FLOATING CHAT INTERFACE -->
+    <div id="chat-interface" style="position: fixed; bottom: 24px; right: 24px; width: 400px; height: 600px; background: var(--secondary-bg); border: 1px solid var(--border-color); border-radius: 16px; display: none; flex-direction: column; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8); z-index: 500;">
+        <div style="padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0;">💬 JARVIS</h3>
+            <button onclick="document.getElementById('chat-interface').style.display = 'none'" style="background: transparent; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer;">×</button>
+        </div>
+        
+        <div id="chat-messages" style="flex: 1; overflow-y: auto; padding: 20px;">
+            <!-- Chat messages will be dynamically added -->
+        </div>
+        
+        <div style="padding: 16px; border-top: 1px solid var(--border-color);">
+            <textarea id="chat-input" placeholder="Ask JARVIS anything..." style="width: 100%; padding: 12px; background: var(--primary-bg); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-family: inherit; resize: none; height: 60px;"></textarea>
         </div>
     </div>
 
-    <!-- DASHBOARD TEMPLATES -->
-    <template id="dashboard-template">
-        <div class="dashboard-grid">
-            <!-- INTELLIGENCE OVERVIEW -->
-            <div class="dashboard-card card-large">
-                <div class="card-header">
-                    <h3>🧠 Intelligence Overview</h3>
-                    <span class="card-badge live">LIVE</span>
-                </div>
-                <div class="card-content">
-                    <div class="stat-grid">
-                        <div class="stat-item">
-                            <div class="stat-value" id="patterns-discovered">0</div>
-                            <div class="stat-label">Patterns Discovered</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value" id="interventions-today">0</div>
-                            <div class="stat-label">Interventions Today</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value" id="predictions-active">0</div>
-                            <div class="stat-label">Active Predictions</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value" id="butler-actions">0</div>
-                            <div class="stat-label">Butler Actions</div>
-                        </div>
-                    </div>
-                    <div class="recent-patterns" id="recent-patterns"></div>
-                </div>
-            </div>
+    <!-- NOTIFICATION CONTAINER -->
+    <div id="notification-container"></div>
 
-            <!-- QUICK ACTIONS -->
-            <div class="dashboard-card">
-                <div class="card-header">
-                    <h3>⚡ Quick Actions</h3>
-                </div>
-                <div class="card-content">
-                    <div class="quick-actions">
-                        <button class="quick-action-btn" onclick="Phoenix.generateQuantumWorkout()">
-                            <span class="action-icon">🧬</span>
-                            <span class="action-label">Quantum Workout</span>
-                        </button>
-                        <button class="quick-action-btn" onclick="Phoenix.orderFood()">
-                            <span class="action-icon">🍽️</span>
-                            <span class="action-label">Order Food</span>
-                        </button>
-                        <button class="quick-action-btn" onclick="Phoenix.bookRide()">
-                            <span class="action-icon">🚗</span>
-                            <span class="action-label">Book Ride</span>
-                        </button>
-                        <button class="quick-action-btn" onclick="Phoenix.analyzePatterns()">
-                            <span class="action-icon">🔍</span>
-                            <span class="action-label">Find Patterns</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
+    <!-- GLOBAL LOADER -->
+    <div id="global-loader">
+        <div class="loader"></div>
+    </div>
 
-            <!-- TODAY'S PREDICTIONS -->
-            <div class="dashboard-card">
-                <div class="card-header">
-                    <h3>🔮 Today's Predictions</h3>
-                </div>
-                <div class="card-content" id="predictions-today">
-                    <div class="loading-spinner">Loading predictions...</div>
-                </div>
-            </div>
-
-            <!-- SYSTEM HEALTH -->
-            <div class="dashboard-card">
-                <div class="card-header">
-                    <h3>❤️ System Health</h3>
-                </div>
-                <div class="card-content" id="system-health">
-                    <div class="loading-spinner">Loading health data...</div>
-                </div>
-            </div>
-        </div>
-    </template>
-
-    <!-- Load JavaScript -->
-    <script src="phoenix-jarvis-butler.js"></script>
+    <!-- JavaScript -->
+    <script src="phoenix-voice-companion-jarvis-butler.js"></script>
 </body>
 </html>
