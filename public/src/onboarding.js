@@ -159,7 +159,7 @@ class OnboardingEngine {
             const completed = localStorage.getItem('phoenixOnboardingComplete');
             if (completed === 'true') {
                 console.log('✅ Onboarding already completed, redirecting...');
-                window.location.href = '/';
+                window.location.href = 'dashboard.html';
                 return;
             }
             
@@ -853,13 +853,13 @@ class OnboardingEngine {
         // Redirect based on choice
         setTimeout(() => {
             if (option === 'explore') {
-                window.location.href = '/';
+                window.location.href = 'dashboard.html';
             } else if (option === 'simple') {
                 // Open wearable connection
-                window.location.href = '/?connect=wearable';
+                window.location.href = 'dashboard.html?connect=wearable';
             } else if (option === 'all-in') {
                 // Open full setup
-                window.location.href = '/?connect=all';
+                window.location.href = 'dashboard.html?connect=all';
             }
         }, 3000);
     }
@@ -949,7 +949,7 @@ class OnboardingEngine {
         if (confirm('Skip onboarding? You can always view it later from Settings.')) {
             localStorage.setItem('phoenixOnboardingComplete', 'true');
             localStorage.setItem('phoenixOnboardingChoice', 'skipped');
-            window.location.href = '/';
+            window.location.href = 'dashboard.html';
         }
     }
 

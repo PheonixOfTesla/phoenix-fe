@@ -519,9 +519,9 @@
                 if (data.success && data.token) {
                     localStorage.setItem('phoenixToken', data.token);
                     localStorage.setItem('phoenixUser', JSON.stringify(data.user));
-                    
+
                     // Redirect to onboarding
-                    window.location.href = '/onboarding';
+                    window.location.href = 'onboarding.html';
                 } else {
                     showError(data.message || 'Registration failed. Please try again.');
                 }

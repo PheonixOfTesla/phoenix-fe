@@ -599,10 +599,10 @@ return true; // Token is valid if this succeeds
     redirectToLogin() {
         // Save current path to return after login
         sessionStorage.setItem('phoenix_return_url', window.location.pathname);
-        
+
         // Redirect to login page
         console.log('🔄 Redirecting to login page...');
-        window.location.href = '/login';
+        window.location.href = 'login.html';
     }
 
     /**
@@ -862,7 +862,7 @@ return true; // Token is valid if this succeeds
 
     redirectToOnboarding() {
         console.log('🚀 Redirecting to onboarding flow...');
-        window.location.href = '/onboarding';
+        window.location.href = 'onboarding.html';
     }
 
     getDefaultPreferences() {

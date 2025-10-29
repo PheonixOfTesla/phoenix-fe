@@ -4,7 +4,7 @@
   "redirects": [
     {
       "source": "/",
-      "destination": "/login",
+      "destination": "/index",
       "permanent": false
     }
   ],
@@ -36,6 +36,10 @@
     {
       "source": "/fitbit",
       "destination": "/fitbit.html"
+    },
+    {
+      "source": "/dashboard",
+      "destination": "/dashboard.html"
     }
   ],
   "headers": [
