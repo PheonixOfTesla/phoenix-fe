@@ -758,7 +758,7 @@
                     <p>I'M PHOENIX, AND I'LL HELP YOU OPTIMIZE YOUR LIFE.</p>
                 </div>
                 <div class="button-group">
-                    <button class="btn btn-primary" onclick="ViewManager.showView('main')" style="font-size:14px;padding:18px 48px">
+                    <button class="btn btn-primary" onclick="window.location.href='/dashboard.html'" style="font-size:14px;padding:18px 48px">
                         [ LAUNCH PHOENIX ]
                     </button>
                 </div>
@@ -826,8 +826,9 @@
                     const data = await response.json();
 
                     if (data.success) {
-                        console.log('[ViewManager] Valid token, loading main app');
-                        this.showView('main');
+                        console.log('[ViewManager] Valid token, redirecting to dashboard');
+                        window.location.href = '/dashboard.html';
+                        return;
                     } else {
                         console.log('[ViewManager] Invalid token, showing auth view');
                         localStorage.removeItem('phoenixToken');
@@ -967,7 +968,7 @@
                         localStorage.setItem('phoenixUser', JSON.stringify(data.user));
 
                         this.showSuccess('Login successful! Loading Phoenix...');
-                        setTimeout(() => ViewManager.showView('main'), 1000);
+                        setTimeout(() => window.location.href = '/dashboard.html', 1000);
                     } else {
                         this.showError(data.message || 'Login failed');
                     }
