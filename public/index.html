@@ -959,6 +959,18 @@
                         body: JSON.stringify({ email, password })
                     });
 
+                    // Handle rate limiting (429)
+                    if (response.status === 429) {
+                        this.showError('Too many login attempts. Please wait 2 minutes and try again.');
+                        return;
+                    }
+
+                    // Handle non-200 responses
+                    if (!response.ok) {
+                        this.showError(`Login failed (Error ${response.status}). Please try again.`);
+                        return;
+                    }
+
                     const data = await response.json();
 
                     if (data.success && data.token) {
