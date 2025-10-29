@@ -448,41 +448,24 @@ class PhoenixConversationalAI {
 
     /**
      * Handle data queries (fitness, health, finance, goals)
+     * NOW USES PHOENIXVOICE with full 7-planet context
      */
     async handleDataQuery(message, classification) {
-        // Gather full context from all endpoints
-        const context = await this.gatherFullContext();
-
-        // Use companion chat endpoint with data context
-        const response = await this.api.phoenix.companion.chat({
-            message: message,
-            conversationType: 'data_query',
-            context: context,
-            mode: this.mode.type,
-            conversationHistory: this.conversationHistory.slice(-10)
-        });
-
+        // Use NEW PhoenixVoice endpoint - automatically fetches all 7 planet contexts
+        const response = await this.sendVoiceMessageWithContext(message);
         return response;
     }
 
     /**
      * Handle butler action requests
+     * NOW USES PHOENIXVOICE with full 7-planet context
      */
     async handleButlerAction(message, classification) {
         // Parse the action intent
         const actionIntent = this.parseButlerIntent(message);
 
-        // Gather context
-        const context = await this.gatherFullContext();
-
-        // Use companion chat to generate response and execute action
-        const response = await this.api.phoenix.companion.chat({
-            message: message,
-            conversationType: 'action_request',
-            actionIntent: actionIntent,
-            context: context,
-            mode: this.mode.type
-        });
+        // Use NEW PhoenixVoice endpoint - automatically fetches all 7 planet contexts
+        const response = await this.sendVoiceMessageWithContext(message);
 
         // If action was identified, execute it
         if (actionIntent.action && actionIntent.canExecute) {
@@ -494,39 +477,22 @@ class PhoenixConversationalAI {
 
     /**
      * Handle life advice, emotional support, complex decisions
+     * NOW USES PHOENIXVOICE with full 7-planet context
      */
     async handleLifeAdvice(message, classification) {
-        // Gather life context
-        const lifeContext = await this.gatherLifeContext();
-
-        // Use companion chat with life context
-        const response = await this.api.phoenix.companion.chat({
-            message: message,
-            conversationType: classification.type,
-            context: lifeContext,
-            mode: this.mode.type,
-            requiresEmpathy: true,
-            requiresWisdom: true,
-            conversationHistory: this.conversationHistory.slice(-10)
-        });
-
+        // Use NEW PhoenixVoice endpoint - automatically fetches all 7 planet contexts
+        // This gives Phoenix full awareness of your life situation for better advice
+        const response = await this.sendVoiceMessageWithContext(message);
         return response;
     }
 
     /**
      * Handle general conversation
+     * NOW USES PHOENIXVOICE with full 7-planet context
      */
     async handleGeneralConversation(message, classification) {
-        const context = await this.gatherFullContext();
-
-        const response = await this.api.phoenix.companion.chat({
-            message: message,
-            conversationType: 'general_chat',
-            context: context,
-            mode: this.mode.type,
-            conversationHistory: this.conversationHistory.slice(-5)
-        });
-
+        // Use NEW PhoenixVoice endpoint - automatically fetches all 7 planet contexts
+        const response = await this.sendVoiceMessageWithContext(message);
         return response;
     }
 
@@ -958,16 +924,11 @@ class PhoenixConversationalAI {
 
     /**
      * Handle fallback for unrecognized input
+     * NOW USES PHOENIXVOICE with full 7-planet context
      */
     async handleFallback(message) {
-        const context = await this.gatherFullContext();
-
-        return await this.api.phoenix.companion.chat({
-            message: message,
-            conversationType: 'fallback',
-            context: context,
-            mode: this.mode.type
-        });
+        // Use NEW PhoenixVoice endpoint - automatically fetches all 7 planet contexts
+        return await this.sendVoiceMessageWithContext(message);
     }
 
     /**
