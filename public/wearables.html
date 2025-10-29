@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wearables Hub - Phoenix</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #000 0%, #001a1a 100%);
+            color: #00ffff;
+            font-family: 'Courier New', monospace;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        h1 {
+            font-size: 48px;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: rgba(0, 255, 255, 0.6);
+            font-size: 18px;
+        }
+        
+        .devices-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .device-card {
+            background: rgba(0, 20, 30, 0.8);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .device-card:hover {
+            border-color: rgba(0, 255, 255, 0.8);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+            transform: translateY(-5px);
+        }
+        
+        .device-card.connected {
+            border-color: rgba(0, 255, 0, 0.5);
+        }
+        
+        .device-card.connected:hover {
+            border-color: rgba(0, 255, 0, 0.8);
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+        }
+        
+        .device-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .device-card.disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .device-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .device-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .device-status {
+            font-size: 14px;
+            margin-bottom: 20px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+        
+        .status-connected {
+            background: rgba(0, 255, 0, 0.2);
+            color: #00ff00;
+        }
+        
+        .status-disconnected {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .status-coming-soon {
+            background: rgba(255, 165, 0, 0.2);
+            color: #ffa500;
+        }
+        
+        .device-description {
+            color: rgba(0, 255, 255, 0.7);
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+        
+        .device-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 12px 24px;
+            border: 2px solid rgba(0, 255, 255, 0.5);
+            background: rgba(0, 255, 255, 0.1);
+            color: #00ffff;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover:not(:disabled) {
+            background: rgba(0, 255, 255, 0.3);
+            border-color: #00ffff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+        }
+        
+        button.disconnect-btn {
+            border-color: rgba(255, 0, 0, 0.5);
+            background: rgba(255, 0, 0, 0.1);
+            color: #ff6666;
+        }
+        
+        button.disconnect-btn:hover {
+            background: rgba(255, 0, 0, 0.3);
+            border-color: #ff0000;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .info-section {
+            background: rgba(0, 20, 30, 0.6);
+            border: 2px solid rgba(0, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 30px;
+            margin-top: 40px;
+        }
+        
+        .info-section h2 {
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+        
+        .info-section ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+        
+        .info-section li {
+            margin-bottom: 10px;
+            color: rgba(0, 255, 255, 0.7);
+        }
+        
+        .info-section li:before {
+            content: '▶ ';
+            color: #00ffff;
+            margin-right: 10px;
+        }
+        
+        .last-sync {
+            font-size: 12px;
+            color: rgba(0, 255, 255, 0.5);
+            margin-top: 10px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 255, 255, 0.2);
+            border-top-color: #00ffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⌚ Wearables Hub</h1>
+            <p class="subtitle">Connect your devices to track health & fitness data</p>
+        </header>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading your devices...</p>
+        </div>
+
+        <div id="devices" class="devices-grid" style="display: none;">
+            <!-- Devices will be populated by JavaScript -->
+        </div>
+
+        <div class="info-section">
+            <h2>📊 What We Track</h2>
+            <ul>
+                <li>Heart Rate & HRV (Heart Rate Variability)</li>
+                <li>Sleep Quality & Sleep Stages</li>
+                <li>Activity & Steps</li>
+                <li>Recovery Score & Readiness</li>
+                <li>Calories Burned & Active Minutes</li>
+                <li>Workout Sessions & Exercise Data</li>
+            </ul>
+        </div>
+
+        <div class="info-section">
+            <h2>🔒 Privacy & Security</h2>
+            <ul>
+                <li>Your data is encrypted and stored securely</li>
+                <li>We only request necessary permissions</li>
+                <li>You can disconnect devices at any time</li>
+                <li>Data is used only for your personal insights</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://pal-backend-production.up.railway.app';
+        
+        // Device configurations
+        const DEVICES = {
+            fitbit: {
+                name: 'Fitbit',
+                icon: '⌚',
+                description: 'Track steps, heart rate, sleep, and workouts with Fitbit devices.',
+                enabled: true
+            },
+            oura: {
+                name: 'Oura Ring',
+                icon: '💍',
+                description: 'Monitor sleep quality, readiness, and recovery with Oura Ring.',
+                enabled: false,
+                comingSoon: true
+            },
+            whoop: {
+                name: 'Whoop',
+                icon: '📊',
+                description: 'Track strain, recovery, and sleep performance with Whoop.',
+                enabled: false,
+                comingSoon: true
+            },
+            garmin: {
+                name: 'Garmin',
+                icon: '🏃',
+                description: 'Connect Garmin watches for comprehensive fitness tracking.',
+                enabled: false,
+                comingSoon: true
+            },
+            polar: {
+                name: 'Polar',
+                icon: '❄️',
+                description: 'Sync Polar devices for heart rate and training data.',
+                enabled: false,
+                comingSoon: true
+            }
+        };
+
+        let connectedDevices = [];
+
+        async function loadDevices() {
+            const token = localStorage.getItem('authToken');
+            
+            if (!token) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            try {
+                // Fetch connected devices from backend
+                const response = await fetch(`${API_URL}/api/mercury/devices`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    connectedDevices = data.devices || [];
+                }
+            } catch (error) {
+                console.error('Error loading devices:', error);
+            }
+
+            renderDevices();
+        }
+
+        function renderDevices() {
+            const devicesContainer = document.getElementById('devices');
+            const loadingContainer = document.getElementById('loading');
+
+            loadingContainer.style.display = 'none';
+            devicesContainer.style.display = 'grid';
+
+            devicesContainer.innerHTML = Object.entries(DEVICES).map(([provider, device]) => {
+                const connected = connectedDevices.find(d => d.provider === provider);
+                const isConnected = connected && connected.connected;
+
+                return `
+                    <div class="device-card ${isConnected ? 'connected' : ''} ${!device.enabled ? 'disabled' : ''}">
+                        <div class="device-icon">${device.icon}</div>
+                        <div class="device-name">${device.name}</div>
+                        <div class="device-status ${isConnected ? 'status-connected' : device.comingSoon ? 'status-coming-soon' : 'status-disconnected'}">
+                            ${isConnected ? '✓ Connected' : device.comingSoon ? '🚀 Coming Soon' : '○ Not Connected'}
+                        </div>
+                        <div class="device-description">${device.description}</div>
+                        ${connected && connected.lastSync ? `<div class="last-sync">Last sync: ${new Date(connected.lastSync).toLocaleString()}</div>` : ''}
+                        <div class="device-actions">
+                            ${isConnected ? `
+                                <button onclick="syncDevice('${provider}')" ${!device.enabled ? 'disabled' : ''}>
+                                    Sync Now
+                                </button>
+                                <button class="disconnect-btn" onclick="disconnectDevice('${provider}')" ${!device.enabled ? 'disabled' : ''}>
+                                    Disconnect
+                                </button>
+                            ` : `
+                                <button onclick="connectDevice('${provider}')" ${!device.enabled ? 'disabled' : ''}>
+                                    ${device.comingSoon ? 'Coming Soon' : 'Connect'}
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function connectDevice(provider) {
+            const token = localStorage.getItem('authToken');
+            
+            if (!token) {
+                alert('Please login first');
+                window.location.href = '/login.html';
+                return;
+            }
+
+            try {
+                // Request OAuth URL from backend
+                const response = await fetch(`${API_URL}/api/mercury/devices/${provider}/connect`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success && data.authUrl) {
+                    // Open OAuth URL in popup or redirect
+                    window.location.href = data.authUrl;
+                } else {
+                    alert(`Failed to connect ${provider}: ${data.message || 'Unknown error'}`);
+                }
+            } catch (error) {
+                console.error(`Error connecting ${provider}:`, error);
+                alert(`Network error: ${error.message}`);
+            }
+        }
+
+        async function disconnectDevice(provider) {
+            if (!confirm(`Are you sure you want to disconnect ${DEVICES[provider].name}?`)) {
+                return;
+            }
+
+            const token = localStorage.getItem('authToken');
+
+            try {
+                const response = await fetch(`${API_URL}/api/mercury/devices/${provider}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert(`${DEVICES[provider].name} disconnected successfully`);
+                    loadDevices(); // Reload devices
+                } else {
+                    alert(`Failed to disconnect: ${data.message || 'Unknown error'}`);
+                }
+            } catch (error) {
+                console.error(`Error disconnecting ${provider}:`, error);
+                alert(`Network error: ${error.message}`);
+            }
+        }
+
+        async function syncDevice(provider) {
+            const token = localStorage.getItem('authToken');
+
+            try {
+                const response = await fetch(`${API_URL}/api/mercury/devices/${provider}/sync`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert(`${DEVICES[provider].name} synced successfully!`);
+                    loadDevices(); // Reload to show updated last sync
+                } else {
+                    alert(`Sync failed: ${data.message || 'Unknown error'}`);
+                }
+            } catch (error) {
+                console.error(`Error syncing ${provider}:`, error);
+                alert(`Network error: ${error.message}`);
+            }
+        }
+
+        // Listen for OAuth callback messages
+        window.addEventListener('message', (event) => {
+            if (event.data.type === 'fitbit_connected' && event.data.success) {
+                loadDevices(); // Reload devices after connection
+            }
+        });
+
+        // Load devices on page load
+        loadDevices();
+    </script>
+</body>
+</html>
