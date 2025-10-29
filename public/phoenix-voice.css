@@ -1,5 +1,5 @@
 /* ============================================================================ */
-/* PHOENIX VOICE INTERFACE - STYLES */
+/* PHOENIX VOICE INTERFACE - CYBERPUNK CYAN THEME */
 /* ============================================================================ */
 
 /* Voice Controls Container */
@@ -17,72 +17,87 @@
 /* Voice Status Indicator */
 .voice-status {
     padding: 14px 28px;
-    border-radius: 30px;
+    border-radius: 6px;
     font-weight: 600;
     font-size: 15px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
     backdrop-filter: blur(10px);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+    border: 2px solid var(--primary-cyan, #00ffff);
+    background: rgba(0, 255, 255, 0.1);
+    color: var(--primary-cyan, #00ffff);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .voice-status.idle {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: rgba(0, 255, 255, 0.08);
+    border-color: var(--primary-cyan-dim, rgba(0, 255, 255, 0.7));
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
 }
 
 .voice-status.listening {
-    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-    color: white;
+    background: rgba(0, 255, 255, 0.2);
+    border-color: var(--primary-cyan, #00ffff);
+    color: var(--primary-cyan, #00ffff);
     animation: pulse-listening 1.5s infinite ease-in-out;
-    box-shadow: 0 6px 25px rgba(76, 175, 80, 0.5);
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
 }
 
 .voice-status.processing {
-    background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
-    color: white;
+    background: rgba(0, 255, 255, 0.15);
+    border-color: var(--primary-cyan, #00ffff);
+    color: var(--primary-cyan, #00ffff);
     animation: pulse-processing 1s infinite ease-in-out;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
 }
 
 .voice-status.speaking {
-    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
-    color: white;
+    background: rgba(0, 255, 255, 0.25);
+    border-color: var(--primary-cyan, #00ffff);
+    color: var(--primary-cyan, #00ffff);
     animation: wave 1.2s infinite ease-in-out;
-    box-shadow: 0 6px 25px rgba(33, 150, 243, 0.5);
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.7);
 }
 
 .voice-status.error {
-    background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
-    color: white;
+    background: rgba(255, 68, 68, 0.15);
+    border-color: #ff4444;
+    color: #ff4444;
     animation: shake 0.5s;
+    box-shadow: 0 0 20px rgba(255, 68, 68, 0.4);
 }
 
 /* Voice Button */
 .voice-btn {
-    padding: 18px 36px;
-    font-size: 18px;
+    padding: 16px 32px;
+    font-size: 16px;
     font-weight: 600;
-    border: none;
-    border-radius: 50px;
+    border: 2px solid var(--primary-cyan, #00ffff);
+    border-radius: 6px;
     cursor: pointer;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: rgba(0, 255, 255, 0.1);
+    color: var(--primary-cyan, #00ffff);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+    font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
     display: flex;
     align-items: center;
     gap: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .voice-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
+    transform: translateY(-2px);
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
+    background: rgba(0, 255, 255, 0.15);
 }
 
 .voice-btn:active {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    transform: translateY(0);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
 }
 
 .voice-btn:disabled {
@@ -94,27 +109,31 @@
 /* Voice Selector Dropdown */
 .voice-selector {
     padding: 12px 20px;
-    border-radius: 25px;
-    border: 2px solid #667eea;
-    background: white;
-    color: #333;
+    border-radius: 6px;
+    border: 2px solid var(--primary-cyan, #00ffff);
+    background: rgba(0, 10, 20, 0.9);
+    color: var(--primary-cyan, #00ffff);
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
     outline: none;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .voice-selector:hover {
-    border-color: #764ba2;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+    border-color: var(--primary-cyan, #00ffff);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+    background: rgba(0, 255, 255, 0.1);
 }
 
 .voice-selector:focus {
-    border-color: #764ba2;
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+    border-color: var(--primary-cyan, #00ffff);
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
+    background: rgba(0, 255, 255, 0.15);
 }
 
 /* Animations */
@@ -122,34 +141,42 @@
     0%, 100% {
         opacity: 1;
         transform: scale(1);
+        box-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
     }
     50% {
-        opacity: 0.85;
-        transform: scale(1.05);
+        opacity: 0.9;
+        transform: scale(1.03);
+        box-shadow: 0 0 35px rgba(0, 255, 255, 0.8);
     }
 }
 
 @keyframes pulse-processing {
     0%, 100% {
         opacity: 1;
+        box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
     }
     50% {
-        opacity: 0.7;
+        opacity: 0.8;
+        box-shadow: 0 0 30px rgba(0, 255, 255, 0.7);
     }
 }
 
 @keyframes wave {
     0%, 100% {
         transform: translateX(0) scale(1);
+        box-shadow: 0 0 30px rgba(0, 255, 255, 0.7);
     }
     25% {
-        transform: translateX(-3px) scale(1.02);
+        transform: translateX(-2px) scale(1.02);
+        box-shadow: 0 0 35px rgba(0, 255, 255, 0.8);
     }
     50% {
         transform: translateX(0) scale(1);
+        box-shadow: 0 0 30px rgba(0, 255, 255, 0.7);
     }
     75% {
-        transform: translateX(3px) scale(1.02);
+        transform: translateX(2px) scale(1.02);
+        box-shadow: 0 0 35px rgba(0, 255, 255, 0.8);
     }
 }
 
@@ -158,10 +185,10 @@
         transform: translateX(0);
     }
     25% {
-        transform: translateX(-10px);
+        transform: translateX(-8px);
     }
     75% {
-        transform: translateX(10px);
+        transform: translateX(8px);
     }
 }
 
@@ -172,12 +199,12 @@
         right: 16px;
         gap: 10px;
     }
-    
+
     .voice-btn {
-        padding: 14px 28px;
-        font-size: 16px;
+        padding: 12px 24px;
+        font-size: 14px;
     }
-    
+
     .voice-status {
         padding: 10px 20px;
         font-size: 13px;
@@ -185,33 +212,34 @@
 
     .voice-selector {
         padding: 10px 16px;
-        font-size: 13px;
+        font-size: 12px;
     }
 }
 
-/* Dark Mode Support */
+/* Dark Mode Support (already cyberpunk, but ensure consistency) */
 @media (prefers-color-scheme: dark) {
     .voice-selector {
-        background: #1a1a1a;
-        color: #fff;
-        border-color: #667eea;
+        background: rgba(0, 10, 20, 0.95);
+        color: var(--primary-cyan, #00ffff);
+        border-color: var(--primary-cyan, #00ffff);
     }
-    
+
     .voice-selector:hover {
-        background: #242424;
+        background: rgba(0, 255, 255, 0.15);
     }
 }
 
-/* Voice Controls Group (if you want horizontal layout) */
+/* Voice Controls Group (horizontal layout) */
 .voice-controls-horizontal {
     flex-direction: row;
     align-items: center;
 }
 
-/* Microphone Icon Animation (optional) */
+/* Microphone Icon Animation */
 .mic-icon {
     display: inline-block;
     transition: transform 0.3s ease;
+    filter: drop-shadow(0 0 4px rgba(0, 255, 255, 0.6));
 }
 
 .voice-status.listening .mic-icon {
@@ -221,13 +249,15 @@
 @keyframes mic-pulse {
     0%, 100% {
         transform: scale(1);
+        filter: drop-shadow(0 0 4px rgba(0, 255, 255, 0.6));
     }
     50% {
-        transform: scale(1.2);
+        transform: scale(1.15);
+        filter: drop-shadow(0 0 8px rgba(0, 255, 255, 0.9));
     }
 }
 
-/* Loading Dots (optional) */
+/* Loading Dots */
 .voice-loading {
     display: inline-block;
 }
@@ -249,27 +279,35 @@
     }
 }
 
-/* Success/Error Toast (optional) */
+/* Success/Error Toast */
 .voice-toast {
     position: fixed;
     top: 20px;
     right: 20px;
     padding: 16px 24px;
-    border-radius: 12px;
-    font-weight: 500;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    font-weight: 600;
+    font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     animation: slideIn 0.3s ease-out;
     z-index: 10000;
+    border: 2px solid;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .voice-toast.success {
-    background: #4CAF50;
-    color: white;
+    background: rgba(0, 255, 255, 0.15);
+    border-color: var(--primary-cyan, #00ffff);
+    color: var(--primary-cyan, #00ffff);
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.5);
 }
 
 .voice-toast.error {
-    background: #f44336;
-    color: white;
+    background: rgba(255, 68, 68, 0.15);
+    border-color: #ff4444;
+    color: #ff4444;
+    box-shadow: 0 0 25px rgba(255, 68, 68, 0.4);
 }
 
 @keyframes slideIn {
