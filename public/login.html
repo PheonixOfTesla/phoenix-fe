@@ -722,7 +722,7 @@
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    window.location.href = '/dashboard.html';
+                    window.location.href = 'dashboard.html';
                 } else {
                     localStorage.removeItem('phoenixToken');
                     localStorage.removeItem('phoenixUser');
@@ -763,7 +763,7 @@
                     showSuccess('Login successful! Redirecting to Phoenix...');
 
                     setTimeout(() => {
-                        window.location.href = '/dashboard.html';
+                        window.location.href = 'dashboard.html';
                     }, 1000);
                 } else {
                     showError(data.message || 'Login failed. Please check your credentials.');
@@ -934,7 +934,7 @@
                     showSuccess('Account created! Welcome to Phoenix...');
 
                     setTimeout(() => {
-                        window.location.href = '/dashboard.html';
+                        window.location.href = 'dashboard.html';
                     }, 1000);
                 } else {
                     showError(data.message || 'Registration failed. Please try again.');
