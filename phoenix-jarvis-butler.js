@@ -13,10 +13,10 @@
 const CONFIG = {
     API_BASE_URL: window.location.hostname === 'localhost' 
         ? 'http://localhost:5000/api' 
-        : 'https://your-production-api.com/api',
+        : 'https://pal-backend-production.up.railway.app/api',
     WS_URL: window.location.hostname === 'localhost'
         ? 'ws://localhost:5000'
-        : 'wss://your-production-api.com',
+        : 'wss://pal-backend-production.up.railway.app',
     TOKEN_KEY: 'phoenixToken',
     USER_KEY: 'phoenixUser',
     THEME_KEY: 'phoenixTheme',
