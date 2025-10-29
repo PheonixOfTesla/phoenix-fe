@@ -889,13 +889,18 @@
         console.log('✅ Returning user, loading main app...');
     })();
     </script>
-    
+
+    <!-- ============================================ -->
+    <!-- CENTRALIZED CONFIGURATION -->
+    <!-- ============================================ -->
+    <script src="src/config.js"></script>
+
     <!-- ============================================ -->
     <!-- PHOENIX CORE ENGINE - WITH REAL API CONNECTIONS -->
     <!-- ============================================ -->
     <script>
-        // API Configuration - ACTUAL BACKEND URL
-        const API_BASE = 'https://pal-backend-production.up.railway.app/api';
+        // API Configuration - Using centralized config
+        const API_BASE = PhoenixConfig.API_BASE_URL;
         
         const getAuthHeaders = () => {
             const token = localStorage.getItem('phoenixToken');

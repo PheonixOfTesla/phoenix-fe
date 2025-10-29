@@ -794,13 +794,14 @@
     <!-- ============================================ -->
     <!-- GLOBAL SCRIPTS -->
     <!-- ============================================ -->
+    <script src="src/config.js"></script>
     <script src="src/api.js"></script>
 
     <script>
         // ============================================
         // CONFIGURATION
         // ============================================
-        const API_BASE_URL = 'https://pal-backend-production.up.railway.app/api';
+        const API_BASE_URL = PhoenixConfig.API_BASE_URL;
 
         // ============================================
         // VIEW MANAGER - Routes between views

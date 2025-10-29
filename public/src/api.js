@@ -11,7 +11,10 @@
 
 class PhoenixAPI {
     constructor() {
-        this.baseURL = 'https://pal-backend-production.up.railway.app/api';
+        // Use centralized config if available, fallback to production
+        this.baseURL = (typeof PhoenixConfig !== 'undefined')
+            ? PhoenixConfig.API_BASE_URL
+            : 'https://pal-backend-production.up.railway.app/api';
         this.token = localStorage.getItem('phoenixToken');
         this.userId = localStorage.getItem('phoenix_user_id');
         this.retryCount = 0;
