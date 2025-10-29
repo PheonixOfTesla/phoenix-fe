@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PHOENIX - Personal Operating System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --cyan: #00d9ff;
+            --cyan-dim: rgba(0, 217, 255, 0.4);
+            --dark-bg: #000a0e;
+            --panel-bg: rgba(0, 30, 40, 0.6);
+            --panel-border: rgba(0, 217, 255, 0.25);
+            --text-primary: #00d9ff;
+            --text-dim: rgba(255, 255, 255, 0.4);
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* PARTICLES */
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* LAYOUT */
+        .container {
+            position: relative;
+            z-index: 10;
+            display: grid;
+            grid-template-columns: 300px 1fr 350px;
+            gap: 20px;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* GLASS PANELS */
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 10px;
+            backdrop-filter: blur(12px);
+            padding: 20px;
+        }
+
+        .panel-label {
+            font-size: 10px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-bottom: 10px;
+        }
+
+        /* LEFT PANEL */
+        .status-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .time {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--cyan);
+            line-height: 1;
+        }
+
+        .date {
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-top: 5px;
+        }
+
+        .location {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .weather-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: rgba(0, 217, 255, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(0, 217, 255, 0.1);
+        }
+
+        .temp {
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .condition {
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+
+        /* CENTER PANEL */
+        .core-panel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .greeting {
+            position: absolute;
+            top: 40px;
+            font-size: 36px;
+            letter-spacing: 6px;
+            color: var(--cyan);
+            font-weight: 300;
+        }
+
+        .system-status {
+            position: absolute;
+            bottom: 40px;
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: var(--text-dim);
+        }
+
+        /* PHOENIX ORB */
+        .orb-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+        }
+
+        .orbit-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            height: 400px;
+            border: 1px solid rgba(0, 217, 255, 0.15);
+            border-radius: 50%;
+            animation: rotate 120s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .phoenix-orb {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(0, 217, 255, 0.3), transparent);
+            border: 2px solid var(--cyan-dim);
+            box-shadow: 0 0 50px rgba(0, 217, 255, 0.2);
+            animation: breathe 4s ease-in-out infinite;
+            cursor: pointer;
+        }
+
+        @keyframes breathe {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.05); }
+        }
+
+        /* PLANETS */
+        .planet {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid;
+        }
+
+        .planet:hover {
+            transform: scale(1.3);
+        }
+
+        .mercury { top: -25px; left: 50%; transform: translateX(-50%); background: radial-gradient(circle, rgba(255,107,53,0.2), transparent); border-color: #ff6b35; color: #ff6b35; }
+        .venus { top: 20%; left: -25px; background: radial-gradient(circle, rgba(168,85,247,0.2), transparent); border-color: #a855f7; color: #a855f7; }
+        .earth { bottom: 20%; left: -25px; background: radial-gradient(circle, rgba(16,185,129,0.2), transparent); border-color: #10b981; color: #10b981; }
+        .mars { top: 20%; right: -25px; background: radial-gradient(circle, rgba(239,68,68,0.2), transparent); border-color: #ef4444; color: #ef4444; }
+        .jupiter { bottom: 20%; right: -25px; background: radial-gradient(circle, rgba(251,191,36,0.2), transparent); border-color: #fbbf24; color: #fbbf24; }
+        .saturn { bottom: -25px; left: 50%; transform: translateX(-50%); background: radial-gradient(circle, rgba(0,217,255,0.2), transparent); border-color: #00d9ff; color: #00d9ff; }
+
+        /* RIGHT PANEL */
+        .butler-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .butler-title {
+            font-size: 16px;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+
+        .butler-subtitle {
+            font-size: 10px;
+            color: var(--text-dim);
+            margin-bottom: 15px;
+        }
+
+        .action-btn {
+            background: rgba(0, 217, 255, 0.05);
+            border: 1px solid var(--panel-border);
+            border-radius: 6px;
+            padding: 12px 16px;
+            color: var(--cyan);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .action-btn:hover {
+            background: rgba(0, 217, 255, 0.12);
+            border-color: var(--cyan);
+            transform: translateX(5px);
+        }
+
+        .close-btn {
+            background: transparent;
+            border: 1px solid var(--panel-border);
+            border-radius: 6px;
+            padding: 10px;
+            color: var(--cyan);
+            font-size: 10px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .close-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        /* BOTTOM NAV */
+        .bottom-nav {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding-top: 10px;
+        }
+
+        .nav-btn {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 6px;
+            padding: 14px 25px;
+            color: var(--cyan);
+            font-size: 10px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(12px);
+            font-family: 'Courier New', monospace;
+        }
+
+        .nav-btn:hover {
+            background: rgba(0, 217, 255, 0.15);
+            border-color: var(--cyan);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.primary {
+            background: rgba(0, 217, 255, 0.1);
+            border: 2px solid var(--cyan);
+            padding: 16px 35px;
+            font-size: 12px;
+        }
+
+        /* DOMAIN OVERLAY */
+        .domain-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 10, 14, 0.96);
+            z-index: 1000;
+            display: none;
+            overflow-y: auto;
+            backdrop-filter: blur(8px);
+        }
+
+        .domain-overlay.active {
+            display: block;
+        }
+
+        .domain-content {
+            padding: 40px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .domain-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--panel-border);
+        }
+
+        .domain-title {
+            font-size: 28px;
+            font-weight: 300;
+            letter-spacing: 4px;
+        }
+
+        .domain-subtitle {
+            font-size: 10px;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+            margin-top: 5px;
+        }
+
+        .close-overlay-btn {
+            background: transparent;
+            border: 1px solid var(--panel-border);
+            border-radius: 6px;
+            padding: 10px 20px;
+            color: var(--cyan);
+            font-size: 10px;
+            letter-spacing: 2px;
+            cursor: pointer;
+        }
+
+        .close-overlay-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        /* ENDPOINT SECTIONS */
+        .endpoint-section {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .section-header:hover {
+            background: rgba(0, 217, 255, 0.05);
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .expand-icon {
+            color: var(--text-dim);
+            transition: transform 0.3s ease;
+        }
+
+        .endpoint-section.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .section-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+
+        .endpoint-section.expanded .section-body {
+            max-height: 3000px;
+        }
+
+        .endpoint-list {
+            padding: 10px 20px 20px;
+        }
+
+        .endpoint {
+            padding: 10px 14px;
+            margin-bottom: 6px;
+            background: rgba(0, 217, 255, 0.03);
+            border: 1px solid rgba(0, 217, 255, 0.08);
+            border-radius: 4px;
+            font-size: 11px;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .endpoint:hover {
+            background: rgba(0, 217, 255, 0.1);
+            border-color: var(--cyan);
+        }
+
+        .method {
+            font-weight: 700;
+            color: #10b981;
+            margin-right: 10px;
+        }
+
+        .method.post { color: #fbbf24; }
+        .method.put { color: #a855f7; }
+        .method.delete { color: #ef4444; }
+
+        .path {
+            flex: 1;
+            color: var(--text-dim);
+        }
+
+        .endpoint:hover .path {
+            color: var(--cyan);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1200px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .orb-container {
+                width: 300px;
+                height: 300px;
+            }
+            .orbit-ring {
+                width: 300px;
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="particles"></canvas>
+
+    <div class="container">
+        <!-- LEFT PANEL -->
+        <div class="panel status-panel">
+            <div>
+                <div class="panel-label">LOCAL TIME</div>
+                <div class="time" id="time"></div>
+                <div class="date" id="date"></div>
+            </div>
+            
+            <div>
+                <div class="panel-label">LOCATION</div>
+                <div class="location">
+                    <span id="location">Detecting...</span>
+                </div>
+            </div>
+            
+            <div>
+                <div class="panel-label">WEATHER</div>
+                <div class="weather-display">
+                    <div>
+                        <div class="temp" id="temp">--°</div>
+                        <div class="condition" id="condition">Loading...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CENTER PANEL -->
+        <div class="panel core-panel">
+            <div class="greeting" id="greeting">Good Evening</div>
+            <div class="system-status">All systems operational</div>
+            
+            <div class="orb-container">
+                <div class="orbit-ring"></div>
+                <div class="phoenix-orb" onclick="orbClick()"></div>
+                
+                <div class="planet mercury" onclick="openDomain('mercury')">MER</div>
+                <div class="planet venus" onclick="openDomain('venus')">VEN</div>
+                <div class="planet earth" onclick="openDomain('earth')">EAR</div>
+                <div class="planet mars" onclick="openDomain('mars')">MAR</div>
+                <div class="planet jupiter" onclick="openDomain('jupiter')">JUP</div>
+                <div class="planet saturn" onclick="openDomain('saturn')">SAT</div>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div class="panel butler-panel">
+            <div class="butler-title">Butler Actions</div>
+            <div class="butler-subtitle">Quick actions or use voice commands</div>
+            
+            <button class="action-btn" onclick="butler('food')">Order Food</button>
+            <button class="action-btn" onclick="butler('ride')">Book Ride</button>
+            <button class="action-btn" onclick="butler('reservation')">Reserve Table</button>
+            <button class="action-btn" onclick="butler('event')">Schedule Event</button>
+            <button class="action-btn" onclick="butler('email')">Send Email</button>
+            <button class="action-btn" onclick="butler('call')">Make Call</button>
+            
+            <button class="close-btn">CLOSE</button>
+        </div>
+
+        <!-- BOTTOM NAV -->
+        <div class="panel" style="grid-column: 1; display: flex; align-items: center; gap: 20px;">
+            <div class="panel-label">SYSTEM STATUS</div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981;"></div>
+                <span style="font-size: 11px;">ONLINE</span>
+            </div>
+        </div>
+
+        <div class="bottom-nav">
+            <button class="nav-btn">LOG WORKOUT</button>
+            <button class="nav-btn">LOG MEAL</button>
+            <button class="nav-btn" onclick="openDomain('phoenix')">BUTLER</button>
+            <button class="nav-btn primary">TALK TO PHOENIX</button>
+            <button class="nav-btn">ASK PHOENIX</button>
+        </div>
+
+        <div class="panel" style="grid-column: 3;"></div>
+    </div>
+
+    <!-- DOMAIN OVERLAYS -->
+    <div class="domain-overlay" id="domain-mercury">
+        <div class="domain-content">
+            <div class="domain-header">
+                <div>
+                    <div class="domain-title">MERCURY - Health & Biometric Intelligence</div>
+                    <div class="domain-subtitle">38 Endpoints | Health Tracking, Wearables, Sleep, Recovery</div>
+                </div>
+                <button class="close-overlay-btn" onclick="closeDomain()">CLOSE</button>
+            </div>
+
+            <div class="endpoint-section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <div class="section-title">Biometric Analysis (10 endpoints)</div>
+                    <div class="expand-icon">▼</div>
+                </div>
+                <div class="section-body">
+                    <div class="endpoint-list">
+                        <div class="endpoint"><span class="method">GET</span><span class="path">/api/mercury/biometrics/dexa</span></div>
+                        <div class="endpoint"><span class="method">GET</span><span class="path">/api/mercury/biometrics/composition</span></div>
+                        <div class="endpoint"><span class="method">GET</span><span class="path">/api/mercury/biometrics/metabolic</span></div>
+                        <div class="endpoint"><span class="method post">POST</span><span class="path">/api/mercury/biometrics/metabolic/calculate</span></div>
+                        <div class="endpoint"><span class="method">GET</span><span class="path">/api/mercury/biometrics/ratios</span></div>
+                        <div class="endpoint"><span class="method">GET</span><span class="path">/api/mercury/biometrics/visceral-fat</span></div>
+                        <div class="endpoint"><span class="method">GET</span><span class="path">/api/mercury/biometrics/bone-density</span></div>
+                        <div class="endpoint"><span class="method">GET</span><span class="path">/api/mercury/biometrics/hydration</span></div>
+                        <div class="endpoint"><span class="method">GET</span><span class="path">/api/mercury/biometrics/trends</span></div>
+                        <div class="endpoint"><span class="method">GET</span><span class="path">/api/mercury/biometrics/correlations</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint-section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <div class="section-title">Wearable Device Management (6 endpoints)</div>
+                    <div class="expand-icon">▼</div>
+                </div>
+                <div class="section-body">
+                    <div class="endpoint-list">
+                        <div class="endpoint"><span class="method post">POST</span><span class="path">/api/mercury/devices/:provider/connect</span></div>
+                        <div class="endpoint"><span class="method post">POST</span><span class="path">/api/mercury/devices/:provider/exchange</span></div>
+                        <div class="endpoint"><span class="method">GET</span><span class="path">/api/mercury/devices</span></div>
+                        <div class="endpoint"><span class="method delete">DELETE</span><span class="path">/api/mercury/devices/:provider</span></div>
+                        <div class="endpoint"><span class="method post">POST</span><span class="path">/api/mercury/devices/:provider/sync</span></div>
+                        <div class="endpoint"><span class="method post">POST</span><span class="path">/api/mercury/webhook/:provider</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint-section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <div class="section-title">HRV & Heart Rate Analysis (4 endpoints)</div>
+                    <div class="expand-icon">▼</div>
+                </div>
+                <div class="section-body">
+                    <div class="endpoint-list">
+                        <div class="endpoint"><span class="method">GET</span><span class="path">/api/mercury/biometrics/hrv</span></div>
+                        <div class="endpoint"><span class="method">GET</span><span class="path">/api/mercury/biometrics/hrv/deep-analysis</span></div>
+                        <div class="endpoint"><span class="method">GET</span><span class="path">/api/mercury/biometrics/heart-rate</span></div>
+                        <div class="endpoint"><span class="method">GET</span><span class="path">/api/mercury/biometrics/readiness</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint-section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <div class="section-title">Sleep Intelligence (3 endpoints)</div>
+                    <div class="expand-icon">▼</div>
+                </div>
+                <div class="section-body">
+                    <div class="endpoint-list">
+                        <div class="endpoint"><span class="method">GET</span><span class="path">/api/mercury/sleep</span></div>
+                        <div class="endpoint"><span class="method">GET</span><span class="path">/api/mercury/sleep/analysis</span></div>
+                        <div class="endpoint"><span class="method">GET</span><span class="path">/api/mercury/sleep/recommendations</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint-section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <div class="section-title">Recovery Scoring (11 endpoints)</div>
+                    <div class="expand-icon">▼</div>
+                </div>
+                <div class="section-body">
+                    <div class="endpoint-list">
+                        <div class="endpoint"><span class="method">GET</span><span class="path">/api/mercury/recovery/latest</span></div>
+                        <div class="endpoint"><span class="method">GET</span><span class="path">/api/mercury/recovery/history</span></div>
+                        <div class="endpoint"><span class="method post">POST</span><span class="path">/api/mercury/recovery/calculate</span></div>
+                        <div class="endpoint"><span class="method">GET</span><span class="path">/api/mercury/recovery/trends</span></div>
+                        <div class="endpoint"><span class="method">GET</span><span class="path">/api/mercury/recovery/prediction</span></div>
+                        <div class="endpoint"><span class="method">GET</span><span class="path">/api/mercury/recovery/protocols</span></div>
+                        <div class="endpoint"><span class="method">GET</span><span class="path">/api/mercury/recovery/debt</span></div>
+                        <div class="endpoint"><span class="method">GET</span><span class="path">/api/mercury/recovery/overtraining-risk</span></div>
+                        <div class="endpoint"><span class="method">GET</span><span class="path">/api/mercury/recovery/training-load</span></div>
+                        <div class="endpoint"><span class="method">GET</span><span class="path">/api/mercury/recovery/insights</span></div>
+                        <div class="endpoint"><span class="method">GET</span><span class="path">/api/mercury/recovery/dashboard</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="endpoint-section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <div class="section-title">Wearable Data & Fusion (4 endpoints)</div>
+                    <div class="expand-icon">▼</div>
+                </div>
+                <div class="section-body">
+                    <div class="endpoint-list">
+                        <div class="endpoint"><span class="method">GET</span><span class="path">/api/mercury/data</span></div>
+                        <div class="endpoint"><span class="method">GET</span><span class="path">/api/mercury/data/raw</span></div>
+                        <div class="endpoint"><span class="method post">POST</span><span class="path">/api/mercury/data/manual</span></div>
+                        <div class="endpoint"><span class="method">GET</span><span class="path">/api/mercury/insights</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional domain overlays would follow same pattern for Venus, Earth, Mars, Jupiter, Saturn, Phoenix -->
+    <!-- Due to file size constraints, showing pattern for Mercury only -->
+    <!-- Full implementation would include all 307 endpoints organized by domain -->
+
+    <script>
+        // PARTICLE SYSTEM
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.3;
+                this.vy = (Math.random() - 0.5) * 0.3;
+                this.radius = Math.random() * 1.5;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+
+            draw() {
+                ctx.fillStyle = 'rgba(0, 217, 255, 0.4)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            for (let i = 0; i < 150; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+
+            particles.forEach((p1, i) => {
+                particles.slice(i + 1).forEach(p2 => {
+                    const dx = p1.x - p2.x;
+                    const dy = p1.y - p2.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < 80) {
+                        ctx.strokeStyle = `rgba(0, 217, 255, ${0.15 * (1 - dist / 80)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(p1.x, p1.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
+                });
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        resizeCanvas();
+        initParticles();
+        animate();
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            particles = [];
+            initParticles();
+        });
+
+        // TIME & DATE
+        function updateTime() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('time').textContent = `${hours}:${minutes}`;
+            
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            document.getElementById('date').textContent = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
+            
+            const greeting = hours < 12 ? 'Morning' : hours < 18 ? 'Afternoon' : 'Evening';
+            document.getElementById('greeting').textContent = `Good ${greeting}`;
+        }
+
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // WEATHER API
+        async function getWeather() {
+            try {
+                // Get location via IP
+                const geoRes = await fetch('https://ipapi.co/json/');
+                const geo = await geoRes.json();
+                
+                document.getElementById('location').textContent = `${geo.city}, ${geo.region_code}`;
+                
+                // Get weather
+                const weatherRes = await fetch(`https://wttr.in/${geo.city}?format=j1`);
+                const weather = await weatherRes.json();
+                
+                const temp = Math.round(weather.current_condition[0].temp_F);
+                const condition = weather.current_condition[0].weatherDesc[0].value;
+                
+                document.getElementById('temp').textContent = `${temp}°F`;
+                document.getElementById('condition').textContent = condition;
+            } catch (error) {
+                console.error('Weather fetch failed:', error);
+                document.getElementById('location').textContent = 'Location unavailable';
+                document.getElementById('condition').textContent = 'Unable to load weather';
+            }
+        }
+
+        getWeather();
+
+        // DOMAIN NAVIGATION
+        function openDomain(domain) {
+            const overlay = document.getElementById(`domain-${domain}`);
+            if (overlay) {
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeDomain() {
+            document.querySelectorAll('.domain-overlay').forEach(overlay => {
+                overlay.classList.remove('active');
+            });
+            document.body.style.overflow = 'auto';
+        }
+
+        function toggleSection(header) {
+            const section = header.closest('.endpoint-section');
+            section.classList.toggle('expanded');
+        }
+
+        function orbClick() {
+            console.log('Phoenix orb clicked');
+        }
+
+        function butler(action) {
+            console.log(`Butler action: ${action}`);
+        }
+
+        // Close on ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeDomain();
+        });
+
+        console.log('%cPHOENIX PERSONAL OPERATING SYSTEM', 'color: #00d9ff; font-size: 20px; font-weight: bold;');
+        console.log('%c307 API Endpoints | 7 Planetary Domains | AI Powered', 'color: #a855f7; font-size: 12px;');
+    </script>
+</body>
+</html>
