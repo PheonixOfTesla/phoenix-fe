@@ -654,6 +654,7 @@
                     </div>
                 </div>
                 <div class="button-group">
+                    <button class="btn btn-secondary" onclick="ViewManager.showView('auth')">[ ← BACK TO LOGIN ]</button>
                     <button class="btn btn-primary" id="nextPhase0" disabled>[ CONTINUE ]</button>
                 </div>
             </div>
@@ -932,11 +933,8 @@
                 });
 
                 document.getElementById('register-tab').addEventListener('click', () => {
-                    document.getElementById('register-tab').classList.add('active');
-                    document.getElementById('login-tab').classList.remove('active');
-                    document.getElementById('register-form').classList.add('active');
-                    document.getElementById('login-form').classList.remove('active');
-                    this.hideMessages();
+                    // Directly start onboarding flow instead of showing intermediate button
+                    ViewManager.showView('onboarding');
                 });
 
                 // Login form
