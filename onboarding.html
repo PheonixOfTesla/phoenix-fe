@@ -1314,6 +1314,9 @@
             setupDeviceCards();
             setupCodeInputs();
 
+            // Preload language welcome messages for instant response
+            preloadLanguageWelcomes();
+
             // Check for OAuth callback (from fitbit.html or other device callbacks)
             const urlParams = new URLSearchParams(window.location.search);
             const device = urlParams.get('device');
@@ -1399,39 +1402,49 @@
             try {
                 console.log('[TTS] Requesting:', text.substring(0, 50) + '...');
 
-                const selectedVoice = userData.voice || 'echo';
+                const selectedVoice = userData.voice || 'nova';
+                const cacheKey = `welcome_${userData.language}_${text}`;
+                let audioUrl;
 
-                // Call backend TTS API
-                const response = await fetch(`${API_URL}/api/tts/generate`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        text: text,
-                        voice: selectedVoice,
-                        language: languageMap[userData.language] || 'en-GB',
-                        speed: voiceSpeeds[selectedVoice] || 1.0
-                    })
-                });
+                // Check cache first for instant playback
+                if (audioCache.has(cacheKey)) {
+                    console.log('[TTS] Using cached audio - instant playback!');
+                    audioUrl = audioCache.get(cacheKey);
+                } else {
+                    console.log('[TTS] Cache miss - fetching from API');
 
-                console.log('[TTS] Response status:', response.status);
-                console.log('[TTS] Content-Type:', response.headers.get('content-type'));
+                    // Call backend TTS API
+                    const response = await fetch(`${API_URL}/api/tts/generate`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            text: text,
+                            voice: selectedVoice,
+                            language: languageMap[userData.language] || 'en-GB',
+                            speed: voiceSpeeds[selectedVoice] || 1.0
+                        })
+                    });
 
-                if (!response.ok) {
-                    throw new Error(`TTS failed: ${response.status}`);
+                    console.log('[TTS] Response status:', response.status);
+                    console.log('[TTS] Content-Type:', response.headers.get('content-type'));
+
+                    if (!response.ok) {
+                        throw new Error(`TTS failed: ${response.status}`);
+                    }
+
+                    // Backend returns audio/mpeg buffer directly
+                    const audioBlob = await response.blob();
+                    console.log('[TTS] Audio blob size:', audioBlob.size, 'bytes');
+
+                    audioUrl = URL.createObjectURL(audioBlob);
+
+                    // Cache for future use
+                    audioCache.set(cacheKey, audioUrl);
                 }
 
-                // Backend returns audio/mpeg buffer directly
-                const audioBlob = await response.blob();
-                console.log('[TTS] Audio blob size:', audioBlob.size, 'bytes');
-                
-                if (audioBlob.size === 0) {
-                    throw new Error('Empty audio response');
-                }
-                
-                const audioUrl = URL.createObjectURL(audioBlob);
-                console.log('[TTS] Audio URL created');
+                console.log('[TTS] Audio URL ready');
 
                 // Play audio
                 currentAudio = new Audio(audioUrl);
@@ -1457,7 +1470,10 @@
                         status.classList.remove('speaking');
                         status.textContent = '[ VOICE STANDBY ]';
                     }
-                    URL.revokeObjectURL(audioUrl);
+                    // Don't revoke cached URLs
+                    if (!audioCache.has(cacheKey)) {
+                        URL.revokeObjectURL(audioUrl);
+                    }
                     isPlaying = false;
                 };
 
@@ -1598,6 +1614,75 @@
          * Audio cache for voice previews (prevents re-downloading)
          */
         const audioCache = new Map();
+
+        /**
+         * Preload language welcome messages for instant response
+         */
+        async function preloadLanguageWelcomes() {
+            const welcomeMessages = {
+                'en': 'English selected. Excellent choice. Now I will guide you through the setup.',
+                'es': 'Español seleccionado. Excelente elección. Ahora te guiaré a través de la configuración.',
+                'fr': 'Français sélectionné. Excellent choix. Maintenant je vais vous guider à travers la configuration.',
+                'de': 'Deutsch ausgewählt. Ausgezeichnete Wahl. Jetzt werde ich Sie durch die Einrichtung führen.',
+                'it': 'Italiano selezionato. Ottima scelta. Ora ti guiderò attraverso la configurazione.',
+                'pt': 'Português selecionado. Excelente escolha. Agora vou guiá-lo através da configuração.',
+                'nl': 'Nederlands geselecteerd. Uitstekende keuze. Nu zal ik je door de installatie leiden.',
+                'pl': 'Polski wybrany. Doskonały wybór. Teraz poprowadzę cię przez konfigurację.',
+                'ru': 'Русский выбран. Отличный выбор. Теперь я проведу вас через настройку.',
+                'ja': '日本語が選択されました。素晴らしい選択です。今、セットアップをご案内します。',
+                'zh': '选择了中文。很好的选择。现在我将指导您完成设置。'
+            };
+
+            const languageMap = {
+                'en': 'en-GB',
+                'es': 'es',
+                'fr': 'fr',
+                'de': 'de',
+                'it': 'it',
+                'pt': 'pt',
+                'nl': 'nl',
+                'pl': 'pl',
+                'ru': 'ru',
+                'ja': 'ja',
+                'zh': 'zh'
+            };
+
+            console.log('[Preload] Starting language welcome preload for', Object.keys(welcomeMessages).length, 'languages');
+
+            // Preload each language (fire and forget)
+            for (const [lang, text] of Object.entries(welcomeMessages)) {
+                const cacheKey = `welcome_${lang}_${text}`;
+
+                // Skip if already cached
+                if (audioCache.has(cacheKey)) {
+                    continue;
+                }
+
+                // Preload in background (don't await)
+                fetch(`${API_URL}/api/tts/generate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        text: text,
+                        voice: 'nova',
+                        language: languageMap[lang] || 'en-GB',
+                        speed: 1.0
+                    })
+                })
+                .then(response => response.blob())
+                .then(audioBlob => {
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    audioCache.set(cacheKey, audioUrl);
+                    console.log('[Preload] Cached welcome for', lang);
+                })
+                .catch(error => {
+                    console.warn('[Preload] Failed to cache welcome for', lang, ':', error.message);
+                    // Silent fail - will generate on demand
+                });
+            }
+        }
 
         /**
          * Preload all voice previews in background for instant playback
