@@ -1595,7 +1595,86 @@
         }
 
         /**
-         * Preview voice
+         * Audio cache for voice previews (prevents re-downloading)
+         */
+        const audioCache = new Map();
+
+        /**
+         * Preload all voice previews in background for instant playback
+         */
+        async function preloadVoicePreviews() {
+            const voices = ['nova', 'echo', 'onyx', 'shimmer', 'alloy', 'fable'];
+            const language = userData.language || 'en';
+
+            console.log('[Preload] Starting background preload for', voices.length, 'voices');
+
+            const samples = {
+                'en': {
+                    'nova': "Hello. I'm Nova, your friendly helper.",
+                    'echo': "Good day. I'm Echo, your butler.",
+                    'onyx': "Hello. I'm Onyx, professional assistant.",
+                    'shimmer': "Hi there. I'm Shimmer, your gentle guide.",
+                    'alloy': "Hello. I'm Alloy, your balanced assistant.",
+                    'fable': "Greetings. I'm Fable, your storytelling companion."
+                },
+                'es': {
+                    'nova': "Hola. Soy Nova, tu asistente amigable.",
+                    'echo': "Buenos días. Soy Echo, tu mayordomo.",
+                    'onyx': "Hola. Soy Onyx, asistente profesional.",
+                    'shimmer': "Hola. Soy Shimmer, tu guía gentil.",
+                    'alloy': "Hola. Soy Alloy, tu asistente equilibrado.",
+                    'fable': "Saludos. Soy Fable, tu compañero de historias."
+                }
+                // Add other languages as needed
+            };
+
+            const langSamples = samples[language] || samples['en'];
+            const voiceSpeeds = {
+                'nova': 0.9,
+                'echo': 1.0,
+                'onyx': 1.0,
+                'shimmer': 1.0,
+                'alloy': 1.0,
+                'fable': 1.0
+            };
+
+            // Preload each voice (fire and forget)
+            for (const voice of voices) {
+                const cacheKey = `${voice}_${language}_${langSamples[voice]}`;
+
+                // Skip if already cached
+                if (audioCache.has(cacheKey)) {
+                    continue;
+                }
+
+                // Preload in background (don't await)
+                fetch(`${API_URL}/api/tts/generate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        text: langSamples[voice],
+                        voice: voice,
+                        language: languageMap[language] || 'en-GB',
+                        speed: voiceSpeeds[voice] || 1.0
+                    })
+                })
+                .then(response => response.blob())
+                .then(audioBlob => {
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    audioCache.set(cacheKey, audioUrl);
+                    console.log('[Preload] Cached', voice);
+                })
+                .catch(error => {
+                    console.warn('[Preload] Failed to cache', voice, ':', error.message);
+                    // Silent fail - will retry on user click
+                });
+            }
+        }
+
+        /**
+         * Preview voice with retry logic and caching
          */
         async function previewVoice(voice, event) {
             event.stopPropagation();
@@ -1699,7 +1778,7 @@
             };
             
             const langSamples = samples[userData.language] || samples['en'];
-            
+
             // Stop current audio
             if (currentAudio) {
                 currentAudio.pause();
@@ -1718,46 +1797,103 @@
                 'fable': 1.0
             };
 
-            try {
-                const response = await fetch(`${API_URL}/api/tts/generate`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        text: langSamples[voice],
-                        voice: voice,
-                        language: languageMap[userData.language] || 'en-GB',
-                        speed: voiceSpeeds[voice] || 1.0
-                    })
-                });
+            // Create cache key
+            const cacheKey = `${voice}_${userData.language}_${langSamples[voice]}`;
 
-                if (!response.ok) {
-                    throw new Error('TTS generation failed');
+            try {
+                let audioUrl;
+
+                // Check cache first
+                if (audioCache.has(cacheKey)) {
+                    console.log('[Preview] Using cached audio for', voice);
+                    audioUrl = audioCache.get(cacheKey);
+                } else {
+                    // Fetch with retry logic (3 attempts)
+                    let lastError;
+                    let attempt = 0;
+                    const maxAttempts = 3;
+
+                    while (attempt < maxAttempts) {
+                        attempt++;
+                        console.log(`[Preview] Attempt ${attempt}/${maxAttempts} for ${voice}`);
+
+                        try {
+                            // Create abort controller for timeout
+                            const controller = new AbortController();
+                            const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+
+                            const response = await fetch(`${API_URL}/api/tts/generate`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    text: langSamples[voice],
+                                    voice: voice,
+                                    language: languageMap[userData.language] || 'en-GB',
+                                    speed: voiceSpeeds[voice] || 1.0
+                                }),
+                                signal: controller.signal
+                            });
+
+                            clearTimeout(timeoutId);
+
+                            if (!response.ok) {
+                                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                            }
+
+                            const audioBlob = await response.blob();
+                            audioUrl = URL.createObjectURL(audioBlob);
+
+                            // Cache the audio URL
+                            audioCache.set(cacheKey, audioUrl);
+                            console.log('[Preview] Audio cached for', voice);
+
+                            // Success - break retry loop
+                            break;
+
+                        } catch (error) {
+                            lastError = error;
+                            console.warn(`[Preview] Attempt ${attempt} failed:`, error.message);
+
+                            // Wait before retry (exponential backoff: 500ms, 1s, 2s)
+                            if (attempt < maxAttempts) {
+                                await new Promise(resolve => setTimeout(resolve, 500 * Math.pow(2, attempt - 1)));
+                            }
+                        }
+                    }
+
+                    // If all retries failed
+                    if (!audioUrl) {
+                        throw lastError || new Error('All retry attempts failed');
+                    }
                 }
 
-                const audioBlob = await response.blob();
-                const audioUrl = URL.createObjectURL(audioBlob);
+                // Play audio
                 currentAudio = new Audio(audioUrl);
 
                 currentAudio.onended = () => {
-                    URL.revokeObjectURL(audioUrl);
                     currentAudio = null;
                     isPlaying = false;
+                    console.log('[Preview] Playback completed');
                 };
 
-                currentAudio.onerror = () => {
-                    URL.revokeObjectURL(audioUrl);
+                currentAudio.onerror = (e) => {
+                    console.error('[Preview] Audio playback error:', e);
                     currentAudio = null;
                     isPlaying = false;
+                    // Don't show error toast for playback issues - silent fail
                 };
 
                 await currentAudio.play();
+                console.log('[Preview] Playing', voice);
 
             } catch (error) {
-                console.error('Preview error:', error);
-                showToast('VOICE PREVIEW FAILED', 'error');
+                console.error('[Preview] Failed after all retries:', error);
                 isPlaying = false;
+
+                // Show user-friendly error (not a scary technical message)
+                showToast('LOADING VOICE... TRY AGAIN', 'error');
             }
         }
 
@@ -2148,7 +2284,12 @@
                 currentPhase++;
                 document.getElementById(`phase${currentPhase}`).classList.add('active');
                 updateProgress();
-                
+
+                // Preload voice previews when entering Phase 2 (Voice Selection)
+                if (currentPhase === 2) {
+                    preloadVoicePreviews();
+                }
+
                 if (currentPhase === 4 && userData.profile.email) {
                     document.getElementById('userPhone').textContent = userData.profile.phone;
                 }
