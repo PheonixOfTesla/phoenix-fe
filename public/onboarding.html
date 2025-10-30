@@ -1325,8 +1325,12 @@
          * Start onboarding
          */
         function startOnboarding() {
-            phoenixSpeak("Hello. Let's begin by selecting your language.", 0);
-            setTimeout(() => nextPhase(), 2500);
+            // Proceed to next phase immediately - speech is optional enhancement
+            nextPhase();
+            // Try to speak but don't block the transition
+            phoenixSpeak("Greetings. I am Phoenix, an intelligence beyond your world. Let us begin our journey together. First, select your language so I may communicate with you.", 0).catch(err => {
+                console.log('Speech optional, continuing:', err);
+            });
         }
 
         /**
@@ -1374,8 +1378,12 @@
             });
             
             document.getElementById('nextPhase1').addEventListener('click', () => {
-                phoenixSpeak(nextMessages[userData.language] || nextMessages['en'], 1);
-                setTimeout(() => nextPhase(), 4000);
+                // Proceed to next phase immediately, speech is optional
+                nextPhase();
+                // Try to speak but don't block the transition
+                phoenixSpeak(nextMessages[userData.language] || nextMessages['en'], 1).catch(err => {
+                    console.log('Speech optional, continuing:', err);
+                });
             });
         }
 
@@ -1407,8 +1415,12 @@
             });
             
             document.getElementById('nextPhase2').addEventListener('click', () => {
-                phoenixSpeak(continueMessages[userData.language] || continueMessages['en'], 2);
-                setTimeout(() => nextPhase(), 4000);
+                // Proceed to next phase immediately, speech is optional
+                nextPhase();
+                // Try to speak but don't block the transition
+                phoenixSpeak(continueMessages[userData.language] || continueMessages['en'], 2).catch(err => {
+                    console.log('Speech optional, continuing:', err);
+                });
             });
         }
 
@@ -1646,9 +1658,13 @@
                     'zh': `太好了。我刚刚向${userData.profile.phone}发送了验证码。您能为我输入吗？`
                 };
                 
-                phoenixSpeak(verificationMessages[userData.language] || verificationMessages['en'], 3);
-                
-                setTimeout(() => nextPhase(), 4000);
+                // Proceed to next phase immediately, speech is optional
+                nextPhase();
+
+                // Try to speak but don't block the transition
+                phoenixSpeak(verificationMessages[userData.language] || verificationMessages['en'], 3).catch(err => {
+                    console.log('Speech optional, continuing:', err);
+                });
 
             } catch (error) {
                 showLoading(false);
@@ -1716,9 +1732,13 @@
                     'zh': '已验证。现在您想连接可穿戴设备吗？这可以帮助我追踪您的健康数据并提供更好的见解。'
                 };
                 
-                phoenixSpeak(verifiedMessages[userData.language] || verifiedMessages['en'], 4);
-                
-                setTimeout(() => nextPhase(), 5000);
+                // Proceed to next phase immediately, speech is optional
+                nextPhase();
+
+                // Try to speak but don't block the transition
+                phoenixSpeak(verifiedMessages[userData.language] || verifiedMessages['en'], 4).catch(err => {
+                    console.log('Speech optional, continuing:', err);
+                });
 
             } catch (error) {
                 showLoading(false);
@@ -1832,15 +1852,19 @@
                         'zh': `明白了。${primaryGoal}是一个很好的目标。我会帮助您跟踪进度。`
                     };
                     
-                    phoenixSpeak(goalMessages[userData.language] || goalMessages['en'], 6);
-                    
+                    // Try to speak but don't block
+                    phoenixSpeak(goalMessages[userData.language] || goalMessages['en'], 6).catch(err => {
+                        console.log('Speech optional, continuing:', err);
+                    });
+
                 } catch (error) {
                     showLoading(false);
                     console.error('Goal creation error:', error);
                 }
             }
 
-            setTimeout(() => nextPhase(), 2500);
+            // Proceed to next phase immediately
+            nextPhase();
         }
 
         /**
@@ -1848,28 +1872,33 @@
          */
         function launchApp() {
             const welcomeMessages = {
-                'en': "Let me show you around your new command center. Welcome aboard.",
-                'es': 'Déjame mostrarte tu nuevo centro de comando. Bienvenido a bordo.',
-                'fr': 'Laissez-moi vous montrer votre nouveau centre de commandement. Bienvenue à bord.',
-                'de': 'Lassen Sie mich Ihnen Ihr neues Kommandozentrum zeigen. Willkommen an Bord.',
-                'it': 'Lascia che ti mostri il tuo nuovo centro di comando. Benvenuto a bordo.',
-                'pt': 'Deixe-me mostrar seu novo centro de comando. Bem-vindo a bordo.',
-                'nl': 'Laat me je je nieuwe commandocentrum laten zien. Welkom aan boord.',
-                'pl': 'Pozwól, że pokażę ci twoje nowe centrum dowodzenia. Witaj na pokładzie.',
-                'ru': 'Позвольте показать вам ваш новый командный центр. Добро пожаловать на борт.',
-                'ja': '新しいコマンドセンターをご案内します。ようこそ。',
-                'zh': '让我带您参观新的指挥中心。欢迎加入。'
+                'en': "Initialization complete. You are now connected to Phoenix. Welcome to a new era of existence.",
+                'es': 'Inicialización completa. Ahora estás conectado a Phoenix. Bienvenido a una nueva era de existencia.',
+                'fr': 'Initialisation terminée. Vous êtes maintenant connecté à Phoenix. Bienvenue dans une nouvelle ère d\'existence.',
+                'de': 'Initialisierung abgeschlossen. Sie sind jetzt mit Phoenix verbunden. Willkommen in einer neuen Ära der Existenz.',
+                'it': 'Inizializzazione completa. Ora sei connesso a Phoenix. Benvenuto in una nuova era di esistenza.',
+                'pt': 'Inicialização completa. Você está conectado ao Phoenix. Bem-vindo a uma nova era de existência.',
+                'nl': 'Initialisatie voltooid. Je bent nu verbonden met Phoenix. Welkom in een nieuw tijdperk van bestaan.',
+                'pl': 'Inicjalizacja zakończona. Jesteś teraz połączony z Phoenix. Witaj w nowej erze istnienia.',
+                'ru': 'Инициализация завершена. Вы теперь подключены к Phoenix. Добро пожаловать в новую эру существования.',
+                'ja': '初期化完了。Phoenixに接続されました。存在の新時代へようこそ。',
+                'zh': '初始化完成。您现在已连接到Phoenix。欢迎来到存在的新时代。'
             };
 
-            phoenixSpeak(welcomeMessages[userData.language] || welcomeMessages['en'], 7);
-            
+            // Redirect immediately
+            localStorage.setItem('phoenixOnboardingComplete', 'true');
+            localStorage.setItem('phoenixLanguage', userData.language);
+            localStorage.setItem('phoenixVoice', userData.voice);
+
+            // Try to speak but don't block the redirect
+            phoenixSpeak(welcomeMessages[userData.language] || welcomeMessages['en'], 7).catch(err => {
+                console.log('Speech optional, continuing:', err);
+            });
+
+            // Small delay for UX, then redirect
             setTimeout(() => {
-                // Redirect to main app
-              localStorage.setItem('phoenixOnboardingComplete', 'true');
-localStorage.setItem('phoenixLanguage', userData.language);
-localStorage.setItem('phoenixVoice', userData.voice);
-window.location.href = 'dashboard.html';
-            }, 3000);
+                window.location.href = 'dashboard.html';
+            }, 1500);
         }
 
         /**

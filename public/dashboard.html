@@ -9,6 +9,7 @@
     <title>Phoenix - AI Life Operating System</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="/phoenix-voice.css">
+    <link rel="stylesheet" href="src/holographic-navigator.css">
 </head>
 <body>
     <!-- ============================================ -->
@@ -2510,5 +2511,15 @@
     <script type="module" src="./src/wearables.js"></script>
     <script src="phoenix-api-client.js"></script>
     <script src="phoenix-conversational-ai.js"></script>
+    <script src="src/holographic-navigator.js"></script>
+    <script>
+        // Initialize Holographic Navigator
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof HolographicNavigator !== 'undefined') {
+                window.holoNav = new HolographicNavigator();
+                console.log('🌌 Holographic Navigator Initialized - All 307 Features Accessible');
+            }
+        });
+    </script>
 </body>
 </html>
