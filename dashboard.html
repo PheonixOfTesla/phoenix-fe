@@ -934,37 +934,13 @@
     <!-- ============================================ -->
     <script>
     (function checkAuth() {
-        console.log('[Dashboard] ========== AUTH CHECK START ==========');
-        console.log('[Dashboard] Current URL:', window.location.href);
-        console.log('[Dashboard] Referrer:', document.referrer);
-
         const token = localStorage.getItem('phoenixToken');
-        const user = localStorage.getItem('phoenixUser');
-        const onboardingComplete = localStorage.getItem('phoenixOnboardingComplete');
-
-        console.log('[Dashboard] localStorage contents:');
-        console.log('  - phoenixToken:', token ? 'YES - ' + token.substring(0, 20) + '...' : 'NO');
-        console.log('  - phoenixUser:', user ? 'YES' : 'NO');
-        console.log('  - phoenixOnboardingComplete:', onboardingComplete);
-
-        // TEMPORARILY DISABLED AUTH CHECK TO DEBUG
-        // if (!token) {
-        //     console.log('🔒 No authentication token, redirecting to index.html');
-        //     console.log('[Dashboard] About to redirect in 1 second...');
-        //     setTimeout(() => {
-        //         window.location.href = 'index.html';
-        //     }, 1000);
-        //     return;
-        // }
 
         if (!token) {
-            console.warn('⚠️ WARNING: No token found, but allowing dashboard access for debugging');
-        } else {
-            console.log('✅ User authenticated, loading dashboard...');
+            window.location.href = 'index.html';
+            return;
         }
-        console.log('[Dashboard] ========== AUTH CHECK COMPLETE ==========');
-    })();
-    </script>
+    })();    </script>
 
     <!-- ============================================ -->
     <!-- CENTRALIZED CONFIGURATION -->

@@ -1120,21 +1120,13 @@
                     const data = await response.json();
 
                     if (data.success && data.token) {
-                        console.log('[Login] ✅ Login successful, saving token...');
                         localStorage.setItem('phoenixToken', data.token);
                         localStorage.setItem('phoenixUser', JSON.stringify(data.user));
-                        localStorage.setItem('phoenixOnboardingComplete', 'true'); // Mark as onboarded (existing users)
 
-                        // Verify token was saved
-                        const savedToken = localStorage.getItem('phoenixToken');
-                        console.log('[Login] Token saved:', savedToken ? 'YES - ' + savedToken.substring(0, 20) + '...' : 'NO - FAILED TO SAVE!');
-                        console.log('[Login] Redirecting to dashboard in 1.5 seconds...');
-
-                        this.showSuccess('Login successful! Loading Phoenix...');
+                        this.showSuccess('Login successful!');
                         setTimeout(() => {
-                            console.log('[Login] Executing redirect to dashboard.html');
                             window.location.href = 'dashboard.html';
-                        }, 1500);
+                        }, 500);
                     } else {
                         this.showError(data.message || 'Login failed');
                     }
