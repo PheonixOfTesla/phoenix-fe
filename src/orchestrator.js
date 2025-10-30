@@ -820,11 +820,12 @@ return true; // Token is valid if this succeeds
             this.state.preferences = profile.preferences || this.getDefaultPreferences();
             
             // Check if onboarding is complete
-            if (!profile.onboardingComplete) {
-                console.log('⚠️ Onboarding incomplete - redirecting...');
-                this.redirectToOnboarding();
-                return;
-            }
+            // DISABLED: Onboarding handled by auth flow, not orchestrator
+            // if (!profile.onboardingComplete) {
+            //     console.log('⚠️ Onboarding incomplete - redirecting...');
+            //     this.redirectToOnboarding();
+            //     return;
+            // }
             
             // If profile needs update (example: database migration)
             if (profile.needsUpdate) {
