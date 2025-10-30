@@ -483,6 +483,33 @@
             box-shadow: var(--shadow-glow-cyan);
         }
 
+        /* Phone Input with Country Code */
+        .phone-input-wrapper {
+            display: flex;
+            gap: 10px;
+        }
+
+        .country-selector {
+            width: 120px !important;
+            flex-shrink: 0;
+            cursor: pointer;
+            padding: 14px 10px !important;
+            background: rgba(0, 255, 255, 0.05) !important;
+            border: 1px solid var(--primary-cyan-border) !important;
+            color: var(--primary-cyan) !important;
+        }
+
+        .country-selector:focus {
+            outline: none !important;
+            border-color: var(--primary-cyan) !important;
+            background: rgba(0, 255, 255, 0.1) !important;
+            box-shadow: var(--shadow-glow-cyan) !important;
+        }
+
+        .phone-input-wrapper input {
+            flex: 1;
+        }
+
         /* Code Input */
         .code-input-wrapper {
             display: flex;
@@ -972,7 +999,26 @@
                     </div>
                     <div class="form-group">
                         <label>PHONE NUMBER</label>
-                        <input type="tel" id="phone" placeholder="+1 (555) 123-4567" required>
+                        <div class="phone-input-wrapper">
+                            <select id="countryCode" class="country-selector">
+                                <option value="+1" data-country="US">🇺🇸 +1</option>
+                                <option value="+44" data-country="GB">🇬🇧 +44</option>
+                                <option value="+91" data-country="IN">🇮🇳 +91</option>
+                                <option value="+86" data-country="CN">🇨🇳 +86</option>
+                                <option value="+81" data-country="JP">🇯🇵 +81</option>
+                                <option value="+49" data-country="DE">🇩🇪 +49</option>
+                                <option value="+33" data-country="FR">🇫🇷 +33</option>
+                                <option value="+61" data-country="AU">🇦🇺 +61</option>
+                                <option value="+39" data-country="IT">🇮🇹 +39</option>
+                                <option value="+34" data-country="ES">🇪🇸 +34</option>
+                                <option value="+7" data-country="RU">🇷🇺 +7</option>
+                                <option value="+55" data-country="BR">🇧🇷 +55</option>
+                                <option value="+52" data-country="MX">🇲🇽 +52</option>
+                                <option value="+82" data-country="KR">🇰🇷 +82</option>
+                                <option value="+31" data-country="NL">🇳🇱 +31</option>
+                            </select>
+                            <input type="tel" id="phone" placeholder="(555) 123-4567" required>
+                        </div>
                     </div>
                 </div>
                 <div class="form-grid">
@@ -1677,9 +1723,14 @@
                 return;
             }
 
+            // Combine country code and phone number
+            const countryCode = document.getElementById('countryCode').value;
+            const phoneNumber = document.getElementById('phone').value;
+            const fullPhone = countryCode + phoneNumber;
+
             userData.profile = {
                 name: document.getElementById('name').value,
-                phone: document.getElementById('phone').value,
+                phone: fullPhone,
                 password: password
             };
 
