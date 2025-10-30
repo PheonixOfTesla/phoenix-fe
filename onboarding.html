@@ -2439,19 +2439,20 @@
             if (currentPhase < 7) {
                 document.getElementById(`phase${currentPhase}`).classList.remove('active');
                 currentPhase++;
-
-                // SKIP Phase 4 (verification) - users are auto-verified on registration
-                if (currentPhase === 4) {
-                    console.log('[Onboarding] Skipping verification phase - user auto-verified');
-                    currentPhase = 5; // Jump to device sync
-                }
-
                 document.getElementById(`phase${currentPhase}`).classList.add('active');
                 updateProgress();
 
                 // Preload voice previews when entering Phase 2 (Voice Selection)
                 if (currentPhase === 2) {
                     preloadVoicePreviews();
+                }
+
+                // Show phone verification screen when reaching Phase 4
+                if (currentPhase === 4) {
+                    // Automatically show phone verification (no choice, phone is required)
+                    setTimeout(() => {
+                        verifyViaPhone();
+                    }, 500);
                 }
 
                 if (currentPhase === 7 && userData.profile.name) {
@@ -2461,12 +2462,10 @@
         }
 
         function previousPhase() {
-            // Skip Phase 4 when going backward too (verification is skipped)
-            if (currentPhase === 5) {
-                document.getElementById(`phase${currentPhase}`).classList.remove('active');
-                currentPhase = 3; // Jump back to AUTH, skip verification
-                document.getElementById(`phase${currentPhase}`).classList.add('active');
-                updateProgress();
+            // Block going back from Phase 4b (phone verification code entry)
+            if (currentPhase === 4 && document.getElementById('phase4b').classList.contains('active')) {
+                console.warn('[Onboarding] Cannot go back from phone verification');
+                alert('Please verify your phone number to continue. This prevents multiple accounts.');
                 return;
             }
 
