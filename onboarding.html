@@ -1231,6 +1231,7 @@
         
         // Audio context for playing TTS
         let currentAudio = null;
+        let isPlaying = false;
         
         // Language code mapper for TTS API
         const languageMap = {
@@ -1271,6 +1272,8 @@
                 currentAudio.pause();
                 currentAudio = null;
             }
+
+            isPlaying = true;
 
             // Show speaking animation
             const avatar = document.getElementById(`avatarCircle${phaseNum}`);
@@ -1329,6 +1332,7 @@
                         status.classList.remove('speaking');
                         status.textContent = '[ VOICE STANDBY ]';
                     }
+                    isPlaying = false;
                 };
                 
                 currentAudio.onended = () => {
@@ -1339,6 +1343,7 @@
                         status.textContent = '[ VOICE STANDBY ]';
                     }
                     URL.revokeObjectURL(audioUrl);
+                    isPlaying = false;
                 };
 
                 // Start playback
@@ -1358,6 +1363,7 @@
                                 status.classList.remove('speaking');
                                 status.textContent = '[ VOICE STANDBY ]';
                             }
+                            isPlaying = false;
                         });
                 }
 
@@ -1369,6 +1375,7 @@
                     status.classList.remove('speaking');
                     status.textContent = '[ VOICE STANDBY ]';
                 }
+                isPlaying = false;
             }
         }
 
@@ -1377,12 +1384,8 @@
          * Start onboarding
          */
         function startOnboarding() {
-            // Proceed to next phase immediately - speech is optional enhancement
+            // Just move to next phase - no speech on phase 0 since we transition immediately
             nextPhase();
-            // Try to speak but don't block the transition
-            phoenixSpeak("Greetings. I am Phoenix, an intelligence beyond your world. Let us begin our journey together. First, select your language so I may communicate with you.", 0).catch(err => {
-                console.log('Speech optional, continuing:', err);
-            });
         }
 
         /**
@@ -1481,7 +1484,14 @@
          */
         async function previewVoice(voice, event) {
             event.stopPropagation();
-            
+            event.preventDefault();
+
+            // Prevent double-clicks
+            if (isPlaying) {
+                console.log('[Preview] Already playing, ignoring click');
+                return;
+            }
+
             const samples = {
                 'en': {
                     'nova': "Hello. I'm Nova, your friendly helper.",
@@ -1581,6 +1591,8 @@
                 currentAudio = null;
             }
 
+            isPlaying = true;
+
             try {
                 const response = await fetch(`${API_URL}/api/tts/generate`, {
                     method: 'POST',
@@ -1601,15 +1613,25 @@
                 const audioBlob = await response.blob();
                 const audioUrl = URL.createObjectURL(audioBlob);
                 currentAudio = new Audio(audioUrl);
-                currentAudio.play();
+
                 currentAudio.onended = () => {
                     URL.revokeObjectURL(audioUrl);
                     currentAudio = null;
+                    isPlaying = false;
                 };
+
+                currentAudio.onerror = () => {
+                    URL.revokeObjectURL(audioUrl);
+                    currentAudio = null;
+                    isPlaying = false;
+                };
+
+                await currentAudio.play();
 
             } catch (error) {
                 console.error('Preview error:', error);
                 showToast('VOICE PREVIEW FAILED', 'error');
+                isPlaying = false;
             }
         }
 
