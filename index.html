@@ -861,8 +861,8 @@
                 const token = localStorage.getItem('phoenixToken');
 
                 if (!token) {
-                    console.log('[ViewManager] No token found, showing landing view');
-                    this.showView('landing');
+                    console.log('[ViewManager] No token found, showing login view');
+                    this.showView('login');
                     return;
                 }
 
@@ -879,14 +879,14 @@
                         window.location.href = 'dashboard.html';
                         return;
                     } else {
-                        console.log('[ViewManager] Invalid token, showing landing view');
+                        console.log('[ViewManager] Invalid token, showing login view');
                         localStorage.removeItem('phoenixToken');
                         localStorage.removeItem('phoenixUser');
-                        this.showView('landing');
+                        this.showView('login');
                     }
                 } catch (error) {
                     console.error('[ViewManager] Token verification failed:', error);
-                    this.showView('landing');
+                    this.showView('login');
                 }
             },
 
@@ -1120,12 +1120,21 @@
                     const data = await response.json();
 
                     if (data.success && data.token) {
+                        console.log('[Login] ✅ Login successful, saving token...');
                         localStorage.setItem('phoenixToken', data.token);
                         localStorage.setItem('phoenixUser', JSON.stringify(data.user));
                         localStorage.setItem('phoenixOnboardingComplete', 'true'); // Mark as onboarded (existing users)
 
+                        // Verify token was saved
+                        const savedToken = localStorage.getItem('phoenixToken');
+                        console.log('[Login] Token saved:', savedToken ? 'YES - ' + savedToken.substring(0, 20) + '...' : 'NO - FAILED TO SAVE!');
+                        console.log('[Login] Redirecting to dashboard in 1.5 seconds...');
+
                         this.showSuccess('Login successful! Loading Phoenix...');
-                        setTimeout(() => window.location.href = 'dashboard.html', 1000);
+                        setTimeout(() => {
+                            console.log('[Login] Executing redirect to dashboard.html');
+                            window.location.href = 'dashboard.html';
+                        }, 1500);
                     } else {
                         this.showError(data.message || 'Login failed');
                     }
