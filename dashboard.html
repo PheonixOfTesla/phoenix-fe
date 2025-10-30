@@ -934,18 +934,30 @@
     <!-- ============================================ -->
     <script>
     (function checkAuth() {
-        const token = localStorage.getItem('phoenixToken');
+        console.log('[Dashboard] ========== AUTH CHECK START ==========');
+        console.log('[Dashboard] Current URL:', window.location.href);
+        console.log('[Dashboard] Referrer:', document.referrer);
 
-        console.log('[Dashboard] Checking authentication...');
-        console.log('[Dashboard] Token exists:', token ? 'YES - ' + token.substring(0, 20) + '...' : 'NO');
+        const token = localStorage.getItem('phoenixToken');
+        const user = localStorage.getItem('phoenixUser');
+        const onboardingComplete = localStorage.getItem('phoenixOnboardingComplete');
+
+        console.log('[Dashboard] localStorage contents:');
+        console.log('  - phoenixToken:', token ? 'YES - ' + token.substring(0, 20) + '...' : 'NO');
+        console.log('  - phoenixUser:', user ? 'YES' : 'NO');
+        console.log('  - phoenixOnboardingComplete:', onboardingComplete);
 
         if (!token) {
-            console.log('🔒 No authentication token, redirecting to login...');
-            window.location.href = 'index.html';
+            console.log('🔒 No authentication token, redirecting to index.html');
+            console.log('[Dashboard] About to redirect in 1 second...');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
             return;
         }
 
         console.log('✅ User authenticated, loading dashboard...');
+        console.log('[Dashboard] ========== AUTH CHECK COMPLETE ==========');
     })();
     </script>
 
