@@ -1300,7 +1300,51 @@
             setupVoiceSelection();
             setupDeviceCards();
             setupCodeInputs();
-            
+
+            // Check for OAuth callback (from fitbit.html or other device callbacks)
+            const urlParams = new URLSearchParams(window.location.search);
+            const device = urlParams.get('device');
+            const status = urlParams.get('status');
+
+            if (device && status) {
+                // Restore userData from localStorage if it exists
+                const savedData = localStorage.getItem('phoenixOnboardingData');
+                if (savedData) {
+                    try {
+                        const restored = JSON.parse(savedData);
+                        Object.assign(userData, restored);
+                        console.log('[Onboarding] Restored user data after OAuth');
+                    } catch (e) {
+                        console.error('[Onboarding] Failed to restore data:', e);
+                    }
+                }
+
+                if (status === 'connected') {
+                    showToast(`${device.toUpperCase()} CONNECTED SUCCESSFULLY`, 'success');
+
+                    // Mark device card as connected
+                    const deviceCard = document.querySelector(`.device-card[data-device="${device}"]`);
+                    if (deviceCard) {
+                        deviceCard.classList.add('connected');
+                        const statusEl = deviceCard.querySelector('.device-status');
+                        if (statusEl) {
+                            statusEl.textContent = 'CONNECTED';
+                            statusEl.style.color = '#00ff00';
+                        }
+                    }
+
+                    // Navigate to Phase 5 (SYNC) to show the connected device
+                    goToPhase(5);
+
+                } else if (status === 'error') {
+                    showToast(`${device.toUpperCase()} CONNECTION FAILED`, 'error');
+                    goToPhase(5); // Still go to device sync phase
+                }
+
+                // Clean URL (remove query parameters)
+                window.history.replaceState({}, '', '/onboarding.html');
+            }
+
             // Enable audio on first user interaction (required by browsers)
             document.body.addEventListener('click', () => {
                 if (!currentAudio) {
@@ -2076,6 +2120,24 @@
                 currentPhase--;
                 document.getElementById(`phase${currentPhase}`).classList.add('active');
                 updateProgress();
+            }
+        }
+
+        function goToPhase(phaseNumber) {
+            if (phaseNumber >= 0 && phaseNumber <= 7) {
+                document.getElementById(`phase${currentPhase}`).classList.remove('active');
+                currentPhase = phaseNumber;
+                document.getElementById(`phase${currentPhase}`).classList.add('active');
+                updateProgress();
+
+                // Handle special phases
+                if (currentPhase === 4 && userData.profile.phone) {
+                    document.getElementById('userPhone').textContent = userData.profile.phone;
+                }
+
+                if (currentPhase === 7 && userData.profile.name) {
+                    document.getElementById('welcomeName').textContent = userData.profile.name.split(' ')[0].toUpperCase();
+                }
             }
         }
 
