@@ -1590,7 +1590,7 @@
                     body: JSON.stringify({
                         text: langSamples[voice],
                         voice: voice,
-                        language: userData.language
+                        language: languageMap[userData.language] || 'en-GB'
                     })
                 });
 
