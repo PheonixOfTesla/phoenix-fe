@@ -551,7 +551,7 @@
                 <p style="text-align:center;color:rgba(0,255,255,0.7);margin-bottom:30px;line-height:1.6">
                     Create your Phoenix account and I'll guide you through personalizing your AI companion.
                 </p>
-                <button class="submit-btn" onclick="ViewManager.showView('onboarding')">
+                <button class="submit-btn" onclick="window.location.href='onboarding.html'">
                     BEGIN ONBOARDING
                 </button>
             </div>
@@ -991,8 +991,8 @@
                 });
 
                 document.getElementById('register-tab').addEventListener('click', () => {
-                    // Start onboarding flow with canvas pointer-events fix
-                    ViewManager.showView('onboarding');
+                    // Redirect to standalone onboarding page
+                    window.location.href = 'onboarding.html';
                 });
 
                 // Login form
