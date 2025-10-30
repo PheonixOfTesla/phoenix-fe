@@ -95,3 +95,4 @@ check/
 
 # Don't commit coverage reports
 *-COVERAGE.md
+.vercel
