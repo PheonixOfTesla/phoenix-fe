@@ -119,6 +119,61 @@
     </div>
 
     <!-- ============================================ -->
+    <!-- OPTIMIZATION SCORE WIDGET -->
+    <!-- ============================================ -->
+    <div id="optimization-widget" style="position:fixed;top:180px;right:20px;z-index:1000;pointer-events:auto;padding:15px;background:rgba(0,10,20,0.95);border:2px solid rgba(0,255,255,0.5);backdrop-filter:blur(10px);border-radius:8px;min-width:200px;box-shadow:0 0 20px rgba(0,255,255,0.3);transition:all 0.3s">
+        <!-- Header -->
+        <div style="font-size:9px;color:rgba(0,255,255,0.5);letter-spacing:1px;margin-bottom:8px;text-align:center">OPTIMIZATION</div>
+
+        <!-- Circular Progress -->
+        <div style="display:flex;align-items:center;justify-content:center;margin:15px 0;position:relative">
+            <svg width="140" height="140" style="transform:rotate(-90deg)">
+                <!-- Background circle -->
+                <circle cx="70" cy="70" r="60" stroke="rgba(0,255,255,0.1)" stroke-width="8" fill="none" />
+                <!-- Progress circle -->
+                <circle id="opt-progress-circle" cx="70" cy="70" r="60" stroke="#00ffff" stroke-width="8" fill="none"
+                    style="stroke-dasharray:377;stroke-dashoffset:377;transition:stroke-dashoffset 1s ease,stroke 0.5s ease;stroke-linecap:round;filter:drop-shadow(0 0 10px rgba(0,255,255,0.6))" />
+            </svg>
+            <!-- Score Text -->
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center">
+                <div id="opt-score-text" style="font-size:32px;color:#00ffff;font-weight:bold;text-shadow:0 0 15px rgba(0,255,255,0.8);line-height:1">0%</div>
+                <div style="font-size:9px;color:rgba(0,255,255,0.5);margin-top:4px">SCORE</div>
+            </div>
+        </div>
+
+        <!-- Current Tier -->
+        <div style="text-align:center;margin:12px 0;padding:10px;background:rgba(0,255,255,0.05);border-radius:6px;border:1px solid rgba(0,255,255,0.2)">
+            <div id="opt-tier-name" style="font-size:13px;color:#00ffff;font-weight:bold;letter-spacing:1px;margin-bottom:4px">BASIC PHOENIX</div>
+            <div id="opt-tier-desc" style="font-size:9px;color:rgba(0,255,255,0.6);line-height:1.4">Connect more services to unlock advanced features</div>
+        </div>
+
+        <!-- Missing Count -->
+        <div id="opt-missing-section" style="margin:12px 0;padding:10px;background:rgba(255,68,68,0.1);border-radius:6px;border:1px solid rgba(255,68,68,0.3)">
+            <div style="font-size:9px;color:rgba(255,68,68,0.7);margin-bottom:4px;text-align:center">MISSING INTEGRATIONS</div>
+            <div id="opt-missing-count" style="font-size:20px;color:#ff4444;font-weight:bold;text-align:center">10</div>
+        </div>
+
+        <!-- Next Tier Progress -->
+        <div id="opt-next-tier-section" style="margin:12px 0">
+            <div style="font-size:9px;color:rgba(0,255,255,0.5);margin-bottom:6px;display:flex;justify-content:space-between">
+                <span>NEXT TIER</span>
+                <span id="opt-points-needed">+34%</span>
+            </div>
+            <div style="width:100%;height:6px;background:rgba(0,255,255,0.1);border-radius:3px;overflow:hidden">
+                <div id="opt-next-tier-bar" style="width:0%;height:100%;background:linear-gradient(90deg, #00ffff, #00ff88);transition:width 1s ease;box-shadow:0 0 10px rgba(0,255,255,0.6)"></div>
+            </div>
+            <div id="opt-next-tier-name" style="font-size:10px;color:rgba(0,255,255,0.6);margin-top:4px;text-align:center">→ JARVIS MODE</div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display:flex;gap:8px;margin-top:15px">
+            <button onclick="window.location.href='optimization-hub.html'" style="flex:1;padding:10px;background:linear-gradient(135deg, rgba(0,255,255,0.2), rgba(0,255,136,0.2));border:2px solid #00ffff;color:#00ffff;font-family:inherit;font-size:10px;cursor:pointer;border-radius:6px;letter-spacing:1px;font-weight:bold;box-shadow:0 0 15px rgba(0,255,255,0.3);transition:all 0.3s">
+                🔥 OPTIMIZE
+            </button>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
     <!-- BOTTOM LEFT HUD: SYSTEM STATUS & INTEGRATIONS -->
     <!-- ============================================ -->
     <div id="hud-bl" style="position:fixed;bottom:20px;left:20px;z-index:1000;pointer-events:none;padding:15px;background:rgba(0,10,20,0.9);border:1px solid rgba(0,255,255,0.3);backdrop-filter:blur(10px);border-radius:8px;min-width:200px">
@@ -894,6 +949,11 @@
     <!-- CENTRALIZED CONFIGURATION -->
     <!-- ============================================ -->
     <script src="src/config.js"></script>
+
+    <!-- ============================================ -->
+    <!-- OPTIMIZATION TRACKER -->
+    <!-- ============================================ -->
+    <script src="src/optimization-tracker.js"></script>
 
     <!-- ============================================ -->
     <!-- PHOENIX CORE ENGINE - WITH REAL API CONNECTIONS -->
@@ -2244,6 +2304,119 @@
         };
 
         /**
+         * OPTIMIZATION WIDGET - Updates the dashboard optimization score display
+         */
+        function initOptimizationWidget() {
+            if (!window.OptimizationTracker) {
+                console.warn('⚠️ OptimizationTracker not loaded');
+                return;
+            }
+
+            updateOptimizationWidget();
+
+            // Listen for integration connection events
+            window.addEventListener('phoenixIntegrationConnected', (e) => {
+                console.log('✅ Integration connected:', e.detail.name);
+                updateOptimizationWidget();
+                showOptimizationToast(`+${e.detail.points}% - ${e.detail.name} Connected!`, 'success');
+            });
+
+            // Listen for tier unlock events
+            window.addEventListener('phoenixTierUnlocked', (e) => {
+                console.log('🎉 Tier unlocked:', e.detail.name);
+                updateOptimizationWidget();
+                showOptimizationToast(`🔓 ${e.detail.name} UNLOCKED!`, 'success');
+            });
+
+            // Listen for full optimization achievement
+            window.addEventListener('phoenixFullyOptimized', (e) => {
+                console.log('🔥 PHOENIX FULLY OPTIMIZED!');
+                updateOptimizationWidget();
+                showOptimizationToast('🔥 PHOENIX OPTIMIZED - FULL AI MASTERY!', 'achievement');
+            });
+
+            console.log('✅ Optimization Widget initialized');
+        }
+
+        function updateOptimizationWidget() {
+            const summary = window.OptimizationTracker.getOptimizationSummary();
+
+            // Update score text
+            document.getElementById('opt-score-text').textContent = summary.score + '%';
+
+            // Update circular progress
+            const circle = document.getElementById('opt-progress-circle');
+            const circumference = 2 * Math.PI * 60; // radius is 60
+            const offset = circumference - (summary.score / 100) * circumference;
+            circle.style.strokeDashoffset = offset;
+            circle.style.stroke = summary.tier.color;
+
+            // Update tier info
+            document.getElementById('opt-tier-name').textContent = summary.tier.name.toUpperCase();
+            document.getElementById('opt-tier-name').style.color = summary.tier.color;
+            document.getElementById('opt-tier-desc').textContent = summary.tier.description;
+
+            // Update missing count
+            const missingCount = summary.missing.length;
+            document.getElementById('opt-missing-count').textContent = missingCount;
+
+            // Hide missing section if fully optimized
+            if (summary.isOptimized) {
+                document.getElementById('opt-missing-section').style.display = 'none';
+                document.getElementById('opt-next-tier-section').style.display = 'none';
+            } else {
+                document.getElementById('opt-missing-section').style.display = 'block';
+                document.getElementById('opt-next-tier-section').style.display = 'block';
+
+                // Update next tier progress
+                if (summary.nextTier) {
+                    document.getElementById('opt-points-needed').textContent = '+' + summary.pointsToNext + '%';
+                    document.getElementById('opt-next-tier-name').textContent = '→ ' + summary.nextTier.name.toUpperCase();
+                    document.getElementById('opt-next-tier-name').style.color = summary.nextTier.color;
+
+                    // Calculate progress towards next tier
+                    const tierRange = summary.nextTier.min - summary.tier.min;
+                    const currentProgress = summary.score - summary.tier.min;
+                    const progressPercent = (currentProgress / tierRange) * 100;
+
+                    document.getElementById('opt-next-tier-bar').style.width = Math.min(progressPercent, 100) + '%';
+                }
+            }
+        }
+
+        function showOptimizationToast(message, type = 'info') {
+            const colors = {
+                info: '#00ffff',
+                success: '#00ff88',
+                achievement: '#ffaa00'
+            };
+
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 250px;
+                background: rgba(0,10,20,0.95);
+                border: 2px solid ${colors[type]};
+                padding: 15px 20px;
+                border-radius: 8px;
+                color: ${colors[type]};
+                font-size: 13px;
+                font-weight: bold;
+                z-index: 10000;
+                box-shadow: 0 0 30px ${colors[type]}80;
+                animation: slideInRight 0.3s ease;
+            `;
+            toast.textContent = message;
+
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        /**
          * APP INITIALIZATION
          */
         window.addEventListener('DOMContentLoaded', async () => {
@@ -2308,6 +2481,9 @@
                 });
             }
             
+            // Initialize Optimization Widget
+            initOptimizationWidget();
+
             console.log('🚀 PHOENIX FULLY INITIALIZED');
             console.log('📊 307 Endpoints Available');
             console.log('🌍 IP Geolocation: ✅ Active');
@@ -2316,6 +2492,7 @@
             console.log('🤖 AI Companion: ✅ Online');
             console.log('🤵 Butler: ✅ Ready');
             console.log('💪 6 Planetary Systems: ✅ Operational');
+            console.log('🔥 Optimization Tracker: ✅ Active');
             console.log('✨ The Most Sophisticated AI Companion on Earth');
         });
     </script>

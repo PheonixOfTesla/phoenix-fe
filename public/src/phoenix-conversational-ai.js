@@ -56,8 +56,9 @@ class PhoenixConversationalAI {
             pitch: 1.0
         };
         
-        // Mode presets
+        // Mode presets - UPDATED WITH OPTIMIZATION TIERS
         this.modePresets = {
+            // Legacy modes (for compatibility)
             PHOENIX: {
                 traits: {
                     analytical: 8,
@@ -81,6 +82,68 @@ class PhoenixConversationalAI {
                 },
                 defaultVoice: 'echo',
                 description: 'Proactive butler, dignified, anticipates needs'
+            },
+
+            // NEW OPTIMIZATION-BASED MODES
+            BASIC_PHOENIX: {
+                traits: {
+                    analytical: 5,
+                    proactive: 4,
+                    empathetic: 7,
+                    formality: 4,
+                    humor: 6,
+                    verbosity: 5
+                },
+                defaultVoice: 'nova',
+                description: 'Basic Phoenix - Learning about you',
+                optimizationRequired: 0,
+                tier: 'novice',
+                unlocked: true
+            },
+            JARVIS: {
+                traits: {
+                    analytical: 10,
+                    proactive: 6,
+                    empathetic: 5,
+                    formality: 7,
+                    humor: 3,
+                    verbosity: 7
+                },
+                defaultVoice: 'echo',
+                description: 'JARVIS Mode - Analytical AI with pattern recognition',
+                optimizationRequired: 34,
+                tier: 'jarvis',
+                unlocked: false
+            },
+            BUTLER: {
+                traits: {
+                    analytical: 7,
+                    proactive: 10,
+                    empathetic: 8,
+                    formality: 9,
+                    humor: 4,
+                    verbosity: 6
+                },
+                defaultVoice: 'onyx',
+                description: 'Butler Mode - Proactive AI that takes autonomous actions',
+                optimizationRequired: 67,
+                tier: 'butler',
+                unlocked: false
+            },
+            PHOENIX_OPTIMIZED: {
+                traits: {
+                    analytical: 10,
+                    proactive: 10,
+                    empathetic: 10,
+                    formality: 8,
+                    humor: 8,
+                    verbosity: 8
+                },
+                defaultVoice: 'custom',
+                description: 'PHOENIX OPTIMIZED - Full system mastery',
+                optimizationRequired: 100,
+                tier: 'optimized',
+                unlocked: false
             }
         };
         
@@ -106,32 +169,129 @@ class PhoenixConversationalAI {
     async init() {
         try {
             console.log('🔥 Initializing Phoenix Conversational AI...');
-            
+
             // Setup speech recognition
             this.setupSpeechRecognition();
-            
+
             // Setup speech synthesis
             this.setupSpeechSynthesis();
-            
-            // Load saved personality settings
+
+            // Sync personality with optimization tier
+            await this.syncPersonalityWithOptimization();
+
+            // Load saved personality settings (overrides optimization if user customized)
             await this.loadPersonalitySettings();
-            
+
             // Start voice session
             await this.startVoiceSession();
-            
+
             // Load conversation history
             await this.loadConversationHistory();
-            
+
             // Initialize UI
             this.initializeUI();
-            
+
+            // Listen for optimization tier changes
+            this.setupOptimizationListeners();
+
             console.log('✅ Phoenix Conversational AI initialized');
             console.log(`🎭 Mode: ${this.mode.type}`);
             console.log(`🎤 Voice: ${this.voice.personality}`);
-            
+            console.log(`🔥 Optimization Score: ${this.getOptimizationScore()}%`);
+
         } catch (error) {
             console.error('❌ Initialization failed:', error);
         }
+    }
+
+    /**
+     * Get current optimization score
+     */
+    getOptimizationScore() {
+        if (window.OptimizationTracker) {
+            return window.OptimizationTracker.calculateScore();
+        }
+        return 0;
+    }
+
+    /**
+     * Get appropriate mode based on optimization score
+     */
+    getModeForOptimizationScore(score) {
+        if (score === 100) return 'PHOENIX_OPTIMIZED';
+        if (score >= 67) return 'BUTLER';
+        if (score >= 34) return 'JARVIS';
+        return 'BASIC_PHOENIX';
+    }
+
+    /**
+     * Sync personality with optimization tier
+     * Automatically upgrades AI personality as user connects more integrations
+     */
+    async syncPersonalityWithOptimization() {
+        if (!window.OptimizationTracker) {
+            console.warn('⚠️ OptimizationTracker not available, using default personality');
+            this.mode.type = 'BASIC_PHOENIX';
+            this.mode.traits = this.modePresets.BASIC_PHOENIX.traits;
+            this.voice.personality = this.modePresets.BASIC_PHOENIX.defaultVoice;
+            return;
+        }
+
+        const score = this.getOptimizationScore();
+        const appropriateMode = this.getModeForOptimizationScore(score);
+
+        // Update mode
+        this.mode.type = appropriateMode;
+        this.mode.traits = this.modePresets[appropriateMode].traits;
+        this.voice.personality = this.modePresets[appropriateMode].defaultVoice;
+
+        console.log(`🔥 AI Personality synced with optimization: ${appropriateMode} (${score}%)`);
+    }
+
+    /**
+     * Setup listeners for optimization tier changes
+     * Automatically upgrades personality when user unlocks new tier
+     */
+    setupOptimizationListeners() {
+        // Listen for tier unlock events
+        window.addEventListener('phoenixTierUnlocked', async (e) => {
+            const newTier = e.detail;
+            console.log('🎉 Tier unlocked, upgrading AI personality:', newTier.name);
+
+            // Get the mode for this tier
+            const newMode = this.getModeForOptimizationScore(newTier.score);
+
+            // Upgrade personality
+            await this.changeMode(newMode);
+
+            // Announce the upgrade
+            const announcements = {
+                JARVIS: "Systems upgraded. JARVIS mode activated. I now have enhanced analytical capabilities and pattern recognition. How may I assist you?",
+                BUTLER: "Butler mode now active, sir. I can now take proactive actions on your behalf. Simply ask, and I shall handle it.",
+                PHOENIX_OPTIMIZED: "PHOENIX OPTIMIZED. Full system mastery achieved. I know you better than you know yourself. Together, we are unstoppable."
+            };
+
+            if (announcements[newMode]) {
+                setTimeout(() => {
+                    this.speak(announcements[newMode]);
+                }, 1000);
+            }
+        });
+
+        // Listen for integration connections (for incremental personality updates)
+        window.addEventListener('phoenixIntegrationConnected', async (e) => {
+            const score = this.getOptimizationScore();
+            const currentMode = this.mode.type;
+            const appropriateMode = this.getModeForOptimizationScore(score);
+
+            // If we've crossed into a new tier, upgrade
+            if (appropriateMode !== currentMode) {
+                console.log(`🔄 Personality auto-upgrade: ${currentMode} → ${appropriateMode}`);
+                await this.syncPersonalityWithOptimization();
+            }
+        });
+
+        console.log('✅ Optimization listeners setup');
     }
 
     /**
@@ -968,14 +1128,21 @@ class PhoenixConversationalAI {
         try {
             const personalityMap = {
                 'PHOENIX': 'friendly_helpful',
-                'ALFRED': 'british_refined'
+                'ALFRED': 'british_refined',
+                'BASIC_PHOENIX': 'friendly_helpful',
+                'JARVIS': 'analytical_robotic',
+                'BUTLER': 'british_refined',
+                'PHOENIX_OPTIMIZED': 'master_ai'
             };
 
             const response = await this.api.phoenixVoiceChat({
                 message: message,
                 conversationHistory: this.conversationHistory.slice(-10),
                 personality: personalityMap[this.mode.type] || 'friendly_helpful',
-                voice: this.voice.personality
+                voice: this.voice.personality,
+                mode: this.mode.type,
+                optimizationScore: this.getOptimizationScore(),
+                traits: this.mode.traits
             });
 
             if (response.success) {
