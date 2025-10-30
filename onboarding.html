@@ -1051,12 +1051,34 @@
             </div>
         </div>
 
-        <!-- Phase 4: Phone Verification -->
+        <!-- Phase 4: Verification Choice -->
         <div class="phase" id="phase4">
             <div class="phoenix-avatar">
                 <div class="avatar-circle" id="avatarCircle4"></div>
             </div>
-            <div class="voice-status" id="voiceStatus4">[ VERIFICATION SENT ]</div>
+            <div class="voice-status" id="voiceStatus4">[ CHOOSE VERIFICATION METHOD ]</div>
+            <div class="phase-header">
+                <h1 class="phase-title">VERIFY YOUR ACCOUNT</h1>
+                <p class="phase-subtitle">CHOOSE HOW YOU'D LIKE TO VERIFY</p>
+            </div>
+            <div class="button-group" style="display: flex; flex-direction: column; gap: 20px; max-width: 400px; margin: 40px auto;">
+                <button class="btn btn-primary" onclick="verifyViaPhone()" style="padding: 20px; font-size: 16px;">
+                    📱 VERIFY WITH PHONE<br>
+                    <span style="font-size: 12px; opacity: 0.7;">Receive SMS verification code</span>
+                </button>
+                <button class="btn btn-secondary" onclick="verifyViaEmail()" style="padding: 20px; font-size: 16px;">
+                    📧 VERIFY WITH EMAIL<br>
+                    <span style="font-size: 12px; opacity: 0.7;">Instant verification (for now)</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Phase 4b: Phone Verification (shown if user chooses phone) -->
+        <div class="phase" id="phase4b" style="display: none;">
+            <div class="phoenix-avatar">
+                <div class="avatar-circle" id="avatarCircle4b"></div>
+            </div>
+            <div class="voice-status" id="voiceStatus4b">[ VERIFICATION SENT ]</div>
             <div class="phase-header">
                 <h1 class="phase-title">VERIFY PHONE</h1>
                 <p class="phase-subtitle">ENTER 6-DIGIT CODE SENT TO <span id="userPhone" style="color: var(--primary-cyan);"></span></p>
@@ -1074,6 +1096,7 @@
             </div>
             <div class="button-group">
                 <button class="btn btn-primary" onclick="verifyPhone()">[ VERIFY PHONE ]</button>
+                <button class="btn btn-secondary" onclick="backToVerificationChoice()">[ GO BACK ]</button>
             </div>
         </div>
 
@@ -2119,7 +2142,52 @@
         }
 
         /**
-         * Verify Email
+         * Verification Choice Functions
+         */
+        async function verifyViaEmail() {
+            showLoading(true);
+            try {
+                // Call skip verification endpoint (marks email as verified)
+                const response = await api.request('/auth/skip-verification', {
+                    method: 'POST'
+                });
+
+                if (response.success) {
+                    userData.emailVerified = true;
+                    showLoading(false);
+                    showToast('EMAIL VERIFIED', 'success');
+                    console.log('[Verification] Email verified successfully');
+                    // Proceed to next phase
+                    nextPhase();
+                } else {
+                    throw new Error(response.message);
+                }
+            } catch (error) {
+                showLoading(false);
+                console.error('[Verification] Email verification error:', error);
+                showToast('VERIFICATION FAILED', 'error');
+            }
+        }
+
+        async function verifyViaPhone() {
+            // Show phone verification phase
+            document.getElementById('phase4').classList.remove('active');
+            document.getElementById('phase4b').classList.add('active');
+
+            // Phone number already sent SMS during registration, so just show the code entry
+            const phone = userData.profile.phone;
+            if (phone) {
+                document.getElementById('userPhone').textContent = phone;
+            }
+        }
+
+        function backToVerificationChoice() {
+            document.getElementById('phase4b').classList.remove('active');
+            document.getElementById('phase4').classList.add('active');
+        }
+
+        /**
+         * Verify Phone (SMS Code)
          */
         async function verifyPhone() {
             const code = Array.from(document.querySelectorAll('.code-digit'))
@@ -2368,10 +2436,10 @@
          * Navigation
          */
         function nextPhase() {
-            // Block advancing from Phase 4 (phone verification) without verification
-            if (currentPhase === 4 && !userData.phoneVerified) {
-                console.warn('[Onboarding] Cannot proceed without phone verification');
-                alert('Please verify your phone number before continuing.');
+            // Block advancing from Phase 4 (verification choice) without any verification
+            if (currentPhase === 4 && !userData.phoneVerified && !userData.emailVerified) {
+                console.warn('[Onboarding] Cannot proceed without verification');
+                alert('Please verify your account (email or phone) before continuing.');
                 return;
             }
 
