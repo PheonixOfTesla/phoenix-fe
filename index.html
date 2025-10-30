@@ -562,9 +562,12 @@
                         <input type="password" class="form-input" id="login-password" placeholder="••••••••" required>
                     </div>
                     <button type="submit" class="submit-btn" id="login-btn">ACTIVATE PHOENIX</button>
-                    <div style="text-align: center; margin-top: 20px;">
+                    <div style="text-align: center; margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
                         <button type="button" class="btn-link" onclick="toggleLoginMethod()" style="background: none; border: none; color: rgba(0,255,255,0.7); cursor: pointer; text-decoration: underline; font-size: 13px;">
                             Sign in with other methods
+                        </button>
+                        <button type="button" class="btn-link" onclick="showForgotPassword()" style="background: none; border: none; color: rgba(0,255,255,0.5); cursor: pointer; text-decoration: underline; font-size: 13px;">
+                            Forgot password?
                         </button>
                     </div>
                 </form>
@@ -1330,9 +1333,12 @@
                         <input type="password" class="form-input" id="login-password" placeholder="••••••••" required>
                     </div>
                     <button type="submit" class="submit-btn" id="login-btn">ACTIVATE PHOENIX</button>
-                    <div style="text-align: center; margin-top: 20px;">
+                    <div style="text-align: center; margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
                         <button type="button" class="btn-link" onclick="toggleLoginMethod()" style="background: none; border: none; color: rgba(0,255,255,0.7); cursor: pointer; text-decoration: underline; font-size: 13px;">
                             Sign in with phone number
+                        </button>
+                        <button type="button" class="btn-link" onclick="showForgotPassword()" style="background: none; border: none; color: rgba(0,255,255,0.5); cursor: pointer; text-decoration: underline; font-size: 13px;">
+                            Forgot password?
                         </button>
                     </div>
                 `;
@@ -1368,14 +1374,22 @@
                         <input type="password" class="form-input" id="login-password" placeholder="••••••••" required>
                     </div>
                     <button type="submit" class="submit-btn" id="login-btn">ACTIVATE PHOENIX</button>
-                    <div style="text-align: center; margin-top: 20px;">
+                    <div style="text-align: center; margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
                         <button type="button" class="btn-link" onclick="toggleLoginMethod()" style="background: none; border: none; color: rgba(0,255,255,0.7); cursor: pointer; text-decoration: underline; font-size: 13px;">
                             Sign in with other methods
+                        </button>
+                        <button type="button" class="btn-link" onclick="showForgotPassword()" style="background: none; border: none; color: rgba(0,255,255,0.5); cursor: pointer; text-decoration: underline; font-size: 13px;">
+                            Forgot password?
                         </button>
                     </div>
                 `;
                 usingPhoneLogin = true;
             }
+        }
+
+        function showForgotPassword() {
+            alert('Password reset functionality: Enter your email, and we\'ll send you a reset link.\n\n(Coming soon - for now, please contact support)');
+            // TODO: Implement forgot password flow with /api/auth/reset-password endpoint
         }
 
         // ============================================
