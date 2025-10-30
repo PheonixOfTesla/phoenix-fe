@@ -2141,7 +2141,11 @@
 
                 showLoading(false);
                 showToast('PHONE VERIFIED', 'success');
-                
+
+                // Mark phone as verified in userData
+                userData.phoneVerified = true;
+                console.log('[Verification] Phone verified successfully');
+
                 const verifiedMessages = {
                     'en': "Verified. Now, would you like to connect any wearable devices? This helps me track your health data and provide better insights.",
                     'es': 'Verificado. Ahora, ¿te gustaría conectar algún dispositivo portátil? Esto me ayuda a rastrear tus datos de salud y proporcionar mejores conocimientos.',
@@ -2155,7 +2159,7 @@
                     'ja': '確認済み。ウェアラブルデバイスを接続しますか？これにより、健康データを追跡し、より良い洞察を提供できます。',
                     'zh': '已验证。现在您想连接可穿戴设备吗？这可以帮助我追踪您的健康数据并提供更好的见解。'
                 };
-                
+
                 // Proceed to next phase immediately, speech is optional
                 nextPhase();
 
@@ -2364,6 +2368,13 @@
          * Navigation
          */
         function nextPhase() {
+            // Block advancing from Phase 4 (phone verification) without verification
+            if (currentPhase === 4 && !userData.phoneVerified) {
+                console.warn('[Onboarding] Cannot proceed without phone verification');
+                alert('Please verify your phone number before continuing.');
+                return;
+            }
+
             if (currentPhase < 7) {
                 document.getElementById(`phase${currentPhase}`).classList.remove('active');
                 currentPhase++;
@@ -2378,7 +2389,7 @@
                 if (currentPhase === 4 && userData.profile.email) {
                     document.getElementById('userPhone').textContent = userData.profile.phone;
                 }
-                
+
                 if (currentPhase === 7 && userData.profile.name) {
                     document.getElementById('welcomeName').textContent = userData.profile.name.split(' ')[0].toUpperCase();
                 }
@@ -2386,6 +2397,13 @@
         }
 
         function previousPhase() {
+            // Block going back from Phase 4 (phone verification) - user must verify
+            if (currentPhase === 4) {
+                console.warn('[Onboarding] Cannot go back from phone verification phase');
+                alert('You must verify your phone number to continue. This prevents multiple accounts.');
+                return;
+            }
+
             if (currentPhase > 1) {
                 document.getElementById(`phase${currentPhase}`).classList.remove('active');
                 currentPhase--;
