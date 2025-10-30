@@ -48,15 +48,6 @@ const API_CONFIG = {
     cacheTTL: 300000          // 5 minutes
 };
 
-// Export for ES6 modules
-export {
-    API_BASE_URL,
-    FRONTEND_URL,
-    FEATURES,
-    API_CONFIG,
-    isLocalhost
-};
-
 // Export for global window usage (for HTML script tags)
 window.PhoenixConfig = {
     API_BASE_URL,
