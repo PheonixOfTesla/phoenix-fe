@@ -998,6 +998,12 @@
                         <input type="text" id="name" placeholder="John Doe" required>
                     </div>
                     <div class="form-group">
+                        <label>EMAIL</label>
+                        <input type="email" id="email" placeholder="your@email.com" required>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
                         <label>PHONE NUMBER</label>
                         <div class="phone-input-wrapper">
                             <select id="countryCode" class="country-selector">
@@ -1024,11 +1030,11 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label>PASSWORD</label>
-                        <input type="password" id="password" placeholder="••••••••" required>
+                        <input type="password" id="password" placeholder="••••••••" required minlength="6">
                     </div>
                     <div class="form-group">
                         <label>CONFIRM PASSWORD</label>
-                        <input type="password" id="confirmPassword" placeholder="••••••••" required>
+                        <input type="password" id="confirmPassword" placeholder="••••••••" required minlength="6">
                     </div>
                 </div>
             </form>
@@ -1771,9 +1777,11 @@
             const countryCode = document.getElementById('countryCode').value;
             const phoneNumber = document.getElementById('phone').value;
             const fullPhone = countryCode + phoneNumber;
+            const email = document.getElementById('email').value;
 
             userData.profile = {
                 name: document.getElementById('name').value,
+                email: email,
                 phone: fullPhone,
                 password: password
             };
@@ -1781,21 +1789,17 @@
             showLoading(true);
 
             try {
-                // Backend requires email, so generate from phone
-                const phoneDigits = userData.profile.phone.replace(/\D/g, '');
-                const email = `${phoneDigits}@phoenix-temp.com`;
-                
                 console.log('[Registration] Submitting:', {
                     name: userData.profile.name,
-                    email: email,
+                    email: userData.profile.email,
                     phone: userData.profile.phone,
                     language: userData.language,
                     voice: userData.voice
                 });
-                
+
                 const response = await api.auth.register({
                     name: userData.profile.name,
-                    email: email,
+                    email: userData.profile.email,
                     phone: userData.profile.phone,
                     password: userData.profile.password,
                     language: userData.language,
