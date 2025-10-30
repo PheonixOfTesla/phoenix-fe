@@ -62,7 +62,6 @@
             backdrop-filter: blur(20px);
             box-shadow: 0 0 60px rgba(0, 255, 255, 0.4);
             animation: slideIn 0.8s ease-out;
-            margin: 20px auto;
         }
 
         @keyframes slideIn {
@@ -639,7 +638,8 @@
             }
 
             init() {
-                for (let i = 0; i < 100; i++) {
+                const particleCount = Math.floor((this.width * this.height) / 5000); // Dynamic particle count
+                for (let i = 0; i < particleCount; i++) {
                     this.particles.push({
                         x: Math.random() * this.width,
                         y: Math.random() * this.height,
@@ -1043,7 +1043,7 @@
             // Create stars
             function createStars() {
                 stars = [];
-                const starCount = Math.floor((canvas.width * canvas.height) / 8000);
+                const starCount = Math.floor((canvas.width * canvas.height) / 4000); // More stars for denser web
 
                 for (let i = 0; i < starCount; i++) {
                     stars.push({
