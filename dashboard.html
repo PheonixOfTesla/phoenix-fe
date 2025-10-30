@@ -934,16 +934,18 @@
     <!-- ============================================ -->
     <script>
     (function checkAuth() {
-        // Only check if user is logged in, don't force onboarding redirect
-        const token = localStorage.getItem('phoenixToken');
+        // Wait a moment for localStorage to sync (prevents race condition)
+        setTimeout(() => {
+            const token = localStorage.getItem('phoenixToken');
 
-        if (!token) {
-            console.log('🔒 No authentication token, redirecting to login...');
-            window.location.href = 'index.html';
-            return;
-        }
+            if (!token) {
+                console.log('🔒 No authentication token, redirecting to login...');
+                window.location.href = 'index.html';
+                return;
+            }
 
-        console.log('✅ User authenticated, loading dashboard...');
+            console.log('✅ User authenticated, loading dashboard...');
+        }, 100); // Small delay to ensure localStorage is synced
     })();
     </script>
 
