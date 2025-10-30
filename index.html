@@ -1122,6 +1122,7 @@
                     if (data.success && data.token) {
                         localStorage.setItem('phoenixToken', data.token);
                         localStorage.setItem('phoenixUser', JSON.stringify(data.user));
+                        localStorage.setItem('phoenixOnboardingComplete', 'true'); // Mark as onboarded (existing users)
 
                         this.showSuccess('Login successful! Loading Phoenix...');
                         setTimeout(() => window.location.href = 'dashboard.html', 1000);
