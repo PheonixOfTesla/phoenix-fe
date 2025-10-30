@@ -1284,9 +1284,21 @@
                 status.textContent = '[ PHOENIX SPEAKING ]';
             }
 
+            // Speed settings per voice (1.0 = normal, 0.85 = slower)
+            const voiceSpeeds = {
+                'nova': 0.85,  // Nova talks a bit fast, slow her down
+                'echo': 1.0,
+                'onyx': 1.0,
+                'shimmer': 1.0,
+                'alloy': 1.0,
+                'fable': 1.0
+            };
+
             try {
                 console.log('[TTS] Requesting:', text.substring(0, 50) + '...');
-                
+
+                const selectedVoice = userData.voice || 'echo';
+
                 // Call backend TTS API
                 const response = await fetch(`${API_URL}/api/tts/generate`, {
                     method: 'POST',
@@ -1295,8 +1307,9 @@
                     },
                     body: JSON.stringify({
                         text: text,
-                        voice: userData.voice || 'echo',
-                        language: languageMap[userData.language] || 'en-GB'
+                        voice: selectedVoice,
+                        language: languageMap[userData.language] || 'en-GB',
+                        speed: voiceSpeeds[selectedVoice] || 1.0
                     })
                 });
 
@@ -1593,6 +1606,16 @@
 
             isPlaying = true;
 
+            // Speed settings per voice (1.0 = normal, 0.85 = slower, 1.15 = faster)
+            const voiceSpeeds = {
+                'nova': 0.85,  // Nova talks a bit fast, slow her down
+                'echo': 1.0,
+                'onyx': 1.0,
+                'shimmer': 1.0,
+                'alloy': 1.0,
+                'fable': 1.0
+            };
+
             try {
                 const response = await fetch(`${API_URL}/api/tts/generate`, {
                     method: 'POST',
@@ -1602,7 +1625,8 @@
                     body: JSON.stringify({
                         text: langSamples[voice],
                         voice: voice,
-                        language: languageMap[userData.language] || 'en-GB'
+                        language: languageMap[userData.language] || 'en-GB',
+                        speed: voiceSpeeds[voice] || 1.0
                     })
                 });
 
