@@ -639,6 +639,13 @@
         .device-card.connected {
             border-color: var(--success-green);
             background: rgba(0, 255, 136, 0.1);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .device-card.connected .device-status {
+            color: var(--success-green);
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
         }
 
         .device-card.disabled {
@@ -1335,7 +1342,6 @@
                         const statusEl = deviceCard.querySelector('.device-status');
                         if (statusEl) {
                             statusEl.textContent = 'CONNECTED';
-                            statusEl.style.color = '#00ff00';
                         }
                     }
 
@@ -1972,31 +1978,66 @@
         }
 
         /**
+         * Check Connected Devices
+         */
+        async function checkConnectedDevices() {
+            try {
+                const token = localStorage.getItem('phoenixToken');
+                if (!token) return;
+
+                console.log('[Devices] Checking connected devices...');
+
+                const response = await api.request('/mercury/devices', {
+                    method: 'GET'
+                });
+
+                if (response.success && response.devices) {
+                    response.devices.forEach(device => {
+                        const deviceCard = document.querySelector(`.device-card[data-device="${device.provider}"]`);
+                        if (deviceCard) {
+                            deviceCard.classList.add('connected');
+                            const statusEl = deviceCard.querySelector('.device-status');
+                            if (statusEl) {
+                                statusEl.textContent = 'CONNECTED';
+                            }
+                            console.log(`[Devices] ${device.provider} marked as connected`);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('[Devices] Error checking connected devices:', error);
+            }
+        }
+
+        /**
          * Device Cards Setup
          */
         function setupDeviceCards() {
+            // Check for already connected devices
+            checkConnectedDevices();
+
             document.querySelectorAll('.device-card:not(.disabled)').forEach(card => {
                 card.addEventListener('click', async () => {
                     const device = card.dataset.device;
-                    
+
                     if (card.classList.contains('connected')) {
                         return;
                     }
 
                     showLoading(true);
-                    
+
                     try {
                         const response = await api.request(`/mercury/devices/${device}/connect`, {
                             method: 'POST'
                         });
-                        
+
                         // Get the auth URL from response
                         const authUrl = response.authUrl || response.connectUrl || response.url;
-                        
+
                         if (!authUrl) {
                             throw new Error('No authorization URL received');
                         }
-                        
+
                         localStorage.setItem('phoenixOnboardingData', JSON.stringify(userData));
                         window.location.href = authUrl;
                     } catch (error) {
