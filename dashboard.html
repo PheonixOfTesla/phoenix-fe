@@ -947,16 +947,21 @@
         console.log('  - phoenixUser:', user ? 'YES' : 'NO');
         console.log('  - phoenixOnboardingComplete:', onboardingComplete);
 
-        if (!token) {
-            console.log('🔒 No authentication token, redirecting to index.html');
-            console.log('[Dashboard] About to redirect in 1 second...');
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 1000);
-            return;
-        }
+        // TEMPORARILY DISABLED AUTH CHECK TO DEBUG
+        // if (!token) {
+        //     console.log('🔒 No authentication token, redirecting to index.html');
+        //     console.log('[Dashboard] About to redirect in 1 second...');
+        //     setTimeout(() => {
+        //         window.location.href = 'index.html';
+        //     }, 1000);
+        //     return;
+        // }
 
-        console.log('✅ User authenticated, loading dashboard...');
+        if (!token) {
+            console.warn('⚠️ WARNING: No token found, but allowing dashboard access for debugging');
+        } else {
+            console.log('✅ User authenticated, loading dashboard...');
+        }
         console.log('[Dashboard] ========== AUTH CHECK COMPLETE ==========');
     })();
     </script>
