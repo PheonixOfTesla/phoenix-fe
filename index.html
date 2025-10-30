@@ -512,20 +512,47 @@
 </head>
 <body>
     <!-- ============================================ -->
-    <!-- VIEW: AUTHENTICATION (Login/Register) -->
+    <!-- VIEW: LANDING (Choose Login or Register) -->
     <!-- ============================================ -->
-    <div class="view auth-view" id="auth-view">
+    <div class="view landing-view" id="landing-view">
+        <canvas id="landing-bg-canvas" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:1;pointer-events:none"></canvas>
+
+        <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:20px">
+            <div style="text-align:center;margin-bottom:60px">
+                <div style="font-size:72px;font-weight:900;letter-spacing:8px;background:linear-gradient(135deg,#00ffff,#00cccc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px">
+                    PHOENIX
+                </div>
+                <div style="font-size:16px;color:rgba(0,255,255,0.6);letter-spacing:4px;font-weight:300">
+                    AI LIFE OPERATING SYSTEM
+                </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:20px;width:100%;max-width:400px">
+                <button onclick="ViewManager.showView('login')" style="padding:24px;font-size:18px;font-weight:700;letter-spacing:2px;background:linear-gradient(135deg,rgba(0,255,255,0.2),rgba(0,255,255,0.1));border:2px solid rgba(0,255,255,0.5);color:#00ffff;border-radius:8px;cursor:pointer;transition:all 0.3s;text-transform:uppercase">
+                    LOGIN
+                </button>
+                <button onclick="window.location.href='onboarding.html'" style="padding:24px;font-size:18px;font-weight:700;letter-spacing:2px;background:linear-gradient(135deg,rgba(0,255,255,0.1),rgba(0,255,255,0.05));border:2px solid rgba(0,255,255,0.3);color:rgba(0,255,255,0.8);border-radius:8px;cursor:pointer;transition:all 0.3s;text-transform:uppercase">
+                    CREATE ACCOUNT
+                </button>
+            </div>
+
+            <div style="margin-top:40px;text-align:center;color:rgba(0,255,255,0.4);font-size:13px;line-height:1.6">
+                The most sophisticated AI companion<br>
+                for optimizing your entire existence
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- VIEW: LOGIN -->
+    <!-- ============================================ -->
+    <div class="view auth-view" id="login-view">
         <canvas id="auth-bg-canvas" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:1;pointer-events:none"></canvas>
 
         <div class="auth-container" style="position:relative;z-index:2">
             <div class="auth-logo">
                 <div class="auth-logo-text">PHOENIX</div>
-                <div class="auth-logo-subtitle">AI COMPANION</div>
-            </div>
-
-            <div class="auth-tabs">
-                <div class="auth-tab active" id="login-tab">LOGIN</div>
-                <div class="auth-tab" id="register-tab">REGISTER</div>
+                <div class="auth-logo-subtitle">LOGIN</div>
             </div>
 
             <div class="error-message" id="auth-error"></div>
@@ -569,18 +596,11 @@
                         <button type="button" class="btn-link" onclick="showForgotPassword()" style="background: none; border: none; color: rgba(0,255,255,0.5); cursor: pointer; text-decoration: underline; font-size: 13px;">
                             Forgot password?
                         </button>
+                        <button type="button" class="btn-link" onclick="ViewManager.showView('landing')" style="background: none; border: none; color: rgba(0,255,255,0.3); cursor: pointer; text-decoration: underline; font-size: 13px; margin-top: 10px;">
+                            ← Back
+                        </button>
                     </div>
                 </form>
-            </div>
-
-            <!-- Register Form - Clicking this starts onboarding -->
-            <div class="auth-form" id="register-form">
-                <p style="text-align:center;color:rgba(0,255,255,0.7);margin-bottom:30px;line-height:1.6">
-                    Create your Phoenix account and I'll guide you through personalizing your AI companion.
-                </p>
-                <button class="submit-btn" onclick="window.location.href='onboarding.html'">
-                    BEGIN ONBOARDING
-                </button>
             </div>
         </div>
     </div>
@@ -841,8 +861,8 @@
                 const token = localStorage.getItem('phoenixToken');
 
                 if (!token) {
-                    console.log('[ViewManager] No token found, showing auth view');
-                    this.showView('auth');
+                    console.log('[ViewManager] No token found, showing landing view');
+                    this.showView('landing');
                     return;
                 }
 
@@ -859,14 +879,14 @@
                         window.location.href = 'dashboard.html';
                         return;
                     } else {
-                        console.log('[ViewManager] Invalid token, showing auth view');
+                        console.log('[ViewManager] Invalid token, showing landing view');
                         localStorage.removeItem('phoenixToken');
                         localStorage.removeItem('phoenixUser');
-                        this.showView('auth');
+                        this.showView('landing');
                     }
                 } catch (error) {
                     console.error('[ViewManager] Token verification failed:', error);
-                    this.showView('auth');
+                    this.showView('landing');
                 }
             },
 
@@ -878,7 +898,9 @@
 
                 // Show selected view
                 const views = {
-                    'auth': document.getElementById('auth-view'),
+                    'landing': document.getElementById('landing-view'),
+                    'login': document.getElementById('login-view'),
+                    'auth': document.getElementById('login-view'), // Alias for backwards compatibility
                     'onboarding': document.getElementById('onboarding-view'),
                     'main': document.getElementById('main-app-view')
                 };
@@ -889,10 +911,49 @@
                     this.currentView = viewName;
 
                     // Initialize view-specific code
-                    if (viewName === 'auth') this.initAuthView();
+                    if (viewName === 'landing') this.initLandingView();
+                    if (viewName === 'login' || viewName === 'auth') this.initAuthView();
                     if (viewName === 'onboarding') Onboarding.init();
                     if (viewName === 'main') this.initMainApp();
                 }
+            },
+
+            initLandingView() {
+                // Constellation background for landing
+                const canvas = document.getElementById('landing-bg-canvas');
+                if (!canvas) return;
+
+                const ctx = canvas.getContext('2d');
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+
+                const stars = [];
+                for (let i = 0; i < 100; i++) {
+                    stars.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        radius: Math.random() * 2,
+                        alpha: Math.random()
+                    });
+                }
+
+                function animate() {
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    stars.forEach(star => {
+                        ctx.beginPath();
+                        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(0, 255, 255, ${star.alpha})`;
+                        ctx.fill();
+
+                        star.alpha += (Math.random() - 0.5) * 0.02;
+                        star.alpha = Math.max(0.1, Math.min(1, star.alpha));
+                    });
+
+                    requestAnimationFrame(animate);
+                }
+                animate();
             },
 
             initAuthView() {
@@ -1008,20 +1069,6 @@
         // ============================================
         const Auth = {
             init() {
-                // Tab switching
-                document.getElementById('login-tab').addEventListener('click', () => {
-                    document.getElementById('login-tab').classList.add('active');
-                    document.getElementById('register-tab').classList.remove('active');
-                    document.getElementById('login-form').classList.add('active');
-                    document.getElementById('register-form').classList.remove('active');
-                    this.hideMessages();
-                });
-
-                document.getElementById('register-tab').addEventListener('click', () => {
-                    // Redirect to standalone onboarding page
-                    window.location.href = 'onboarding.html';
-                });
-
                 // Login form
                 document.getElementById('login-form-element').addEventListener('submit', async (e) => {
                     e.preventDefault();
