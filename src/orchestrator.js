@@ -602,7 +602,7 @@ return true; // Token is valid if this succeeds
 
         // Redirect to login page
         console.log('🔄 Redirecting to login page...');
-        window.location.href = 'login.html';
+        window.location.href = 'index.html';
     }
 
     /**
