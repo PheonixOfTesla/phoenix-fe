@@ -101,7 +101,8 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
+            overflow-y: auto;
         }
 
         /* Progress Bar */
@@ -218,6 +219,45 @@
             position: relative;
             overflow: hidden;
             animation: corePulse 3s ease-in-out infinite;
+        }
+
+        /* Energy Orb Inside Avatar */
+        .avatar-circle::after {
+            content: '';
+            position: absolute;
+            width: 60%;
+            height: 60%;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%,
+                rgba(255, 255, 255, 0.9),
+                var(--primary-cyan) 25%,
+                rgba(0, 200, 255, 0.6) 50%,
+                transparent 100%);
+            animation: orbBreathe 4s ease-in-out infinite, orbFloat 6s ease-in-out infinite;
+            filter: blur(2px);
+        }
+
+        @keyframes orbBreathe {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.9;
+            }
+            50% {
+                transform: scale(1.15);
+                opacity: 1;
+            }
+        }
+
+        @keyframes orbFloat {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+            }
+            33% {
+                transform: translate(5px, -5px) scale(1.05);
+            }
+            66% {
+                transform: translate(-5px, 3px) scale(0.95);
+            }
         }
 
         @keyframes corePulse {
@@ -757,7 +797,7 @@
         <!-- Phase 0: Welcome -->
         <div class="phase active" id="phase0">
             <div class="phoenix-avatar">
-                <div class="avatar-circle" id="avatarCircle0">🔥</div>
+                <div class="avatar-circle" id="avatarCircle0"></div>
             </div>
             <div class="voice-status" id="voiceStatus0">
                 [ SYSTEM READY ]
@@ -779,7 +819,7 @@
         <!-- Phase 1: Language Selection -->
         <div class="phase" id="phase1">
             <div class="phoenix-avatar">
-                <div class="avatar-circle" id="avatarCircle1">🔥</div>
+                <div class="avatar-circle" id="avatarCircle1"></div>
             </div>
             <div class="voice-status" id="voiceStatus1">[ VOICE ACTIVE ]</div>
             <div class="phase-header">
@@ -851,7 +891,7 @@
         <!-- Phase 2: Voice Selection -->
         <div class="phase" id="phase2">
             <div class="phoenix-avatar">
-                <div class="avatar-circle" id="avatarCircle2">🔥</div>
+                <div class="avatar-circle" id="avatarCircle2"></div>
             </div>
             <div class="voice-status" id="voiceStatus2">[ VOICE ACTIVE ]</div>
             <div class="phase-header">
@@ -905,7 +945,7 @@
         <!-- Phase 3: Account Creation -->
         <div class="phase" id="phase3">
             <div class="phoenix-avatar">
-                <div class="avatar-circle" id="avatarCircle3">🔥</div>
+                <div class="avatar-circle" id="avatarCircle3"></div>
             </div>
             <div class="voice-status" id="voiceStatus3">[ VOICE ACTIVE ]</div>
             <div class="phase-header">
@@ -943,7 +983,7 @@
         <!-- Phase 4: Phone Verification -->
         <div class="phase" id="phase4">
             <div class="phoenix-avatar">
-                <div class="avatar-circle" id="avatarCircle4">🔥</div>
+                <div class="avatar-circle" id="avatarCircle4"></div>
             </div>
             <div class="voice-status" id="voiceStatus4">[ VERIFICATION SENT ]</div>
             <div class="phase-header">
@@ -969,7 +1009,7 @@
         <!-- Phase 5: Device Connections -->
         <div class="phase" id="phase5">
             <div class="phoenix-avatar">
-                <div class="avatar-circle" id="avatarCircle5">🔥</div>
+                <div class="avatar-circle" id="avatarCircle5"></div>
             </div>
             <div class="voice-status" id="voiceStatus5">[ VOICE ACTIVE ]</div>
             <div class="phase-header">
@@ -1008,7 +1048,7 @@
         <!-- Phase 6: Goals Setup -->
         <div class="phase" id="phase6">
             <div class="phoenix-avatar">
-                <div class="avatar-circle" id="avatarCircle6">🔥</div>
+                <div class="avatar-circle" id="avatarCircle6"></div>
             </div>
             <div class="voice-status" id="voiceStatus6">[ VOICE ACTIVE ]</div>
             <div class="phase-header">
@@ -1041,7 +1081,7 @@
         <!-- Phase 7: Complete -->
         <div class="phase" id="phase7">
             <div class="phoenix-avatar">
-                <div class="avatar-circle" id="avatarCircle7">🔥</div>
+                <div class="avatar-circle" id="avatarCircle7"></div>
             </div>
             <div class="voice-status" id="voiceStatus7">[ SYSTEM READY ]</div>
             <div class="phase-header">
