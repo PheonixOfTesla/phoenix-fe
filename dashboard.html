@@ -930,19 +930,20 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <!-- ============================================ -->
-    <!-- FIRST-TIME USER DETECTION -->
+    <!-- AUTHENTICATION CHECK -->
     <!-- ============================================ -->
     <script>
-    (function checkOnboarding() {
-        const onboardingComplete = localStorage.getItem('phoenixOnboardingComplete');
-        
-        if (!onboardingComplete || onboardingComplete !== 'true') {
-            console.log('🎬 First-time user detected, redirecting to onboarding...');
-            window.location.href = 'onboarding.html';
+    (function checkAuth() {
+        // Only check if user is logged in, don't force onboarding redirect
+        const token = localStorage.getItem('phoenixToken');
+
+        if (!token) {
+            console.log('🔒 No authentication token, redirecting to login...');
+            window.location.href = 'index.html';
             return;
         }
-        
-        console.log('✅ Returning user, loading main app...');
+
+        console.log('✅ User authenticated, loading dashboard...');
     })();
     </script>
 
