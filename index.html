@@ -1387,9 +1387,66 @@
             }
         }
 
-        function showForgotPassword() {
-            alert('Password reset functionality: Enter your email, and we\'ll send you a reset link.\n\n(Coming soon - for now, please contact support)');
-            // TODO: Implement forgot password flow with /api/auth/reset-password endpoint
+        async function showForgotPassword() {
+            const email = prompt('Enter your email address to reset your password:');
+            if (!email) return;
+
+            if (!email.includes('@')) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+
+            try {
+                const response = await api.request('/auth/reset-password', {
+                    method: 'POST',
+                    body: JSON.stringify({ email })
+                });
+
+                if (response.success) {
+                    // In development, backend returns the reset code
+                    if (response.resetCode) {
+                        const resetCode = prompt(`Password reset code sent!\n\nDEVELOPMENT MODE: Your reset code is ${response.resetCode}\n\nEnter the 3-digit code:`);
+                        if (resetCode) {
+                            await handleResetCode(resetCode, email);
+                        }
+                    } else {
+                        alert('Password reset code sent to ' + email + '\n\nCheck your email and enter the code when you receive it.');
+                        const resetCode = prompt('Enter the 3-digit reset code from your email:');
+                        if (resetCode) {
+                            await handleResetCode(resetCode, email);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Reset password error:', error);
+                alert('Failed to send reset code. Please try again.');
+            }
+        }
+
+        async function handleResetCode(resetCode, email) {
+            const newPassword = prompt('Enter your new password (minimum 6 characters):');
+            if (!newPassword) return;
+
+            if (newPassword.length < 6) {
+                alert('Password must be at least 6 characters long.');
+                return;
+            }
+
+            try {
+                const response = await api.request(`/auth/reset-password/${resetCode}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ password: newPassword })
+                });
+
+                if (response.success) {
+                    alert('Password reset successful! You can now login with your new password.');
+                } else {
+                    alert('Invalid or expired reset code. Please try again.');
+                }
+            } catch (error) {
+                console.error('Reset code error:', error);
+                alert('Invalid or expired reset code. Please request a new one.');
+            }
         }
 
         // ============================================
