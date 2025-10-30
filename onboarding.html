@@ -2436,26 +2436,22 @@
          * Navigation
          */
         function nextPhase() {
-            // Block advancing from Phase 4 (verification choice) without any verification
-            if (currentPhase === 4 && !userData.phoneVerified && !userData.emailVerified) {
-                console.warn('[Onboarding] Cannot proceed without verification');
-                alert('Please verify your account (email or phone) before continuing.');
-                return;
-            }
-
             if (currentPhase < 7) {
                 document.getElementById(`phase${currentPhase}`).classList.remove('active');
                 currentPhase++;
+
+                // SKIP Phase 4 (verification) - users are auto-verified on registration
+                if (currentPhase === 4) {
+                    console.log('[Onboarding] Skipping verification phase - user auto-verified');
+                    currentPhase = 5; // Jump to device sync
+                }
+
                 document.getElementById(`phase${currentPhase}`).classList.add('active');
                 updateProgress();
 
                 // Preload voice previews when entering Phase 2 (Voice Selection)
                 if (currentPhase === 2) {
                     preloadVoicePreviews();
-                }
-
-                if (currentPhase === 4 && userData.profile.email) {
-                    document.getElementById('userPhone').textContent = userData.profile.phone;
                 }
 
                 if (currentPhase === 7 && userData.profile.name) {
@@ -2465,10 +2461,12 @@
         }
 
         function previousPhase() {
-            // Block going back from Phase 4 (phone verification) - user must verify
-            if (currentPhase === 4) {
-                console.warn('[Onboarding] Cannot go back from phone verification phase');
-                alert('You must verify your phone number to continue. This prevents multiple accounts.');
+            // Skip Phase 4 when going backward too (verification is skipped)
+            if (currentPhase === 5) {
+                document.getElementById(`phase${currentPhase}`).classList.remove('active');
+                currentPhase = 3; // Jump back to AUTH, skip verification
+                document.getElementById(`phase${currentPhase}`).classList.add('active');
+                updateProgress();
                 return;
             }
 
