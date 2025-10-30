@@ -545,13 +545,13 @@
                 </form>
             </div>
 
-            <!-- Register Form - Clicking this goes to separate register page -->
+            <!-- Register Form - Clicking this starts onboarding -->
             <div class="auth-form" id="register-form">
                 <p style="text-align:center;color:rgba(0,255,255,0.7);margin-bottom:30px;line-height:1.6">
                     Create your Phoenix account and I'll guide you through personalizing your AI companion.
                 </p>
-                <button class="submit-btn" onclick="window.location.href='register.html'">
-                    BEGIN REGISTRATION
+                <button class="submit-btn" onclick="ViewManager.showView('onboarding')">
+                    BEGIN ONBOARDING
                 </button>
             </div>
         </div>
@@ -933,8 +933,8 @@
                 });
 
                 document.getElementById('register-tab').addEventListener('click', () => {
-                    // Redirect to separate registration page like the original
-                    window.location.href = 'register.html';
+                    // Start onboarding flow with canvas pointer-events fix
+                    ViewManager.showView('onboarding');
                 });
 
                 // Login form
