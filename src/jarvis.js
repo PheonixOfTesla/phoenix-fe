@@ -19,7 +19,7 @@ class JARVISEngine {
         this.insights = [];
         this.recommendations = [];
         
-        console.log('🔥 JARVIS Engine constructed');
+        console.log('⚡ JARVIS Engine constructed');
     }
 
     getHeaders() {
@@ -59,7 +59,7 @@ class JARVISEngine {
     }
 
     async init() {
-        console.log('🔥 Initializing JARVIS...');
+        console.log('⚡ Initializing JARVIS...');
         
         const isAuth = await this.checkAuth();
         if (!isAuth) {

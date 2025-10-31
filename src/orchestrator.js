@@ -1,4 +1,4 @@
-// 🔥 PHOENIX ORCHESTRATOR - COMPLETE SYSTEM COORDINATOR
+// ⚡ PHOENIX ORCHESTRATOR - COMPLETE SYSTEM COORDINATOR
 // Purpose: Initialize all systems, coordinate components, manage app lifecycle
 // Blueprint Compliance: FILE #2 - ALL 45 initialization endpoints + 22 cache restoration = 67 TOTAL
 // Version: 2.0 - 100% COMPLETE
@@ -35,7 +35,7 @@
 
 class PhoenixOrchestrator {
     constructor() {
-        console.log('🔥 Phoenix Orchestrator initializing...');
+        console.log('⚡ Phoenix Orchestrator initializing...');
         
         // Core state management - prevents restarts
         this.state = {
@@ -1067,7 +1067,7 @@ return true; // Token is valid if this succeeds
             { name: 'Mars', method: 'getMarsGoals', icon: '♂️' },
             { name: 'Jupiter', method: 'getJupiterAccounts', icon: '♃' },
             { name: 'Saturn', method: 'getSaturnVision', icon: '♄' },
-            { name: 'Phoenix', method: 'getPhoenixInsights', icon: '🔥' }
+            { name: 'Phoenix', method: 'getPhoenixInsights', icon: '⚡' }
         ];
         
         // Load all planets in parallel for speed
@@ -2189,7 +2189,7 @@ return true; // Token is valid if this succeeds
         
         // Log comprehensive summary
         console.log('═══════════════════════════════════════════════════════');
-        console.log('🔥 PHOENIX ORCHESTRATOR READY');
+        console.log('⚡ PHOENIX ORCHESTRATOR READY');
         console.log('═══════════════════════════════════════════════════════');
         console.log(`📋 Session ID: ${this.state.session.id}`);
         console.log(`👤 User: ${this.state.user?.name || 'User'}`);
@@ -2457,7 +2457,7 @@ return true; // Token is valid if this succeeds
  * =============================================================================
  */
 (function() {
-    console.log('🔥 Phoenix Orchestrator loading...');
+    console.log('⚡ Phoenix Orchestrator loading...');
     
     // Create global instance
     window.phoenixOrchestrator = new PhoenixOrchestrator();

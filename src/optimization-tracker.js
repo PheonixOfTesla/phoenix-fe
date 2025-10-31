@@ -512,4 +512,4 @@ class PhoenixOptimizationTracker {
 window.OptimizationTracker = new PhoenixOptimizationTracker();
 
 // Log initialization
-console.log('🔥 Phoenix Optimization Tracker initialized:', window.OptimizationTracker.getOptimizationSummary());
+console.log('⚡ Phoenix Optimization Tracker initialized:', window.OptimizationTracker.getOptimizationSummary());

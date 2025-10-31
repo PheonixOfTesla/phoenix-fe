@@ -1,5 +1,5 @@
 /**
- * 🔥 PHOENIX API CLIENT - COMPLETE EDITION
+ * ⚡ PHOENIX API CLIENT - COMPLETE EDITION
  * Full API client for ALL 307 backend endpoints
  * Connects Phoenix Conversational AI to real backend
  * 
@@ -872,6 +872,6 @@ if (typeof window !== 'undefined') {
     window.PhoenixAPIClient = PhoenixAPIClient;
 }
 
-console.log('🔥 Phoenix API Client Loaded - 307 Endpoints Available');
+console.log('⚡ Phoenix API Client Loaded - 307 Endpoints Available');
 console.log('✨ Voice Capabilities: ENABLED');
 console.log('🎙️ TTS: ✅ | 👂 Whisper: ✅ | 📞 Twilio: ✅ | 📱 SMS: ✅');

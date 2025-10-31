@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════════════════
-// 🔥 PHOENIX HOLOGRAPHIC NAVIGATOR - STEVE JOBS MEETS TONY STARK
+// ⚡ PHOENIX HOLOGRAPHIC NAVIGATOR - STEVE JOBS MEETS TONY STARK
 // ═══════════════════════════════════════════════════════════════════════════════
 // The most beautiful navigation system ever created for a life OS
 // All 307 endpoints. Zero compromises. Pure elegance.
@@ -19,7 +19,7 @@ class HolographicNavigator {
         this.createHolographicHub();
         this.startParticleSystem();
         this.attachEventListeners();
-        console.log('🔥 Holographic Navigator initialized - 307 features ready');
+        console.log('⚡ Holographic Navigator initialized - 307 features ready');
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -39,7 +39,7 @@ class HolographicNavigator {
                     <div class="core-ring ring-2"></div>
                     <div class="core-ring ring-3"></div>
                     <div class="core-center">
-                        <div class="phoenix-icon">🔥</div>
+                        <div class="phoenix-icon">⚡</div>
                         <div class="core-label">PHOENIX</div>
                     </div>
                 </div>
@@ -86,7 +86,7 @@ class HolographicNavigator {
             { id: 'mars', name: 'MARS', icon: '♂️', color: '#FF4444', angle: 154.2, features: 20 },
             { id: 'jupiter', name: 'JUPITER', icon: '♃', color: '#FFAA00', angle: 205.6, features: 17 },
             { id: 'saturn', name: 'SATURN', icon: '♄', color: '#8844FF', angle: 257, features: 12 },
-            { id: 'phoenix', name: 'PHOENIX', icon: '🔥', color: '#00FFFF', angle: 308.4, features: 81 }
+            { id: 'phoenix', name: 'PHOENIX', icon: '⚡', color: '#00FFFF', angle: 308.4, features: 81 }
         ];
 
         return domains.map(domain => `
@@ -237,7 +237,7 @@ class HolographicNavigator {
             {
                 id: 'metabolic-rate',
                 name: 'Metabolic Rate',
-                icon: '🔥',
+                icon: '⚡',
                 description: 'BMR, TDEE, calorie burn analysis',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'metabolic')
@@ -633,7 +633,7 @@ class HolographicNavigator {
             {
                 id: 'intensity-zones',
                 name: 'Intensity Zones',
-                icon: '🔥',
+                icon: '⚡',
                 description: 'Training intensity analysis',
                 status: 'active',
                 action: () => this.openFeature('venus', 'intensity-zones')
@@ -1935,7 +1935,7 @@ class HolographicNavigator {
             {
                 id: 'active-interventions',
                 name: 'Active Interventions',
-                icon: '🔥',
+                icon: '⚡',
                 description: 'Currently running interventions',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'active-interventions')
@@ -2384,7 +2384,7 @@ class HolographicNavigator {
     // ═══════════════════════════════════════════════════════════════════════════
 
     async openFeature(domain, featureId) {
-        console.log(`🔥 Opening ${domain}/${featureId}`);
+        console.log(`⚡ Opening ${domain}/${featureId}`);
 
         // Close feature panel
         this.closeDomain();
@@ -2580,4 +2580,4 @@ window.addEventListener('DOMContentLoaded', () => {
     window.holographicNav = new HolographicNavigator();
 });
 
-console.log('🔥 Holographic Navigator loaded - 307 features ready');
+console.log('⚡ Holographic Navigator loaded - 307 features ready');

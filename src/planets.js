@@ -1072,7 +1072,7 @@
                     
                     ${activeWorkout ? `
                         <div class="active-workout">
-                            <h3>🔥 Active Workout</h3>
+                            <h3>⚡ Active Workout</h3>
                             <div class="workout-name">${activeWorkout.name}</div>
                             <div class="workout-timer">${activeWorkout.duration || '0:00'}</div>
                             <button onclick="window.planetSystem.completeWorkout('${activeWorkout.id}')">Complete Workout</button>
