@@ -1110,6 +1110,9 @@ class PhoenixConversationalAI {
 
         this.elements.status.className = `voice-status ${statusInfo.class}`;
 
+        // UPDATE CENTRAL ORB - Make it pulse/breathe like Siri
+        this.updateOrbVisuals(status);
+
         // Auto-reset to idle after showing "Done" for 2 seconds
         if (status === 'done') {
             setTimeout(() => {
@@ -1118,6 +1121,23 @@ class PhoenixConversationalAI {
                 }
             }, 2000);
         }
+    }
+
+    /**
+     * Update the central holographic orb based on voice status
+     * Makes the orb pulse/breathe like Siri's interface
+     */
+    updateOrbVisuals(status) {
+        const holoCore = document.getElementById('holo-core');
+        if (!holoCore) return;
+
+        // Remove all previous voice status classes
+        holoCore.classList.remove('voice-idle', 'voice-listening', 'voice-processing', 'voice-responding', 'voice-done', 'voice-error');
+
+        // Add new status class for CSS animation
+        holoCore.classList.add(`voice-${status}`);
+
+        console.log(`🎨 Orb visual state: ${status}`);
     }
 
     /**
