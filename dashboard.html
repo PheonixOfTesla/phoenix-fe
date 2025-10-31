@@ -1508,19 +1508,31 @@
             }
 
             loadPlanetContent(planetName) {
+                // Create planet-content div if it doesn't exist (planets.js expects this ID)
+                let planetContent = document.getElementById('planet-content');
+                if (!planetContent) {
+                    const detailContent = document.getElementById('detail-content');
+                    planetContent = document.createElement('div');
+                    planetContent.id = 'planet-content';
+                    detailContent.innerHTML = '';
+                    detailContent.appendChild(planetContent);
+                }
+
                 if (window.planetSystem) {
-                    window.planetSystem.loadDashboardContent(planetName);
+                    window.planetSystem.selectPlanet(planetName);
                     return;
                 }
-                
-                const content = document.getElementById('detail-content');
-                content.innerHTML = '<div style="text-align:center;padding:60px"><div style="font-size:48px;margin-bottom:20px">⏳</div><div style="font-size:24px;color:#00ffff">Loading dashboard...</div></div>';
-                
+
+                // Show loading state while waiting for planetSystem
+                planetContent.innerHTML = '<div style="text-align:center;padding:60px"><div style="font-size:48px;margin-bottom:20px">⏳</div><div style="font-size:24px;color:#00ffff">Loading planet system...</div></div>';
+
                 setTimeout(() => {
                     if (window.planetSystem) {
-                        window.planetSystem.loadDashboardContent(planetName);
+                        window.planetSystem.selectPlanet(planetName);
+                    } else {
+                        planetContent.innerHTML = '<div style="text-align:center;padding:60px"><div style="font-size:48px;margin-bottom:20px">❌</div><div style="font-size:18px;color:#ff6666">Planet system failed to load. Please refresh the page.</div></div>';
                     }
-                }, 500);
+                }, 1000);
             }
 
             /**
