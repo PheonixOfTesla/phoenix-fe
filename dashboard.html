@@ -267,7 +267,7 @@
     <!-- ============================================ -->
     <div class="voice-controls" style="position:fixed;bottom:20px;right:20px;z-index:6000;display:flex;flex-direction:column;gap:10px;align-items:flex-end">
         <!-- Voice Button -->
-        <button class="voice-btn" onclick="toggleVoice(); toggleConversationPanel();" style="padding:14px 28px;background:rgba(0,255,255,0.1);border:2px solid rgba(0,255,255,0.5);color:#00ffff;font-size:14px;cursor:pointer;border-radius:8px;transition:all 0.3s;display:flex;align-items:center;gap:10px;font-weight:bold;letter-spacing:1px;pointer-events:auto">
+        <button class="voice-btn" onclick="unlockAudio(); toggleVoice(); toggleConversationPanel();" style="padding:14px 28px;background:rgba(0,255,255,0.1);border:2px solid rgba(0,255,255,0.5);color:#00ffff;font-size:14px;cursor:pointer;border-radius:8px;transition:all 0.3s;display:flex;align-items:center;gap:10px;font-weight:bold;letter-spacing:1px;pointer-events:auto">
             <span style="font-size:20px">🎙️</span>
             TALK TO PHOENIX
         </button>
@@ -2332,9 +2332,31 @@
         };
 
         /**
+         * AUDIO UNLOCK - Required for browser autoplay policy
+         * Browsers block audio unless triggered by user interaction
+         */
+        let audioUnlocked = false;
+        window.unlockAudio = async function() {
+            if (audioUnlocked) return;
+
+            try {
+                // Create and play silent audio to unlock audio context
+                const silentAudio = new Audio('data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4Ljc2LjEwMAAAAAAAAAAAAAAA//tQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAADhAC7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7u7v//////////////////////////////////////////////////////////////////wAAAABMYXZjNTguMTM0LjEwMAAAAAAAAAAAAAAAACQCgAAAAAAAAAOEfNZZ8AAAAAAAAAAAAAAAAAAAAP/7kGQAD/AAAGkAAAAIAAANIAAAARAAABpAAAACAAADSAAAAETEFNRTMuMTAwVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//////////////////////////////////////////////////////////////////8=');
+                await silentAudio.play();
+                audioUnlocked = true;
+                console.log('✅ Audio unlocked for wake word detection');
+            } catch (e) {
+                console.log('Audio unlock failed (user needs to click):', e.message);
+            }
+        };
+
+        /**
          * VOICE CONTROLS
          */
-        window.toggleVoice = function() {
+        window.toggleVoice = async function() {
+            // Unlock audio on first interaction
+            await window.unlockAudio();
+
             if (window.phoenixAI) {
                 window.phoenixAI.toggleListening();
             }
