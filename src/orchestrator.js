@@ -377,19 +377,31 @@ class PhoenixOrchestrator {
             }
             
             // Not authenticated and not on auth pages
-            console.log('No valid authentication found');
-            
+            console.log('⚠️  No valid authentication found - allowing guest mode');
+
+            // DISABLED: Aggressive redirect was causing loops
+            // Instead, allow dashboard to load and handle errors gracefully
+            // User can still use basic features without full auth
+
+            // Don't redirect if already on dashboard - prevents loops
+            if (currentPath.includes('dashboard.html')) {
+                console.log('✅ Already on dashboard - allowing degraded mode');
+                await this.useGuestMode();
+                return;
+            }
+
             // Check if this is a public route that doesn't need auth
-            const publicRoutes = ['/', '/about', '/pricing', '/features'];
-            if (publicRoutes.includes(currentPath)) {
+            const publicRoutes = ['/', '/about', '/pricing', '/features', '/index.html'];
+            if (publicRoutes.some(route => currentPath.includes(route))) {
                 console.log('ℹ️ Public route, using guest mode');
                 await this.useGuestMode();
                 return;
             }
-            
-            // Redirect to login for protected routes
-            console.log('Redirecting to login...');
-            this.redirectToLogin();
+
+            // For any other protected route, use guest mode instead of redirecting
+            // This prevents redirect loops
+            console.log('⚠️  Protected route but using guest mode to prevent redirect loop');
+            await this.useGuestMode();
             
         } catch (error) {
             console.error('❌ Authentication setup failed:', error);
