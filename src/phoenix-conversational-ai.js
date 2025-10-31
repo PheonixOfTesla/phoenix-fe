@@ -954,7 +954,20 @@ class PhoenixConversationalAI {
 
             // Get voice from localStorage (set during onboarding)
             const savedVoice = localStorage.getItem('phoenixVoice') || this.voice.personality || 'nova';
-            const savedLanguage = localStorage.getItem('phoenixLanguage') || 'en';
+            const savedLanguageCode = localStorage.getItem('phoenixLanguage') || 'en';
+
+            // Map language codes to backend format (en → en-US, es → es-ES, etc.)
+            const languageMap = {
+                'en': 'en-US',
+                'es': 'es-ES',
+                'fr': 'fr-FR',
+                'de': 'de-DE',
+                'it': 'it-IT',
+                'pt': 'pt-BR',
+                'nl': 'nl-NL',
+                'pl': 'pl-PL'
+            };
+            const savedLanguage = languageMap[savedLanguageCode] || 'en-US';
 
             console.log(`Speaking with voice: ${savedVoice}, language: ${savedLanguage}`);
 
