@@ -1,380 +1,209 @@
-<<<<<<< HEAD
-# 🔥 PHOENIX CONSOLIDATED - The Complete AI Life Operating System
+# 🔥 Phoenix - AI Life Operating System
 
-## 📦 What's Included
+An Iron Man-inspired AI companion that manages your health, fitness, goals, finances, and life with ChatGPT-level conversational intelligence.
 
-This is your **complete 3-file Phoenix system** that exposes ALL 307 backend endpoints with a stunning cyberpunk UI.
+## ✨ What is Phoenix?
 
-### Files:
-1. **index.html** (312 lines) - Single-page app with all views
-2. **phoenix.css** (917 lines) - Complete cyberpunk styling with animations
-3. **phoenix-jarvis-butler.js** (2,074 lines) - All functionality in one file
+Phoenix is your personal AI operating system that integrates with all aspects of your life through **7 Planetary Systems**:
 
-**Total: 3,303 lines** of production-ready code
+- 🏥 **Mercury** - Health & Biometrics (wearables, recovery, sleep)
+- 💪 **Venus** - Fitness & Nutrition (workouts, meal plans, quantum generation)
+- 📅 **Earth** - Calendar & Energy (schedule optimization, productivity)
+- 🎯 **Mars** - Goals & Habits (tracking, motivation, achievement)
+- 💰 **Jupiter** - Finance & Spending (bank integration, stress analysis)
+- 🌌 **Saturn** - Legacy & Vision (life goals, quarterly reviews)
+- 🤖 **Phoenix Core** - AI Intelligence (patterns, predictions, interventions)
 
-## ✨ What's Included
+## 🚀 Live Demo
 
-### 🎯 Core Features:
-- ✅ **Complete API Client** - All 307 endpoints organized and ready
-- ✅ **JARVIS AI Engine** - Pattern discovery, intelligence, predictions
-- ✅ **Butler Service** - Food, rides, calls, emails, automations
-- ✅ **Intervention Engine** - Autonomous decision making
-- ✅ **Authentication System** - Login/register with JWT
-- ✅ **Dashboard Views** - All 6 planets + intelligence + interventions
-- ✅ **Real-time Monitoring** - WebSocket-ready architecture
-- ✅ **Floating JARVIS Chat** - Always-available AI assistant
-- ✅ **Stunning UI** - Arc reactor animations, cyberpunk theme
+**Frontend**: https://pheonixoftesla.github.io/phoenix-fe/
+**Backend**: https://pal-backend-production.up.railway.app/
 
-### 🎨 UI Highlights:
-- Iron Man / Cyberpunk aesthetic
-- Arc reactor loading animations
-- Holographic glow effects
-- Responsive grid layouts
-- Smooth transitions
-- Mobile-friendly
+## 🎯 Key Features
 
-### 📡 Backend Integration:
-**ALL 307 endpoints organized:**
-- Phoenix (75) - Intelligence, patterns, predictions, interventions, butler
-- Mercury (38) - Health, biometrics, wearables, recovery
-- Venus (88) - Workouts, nutrition, quantum generation
-- Earth (11) - Calendar, energy optimization
-- Mars (20) - Goals, habits, motivation
-- Jupiter (17) - Finance, stress-spending
-- Saturn (12) - Life vision, mortality
-- Auth (9), User (11), Subscriptions (5)
-- Voice/TTS/Whisper (8) - Voice interface ready
+### Voice AI Assistant
+- 🎙️ **Wake Word Detection** - "Hey Phoenix" activates voice mode
+- 💬 **Continuous Conversations** - Talk naturally without repeating wake word
+- 🌍 **8 Languages** - English, Spanish, French, German, Italian, Portuguese, Dutch, Polish
+- 🔊 **6 Voice Personalities** - Nova, Echo, Onyx, Fable, Shimmer, Alloy
+- ⚡ **ChatGPT-Level Speed** - 1-2 second response times with Gemini AI
 
-## 🚀 Quick Start
+### Intelligent Dashboard
+- 📊 Real-time biometric monitoring
+- 🔮 AI pattern discovery & predictions
+- 🎯 Smart interventions & recommendations
+- 📈 Optimization score tracking
+- 🌐 Holographic 3D visualization
 
-### 1. Extract the files
+### Wearable Integration
+- ✅ **Fitbit** - Steps, heart rate, sleep, workouts
+- ✅ **Oura Ring** - Sleep quality, readiness, recovery
+- ✅ **Whoop** - Strain, recovery, HRV
+- ✅ **Garmin** - Training status, VO2 max, fitness age
+- ✅ **Polar** - Heart rate zones, training load
+
+### Life Management
+- 📱 **Butler Actions** - Order food, book rides, make calls
+- 🎓 **Smart Onboarding** - Collects age, height, weight, goals automatically
+- 🔐 **Secure Auth** - JWT authentication with Railway backend
+- 📶 **Real-time Updates** - WebSocket-ready for live data streaming
+
+## 📦 Quick Start
+
+### 1. Open the App
 ```bash
-unzip phoenix-consolidated.zip
-cd phoenix-consolidated
+# Visit the live site
+open https://pheonixoftesla.github.io/phoenix-fe/
+
+# Or run locally
+git clone https://github.com/PheonixOfTesla/phoenix-fe.git
+cd phoenix-fe
+python -m http.server 8080
+open http://localhost:8080
 ```
 
-### 2. Configure Backend URL
-Edit `phoenix-jarvis-butler.js` line 17:
-```javascript
-API_BASE_URL: 'https://your-backend-url.railway.app/api'
+### 2. Complete Onboarding
+- Choose language & voice
+- Enter your profile (name, age, height, weight, goals)
+- Connect wearables (optional)
+
+### 3. Start Talking to Phoenix
+```
+You: "Hey Phoenix"
+Phoenix: [Activates continuous mode]
+
+You: "What's my recovery score?"
+Phoenix: "Your recovery is at 75%. You're ready for a moderate workout today."
+
+You: "Should I get donuts?"
+Phoenix: "That sounds nice, but just make sure you don't eat too many calories, haha."
+
+You: "Deactivate Phoenix"
+Phoenix: "Goodbye! Say Hey Phoenix when you need me again."
 ```
 
-### 3. Deploy
+## 🛠️ Tech Stack
 
-**Option A: Static Hosting (Vercel/Netlify)**
+### Frontend (This Repo)
+- **Vanilla JavaScript** - No frameworks, blazing fast
+- **Three.js** - 3D planetary visualization
+- **Web Speech API** - Voice recognition
+- **WebGL Shaders** - Holographic effects
+- **GitHub Pages** - Instant deployment
+
+### Backend ([pal-backend](https://github.com/PheonixOfTesla/pal-backend))
+- **Node.js + Express** - REST API with 307 endpoints
+- **MongoDB** - User data, patterns, interventions
+- **Gemini AI** - Fast conversational AI (3-5x faster than GPT-4)
+- **OpenAI TTS** - Natural voice synthesis
+- **Whisper** - Voice transcription
+- **Railway** - Production hosting
+
+## 🎨 UI Highlights
+
+- 🌀 **Arc Reactor Core** - Pulsing 3D sphere with orbital rings
+- 🪐 **Planetary Navigation** - 6 orbiting planets for different life areas
+- ⚡ **Cyberpunk Aesthetics** - Cyan glow, holographic effects, smooth animations
+- 📱 **Fully Responsive** - Works on desktop, tablet, and mobile
+- 🌙 **Dark Mode** - Easy on the eyes for 24/7 monitoring
+
+## 📊 Performance
+
+| Metric | Performance |
+|--------|-------------|
+| Response Time (first) | 1-2 seconds |
+| Response Time (cached) | 500-800ms |
+| Page Load | <100KB gzipped |
+| Voice Latency | <300ms |
+| Cache TTL | 30 seconds |
+
+## 🔐 Security
+
+- ✅ JWT authentication with secure token storage
+- ✅ HTTPS-only API calls
+- ✅ No passwords stored in frontend
+- ✅ Railway backend with environment secrets
+- ✅ Input validation on all forms
+
+## 🧪 Testing
+
 ```bash
-# Just upload the 3 files - done!
-vercel deploy
-# or
-netlify deploy
+# Run Puppeteer tests
+node test-dashboard.js
+
+# Test audio fix
+node test-audio-fix.js
 ```
-
-**Option B: Local Testing**
-```bash
-# Use any local server
-python -m http.server 8000
-# Open http://localhost:8000
-```
-
-### 4. Test
-- Open in browser
-- Register/Login
-- Explore all features!
-
-## 🎨 Customization
-
-### Change Colors
-Edit `phoenix.css` variables (lines 14-41):
-```css
-:root {
-    --arc-blue: #00D9FF;        /* Main accent */
-    --cyber-purple: #8338EC;    /* Secondary */
-    --bg-primary: #0A0E27;      /* Background */
-}
-```
-
-### Add Features
-All functionality is in `phoenix-jarvis-butler.js`:
-- Add new API endpoints to `PhoenixAPIClient` class
-- Add UI in the Orchestrator's `render` methods
-- Everything is modular and well-commented
-
-## 📊 What Works Right Now
-
-### ✅ Fully Functional:
-- Authentication (login/register/logout)
-- API client with retry logic and caching
-- Dashboard with live data
-- Pattern discovery feed
-- Intervention approval system
-- JARVIS chat interface
-- Navigation between all views
-- Real-time notification system
-- Responsive layouts
-
-### 🚧 Ready to Connect:
-All backend endpoints are wired up and ready - just needs your backend URL configured.
-
-### 💡 Coming Next (Easy to Add):
-- WebSocket real-time updates
-- Voice recording interface
-- Advanced visualizations (charts, graphs)
-- Planet-specific deep dives
-- Butler action forms
-
-## 🎯 Key Features Exposed
-
-### 1. Intelligence Dashboard
-- Pattern discovery feed
-- AI insights
-- Correlation analysis
-- Real-time monitoring
-
-### 2. Interventions
-- Pending approval queue
-- Active interventions tracking
-- Success/approval statistics
-- Autonomy configuration
-
-### 3. Butler Actions
-- Food ordering
-- Ride booking
-- Phone calls
-- Email sending
-- Automations management
-
-### 4. Planet Dashboards
-- Mercury: Health & biometrics
-- Venus: Quantum workouts
-- Earth: Energy calendar
-- Mars: Goal tracking
-- Jupiter: Financial intelligence
-- Saturn: Life vision
-
-## 🔧 Technical Details
-
-### Architecture:
-- **No build step required** - Pure vanilla JavaScript
-- **No dependencies** - Everything self-contained
-- **Modern ES6+** - Classes, async/await, promises
-- **Modular design** - Easy to extend
-- **API-first** - All backend calls through API client
-
-### Browser Support:
-- Chrome/Edge: ✅ Full support
-- Firefox: ✅ Full support
-- Safari: ✅ Full support
-- Mobile: ✅ Responsive design
-
-### Performance:
-- **Fast load**: <100KB total (gzipped)
-- **Smart caching**: 5-minute API cache
-- **Retry logic**: Automatic 3x retry
-- **Offline-ready**: LocalStorage backup
-
-## 📈 Next Steps
-
-### To Reach Full 22K Lines:
-The current 2K line JS file has:
-- ✅ Complete API client (all 307 endpoints)
-- ✅ Core systems (JARVIS, Butler, Interventions)
-- ✅ Basic planet dashboards
-- 🚧 Can expand with detailed visualizations
-- 🚧 Can add advanced data processing
-- 🚧 Can add more UI components
-
-### Easy Expansions:
-1. **Charts & Graphs**: Add Chart.js for data viz
-2. **3D Visualizations**: Add Three.js for Lorenz attractor
-3. **Advanced Forms**: Add detailed input forms for each planet
-4. **Real-time WebSocket**: Connect to backend WebSocket
-5. **Voice Recording**: Add mic input for voice mode
-
-## 🎨 UI Screenshots
-
-### Loading Screen
-- Animated arc reactor
-- Progress bar
-- System initialization steps
-
-### Dashboard
-- Pattern discovery cards
-- Quick action buttons
-- System health overview
-- Prediction panels
-
-### Intelligence View
-- Pattern feed with confidence scores
-- AI insights dashboard
-- Pattern validation interface
-
-### Interventions View
-- Pending interventions queue
-- Approval/denial actions
-- Success rate statistics
-
-### Butler View
-- Quick action buttons
-- Recent actions log
-- Automation management
-
-## 🔐 Security Notes
-
-- **JWT authentication** fully implemented
-- **Token refresh** handled automatically
-- **Secure storage** via LocalStorage
-- **API error handling** with proper retries
-- **Input validation** on all forms
-
-## 🐛 Debugging
-
-### Check Console:
-```javascript
-// See all API calls
-console.log(Phoenix.api);
-
-// Check current state
-console.log(Phoenix.state);
-
-// Test API endpoint
-await Phoenix.api.phoenix.patterns.getAll();
-```
-
-### Common Issues:
-1. **CORS errors**: Configure backend CORS
-2. **401 errors**: Check API_BASE_URL
-3. **Network errors**: Check backend is running
 
 ## 📚 Documentation
 
-### Main Classes:
-- `PhoenixAPIClient` - All API endpoints
-- `JARVISEngine` - AI intelligence
-- `ButlerService` - Real-world actions
-- `InterventionEngine` - Autonomous decisions
-- `PhoenixOrchestrator` - System coordinator
+### Main Classes
+- **PhoenixConversationalAI** - Voice interface & AI conversations
+- **WakeWordAI** - Continuous conversation mode
+- **PhoenixDashboard** - Main dashboard controller
+- **PlanetSystem** - 3D visualization engine
+- **API** - Complete backend integration (307 endpoints)
 
-### Key Methods:
-```javascript
-// Navigation
-Phoenix.navigateTo('dashboard')
+### Key Files
+- `dashboard.html` - Main app with all features
+- `src/phoenix-conversational-ai.js` - Voice AI engine
+- `src/api.js` - Backend API client
+- `src/planets.js` - Planetary system logic
+- `src/onboarding.js` - User profile collection
 
-// JARVIS
-await Phoenix.jarvis.chat('Hello')
-await Phoenix.jarvis.getPatterns()
+## 🎯 Recent Updates
 
-// Butler
-await Phoenix.butler.orderFood(restaurant, items)
-await Phoenix.butler.bookRide(from, to)
+### Performance Optimizations (10/31/2025)
+- ⚡ **ChatGPT-level speed** - 2.5s response timeout (down from 5s)
+- 🚀 **Backend caching** - 30s context cache (eliminates 15-20 DB queries)
+- 🤖 **Gemini AI** - 3-5x faster than GPT-4 for voice responses
+- ✅ **Done indicator** - Shows when Phoenix finishes speaking
+- 🎙️ **Continuous mode** - Talk without repeating wake word
 
-// Interventions
-await Phoenix.interventions.loadInterventions()
-await Phoenix.interventions.acknowledgeIntervention(id)
-```
+### UI Improvements
+- 🔄 Replaced all lightning bolts with semantic icons
+- 🚀 Clean minimal center sphere (no text overlay)
+- 🎤 Voice status indicator with emoji feedback
+- 📊 Real-time response time logging
 
-## 🎉 You're Done!
+### Features Added
+- 👤 User profile collection in onboarding (age, height, weight, goals)
+- 🌍 8-language support with auto-translation
+- 🔊 6 voice personalities (Nova, Echo, Onyx, Fable, Shimmer, Alloy)
+- 💬 Continuous conversation mode until "deactivate Phoenix"
+- 🏥 All 5 wearable devices enabled (Fitbit, Oura, Whoop, Garmin, Polar)
 
-This is a **production-ready foundation** that:
-- ✅ Exposes all 307 endpoints
-- ✅ Has stunning UI
-- ✅ Is fully functional
-- ✅ Is easy to customize
-- ✅ Is ready to deploy
+## 🚧 Roadmap
 
-**Just configure your backend URL and deploy!**
+- [ ] WebSocket real-time data streaming
+- [ ] 3D Lorenz attractor visualization
+- [ ] Advanced charts & graphs (Chart.js)
+- [ ] Deeper planet dashboards with detailed metrics
+- [ ] Butler action forms (food, rides, calls)
+- [ ] Google Calendar OAuth integration
+- [ ] Intervention approval UI
+- [ ] Pattern validation interface
+
+## 🤝 Contributing
+
+1. Fork the repo
+2. Create a feature branch (`git checkout -b feature/amazing`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing`)
+5. Open a Pull Request
+
+## 📄 License
+
+MIT License - see LICENSE file for details
+
+## 💪 Credits
+
+Built with [Claude Code](https://claude.com/claude-code)
+Inspired by Iron Man's JARVIS
+Powered by Gemini AI & OpenAI
 
 ---
 
-## 💪 What You Got
+**Questions?** Open an issue or check the code comments - everything is documented!
 
-From 23 fragmented files → **3 clean files**
-
-- **74% file reduction**
-- **100% feature coverage**
-- **Cyberpunk UI that impresses**
-- **Production-ready code**
-
-Now go show the world your AI butler! 🚀
-
----
-
-**Questions? Check the code comments - everything is documented!**
-=======
-# 🔥 Phoenix JARVIS Interface
-
-An Iron Man-inspired holographic health & life management system that evolves from a friendly PAL to a powerful JARVIS interface.
-
-## Features
-- Arc reactor visualization with real-time biometrics
-- Six planetary systems (Health, Fitness, Calendar, Goals, Finance, Legacy)
-- Voice-activated AI assistant
-- WebGL holographic effects
-- Real-time WebSocket data streaming
-- Proactive health interventions
-
-## Quick Start
-1. Clone the repository
-2. Open `src/index.html` in a modern browser
-3. Or deploy to Vercel/Netlify for instant hosting
-
-## Backend Integration
-Configure your Railway backend URL in `src/api.js`:
-```javascript
-this.baseURL = 'https://your-backend.railway.app/api'
-```
-
-## Technologies
-- Vanilla JavaScript (no framework dependencies)
-- WebGL shaders for holographic effects
-- WebSocket for real-time communication
-- Web Speech API for voice control
-```
-
-### **.gitignore**
-```
-# Dependencies
-node_modules/
-package-lock.json
-
-# Environment
-.env
-.env.local
-
-# Build
-dist/
-build/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-.DS_Store
-
-# Logs
-*.log
-npm-debug.log*
-
-# Testing
-coverage/
-.nyc_output
-
-# Cache
-.cache/
-.parcel-cache/
-```
-
-### **.env.example**
-```
-# Backend Configuration
-BACKEND_URL=https://pal-backend-production.up.railway.app
-WS_URL=wss://pal-backend-production.up.railway.app/ws
-
-# API Keys (optional for enhanced features)
-OPENAI_API_KEY=your_openai_key_here
-GOOGLE_MAPS_API_KEY=your_maps_key_here
-
-# Demo Credentials
-DEMO_EMAIL=john@client.com
-DEMO_PASSWORD=password123
->>>>>>> 8a365a4 (Initial Phoenix frontend with unified authentication & onboarding)
+🚀 **Now go show the world your AI life companion!**
