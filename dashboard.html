@@ -2858,8 +2858,10 @@
                 this.isListening = false;
                 this.recognition = null;
                 this.wakeWords = ['phoenix', 'hey phoenix'];
+                this.deactivateWords = ['deactivate phoenix', 'goodbye phoenix', 'stop listening'];
                 this.context = [];
                 this.isProcessing = false;
+                this.continuousMode = false; // NEW: Continuous conversation mode
 
                 // Load from onboarding preferences
                 const savedVoice = localStorage.getItem('phoenixVoice');
@@ -2931,11 +2933,28 @@
                         const text = result[0].transcript.toLowerCase().trim();
 
                         if (result.isFinal && !this.isProcessing) {
-                            const hasWake = this.wakeWords.some(w => text.includes(w));
-                            if (hasWake) {
-                                console.log('⚡ Wake word detected:', text);
+                            // Check for deactivation command (takes priority)
+                            const hasDeactivate = this.deactivateWords.some(w => text.includes(w));
+                            if (hasDeactivate && this.continuousMode) {
+                                console.log('👋 Deactivation detected:', text);
+                                this.deactivateContinuousMode();
+                                return;
+                            }
 
-                                // Update mic status to show wake word detected
+                            // Check for wake word to enter continuous mode
+                            const hasWake = this.wakeWords.some(w => text.includes(w));
+                            if (hasWake && !this.continuousMode) {
+                                console.log('🎙️ Wake word detected - entering continuous mode:', text);
+                                this.enterContinuousMode();
+                                this.processWithGemini(text);
+                                return;
+                            }
+
+                            // In continuous mode, process ALL speech
+                            if (this.continuousMode) {
+                                console.log('💬 Continuous mode - processing:', text);
+
+                                // Update mic status
                                 const statusText = document.getElementById('mic-status-text');
                                 const statusIcon = document.getElementById('mic-status-icon');
                                 if (statusText && statusIcon) {
@@ -2981,6 +3000,48 @@
             stop() {
                 this.recognition.stop();
                 this.isListening = false;
+            }
+
+            enterContinuousMode() {
+                this.continuousMode = true;
+                console.log('✅ Continuous mode activated - I\'m listening until you say "deactivate Phoenix"');
+
+                // Update UI to show continuous mode
+                const statusText = document.getElementById('mic-status-text');
+                if (statusText) {
+                    statusText.textContent = 'Active - Listening...';
+                }
+            }
+
+            async deactivateContinuousMode() {
+                this.continuousMode = false;
+                console.log('👋 Continuous mode deactivated - returning to wake word mode');
+
+                // Say goodbye
+                const goodbyeMessages = {
+                    'en': 'Goodbye! Say "Hey Phoenix" when you need me again.',
+                    'es': 'Adiós! Di "Hey Phoenix" cuando me necesites de nuevo.',
+                    'fr': 'Au revoir! Dites "Hey Phoenix" quand vous avez besoin de moi.',
+                    'de': 'Auf Wiedersehen! Sag "Hey Phoenix", wenn du mich wieder brauchst.',
+                    'it': 'Arrivederci! Dici "Hey Phoenix" quando hai bisogno di me.',
+                    'pt': 'Adeus! Diga "Hey Phoenix" quando precisar de mim novamente.',
+                    'nl': 'Tot ziens! Zeg "Hey Phoenix" als je me weer nodig hebt.',
+                    'pl': 'Do widzenia! Powiedz "Hey Phoenix", gdy znowu mnie potrzebujesz.'
+                };
+
+                const goodbye = goodbyeMessages[this.languageCode] || goodbyeMessages['en'];
+                await this.speak(goodbye);
+
+                // Reset UI
+                const statusText = document.getElementById('mic-status-text');
+                const statusIcon = document.getElementById('mic-status-icon');
+                if (statusText && statusIcon) {
+                    statusIcon.textContent = '🎤';
+                    statusText.textContent = 'Listening...';
+                }
+
+                // Clear conversation context
+                this.context = [];
             }
 
             async processWithGemini(input) {
