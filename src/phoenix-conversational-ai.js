@@ -1,5 +1,5 @@
 /**
- * 🔥 PHOENIX CONVERSATIONAL AI ENGINE
+ * ⚡ PHOENIX CONVERSATIONAL AI ENGINE
  * True conversational AI companion with life advice capabilities
  * 
  * Behavioral Modes:
@@ -168,7 +168,7 @@ class PhoenixConversationalAI {
      */
     async init() {
         try {
-            console.log('🔥 Initializing Phoenix Conversational AI...');
+            console.log('⚡ Initializing Phoenix Conversational AI...');
 
             // Setup speech recognition
             this.setupSpeechRecognition();
@@ -197,7 +197,7 @@ class PhoenixConversationalAI {
             console.log('✅ Phoenix Conversational AI initialized');
             console.log(`🎭 Mode: ${this.mode.type}`);
             console.log(`🎤 Voice: ${this.voice.personality}`);
-            console.log(`🔥 Optimization Score: ${this.getOptimizationScore()}%`);
+            console.log(`⚡ Optimization Score: ${this.getOptimizationScore()}%`);
 
         } catch (error) {
             console.error('❌ Initialization failed:', error);
@@ -245,7 +245,7 @@ class PhoenixConversationalAI {
         this.mode.traits = this.modePresets[appropriateMode].traits;
         this.voice.personality = this.modePresets[appropriateMode].defaultVoice;
 
-        console.log(`🔥 AI Personality synced with optimization: ${appropriateMode} (${score}%)`);
+        console.log(`⚡ AI Personality synced with optimization: ${appropriateMode} (${score}%)`);
     }
 
     /**
@@ -1017,7 +1017,7 @@ class PhoenixConversationalAI {
         
         const avatar = document.createElement('div');
         avatar.className = 'message-avatar';
-        avatar.textContent = role === 'user' ? '👤' : '🔥';
+        avatar.textContent = role === 'user' ? '👤' : '⚡';
         
         const content = document.createElement('div');
         content.className = 'message-content';

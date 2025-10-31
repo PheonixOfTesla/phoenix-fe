@@ -154,13 +154,29 @@ class PhoenixAPIClient {
              * @returns {Promise} Session details
              */
             startSession: (data) => this.request('/phoenix/voice/session', 'POST', data),
-            
+
             /**
              * End active voice session
              * @returns {Promise} Session summary
              */
-            endSession: () => this.request('/phoenix/voice/session', 'DELETE')
+            endSession: () => this.request('/phoenix/voice/session', 'DELETE'),
+
+            /**
+             * Chat with Phoenix Voice AI
+             * @param {Object} data - Message and conversation context
+             * @returns {Promise} AI response
+             */
+            chat: (data) => this.request('/phoenixVoice/chat', 'POST', data)
         };
+    }
+
+    /**
+     * 💬 PHOENIX VOICE CHAT - Direct method for conversational AI
+     * @param {Object} data - Message, history, personality, voice
+     * @returns {Promise} AI response
+     */
+    async phoenixVoiceChat(data) {
+        return this.request('/phoenixVoice/chat', 'POST', data);
     }
 
     /**

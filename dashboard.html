@@ -170,7 +170,7 @@
         <!-- Action Buttons -->
         <div style="display:flex;gap:8px;margin-top:15px">
             <button onclick="window.location.href='optimization-hub.html'" style="flex:1;padding:10px;background:linear-gradient(135deg, rgba(0,255,255,0.2), rgba(0,255,136,0.2));border:2px solid #00ffff;color:#00ffff;font-family:inherit;font-size:10px;cursor:pointer;border-radius:6px;letter-spacing:1px;font-weight:bold;box-shadow:0 0 15px rgba(0,255,255,0.3);transition:all 0.3s">
-                🔥 OPTIMIZE
+                ⚡ OPTIMIZE
             </button>
         </div>
     </div>
@@ -231,6 +231,31 @@
             <div>🖱️ DRAG TO ROTATE</div>
             <div>⌨️ WASD / ARROWS</div>
             <div>🔍 CTRL + SCROLL</div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- MIC PERMISSION PROMPT -->
+    <!-- ============================================ -->
+    <div id="mic-permission-prompt" style="position:fixed;bottom:20px;left:20px;z-index:6000;background:rgba(0,10,20,0.95);padding:20px;border-radius:10px;border:2px solid rgba(0,255,255,0.4);backdrop-filter:blur(15px);box-shadow:0 0 30px rgba(0,255,255,0.2);max-width:350px;display:none">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+            <span style="font-size:32px">🎤</span>
+            <div>
+                <div style="font-size:14px;color:#00ffff;font-weight:bold;margin-bottom:4px">Enable Voice Listening</div>
+                <div style="font-size:11px;color:rgba(0,255,255,0.6);line-height:1.4">Allow Phoenix to listen for "Hey Phoenix" to activate voice commands</div>
+            </div>
+        </div>
+        <button onclick="enableWakeWordAI()" style="width:100%;padding:12px;background:rgba(0,255,255,0.2);border:2px solid #00ffff;color:#00ffff;font-size:12px;cursor:pointer;border-radius:8px;font-weight:bold;letter-spacing:1px;transition:all 0.3s" onmouseover="this.style.background='rgba(0,255,255,0.3)'" onmouseout="this.style.background='rgba(0,255,255,0.2)'">
+            ENABLE MICROPHONE
+        </button>
+    </div>
+
+    <!-- MIC STATUS INDICATOR -->
+    <div id="mic-status" style="position:fixed;bottom:20px;left:20px;z-index:6000;background:rgba(0,10,20,0.95);padding:12px 18px;border-radius:8px;border:2px solid rgba(0,255,255,0.4);backdrop-filter:blur(15px);display:none;align-items:center;gap:10px">
+        <div id="mic-status-icon" style="font-size:20px">🎤</div>
+        <div>
+            <div id="mic-status-text" style="font-size:11px;color:#00ffff;font-weight:bold">Listening...</div>
+            <div style="font-size:9px;color:rgba(0,255,255,0.6)">Say "Hey Phoenix"</div>
         </div>
     </div>
 
@@ -2362,9 +2387,9 @@
 
             // Listen for full optimization achievement
             window.addEventListener('phoenixFullyOptimized', (e) => {
-                console.log('🔥 PHOENIX FULLY OPTIMIZED!');
+                console.log('⚡ PHOENIX FULLY OPTIMIZED!');
                 updateOptimizationWidget();
-                showOptimizationToast('🔥 PHOENIX OPTIMIZED - FULL AI MASTERY!', 'achievement');
+                showOptimizationToast('⚡ PHOENIX OPTIMIZED - FULL AI MASTERY!', 'achievement');
             });
 
             console.log('✅ Optimization Widget initialized');
@@ -2508,7 +2533,7 @@
             const phoenixCoreContainer = document.getElementById('phoenix-core-container');
             if (phoenixCoreContainer) {
                 phoenixCoreContainer.addEventListener('click', function() {
-                    console.log('🔥 Phoenix Core Activated');
+                    console.log('⚡ Phoenix Core Activated');
                     phoenix.toggleActionMenu();
                 });
             }
@@ -2524,7 +2549,7 @@
             console.log('🤖 AI Companion: ✅ Online');
             console.log('🤵 Butler: ✅ Ready');
             console.log('💪 6 Planetary Systems: ✅ Operational');
-            console.log('🔥 Optimization Tracker: ✅ Active');
+            console.log('⚡ Optimization Tracker: ✅ Active');
             console.log('✨ The Most Sophisticated AI Companion on Earth');
         });
     </script>
@@ -2874,7 +2899,16 @@
                         if (result.isFinal && !this.isProcessing) {
                             const hasWake = this.wakeWords.some(w => text.includes(w));
                             if (hasWake) {
-                                console.log('🔥 Wake word detected:', text);
+                                console.log('⚡ Wake word detected:', text);
+
+                                // Update mic status to show wake word detected
+                                const statusText = document.getElementById('mic-status-text');
+                                const statusIcon = document.getElementById('mic-status-icon');
+                                if (statusText && statusIcon) {
+                                    statusIcon.textContent = '⚡';
+                                    statusText.textContent = 'Processing...';
+                                }
+
                                 this.processWithGemini(text);
                             }
                         }
@@ -2953,6 +2987,14 @@
                     console.error('Gemini error:', err);
                 } finally {
                     this.isProcessing = false;
+
+                    // Reset mic status back to listening
+                    const statusText = document.getElementById('mic-status-text');
+                    const statusIcon = document.getElementById('mic-status-icon');
+                    if (statusText && statusIcon) {
+                        statusIcon.textContent = '🎤';
+                        statusText.textContent = 'Listening...';
+                    }
                 }
             }
 
@@ -3020,7 +3062,7 @@
             }
         }
 
-        // Auto-start Wake Word AI
+        // Initialize Wake Word AI (but don't start listening yet)
         window.addEventListener('DOMContentLoaded', () => {
             setTimeout(async () => {
                 // Fetch user profile to get name for greeting
@@ -3033,15 +3075,50 @@
                     console.error('Failed to fetch user profile:', err);
                 }
 
+                // Initialize Wake Word AI
                 window.wakeWordAI = new WakeWordAI();
+
+                // Check if user has previously granted mic permission
+                const micEnabled = localStorage.getItem('phoenixMicEnabled');
+                if (micEnabled === 'true') {
+                    // Auto-start if previously enabled
+                    await window.wakeWordAI.init();
+                    document.getElementById('mic-status').style.display = 'flex';
+
+                    // Play welcome greeting
+                    setTimeout(async () => {
+                        await window.wakeWordAI.playWelcomeGreeting();
+                    }, 1000);
+                } else {
+                    // Show mic permission prompt
+                    document.getElementById('mic-permission-prompt').style.display = 'block';
+                }
+            }, 3000);
+        });
+
+        // Enable Wake Word AI with mic permission
+        async function enableWakeWordAI() {
+            try {
                 await window.wakeWordAI.init();
 
-                // Play welcome greeting after initialization
+                // Save preference
+                localStorage.setItem('phoenixMicEnabled', 'true');
+
+                // Hide prompt, show status
+                document.getElementById('mic-permission-prompt').style.display = 'none';
+                document.getElementById('mic-status').style.display = 'flex';
+
+                // Play welcome greeting
                 setTimeout(async () => {
                     await window.wakeWordAI.playWelcomeGreeting();
                 }, 1000);
-            }, 3000);
-        });
+
+                console.log('✅ Wake Word AI Enabled');
+            } catch (err) {
+                console.error('Failed to enable mic:', err);
+                alert('Microphone permission denied. Please allow microphone access in your browser settings.');
+            }
+        }
 
         console.log('✅ Wake Word AI Loaded');
     </script>
