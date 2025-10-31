@@ -39,7 +39,7 @@ class HolographicNavigator {
                     <div class="core-ring ring-2"></div>
                     <div class="core-ring ring-3"></div>
                     <div class="core-center">
-                        <div class="phoenix-icon">⚡</div>
+                        <div class="phoenix-icon">🤖</div>
                         <div class="core-label">PHOENIX</div>
                     </div>
                 </div>
@@ -66,7 +66,7 @@ class HolographicNavigator {
 
                 <!-- Toggle Button -->
                 <button id="holo-toggle" class="holo-toggle">
-                    <span class="toggle-icon">⚡</span>
+                    <span class="toggle-icon">🤖</span>
                     <span class="toggle-label">FEATURES</span>
                 </button>
             </div>
@@ -86,7 +86,7 @@ class HolographicNavigator {
             { id: 'mars', name: 'MARS', icon: '♂️', color: '#FF4444', angle: 154.2, features: 20 },
             { id: 'jupiter', name: 'JUPITER', icon: '♃', color: '#FFAA00', angle: 205.6, features: 17 },
             { id: 'saturn', name: 'SATURN', icon: '♄', color: '#8844FF', angle: 257, features: 12 },
-            { id: 'phoenix', name: 'PHOENIX', icon: '⚡', color: '#00FFFF', angle: 308.4, features: 81 }
+            { id: 'phoenix', name: 'PHOENIX', icon: '🤖', color: '#00FFFF', angle: 308.4, features: 81 }
         ];
 
         return domains.map(domain => `
@@ -113,7 +113,7 @@ class HolographicNavigator {
                 <div class="dock-label">Butler</div>
             </div>
             <div class="dock-item" data-action="sync">
-                <div class="dock-icon">⚡</div>
+                <div class="dock-icon">🤖</div>
                 <div class="dock-label">Sync</div>
             </div>
             <div class="dock-item" data-action="insights">
@@ -237,7 +237,7 @@ class HolographicNavigator {
             {
                 id: 'metabolic-rate',
                 name: 'Metabolic Rate',
-                icon: '⚡',
+                icon: '🤖',
                 description: 'BMR, TDEE, calorie burn analysis',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'metabolic')
@@ -377,7 +377,7 @@ class HolographicNavigator {
             {
                 id: 'readiness',
                 name: 'Daily Readiness',
-                icon: '⚡',
+                icon: '🤖',
                 description: 'HRV + sleep-based readiness score',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'readiness')
@@ -633,7 +633,7 @@ class HolographicNavigator {
             {
                 id: 'intensity-zones',
                 name: 'Intensity Zones',
-                icon: '⚡',
+                icon: '🤖',
                 description: 'Training intensity analysis',
                 status: 'active',
                 action: () => this.openFeature('venus', 'intensity-zones')
@@ -1267,7 +1267,7 @@ class HolographicNavigator {
             {
                 id: 'energy-map',
                 name: 'Energy Map',
-                icon: '⚡',
+                icon: '🤖',
                 description: 'Energy-optimized schedule view',
                 status: 'active',
                 action: () => this.openFeature('earth', 'energy-map')
@@ -1488,7 +1488,7 @@ class HolographicNavigator {
             {
                 id: 'trigger-boost',
                 name: 'Trigger Boost',
-                icon: '⚡',
+                icon: '🤖',
                 description: 'Activate motivation protocol',
                 status: 'active',
                 action: () => this.openFeature('mars', 'boost')
@@ -1811,7 +1811,7 @@ class HolographicNavigator {
             {
                 id: 'realtime-patterns',
                 name: 'Real-time Detection',
-                icon: '⚡',
+                icon: '🤖',
                 description: 'Live pattern monitoring',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'realtime')
@@ -1853,7 +1853,7 @@ class HolographicNavigator {
             {
                 id: 'active-predictions',
                 name: 'Active Predictions',
-                icon: '⚡',
+                icon: '🤖',
                 description: 'Current active predictions',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'active-predictions')
@@ -1935,7 +1935,7 @@ class HolographicNavigator {
             {
                 id: 'active-interventions',
                 name: 'Active Interventions',
-                icon: '⚡',
+                icon: '🤖',
                 description: 'Currently running interventions',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'active-interventions')
@@ -2057,7 +2057,7 @@ class HolographicNavigator {
             {
                 id: 'auto-optimize',
                 name: 'Auto-Optimize',
-                icon: '⚡',
+                icon: '🤖',
                 description: 'Let AI optimize settings',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'auto-optimize')
@@ -2291,7 +2291,7 @@ class HolographicNavigator {
             {
                 id: 'optimize-calendar',
                 name: 'Optimize Calendar',
-                icon: '⚡',
+                icon: '🤖',
                 description: 'AI calendar optimization',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'calendar-optimize')

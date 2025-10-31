@@ -253,7 +253,19 @@
         </button>
     </div>
 
-    <!-- MIC STATUS INDICATOR -->
+    <!-- SIRI-STYLE WAVEFORM INDICATOR -->
+    <div id="voice-waveform" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:6000;background:rgba(0,10,20,0.95);padding:20px 30px;border-radius:20px;border:2px solid rgba(0,255,255,0.4);backdrop-filter:blur(15px);display:none;flex-direction:column;align-items:center;gap:12px;box-shadow:0 0 30px rgba(0,255,255,0.3)">
+        <!-- Waveform Canvas -->
+        <canvas id="waveform-canvas" width="300" height="80" style="display:block"></canvas>
+
+        <!-- Status Text -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+            <div id="waveform-status" style="font-size:12px;color:#00ffff;font-weight:bold">Listening...</div>
+            <div id="waveform-subtitle" style="font-size:10px;color:rgba(0,255,255,0.6)">Say "Hey Phoenix"</div>
+        </div>
+    </div>
+
+    <!-- MIC STATUS INDICATOR (Fallback) -->
     <div id="mic-status" style="position:fixed;bottom:20px;left:20px;z-index:6000;background:rgba(0,10,20,0.95);padding:12px 18px;border-radius:8px;border:2px solid rgba(0,255,255,0.4);backdrop-filter:blur(15px);display:none;align-items:center;gap:10px">
         <div id="mic-status-icon" style="font-size:20px">🎤</div>
         <div>
@@ -279,7 +291,7 @@
             <option value="onyx">💼 Onyx - Professional</option>
             <option value="fable">✨ Fable - Storyteller</option>
             <option value="shimmer">🌸 Shimmer - Gentle Guide</option>
-            <option value="alloy">⚡ Alloy - Efficient</option>
+            <option value="alloy">🤖 Alloy - Efficient</option>
         </select>
     </div>
 
@@ -2424,7 +2436,7 @@
             window.addEventListener('phoenixFullyOptimized', (e) => {
                 console.log('⚡ PHOENIX FULLY OPTIMIZED!');
                 updateOptimizationWidget();
-                showOptimizationToast('⚡ PHOENIX OPTIMIZED - FULL AI MASTERY!', 'achievement');
+                showOptimizationToast('🚀 PHOENIX OPTIMIZED - FULL AI MASTERY!', 'achievement');
             });
 
             console.log('✅ Optimization Widget initialized');

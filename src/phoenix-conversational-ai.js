@@ -154,7 +154,7 @@ class PhoenixConversationalAI {
             onyx: { name: 'Onyx', description: 'Professional', emoji: '💼' },
             fable: { name: 'Fable', description: 'Storyteller', emoji: '✨' },
             shimmer: { name: 'Shimmer', description: 'Gentle Guide', emoji: '🌸' },
-            alloy: { name: 'Alloy', description: 'Efficient', emoji: '⚡' }
+            alloy: { name: 'Alloy', description: 'Efficient', emoji: '🤖' }
         };
         
         // UI elements
@@ -1060,7 +1060,7 @@ class PhoenixConversationalAI {
         
         const avatar = document.createElement('div');
         avatar.className = 'message-avatar';
-        avatar.textContent = role === 'user' ? '👤' : '⚡';
+        avatar.textContent = role === 'user' ? '👤' : '🤖';
         
         const content = document.createElement('div');
         content.className = 'message-content';

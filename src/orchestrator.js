@@ -1067,7 +1067,7 @@ return true; // Token is valid if this succeeds
             { name: 'Mars', method: 'getMarsGoals', icon: '♂️' },
             { name: 'Jupiter', method: 'getJupiterAccounts', icon: '♃' },
             { name: 'Saturn', method: 'getSaturnVision', icon: '♄' },
-            { name: 'Phoenix', method: 'getPhoenixInsights', icon: '⚡' }
+            { name: 'Phoenix', method: 'getPhoenixInsights', icon: '🤖' }
         ];
         
         // Load all planets in parallel for speed
