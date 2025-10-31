@@ -29,7 +29,7 @@
     <!-- ============================================ -->
     <div id="sync-prompt" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.98);z-index:9500;display:none;align-items:center;justify-content:center;flex-direction:column">
         <div style="max-width:600px;padding:40px;text-align:center">
-            <div style="font-size:48px;color:#00ffff;margin-bottom:20px;text-shadow:0 0 30px rgba(0,255,255,1)">⚡</div>
+            <div style="font-size:48px;color:#00ffff;margin-bottom:20px;text-shadow:0 0 30px rgba(0,255,255,1)">🔄</div>
             <div style="font-size:32px;color:#00ffff;margin-bottom:20px;text-shadow:0 0 20px rgba(0,255,255,1);letter-spacing:4px">SYNC YOUR LIFE</div>
             <div style="font-size:16px;color:rgba(0,255,255,0.7);line-height:1.8;margin-bottom:30px">
                 Connect your devices, calendars, banks, and goals to unlock Phoenix's full potential.
@@ -118,7 +118,7 @@
         
         <!-- Sync Status Button -->
         <button id="sync-status-btn" onclick="openSyncPanel()" style="width:100%;padding:10px;background:rgba(0,255,255,0.1);border:1px solid rgba(0,255,255,0.3);color:#00ffff;font-family:inherit;font-size:11px;cursor:pointer;border-radius:6px;letter-spacing:1px;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.3s">
-            <span id="sync-icon">⚡</span>
+            <span id="sync-icon">🔄</span>
             <span id="sync-text">SYNC</span>
         </button>
     </div>
@@ -173,7 +173,7 @@
         <!-- Action Buttons -->
         <div style="display:flex;gap:8px;margin-top:15px">
             <button onclick="window.location.href='optimization-hub.html'" style="flex:1;padding:10px;background:linear-gradient(135deg, rgba(0,255,255,0.2), rgba(0,255,136,0.2));border:2px solid #00ffff;color:#00ffff;font-family:inherit;font-size:10px;cursor:pointer;border-radius:6px;letter-spacing:1px;font-weight:bold;box-shadow:0 0 15px rgba(0,255,255,0.3);transition:all 0.3s">
-                ⚡ OPTIMIZE
+                🚀 OPTIMIZE
             </button>
         </div>
     </div>
@@ -301,7 +301,7 @@
 
             <!-- Sync All Button -->
             <button id="sync-all-btn" onclick="syncAllPlanets()" style="width:100%;padding:20px;background:linear-gradient(135deg, rgba(0,255,255,0.2), rgba(0,255,136,0.2));border:2px solid #00ffff;color:#00ffff;font-family:inherit;font-size:16px;cursor:pointer;border-radius:8px;letter-spacing:2px;font-weight:bold;margin-bottom:40px;box-shadow:0 0 30px rgba(0,255,255,0.3);transition:all 0.3s">
-                ⚡ SYNC ALL PLANETS NOW
+                🔄 SYNC ALL PLANETS NOW
             </button>
 
             <!-- Planetary Systems Grid -->
@@ -1946,7 +1946,7 @@
             btn.textContent = '✅ ALL SYSTEMS SYNCED';
             
             setTimeout(() => {
-                btn.textContent = '⚡ SYNC ALL PLANETS NOW';
+                btn.textContent = '🔄 SYNC ALL PLANETS NOW';
                 btn.disabled = false;
             }, 3000);
         };
@@ -2939,7 +2939,7 @@
                                 const statusText = document.getElementById('mic-status-text');
                                 const statusIcon = document.getElementById('mic-status-icon');
                                 if (statusText && statusIcon) {
-                                    statusIcon.textContent = '⚡';
+                                    statusIcon.textContent = '🎙️';
                                     statusText.textContent = 'Processing...';
                                 }
 
