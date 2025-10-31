@@ -489,7 +489,7 @@ class PhoenixConversationalAI {
      */
     async processConversation(userMessage) {
         try {
-            console.log('User message:', userMessage);
+            console.log('🎙️  User:', userMessage);
             this.updateTranscript(userMessage, true);
             this.updateStatus('processing');
 
@@ -500,48 +500,31 @@ class PhoenixConversationalAI {
                 timestamp: new Date().toISOString()
             });
 
-            // Start thinking message timeout
+            // OPTIMIZATION: Reduced thinking message delay from 1.5s to 800ms
             const thinkingTimeout = setTimeout(() => {
-                this.speak("Hold on, give me a moment to process that.");
-            }, 1500); // Show thinking message after 1.5s
+                this.speak("Give me one second.");
+            }, 800);
 
-            // Classify the conversation type
-            const classification = this.classifyConversation(userMessage);
-            console.log('Message classified as:', classification.type);
+            // Skip classification - go straight to AI for speed
+            console.log('⚡ Fast mode: Direct AI call');
 
-            // Route to appropriate handler with 5s max timeout
-            let response;
-            const responsePromise = (async () => {
-                switch (classification.type) {
-                    case 'data_query':
-                        return await this.handleDataQuery(userMessage, classification);
+            // OPTIMIZATION: Ultra-fast mode - 2.5s timeout for ChatGPT-level speed
+            const startTime = Date.now();
+            const responsePromise = this.sendVoiceMessageWithContext(userMessage);
 
-                    case 'action_request':
-                        return await this.handleButlerAction(userMessage, classification);
-
-                    case 'life_advice':
-                    case 'emotional_support':
-                    case 'complex_decision':
-                        return await this.handleLifeAdvice(userMessage, classification);
-
-                    case 'general_chat':
-                        return await this.handleGeneralConversation(userMessage, classification);
-
-                    default:
-                        return await this.handleFallback(userMessage);
-                }
-            })();
-
-            // Race between response and 5s timeout
-            response = await Promise.race([
+            // Race between response and 2.5s timeout
+            const response = await Promise.race([
                 responsePromise,
                 new Promise((resolve) => setTimeout(() => resolve({
-                    reply: "I'm taking too long. Let me think about this and get back to you.",
+                    reply: "Still thinking... give me just a moment.",
                     quickResponse: true
-                }), 5000))
+                }), 2500))
             ]);
 
-            clearTimeout(thinkingTimeout); // Cancel thinking message
+            clearTimeout(thinkingTimeout);
+
+            const responseTime = Date.now() - startTime;
+            console.log(`⚡ Response time: ${responseTime}ms`);
 
             // Add to conversation history
             this.conversationHistory.push({
@@ -550,23 +533,30 @@ class PhoenixConversationalAI {
                 timestamp: new Date().toISOString()
             });
 
-            // Display and speak response FAST
-            console.log('Phoenix response:', response.reply);
+            // OPTIMIZATION: Start speaking IMMEDIATELY with parallel display
+            console.log('🤖 Phoenix:', response.reply);
             this.updateStatus('responding');
+
+            // Display and speak in parallel (both non-blocking)
             this.displayResponse(response);
+            const speakPromise = this.speak(response.reply);
 
-            // Speak immediately with streaming
-            await this.speak(response.reply);
+            // Wait for speech to complete
+            await speakPromise;
 
-            // Track behavior for learning (async, don't wait)
-            this.trackBehavior(userMessage, response, classification).catch(e => console.error('Tracking error:', e));
+            // Mark conversation as complete with visual indicator
+            this.updateStatus('done');
+
+            // Track behavior async (non-blocking)
+            this.trackBehavior(userMessage, response, { type: 'conversation' }).catch(() => {});
 
         } catch (error) {
-            console.error('Conversation processing error:', error);
+            console.error('❌ Conversation error:', error);
             this.updateStatus('error');
-            const fallbackMessage = this.getErrorMessage();
+            const fallbackMessage = "Sorry, I encountered an error. Could you try again?";
             this.displayResponse({ reply: fallbackMessage });
-            this.speak(fallbackMessage);
+            await this.speak(fallbackMessage);
+            this.updateStatus('idle');
         }
     }
 
@@ -1094,12 +1084,22 @@ class PhoenixConversationalAI {
             listening: { text: 'Listening...', class: 'listening', emoji: '🎤' },
             processing: { text: 'Thinking...', class: 'processing', emoji: '🧠' },
             responding: { text: 'Speaking...', class: 'responding', emoji: '💬' },
+            done: { text: 'Done ✓', class: 'done', emoji: '✅' },
             error: { text: 'Error', class: 'error', emoji: '⚠️' }
         };
 
         const statusInfo = statusMap[status] || statusMap.idle;
         this.elements.status.textContent = `${statusInfo.emoji} ${statusInfo.text}`;
         this.elements.status.className = `voice-status ${statusInfo.class}`;
+
+        // Auto-reset to idle after showing "Done" for 2 seconds
+        if (status === 'done') {
+            setTimeout(() => {
+                if (this.elements.status.className.includes('done')) {
+                    this.updateStatus('idle');
+                }
+            }, 2000);
+        }
     }
 
     /**
@@ -1188,15 +1188,14 @@ class PhoenixConversationalAI {
                 'PHOENIX_OPTIMIZED': 'master_ai'
             };
 
-            console.log('Sending to PhoenixVoice API...', {
+            console.log('⚡ Sending to Gemini via PhoenixVoice...', {
                 message: message.substring(0, 50),
-                personality: personalityMap[this.mode.type] || 'friendly_helpful',
-                voice: this.voice.personality
+                personality: personalityMap[this.mode.type] || 'friendly_helpful'
             });
 
             const response = await this.api.phoenixVoiceChat({
                 message: message,
-                conversationHistory: this.conversationHistory.slice(-10),
+                conversationHistory: this.conversationHistory.slice(-5), // Reduced from 10 to 5 for speed
                 personality: personalityMap[this.mode.type] || 'friendly_helpful',
                 voice: this.voice.personality,
                 mode: this.mode.type,
@@ -1204,9 +1203,9 @@ class PhoenixConversationalAI {
                 traits: this.mode.traits
             });
 
-            console.log('PhoenixVoice API response:', response);
+            console.log('✅ Gemini response received');
 
-            if (response.success) {
+            if (response.success && response.response) {
                 return {
                     reply: response.response,
                     personality: response.personality,
@@ -1215,16 +1214,30 @@ class PhoenixConversationalAI {
                     hasFullContext: true
                 };
             } else {
-                throw new Error(response.error || 'Voice chat failed');
+                throw new Error(response.error || 'No response from AI');
             }
 
         } catch (error) {
-            console.error('PhoenixVoice chat error:', error);
-            // Fallback to regular companion chat
-            return await this.api.phoenix.companion.chat({
-                message: message,
-                context: await this.gatherFullContext()
-            });
+            console.error('❌ AI error:', error);
+
+            // ALWAYS return a personality-driven response, never fail
+            const personalityResponses = {
+                'PHOENIX': "I'm having trouble connecting right now, but I'm here for you. What would you like to talk about?",
+                'ALFRED': "Terribly sorry, sir. I seem to be experiencing technical difficulties. How may I assist you otherwise?",
+                'BASIC_PHOENIX': "Hmm, I'm having a moment here. Can you try asking that again?",
+                'JARVIS': "System error encountered. Attempting recovery. Please restate your query.",
+                'BUTLER': "My apologies. I encountered an obstacle. Shall we try again?",
+                'PHOENIX_OPTIMIZED': "Temporary disruption. Systems recalibrating. Please continue."
+            };
+
+            return {
+                reply: personalityResponses[this.mode.type] || personalityResponses['PHOENIX'],
+                personality: this.mode.type,
+                voice: this.voice.personality,
+                timestamp: new Date().toISOString(),
+                hasFullContext: false,
+                isError: true
+            };
         }
     }
 
