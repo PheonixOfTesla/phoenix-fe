@@ -2657,8 +2657,60 @@
                 this.wakeWords = ['phoenix', 'hey phoenix'];
                 this.context = [];
                 this.isProcessing = false;
-                this.voice = localStorage.getItem('phoenixVoice') || 'nova';
-                this.language = localStorage.getItem('phoenixLanguage') || 'en-GB';
+
+                // Load from onboarding preferences
+                const savedVoice = localStorage.getItem('phoenixVoice');
+                const savedLanguage = localStorage.getItem('phoenixLanguage');
+
+                this.voice = savedVoice || 'nova';
+                this.languageCode = savedLanguage || 'en';
+
+                // Map language codes to proper formats
+                this.language = this.mapLanguageCode(this.languageCode);
+
+                console.log('✅ Loaded from onboarding:', {
+                    voice: this.voice,
+                    languageCode: this.languageCode,
+                    mappedLanguage: this.language
+                });
+            }
+
+            // Map onboarding language codes to TTS/Recognition formats
+            mapLanguageCode(code) {
+                const languageMap = {
+                    'en': 'en-GB',      // English → British English
+                    'es': 'es-ES',      // Spanish → Spain Spanish
+                    'fr': 'fr-FR',      // French → France French
+                    'de': 'de-DE',      // German → Germany German
+                    'it': 'it-IT',      // Italian → Italy Italian
+                    'pt': 'pt-PT',      // Portuguese → Portugal Portuguese
+                    'nl': 'nl-NL',      // Dutch → Netherlands Dutch
+                    'pl': 'pl-PL',      // Polish → Poland Polish
+                    'ru': 'ru-RU',      // Russian → Russia Russian
+                    'ja': 'ja-JP',      // Japanese → Japan Japanese
+                    'zh': 'zh-CN'       // Chinese → China Chinese
+                };
+
+                return languageMap[code] || 'en-GB';
+            }
+
+            // Get TTS language code (what backend expects)
+            getTTSLanguage() {
+                const ttsMap = {
+                    'en': 'en-GB',
+                    'es': 'es',
+                    'fr': 'fr',
+                    'de': 'de',
+                    'it': 'it',
+                    'pt': 'pt',
+                    'nl': 'nl',
+                    'pl': 'pl',
+                    'ru': 'ru',
+                    'ja': 'ja',
+                    'zh': 'zh'
+                };
+
+                return ttsMap[this.languageCode] || 'en-GB';
             }
 
             async init() {
@@ -2669,7 +2721,7 @@
                     this.recognition = new SR();
                     this.recognition.continuous = true;
                     this.recognition.interimResults = true;
-                    this.recognition.lang = this.language || 'en-US';
+                    this.recognition.lang = this.language;
 
                     this.recognition.onresult = (event) => {
                         const result = event.results[event.results.length - 1];
@@ -2763,6 +2815,13 @@
             async speak(text) {
                 try {
                     const apiBase = window.API_BASE || 'https://pal-backend-production.up.railway.app/api';
+                    const ttsLanguage = this.getTTSLanguage();
+
+                    console.log('🔊 TTS Request:', {
+                        voice: this.voice,
+                        language: ttsLanguage,
+                        text: text.substring(0, 50) + '...'
+                    });
 
                     const res = await fetch(`${apiBase}/tts/generate`, {
                         method: 'POST',
@@ -2770,7 +2829,7 @@
                         body: JSON.stringify({
                             text: text,
                             voice: this.voice,
-                            language: this.language
+                            language: ttsLanguage
                         })
                     });
 
