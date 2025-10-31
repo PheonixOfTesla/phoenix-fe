@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Wearables Hub - Phoenix</title>
     <style>
         * {
@@ -274,29 +277,25 @@
                 name: 'Oura Ring',
                 icon: '💍',
                 description: 'Monitor sleep quality, readiness, and recovery with Oura Ring.',
-                enabled: false,
-                comingSoon: true
+                enabled: true
             },
             whoop: {
                 name: 'Whoop',
                 icon: '📊',
                 description: 'Track strain, recovery, and sleep performance with Whoop.',
-                enabled: false,
-                comingSoon: true
+                enabled: true
             },
             garmin: {
                 name: 'Garmin',
                 icon: '🏃',
                 description: 'Connect Garmin watches for comprehensive fitness tracking.',
-                enabled: false,
-                comingSoon: true
+                enabled: true
             },
             polar: {
                 name: 'Polar',
                 icon: '❄️',
                 description: 'Sync Polar devices for heart rate and training data.',
-                enabled: false,
-                comingSoon: true
+                enabled: true
             }
         };
 
@@ -345,8 +344,8 @@
                     <div class="device-card ${isConnected ? 'connected' : ''} ${!device.enabled ? 'disabled' : ''}">
                         <div class="device-icon">${device.icon}</div>
                         <div class="device-name">${device.name}</div>
-                        <div class="device-status ${isConnected ? 'status-connected' : device.comingSoon ? 'status-coming-soon' : 'status-disconnected'}">
-                            ${isConnected ? '✓ Connected' : device.comingSoon ? '🚀 Coming Soon' : '○ Not Connected'}
+                        <div class="device-status ${isConnected ? 'status-connected' : 'status-disconnected'}">
+                            ${isConnected ? '✓ Connected' : '○ Not Connected'}
                         </div>
                         <div class="device-description">${device.description}</div>
                         ${connected && connected.lastSync ? `<div class="last-sync">Last sync: ${new Date(connected.lastSync).toLocaleString()}</div>` : ''}
@@ -360,7 +359,7 @@
                                 </button>
                             ` : `
                                 <button onclick="connectDevice('${provider}')" ${!device.enabled ? 'disabled' : ''}>
-                                    ${device.comingSoon ? 'Coming Soon' : 'Connect'}
+                                    Connect
                                 </button>
                             `}
                         </div>

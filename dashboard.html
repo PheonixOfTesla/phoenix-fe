@@ -6,6 +6,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="description" content="Phoenix - The Most Sophisticated AI Life Companion">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Phoenix - AI Life Operating System</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="phoenix-voice.css">
@@ -1086,7 +1089,7 @@
                 
                 // State
                 this.time = 0;
-                this.recoveryScore = 75;
+                this.recoveryScore = null; // Loaded from API only
                 this.mouseX = 0;
                 this.mouseY = 0;
                 
@@ -1121,8 +1124,8 @@
                 // Step 1: Authentication
                 const isAuth = await this.authenticate();
                 if (!isAuth) {
-                    console.log('❌ Auth failed, but continuing for demo');
-                    // Continue anyway for demo purposes
+                    console.log('❌ Auth failed - redirecting to login');
+                    return; // Stop initialization if not authenticated
                 }
                 
                 // Step 2: Setup 3D Scene
@@ -1527,9 +1530,8 @@
             async authenticate() {
                 const token = localStorage.getItem('phoenixToken');
                 if (!token) {
-                    console.log('❌ No token found');
-                    // Don't redirect for demo purposes
-                    // window.location.href = '/login.html';
+                    console.log('❌ No token found - redirecting to login');
+                    window.location.href = 'index.html';
                     return false;
                 }
                 

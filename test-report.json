@@ -1,0 +1,11 @@
+{
+  "timestamp": "2025-10-31T14:09:29.486Z",
+  "errors": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ],
+  "warnings": [],
+  "networkErrors": [
+    "http://localhost:8080/favicon.ico - 404"
+  ],
+  "logCount": 10
+}
