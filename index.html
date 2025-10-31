@@ -869,28 +869,10 @@
                     return;
                 }
 
-                // Verify token is valid
-                try {
-                    const response = await fetch(`${PhoenixConfig.API_BASE_URL}/auth/me`, {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-
-                    const data = await response.json();
-
-                    if (data.success) {
-                        console.log('[ViewManager] Valid token, redirecting to dashboard');
-                        window.location.href = 'dashboard.html';
-                        return;
-                    } else {
-                        console.log('[ViewManager] Invalid token, showing login view');
-                        localStorage.removeItem('phoenixToken');
-                        localStorage.removeItem('phoenixUser');
-                        this.showView('login');
-                    }
-                } catch (error) {
-                    console.error('[ViewManager] Token verification failed:', error);
-                    this.showView('login');
-                }
+                // Token exists - redirect to dashboard immediately
+                // Don't validate here to avoid race conditions
+                console.log('[ViewManager] Token found, redirecting to dashboard');
+                window.location.href = 'dashboard.html';
             },
 
             showView(viewName) {
