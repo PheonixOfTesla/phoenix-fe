@@ -2845,13 +2845,57 @@
                     console.error('TTS error:', err);
                 }
             }
+
+            async playWelcomeGreeting() {
+                try {
+                    // Get user name from localStorage or use default
+                    const userName = localStorage.getItem('userName') || 'there';
+
+                    // Language-specific welcome messages
+                    const welcomeMessages = {
+                        'en': `Welcome back to Phoenix, ${userName}. I'm ready to assist you with your health, fitness, and wellness journey.`,
+                        'es': `Bienvenido de nuevo a Phoenix, ${userName}. Estoy listo para ayudarte con tu salud, fitness y bienestar.`,
+                        'fr': `Bienvenue sur Phoenix, ${userName}. Je suis prêt à vous accompagner dans votre parcours santé et bien-être.`,
+                        'de': `Willkommen zurück bei Phoenix, ${userName}. Ich bin bereit, Sie auf Ihrer Gesundheits- und Fitnessreise zu unterstützen.`,
+                        'it': `Bentornato su Phoenix, ${userName}. Sono pronto ad assisterti nel tuo percorso di salute e benessere.`,
+                        'pt': `Bem-vindo de volta ao Phoenix, ${userName}. Estou pronto para ajudá-lo em sua jornada de saúde e bem-estar.`,
+                        'nl': `Welkom terug bij Phoenix, ${userName}. Ik ben klaar om je te helpen met je gezondheids- en fitnessreis.`,
+                        'pl': `Witaj ponownie w Phoenix, ${userName}. Jestem gotowy, aby pomóc ci w twojej podróży zdrowotnej i fitness.`,
+                        'ru': `Добро пожаловать обратно в Phoenix, ${userName}. Я готов помочь вам в вашем путешествии к здоровью и фитнесу.`,
+                        'ja': `Phoenix へようこそ、${userName}さん。健康とフィットネスの旅をサポートする準備ができています。`,
+                        'zh': `欢迎回到 Phoenix，${userName}。我已准备好协助您的健康和健身之旅。`
+                    };
+
+                    const greeting = welcomeMessages[this.languageCode] || welcomeMessages['en'];
+
+                    console.log('👋 Playing welcome greeting...');
+                    await this.speak(greeting);
+                } catch (err) {
+                    console.error('Welcome greeting error:', err);
+                }
+            }
         }
 
         // Auto-start Wake Word AI
         window.addEventListener('DOMContentLoaded', () => {
             setTimeout(async () => {
+                // Fetch user profile to get name for greeting
+                try {
+                    const profile = await API.getProfile();
+                    if (profile.success && profile.data.name) {
+                        localStorage.setItem('userName', profile.data.name);
+                    }
+                } catch (err) {
+                    console.error('Failed to fetch user profile:', err);
+                }
+
                 window.wakeWordAI = new WakeWordAI();
                 await window.wakeWordAI.init();
+
+                // Play welcome greeting after initialization
+                setTimeout(async () => {
+                    await window.wakeWordAI.playWelcomeGreeting();
+                }, 1000);
             }, 3000);
         });
 
