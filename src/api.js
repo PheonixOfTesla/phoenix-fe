@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════════════════
-// ⚡ PHOENIX API CLIENT - PERFECT 1:1 BACKEND MIRROR
+// PHOENIX API CLIENT - PERFECT 1:1 BACKEND MIRROR
 // ═══════════════════════════════════════════════════════════════════════════════
 // Purpose: Central API client - EXACT mirror of backend (307 endpoints)
 // Base URL: https://pal-backend-production.up.railway.app/api
@@ -1680,11 +1680,11 @@ const API = new PhoenixAPI();
 
 // Auto-initialize on page load
 (function() {
-    console.log('⚡ Phoenix API Client Initialized');
+    console.log('Phoenix API Client Initialized');
     console.log(`📡 Base URL: ${API.baseURL}`);
     console.log(`🔐 Authenticated: ${!!API.token}`);
     console.log(`👤 User ID: ${API.userId || 'Not logged in'}`);
-    console.log('✅ 257 backend endpoints loaded (perfect 1:1 mirror)');
+    console.log('257 backend endpoints loaded (perfect 1:1 mirror)');
 })();
 
 // Export for use in other modules

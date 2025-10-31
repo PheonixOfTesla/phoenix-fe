@@ -44,7 +44,7 @@ class WearableConnector {
         this.setupOAuthListener();
         this.setupWebhookHandlers();
         this.startAutoSync();
-        console.log('✅ Wearable Connector ready');
+        console.log('Wearable Connector ready');
     }
 
     // ========================================
@@ -293,7 +293,7 @@ class WearableConnector {
 
             if (response.ok) {
                 const result = await response.json();
-                console.log('✅ Manual data submitted:', result);
+                console.log('Manual data submitted:', result);
                 this.showNotification('Data recorded successfully', 'success');
                 
                 window.dispatchEvent(new CustomEvent('manualDataAdded', {
@@ -794,7 +794,7 @@ class WearableConnector {
 
     // Sync All Connected Devices
     async syncAllDevices() {
-        console.log('🔄 Auto-syncing all devices...');
+        console.log('Auto-syncing all devices...');
         
         for (const provider of Object.keys(this.connected)) {
             if (this.connected[provider]) {
@@ -802,7 +802,7 @@ class WearableConnector {
             }
         }
         
-        console.log('✅ Auto-sync complete');
+        console.log('Auto-sync complete');
     }
 
     // ========================================
@@ -1100,7 +1100,7 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-console.log('✅ Wearable Connector loaded - 100% BLUEPRINT COMPLIANT');
-console.log('📊 Devices: 5 | Endpoints: 40 | Auto-sync: 30min');
+console.log('Wearable Connector loaded - 100% BLUEPRINT COMPLIANT');
+console.log('Devices: 5 | Endpoints: 40 | Auto-sync: 30min');
 
 export default wearableConnector;

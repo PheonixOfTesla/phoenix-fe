@@ -1,5 +1,5 @@
 /**
- * ⚡ PHOENIX REACTOR.JS
+ * PHOENIX REACTOR.JS
  * REAL-TIME UPDATES ENGINE - LIVE DATA STREAMING
  * 
  * Purpose: Handle all real-time updates, WebSocket connections, reactive UI updates
@@ -115,7 +115,7 @@ class Reactor {
      * Initialize reactor and connect to WebSocket
      */
     async init() {
-        console.log('⚡ Reactor initializing...');
+        console.log('Reactor initializing...');
         
         try {
             // Connect to WebSocket
@@ -130,7 +130,7 @@ class Reactor {
                 this.processOfflineQueue();
             }
             
-            console.log('✅ Reactor initialized successfully');
+            console.log('Reactor initialized successfully');
         } catch (error) {
             console.error('❌ Reactor initialization failed:', error);
             throw error;
@@ -247,7 +247,7 @@ class Reactor {
         setTimeout(async () => {
             try {
                 await this.connect();
-                console.log('✅ Reconnected successfully');
+                console.log('Reconnected successfully');
             } catch (error) {
                 console.error('❌ Reconnection failed:', error);
                 this.reconnect();
@@ -321,7 +321,7 @@ class Reactor {
         }
         
         this.pollingIntervals.clear();
-        console.log('✅ All polling stopped');
+        console.log('All polling stopped');
     }
 
     /**

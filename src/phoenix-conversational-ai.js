@@ -1,5 +1,5 @@
 /**
- * ⚡ PHOENIX CONVERSATIONAL AI ENGINE
+ * PHOENIX CONVERSATIONAL AI ENGINE
  * True conversational AI companion with life advice capabilities
  * 
  * Behavioral Modes:
@@ -168,7 +168,7 @@ class PhoenixConversationalAI {
      */
     async init() {
         try {
-            console.log('⚡ Initializing Phoenix Conversational AI...');
+            console.log('Initializing Phoenix Conversational AI...');
 
             // Setup speech recognition
             this.setupSpeechRecognition();
@@ -194,10 +194,10 @@ class PhoenixConversationalAI {
             // Listen for optimization tier changes
             this.setupOptimizationListeners();
 
-            console.log('✅ Phoenix Conversational AI initialized');
+            console.log('Phoenix Conversational AI initialized');
             console.log(`🎭 Mode: ${this.mode.type}`);
             console.log(`🎤 Voice: ${this.voice.personality}`);
-            console.log(`⚡ Optimization Score: ${this.getOptimizationScore()}%`);
+            console.log(`Optimization Score: ${this.getOptimizationScore()}%`);
 
         } catch (error) {
             console.error('❌ Initialization failed:', error);
@@ -245,7 +245,7 @@ class PhoenixConversationalAI {
         this.mode.traits = this.modePresets[appropriateMode].traits;
         this.voice.personality = this.modePresets[appropriateMode].defaultVoice;
 
-        console.log(`⚡ AI Personality synced with optimization: ${appropriateMode} (${score}%)`);
+        console.log(`AI Personality synced with optimization: ${appropriateMode} (${score}%)`);
     }
 
     /**
@@ -291,7 +291,7 @@ class PhoenixConversationalAI {
             }
         });
 
-        console.log('✅ Optimization listeners setup');
+        console.log('Optimization listeners setup');
     }
 
     /**
@@ -537,7 +537,7 @@ class PhoenixConversationalAI {
             });
 
             // Display and speak response
-            console.log('🤖 Phoenix response:', response.reply);
+            console.log('Phoenix response:', response.reply);
             this.updateStatus('responding');
             this.displayResponse(response);
             this.speak(response.reply);
@@ -1138,7 +1138,7 @@ class PhoenixConversationalAI {
                 'PHOENIX_OPTIMIZED': 'master_ai'
             };
 
-            console.log('🎙️ Sending to PhoenixVoice API...', {
+            console.log('Sending to PhoenixVoice API...', {
                 message: message.substring(0, 50),
                 personality: personalityMap[this.mode.type] || 'friendly_helpful',
                 voice: this.voice.personality
@@ -1154,7 +1154,7 @@ class PhoenixConversationalAI {
                 traits: this.mode.traits
             });
 
-            console.log('✅ PhoenixVoice API response:', response);
+            console.log('PhoenixVoice API response:', response);
 
             if (response.success) {
                 return {

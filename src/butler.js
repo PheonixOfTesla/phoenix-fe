@@ -45,7 +45,7 @@ class ButlerService {
     // ========================================
 
     async init() {
-        console.log('🤖 Initializing Phoenix Butler Service...');
+        console.log('Initializing Phoenix Butler Service...');
         
         try {
             // Wait for API
@@ -66,7 +66,7 @@ class ButlerService {
             }
             
             this.isInitialized = true;
-            console.log('✅ Butler Service operational');
+            console.log('Butler Service operational');
             
             return true;
         } catch (error) {
@@ -215,7 +215,7 @@ class ButlerService {
 
             // Autonomous check
             if (this.autonomousMode && this.trustLevel > 70) {
-                console.log('🤖 Autonomous food order triggered');
+                console.log('Autonomous food order triggered');
             } else {
                 const confirmed = await this.confirmAction('food_order', order);
                 if (!confirmed) {
@@ -765,7 +765,7 @@ class ButlerService {
      * Search the web
      */
     async searchWeb(query) {
-        console.log('🌐 Butler: Searching web for:', query);
+        console.log('Butler: Searching web for:', query);
         
         try {
             const search = {
@@ -797,7 +797,7 @@ class ButlerService {
      * Execute web task
      */
     async executeWebTask(task) {
-        console.log('🌐 Butler: Executing web task:', task.description);
+        console.log('Butler: Executing web task:', task.description);
         
         try {
             const webTask = {
@@ -830,7 +830,7 @@ class ButlerService {
      * Summarize content
      */
     async summarizeContent(content) {
-        console.log('🌐 Butler: Summarizing content...');
+        console.log('Butler: Summarizing content...');
         
         try {
             const summarize = {
@@ -862,7 +862,7 @@ class ButlerService {
      * Summarize multiple items
      */
     async summarizeBatch(items) {
-        console.log('🌐 Butler: Summarizing batch of', items.length, 'items...');
+        console.log('Butler: Summarizing batch of', items.length, 'items...');
         
         try {
             const batch = {
@@ -966,7 +966,7 @@ class ButlerService {
     // ========================================
 
     startAutonomousMonitoring() {
-        console.log('🤖 Starting autonomous monitoring...');
+        console.log('Starting autonomous monitoring...');
         
         // Check every 5 minutes for autonomous triggers
         this.autonomousInterval = setInterval(async () => {
@@ -990,7 +990,7 @@ class ButlerService {
             if (recovery && recovery.score < 50 && hour === 19) {
                 const hasOrdered = this.hasTaskToday('food_order');
                 if (!hasOrdered) {
-                    console.log('🤖 Autonomous trigger: Low energy + dinner time');
+                    console.log('Autonomous trigger: Low energy + dinner time');
                     if (this.trustLevel > 70) {
                         await this.orderFood({ autonomous: true });
                     } else {
@@ -1009,7 +1009,7 @@ class ButlerService {
             if (upcomingMeeting && upcomingMeeting.location) {
                 const needsRide = await this.checkIfNeedsRide(upcomingMeeting.location);
                 if (needsRide) {
-                    console.log('🤖 Autonomous trigger: Meeting soon + needs transportation');
+                    console.log('Autonomous trigger: Meeting soon + needs transportation');
                     if (this.trustLevel > 80) {
                         await this.bookRide(upcomingMeeting.location, { autonomous: true });
                     } else {
@@ -1026,7 +1026,7 @@ class ButlerService {
             // Trigger 3: Calendar conflict → Auto-reschedule
             const conflicts = await this.findCalendarConflicts(events);
             if (conflicts.length > 0) {
-                console.log('🤖 Autonomous trigger: Calendar conflict detected');
+                console.log('Autonomous trigger: Calendar conflict detected');
                 if (this.trustLevel > 75) {
                     await this.resolveConflicts(conflicts);
                 } else {
@@ -1181,9 +1181,9 @@ class ButlerService {
         
         // Update autonomous mode based on trust
         if (this.trustLevel >= 80 && !this.autonomousMode) {
-            console.log('🤖 High trust achieved - autonomous mode available');
+            console.log('High trust achieved - autonomous mode available');
         } else if (this.trustLevel < 60 && this.autonomousMode) {
-            console.log('⚠️ Trust level low - consider disabling autonomous mode');
+            console.log('Trust level low - consider disabling autonomous mode');
         }
         
         return this.trustLevel;
@@ -1260,7 +1260,7 @@ class ButlerService {
 
     async resolveConflicts(conflicts) {
         // Logic to reschedule conflicting events
-        console.log('🔄 Resolving calendar conflicts...');
+        console.log('Resolving calendar conflicts...');
         // Implementation would use calendar API
         return { success: true, resolved: conflicts.length };
     }
@@ -1403,7 +1403,7 @@ class ButlerService {
         try {
             const automations = await this.getAutomations();
             if (automations.success !== false) {
-                console.log('✅ Loaded', automations.length, 'automations');
+                console.log('Loaded', automations.length, 'automations');
             }
         } catch (error) {
             console.log('No automations loaded');
@@ -1461,6 +1461,6 @@ if (document.readyState === 'loading') {
     butlerService.init();
 }
 
-console.log('✅ Phoenix Butler Service loaded');
+console.log('Phoenix Butler Service loaded');
 
 export default butlerService;

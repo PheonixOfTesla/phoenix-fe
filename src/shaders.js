@@ -25,7 +25,7 @@ class ShaderEffects {
         this.animate();
         this.startEffectSwitching();
         
-        console.log('✅ Shader Effects initialized');
+        console.log('Shader Effects initialized');
     }
 
     createWebGLCanvas() {

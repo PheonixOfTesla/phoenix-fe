@@ -1,4 +1,4 @@
-// ⚡ PHOENIX ORCHESTRATOR - COMPLETE SYSTEM COORDINATOR
+// PHOENIX ORCHESTRATOR - COMPLETE SYSTEM COORDINATOR
 // Purpose: Initialize all systems, coordinate components, manage app lifecycle
 // Blueprint Compliance: FILE #2 - ALL 45 initialization endpoints + 22 cache restoration = 67 TOTAL
 // Version: 2.0 - 100% COMPLETE
@@ -35,7 +35,7 @@
 
 class PhoenixOrchestrator {
     constructor() {
-        console.log('⚡ Phoenix Orchestrator initializing...');
+        console.log('Phoenix Orchestrator initializing...');
         
         // Core state management - prevents restarts
         this.state = {
@@ -155,12 +155,12 @@ class PhoenixOrchestrator {
     async initialize() {
         // Prevent multiple simultaneous initializations
         if (this.initPromise) {
-            console.log('⚠️ Orchestrator already initializing, waiting...');
+            console.log('Orchestrator already initializing, waiting...');
             return this.initPromise;
         }
 
         if (this.state.initialized) {
-            console.log('✅ Orchestrator already initialized');
+            console.log('Orchestrator already initialized');
             return true;
         }
 
@@ -248,7 +248,7 @@ class PhoenixOrchestrator {
 
     async executeInitStep(stepName, stepFunction) {
         try {
-            console.log(`⚡ Initializing ${stepName}...`);
+            console.log(`Initializing ${stepName}...`);
             await stepFunction();
             console.log(`✅ ${stepName} ready`);
         } catch (error) {
@@ -321,7 +321,7 @@ class PhoenixOrchestrator {
      * =============================================================================
      */
     async setupAuthentication() {
-        console.log('🔐 Setting up authentication...');
+        console.log('Setting up authentication...');
         
         try {
             // Check for existing token
@@ -329,7 +329,7 @@ class PhoenixOrchestrator {
             const storedUserId = localStorage.getItem('phoenix_user_id');
             
             if (storedToken && storedUserId) {
-                console.log('📝 Found stored credentials, validating...');
+                console.log('Found stored credentials, validating...');
                 
                 // ENDPOINT 1: GET /api/auth/me (validate token)
                 // Real-world: "Is this token still valid? Who is this user?"
@@ -345,12 +345,12 @@ class PhoenixOrchestrator {
                     return;
                 }
                 
-                console.log('⚠️ Stored token invalid, attempting refresh...');
+                console.log('Stored token invalid, attempting refresh...');
                 
                 // Try to refresh token
                 const refreshed = await this.attemptTokenRefresh(storedToken);
                 if (refreshed) {
-                    console.log('✅ Token refreshed successfully');
+                    console.log('Token refreshed successfully');
                     return;
                 }
             }
@@ -359,7 +359,7 @@ class PhoenixOrchestrator {
             const currentPath = window.location.pathname;
             
             if (currentPath.includes('/login')) {
-                console.log('📝 User on login page, waiting for login...');
+                console.log('User on login page, waiting for login...');
                 this.state.health.auth = 'waiting_for_login';
                 
                 // ENDPOINT 2: POST /api/auth/login (will be called when user submits form)
@@ -368,7 +368,7 @@ class PhoenixOrchestrator {
             }
             
             if (currentPath.includes('/register')) {
-                console.log('📝 User on register page, waiting for registration...');
+                console.log('User on register page, waiting for registration...');
                 this.state.health.auth = 'waiting_for_register';
                 
                 // ENDPOINT 3: POST /api/auth/register (will be called when user submits form)
@@ -377,7 +377,7 @@ class PhoenixOrchestrator {
             }
             
             // Not authenticated and not on auth pages
-            console.log('⚠️ No valid authentication found');
+            console.log('No valid authentication found');
             
             // Check if this is a public route that doesn't need auth
             const publicRoutes = ['/', '/about', '/pricing', '/features'];
@@ -388,7 +388,7 @@ class PhoenixOrchestrator {
             }
             
             // Redirect to login for protected routes
-            console.log('🔄 Redirecting to login...');
+            console.log('Redirecting to login...');
             this.redirectToLogin();
             
         } catch (error) {
@@ -416,9 +416,9 @@ return true; // Token is valid if this succeeds
             }
             
             if (response.status === 401) {
-                console.log('⚠️ Token expired (401 Unauthorized)');
+                console.log('Token expired (401 Unauthorized)');
             } else if (response.status === 403) {
-                console.log('⚠️ Token invalid (403 Forbidden)');
+                console.log('Token invalid (403 Forbidden)');
             }
             
             return false;
@@ -432,7 +432,7 @@ return true; // Token is valid if this succeeds
 
     async attemptTokenRefresh(oldToken) {
         try {
-            console.log('🔄 Attempting token refresh...');
+            console.log('Attempting token refresh...');
             
             // ENDPOINT: POST /api/auth/refresh
             // Real-world: "This token expired, give me a new one"
@@ -459,11 +459,11 @@ return true; // Token is valid if this succeeds
                 localStorage.setItem('phoenix_user_id', userId);
                 
                 this.performanceMetrics.endpointsCalled++;
-                console.log('✅ Token refreshed - continuing seamlessly');
+                console.log('Token refreshed - continuing seamlessly');
                 return true;
             }
             
-            console.log('⚠️ Token refresh failed - user needs to login again');
+            console.log('Token refresh failed - user needs to login again');
             return false;
             
         } catch (error) {
@@ -584,7 +584,7 @@ return true; // Token is valid if this succeeds
     }
 
     async useGuestMode() {
-        console.log('👤 Entering guest mode (limited features)...');
+        console.log('Entering guest mode (limited features)...');
         
         // Generate temporary guest credentials
         this.state.session.authToken = 'guest_' + this.generateSessionId();
@@ -593,7 +593,7 @@ return true; // Token is valid if this succeeds
         this.state.health.auth = 'guest';
         
         // Guest users have limited access
-        console.log('⚠️ Guest mode - sign up for full features');
+        console.log('Guest mode - sign up for full features');
     }
 
     redirectToLogin() {
@@ -601,7 +601,7 @@ return true; // Token is valid if this succeeds
         sessionStorage.setItem('phoenix_return_url', window.location.pathname);
 
         // Redirect to login page
-        console.log('🔄 Redirecting to login page...');
+        console.log('Redirecting to login page...');
         window.location.href = 'index.html';
     }
 
@@ -641,7 +641,7 @@ return true; // Token is valid if this succeeds
      * =============================================================================
      */
     async initializeAPI() {
-        console.log('📡 Initializing API client...');
+        console.log('Initializing API client...');
         
         try {
             // Check if API client exists
@@ -795,7 +795,7 @@ return true; // Token is valid if this succeeds
      * =============================================================================
      */
     async loadUserProfile() {
-        console.log('👤 Loading user profile...');
+        console.log('Loading user profile...');
         
         try {
             if (!this.components.api || !this.components.api.getUserProfile) {
@@ -822,14 +822,14 @@ return true; // Token is valid if this succeeds
             // Check if onboarding is complete
             // DISABLED: Onboarding handled by auth flow, not orchestrator
             // if (!profile.onboardingComplete) {
-            //     console.log('⚠️ Onboarding incomplete - redirecting...');
+            //     console.log('Onboarding incomplete - redirecting...');
             //     this.redirectToOnboarding();
             //     return;
             // }
             
             // If profile needs update (example: database migration)
             if (profile.needsUpdate) {
-                console.log('🔄 Profile needs update, applying migration...');
+                console.log('Profile needs update, applying migration...');
                 
                 // ENDPOINT 2: PUT /api/user/profile
                 // Real-world: "Update this user's profile with new data"
@@ -841,7 +841,7 @@ return true; // Token is valid if this succeeds
                 });
                 
                 this.performanceMetrics.endpointsCalled++;
-                console.log('✅ Profile updated successfully');
+                console.log('Profile updated successfully');
             }
             
         } catch (error) {
@@ -862,7 +862,7 @@ return true; // Token is valid if this succeeds
     }
 
     redirectToOnboarding() {
-        console.log('🚀 Redirecting to onboarding flow...');
+        console.log('Redirecting to onboarding flow...');
         window.location.href = 'onboarding.html';
     }
 
@@ -952,7 +952,7 @@ return true; // Token is valid if this succeeds
                     console.log(`🔄 Renews on ${renewDate}`);
                 }
             } else {
-                console.log('⚠️ No active subscription - limited features');
+                console.log('No active subscription - limited features');
                 
                 if (subscription.expiredAt) {
                     const expiredDate = new Date(subscription.expiredAt).toLocaleDateString();
@@ -1348,7 +1348,7 @@ return true; // Token is valid if this succeeds
             this.state.health.voice = 'healthy';
             this.performanceMetrics.componentsLoaded++;
             
-            console.log('✅ Voice interface ready - say "Hey Phoenix"');
+            console.log('Voice interface ready - say "Hey Phoenix"');
             
         } catch (error) {
             console.error('❌ Voice setup failed:', error);
@@ -1399,7 +1399,7 @@ return true; // Token is valid if this succeeds
      * =============================================================================
      */
     async initializeRealtime() {
-        console.log('⚡ Initializing real-time systems...');
+        console.log('Initializing real-time systems...');
         
         try {
             // Check if reactor exists
@@ -1502,7 +1502,7 @@ return true; // Token is valid if this succeeds
                     console.log(`  - ${device.type}: ${device.status} (last sync: ${device.lastSync})`);
                 });
             } else {
-                console.log('⚠️ No devices connected');
+                console.log('No devices connected');
                 console.log('💡 Connect Oura, Whoop, Fitbit, Garmin, or Polar for automatic health tracking');
             }
             
@@ -1520,7 +1520,7 @@ return true; // Token is valid if this succeeds
      * =============================================================================
      */
     async initializeComponents() {
-        console.log('🔧 Initializing remaining components...');
+        console.log('Initializing remaining components...');
         
         // Initialize JARVIS (AI engine)
         if (window.JARVIS) {
@@ -1531,7 +1531,7 @@ return true; // Token is valid if this succeeds
                 }
                 this.state.systemsReady.jarvis = true;
                 this.performanceMetrics.componentsLoaded++;
-                console.log('✅ JARVIS initialized');
+                console.log('JARVIS initialized');
             } catch (error) {
                 console.error('❌ JARVIS initialization failed:', error);
                 this.logError('JARVIS initialization failed', error);
@@ -1547,7 +1547,7 @@ return true; // Token is valid if this succeeds
                 }
                 this.state.systemsReady.planets = true;
                 this.performanceMetrics.componentsLoaded++;
-                console.log('✅ Planets initialized');
+                console.log('Planets initialized');
             } catch (error) {
                 console.error('❌ Planets initialization failed:', error);
                 this.logError('Planets initialization failed', error);
@@ -1563,7 +1563,7 @@ return true; // Token is valid if this succeeds
                 }
                 this.state.systemsReady.wearables = true;
                 this.performanceMetrics.componentsLoaded++;
-                console.log('✅ Wearables initialized');
+                console.log('Wearables initialized');
             } catch (error) {
                 console.error('❌ Wearables initialization failed:', error);
                 this.logError('Wearables initialization failed', error);
@@ -1578,7 +1578,7 @@ return true; // Token is valid if this succeeds
                     await this.components.shaders.initialize();
                 }
                 this.performanceMetrics.componentsLoaded++;
-                console.log('✅ Shaders initialized');
+                console.log('Shaders initialized');
             } catch (error) {
                 console.error('❌ Shaders initialization failed:', error);
                 // Non-critical, continue
@@ -1653,7 +1653,7 @@ return true; // Token is valid if this succeeds
      * =============================================================================
      */
     async restoreCacheFromAPI() {
-        console.log('💾 Restoring cache from API...');
+        console.log('Restoring cache from API...');
         console.log('📥 This loads recent data for instant access - no loading spinners!');
         
         const cacheEndpoints = [
@@ -1816,7 +1816,7 @@ return true; // Token is valid if this succeeds
         // Perform initial check
         this.performHealthCheck();
         
-        console.log('✅ Health monitoring active (checks every 30 seconds)');
+        console.log('Health monitoring active (checks every 30 seconds)');
     }
 
     async performHealthCheck() {
@@ -1920,7 +1920,7 @@ return true; // Token is valid if this succeeds
             console.log('🧹 Garbage collection triggered');
         }
         
-        console.log('✅ Memory cleanup complete');
+        console.log('Memory cleanup complete');
     }
 
     /**
@@ -1958,11 +1958,11 @@ return true; // Token is valid if this succeeds
      * =============================================================================
      */
     setupNetworkReconnection() {
-        console.log('🌐 Setting up network reconnection...');
+        console.log('Setting up network reconnection...');
         
         // Listen for online event
         window.addEventListener('online', async () => {
-            console.log('🌐 Network restored!');
+            console.log('Network restored!');
             this.isOnline = true;
             this.state.health.network = 'healthy';
             
@@ -1982,7 +1982,7 @@ return true; // Token is valid if this succeeds
         
         // Listen for offline event
         window.addEventListener('offline', () => {
-            console.log('⚠️ Network lost!');
+            console.log('Network lost!');
             this.isOnline = false;
             this.state.health.network = 'offline';
             
@@ -1994,11 +1994,11 @@ return true; // Token is valid if this succeeds
             });
         });
         
-        console.log('✅ Network reconnection ready');
+        console.log('Network reconnection ready');
     }
 
     async reconnectAllSystems() {
-        console.log('🔄 Reconnecting all systems...');
+        console.log('Reconnecting all systems...');
         
         try {
             // Re-validate authentication
@@ -2027,7 +2027,7 @@ return true; // Token is valid if this succeeds
             // Refresh cache
             await this.restoreCacheFromAPI();
             
-            console.log('✅ All systems reconnected');
+            console.log('All systems reconnected');
             
             // Dispatch reconnect event
             window.dispatchEvent(new CustomEvent('phoenix:reconnected'));
@@ -2054,7 +2054,7 @@ return true; // Token is valid if this succeeds
         
         for (const operation of operations) {
             try {
-                console.log(`⚡ Retrying operation: ${operation.type}`);
+                console.log(`Retrying operation: ${operation.type}`);
                 await operation.execute();
                 successCount++;
                 console.log(`✅ Operation completed: ${operation.type}`);
@@ -2099,7 +2099,7 @@ return true; // Token is valid if this succeeds
      * =============================================================================
      */
     async restoreUIState() {
-        console.log('💾 Restoring UI state...');
+        console.log('Restoring UI state...');
         
         try {
             const savedState = localStorage.getItem('phoenix_ui_state');
@@ -2110,7 +2110,7 @@ return true; // Token is valid if this succeeds
                 // Restore scroll positions
                 if (parsedState.scrollPositions) {
                     window.phoenixScrollPositions = parsedState.scrollPositions;
-                    console.log('✅ Scroll positions restored');
+                    console.log('Scroll positions restored');
                 }
                 
                 // Restore active panel
@@ -2124,10 +2124,10 @@ return true; // Token is valid if this succeeds
                 // Restore form data
                 if (parsedState.formData) {
                     window.phoenixFormData = parsedState.formData;
-                    console.log('✅ Form data restored');
+                    console.log('Form data restored');
                 }
                 
-                console.log('✅ UI state restoration complete');
+                console.log('UI state restoration complete');
             } else {
                 console.log('ℹ️ No previous UI state to restore');
             }
@@ -2189,7 +2189,7 @@ return true; // Token is valid if this succeeds
         
         // Log comprehensive summary
         console.log('═══════════════════════════════════════════════════════');
-        console.log('⚡ PHOENIX ORCHESTRATOR READY');
+        console.log('PHOENIX ORCHESTRATOR READY');
         console.log('═══════════════════════════════════════════════════════');
         console.log(`📋 Session ID: ${this.state.session.id}`);
         console.log(`👤 User: ${this.state.user?.name || 'User'}`);
@@ -2379,7 +2379,7 @@ return true; // Token is valid if this succeeds
             results.memory = `${used}MB / ${limit}MB`;
         }
         
-        console.log('📊 Diagnostic Results:', results);
+        console.log('Diagnostic Results:', results);
         
         return results;
     }
@@ -2419,13 +2419,13 @@ return true; // Token is valid if this succeeds
     // Clear error log
     clearErrorLog() {
         this.errorLog = [];
-        console.log('✅ Error log cleared');
+        console.log('Error log cleared');
     }
     
     // Clear cache
     clearCache() {
         this.state.cache = {};
-        console.log('✅ Cache cleared');
+        console.log('Cache cleared');
     }
     
     // Shutdown orchestrator
@@ -2447,7 +2447,7 @@ return true; // Token is valid if this succeeds
             }
         });
         
-        console.log('✅ Shutdown complete');
+        console.log('Shutdown complete');
     }
 }
 
@@ -2457,7 +2457,7 @@ return true; // Token is valid if this succeeds
  * =============================================================================
  */
 (function() {
-    console.log('⚡ Phoenix Orchestrator loading...');
+    console.log('Phoenix Orchestrator loading...');
     
     // Create global instance
     window.phoenixOrchestrator = new PhoenixOrchestrator();

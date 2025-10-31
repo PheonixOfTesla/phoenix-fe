@@ -60,7 +60,7 @@ window.PhoenixConfig = {
 
 // Log configuration in development
 if (isLocalhost) {
-    console.log('🔧 Phoenix Configuration Loaded:', {
+    console.log('Phoenix Configuration Loaded:', {
         environment: 'development',
         API_BASE_URL,
         FRONTEND_URL,

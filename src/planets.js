@@ -642,7 +642,7 @@
         // ============================================
 
         async loadMercury(forceRefresh = false) {
-            console.log('🌍 Loading Mercury (Health & Recovery)...');
+            console.log('Loading Mercury (Health & Recovery)...');
 
             if (!forceRefresh) {
                 const cached = this.store.getCached('mercury');
@@ -695,7 +695,7 @@
                 // Try to return cached data even if expired
                 const cached = this.store.getCached('mercury');
                 if (cached) {
-                    console.log('⚠️ Returning stale cached data due to error');
+                    console.log('Returning stale cached data due to error');
                     return cached;
                 }
                 // Return null if no cache available
@@ -708,7 +708,7 @@
         // ============================================
 
         async loadVenus(forceRefresh = false) {
-            console.log('🌍 Loading Venus (Fitness & Nutrition)...');
+            console.log('Loading Venus (Fitness & Nutrition)...');
 
             if (!forceRefresh) {
                 const cached = this.store.getCached('venus');
@@ -755,7 +755,7 @@
                 console.error('❌ Venus load failed:', error);
                 const cached = this.store.getCached('venus');
                 if (cached) {
-                    console.log('⚠️ Returning stale cached data due to error');
+                    console.log('Returning stale cached data due to error');
                     return cached;
                 }
                 return null;
@@ -767,7 +767,7 @@
         // ============================================
 
         async loadEarth(forceRefresh = false) {
-            console.log('🌍 Loading Earth (Calendar & Time)...');
+            console.log('Loading Earth (Calendar & Time)...');
 
             if (!forceRefresh) {
                 const cached = this.store.getCached('earth');
@@ -809,7 +809,7 @@
                 console.error('❌ Earth load failed:', error);
                 const cached = this.store.getCached('earth');
                 if (cached) {
-                    console.log('⚠️ Returning stale cached data due to error');
+                    console.log('Returning stale cached data due to error');
                     return cached;
                 }
                 return null;
@@ -821,7 +821,7 @@
         // ============================================
 
         async loadMars(forceRefresh = false) {
-            console.log('🌍 Loading Mars (Goals & Habits)...');
+            console.log('Loading Mars (Goals & Habits)...');
 
             if (!forceRefresh) {
                 const cached = this.store.getCached('mars');
@@ -863,7 +863,7 @@
                 console.error('❌ Mars load failed:', error);
                 const cached = this.store.getCached('mars');
                 if (cached) {
-                    console.log('⚠️ Returning stale cached data due to error');
+                    console.log('Returning stale cached data due to error');
                     return cached;
                 }
                 return null;
@@ -875,7 +875,7 @@
         // ============================================
 
         async loadJupiter(forceRefresh = false) {
-            console.log('🌍 Loading Jupiter (Finance & Wealth)...');
+            console.log('Loading Jupiter (Finance & Wealth)...');
 
             if (!forceRefresh) {
                 const cached = this.store.getCached('jupiter');
@@ -917,7 +917,7 @@
                 console.error('❌ Jupiter load failed:', error);
                 const cached = this.store.getCached('jupiter');
                 if (cached) {
-                    console.log('⚠️ Returning stale cached data due to error');
+                    console.log('Returning stale cached data due to error');
                     return cached;
                 }
                 return null;
@@ -929,7 +929,7 @@
         // ============================================
 
         async loadSaturn(forceRefresh = false) {
-            console.log('🌍 Loading Saturn (Legacy & Vision)...');
+            console.log('Loading Saturn (Legacy & Vision)...');
 
             if (!forceRefresh) {
                 const cached = this.store.getCached('saturn');
@@ -971,7 +971,7 @@
                 console.error('❌ Saturn load failed:', error);
                 const cached = this.store.getCached('saturn');
                 if (cached) {
-                    console.log('⚠️ Returning stale cached data due to error');
+                    console.log('Returning stale cached data due to error');
                     return cached;
                 }
                 return null;
@@ -1072,7 +1072,7 @@
                     
                     ${activeWorkout ? `
                         <div class="active-workout">
-                            <h3>⚡ Active Workout</h3>
+                            <h3>Active Workout</h3>
                             <div class="workout-name">${activeWorkout.name}</div>
                             <div class="workout-timer">${activeWorkout.duration || '0:00'}</div>
                             <button onclick="window.planetSystem.completeWorkout('${activeWorkout.id}')">Complete Workout</button>
@@ -1635,12 +1635,12 @@
         // ============================================
 
         init() {
-            console.log('🚀 Planetary System Manager initialized');
+            console.log('Planetary System Manager initialized');
 
             // Set up auto-refresh every 5 minutes
             this.autoRefreshInterval = setInterval(() => {
                 if (this.currentPlanet) {
-                    console.log('🔄 Auto-refreshing planet data...');
+                    console.log('Auto-refreshing planet data...');
                     this.selectPlanet(this.currentPlanet);
                 }
             }, 5 * 60 * 1000);
@@ -1676,11 +1676,11 @@
         planetSystem.init();
     }
 
-    console.log('✅ Planetary Systems Manager loaded successfully');
-    console.log('📊 ~172 endpoints - BACKEND VERIFIED & TESTED');
-    console.log('🎯 100% Backend Accurate - All paths match actual API');
-    console.log('🔄 Auto-refresh: 5 minutes | Cache TTL: 5 minutes');
-    console.log('⚡ Enhanced error handling with stale cache fallback');
-    console.log('🔧 Fixed: Quantum paths, injury paths, nutrition methods');
+    console.log('Planetary Systems Manager loaded successfully');
+    console.log('~172 endpoints - BACKEND VERIFIED & TESTED');
+    console.log('100% Backend Accurate - All paths match actual API');
+    console.log('Auto-refresh: 5 minutes | Cache TTL: 5 minutes');
+    console.log('Enhanced error handling with stale cache fallback');
+    console.log('Fixed: Quantum paths, injury paths, nutrition methods');
 
 })();

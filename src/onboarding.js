@@ -158,7 +158,7 @@ class OnboardingEngine {
             // Check if onboarding already completed
             const completed = localStorage.getItem('phoenixOnboardingComplete');
             if (completed === 'true') {
-                console.log('✅ Onboarding already completed, redirecting...');
+                console.log('Onboarding already completed, redirecting...');
                 window.location.href = 'dashboard.html';
                 return;
             }
@@ -170,7 +170,7 @@ class OnboardingEngine {
             this.setupSkipButton();
             this.setupPhaseNavigation();
             
-            console.log('✅ Onboarding Engine initialized');
+            console.log('Onboarding Engine initialized');
         } catch (error) {
             console.error('❌ Onboarding init error:', error);
         }
@@ -181,7 +181,7 @@ class OnboardingEngine {
     // ========================================
 
     renderPhase0() {
-        console.log('🎙️ Rendering Phase 0: Voice & Language Selection');
+        console.log('Rendering Phase 0: Voice & Language Selection');
         
         const container = document.getElementById('phase-0');
         if (!container) {
@@ -305,7 +305,7 @@ class OnboardingEngine {
     }
 
     selectLanguage(code) {
-        console.log('🌍 Language selected:', code);
+        console.log('Language selected:', code);
         this.selectedLanguage = code;
 
         // Update UI
@@ -319,7 +319,7 @@ class OnboardingEngine {
     }
 
     selectVoice(voiceId) {
-        console.log('🎙️ Voice selected:', voiceId);
+        console.log('Voice selected:', voiceId);
         this.selectedVoice = voiceId;
 
         // Update UI
@@ -400,7 +400,7 @@ class OnboardingEngine {
     }
 
     async completePhase0() {
-        console.log('✅ Phase 0 complete:', { 
+        console.log('Phase 0 complete:', { 
             language: this.selectedLanguage, 
             voice: this.selectedVoice 
         });
@@ -417,7 +417,7 @@ class OnboardingEngine {
                     voice: this.selectedVoice
                 }
             });
-            console.log('✅ Preferences saved to backend');
+            console.log('Preferences saved to backend');
         } catch (error) {
             console.error('❌ Failed to save preferences:', error);
             // Continue anyway - not critical
@@ -533,7 +533,7 @@ class OnboardingEngine {
             const response = await API.getMe();
             if (response.success && response.user) {
                 this.userData = response.user;
-                console.log('✅ User data loaded:', this.userData.name);
+                console.log('User data loaded:', this.userData.name);
                 this.updateGreeting();
             }
         } catch (error) {
@@ -559,7 +559,7 @@ class OnboardingEngine {
                 timezone: data.timezone
             };
             
-            console.log('✅ Location data loaded:', this.locationData.city);
+            console.log('Location data loaded:', this.locationData.city);
             
             // Fetch weather
             await this.fetchWeatherData();
@@ -592,7 +592,7 @@ class OnboardingEngine {
                 condition: this.getWeatherCondition(data.current_weather.weathercode)
             };
             
-            console.log('✅ Weather data loaded:', this.locationData.weather);
+            console.log('Weather data loaded:', this.locationData.weather);
             this.updateLocationDisplay();
         } catch (error) {
             console.error('Failed to fetch weather:', error);
@@ -804,7 +804,7 @@ class OnboardingEngine {
     // ========================================
 
     async selectOption(option) {
-        console.log('✅ User selected:', option);
+        console.log('User selected:', option);
         
         // Save selection
         localStorage.setItem('phoenixOnboardingChoice', option);
@@ -876,7 +876,7 @@ class OnboardingEngine {
                     voice: this.selectedVoice
                 }
             });
-            console.log('✅ Onboarding saved to backend');
+            console.log('Onboarding saved to backend');
         } catch (error) {
             console.error('❌ Failed to save onboarding:', error);
             throw error;
@@ -988,6 +988,6 @@ if (document.readyState === 'loading') {
     }, 100);
 }
 
-console.log('✅ Onboarding Engine loaded');
+console.log('Onboarding Engine loaded');
 
 export default onboardingEngine;

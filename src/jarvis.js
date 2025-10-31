@@ -19,7 +19,7 @@ class JARVISEngine {
         this.insights = [];
         this.recommendations = [];
         
-        console.log('⚡ JARVIS Engine constructed');
+        console.log('JARVIS Engine constructed');
     }
 
     getHeaders() {
@@ -45,7 +45,7 @@ class JARVISEngine {
             
             if (response.ok) {
                 const data = await response.json();
-                console.log('✅ Authenticated:', data.user?.name);
+                console.log('Authenticated:', data.user?.name);
                 return true;
             } else {
                 console.error('❌ Token invalid');
@@ -59,7 +59,7 @@ class JARVISEngine {
     }
 
     async init() {
-        console.log('⚡ Initializing JARVIS...');
+        console.log('Initializing JARVIS...');
         
         const isAuth = await this.checkAuth();
         if (!isAuth) {
@@ -79,7 +79,7 @@ class JARVISEngine {
             this.setupChatInterface();
             this.startRealtimeMonitoring();
             
-            console.log('✅ JARVIS initialized');
+            console.log('JARVIS initialized');
             this.showWelcomeMessage();
         } catch (error) {
             console.error('❌ Init error:', error);
@@ -133,7 +133,7 @@ class JARVISEngine {
             });
             if (response.ok) {
                 this.chatHistory = [];
-                console.log('✅ Chat cleared');
+                console.log('Chat cleared');
                 return true;
             }
         } catch (error) {
@@ -150,7 +150,7 @@ class JARVISEngine {
             if (response.ok) {
                 const data = await response.json();
                 this.personality = data.personality;
-                console.log('✅ Personality:', this.personality.style);
+                console.log('Personality:', this.personality.style);
             }
         } catch (error) {
             console.warn('Personality load error:', error);
@@ -166,7 +166,7 @@ class JARVISEngine {
             });
             if (response.ok) {
                 this.personality = newPersonality;
-                console.log('✅ Personality updated:', newPersonality.style);
+                console.log('Personality updated:', newPersonality.style);
                 return true;
             }
         } catch (error) {
@@ -200,7 +200,7 @@ class JARVISEngine {
             });
             if (response.ok) {
                 const data = await response.json();
-                console.log('✅ Pattern analysis complete');
+                console.log('Pattern analysis complete');
                 return data;
             }
         } catch (error) {
@@ -406,7 +406,7 @@ class JARVISEngine {
         setInterval(() => this.getActiveInterventions(), 300000);
         // Daily burnout check
         setInterval(() => this.getBurnoutRisk(), 86400000);
-        console.log('✅ Monitoring active');
+        console.log('Monitoring active');
     }
 
     // UI

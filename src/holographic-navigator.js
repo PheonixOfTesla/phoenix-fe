@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════════════════
-// ⚡ PHOENIX HOLOGRAPHIC NAVIGATOR - STEVE JOBS MEETS TONY STARK
+// PHOENIX HOLOGRAPHIC NAVIGATOR - STEVE JOBS MEETS TONY STARK
 // ═══════════════════════════════════════════════════════════════════════════════
 // The most beautiful navigation system ever created for a life OS
 // All 307 endpoints. Zero compromises. Pure elegance.
@@ -19,7 +19,7 @@ class HolographicNavigator {
         this.createHolographicHub();
         this.startParticleSystem();
         this.attachEventListeners();
-        console.log('⚡ Holographic Navigator initialized - 307 features ready');
+        console.log('Holographic Navigator initialized - 307 features ready');
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -2384,7 +2384,7 @@ class HolographicNavigator {
     // ═══════════════════════════════════════════════════════════════════════════
 
     async openFeature(domain, featureId) {
-        console.log(`⚡ Opening ${domain}/${featureId}`);
+        console.log(`Opening ${domain}/${featureId}`);
 
         // Close feature panel
         this.closeDomain();
@@ -2580,4 +2580,4 @@ window.addEventListener('DOMContentLoaded', () => {
     window.holographicNav = new HolographicNavigator();
 });
 
-console.log('⚡ Holographic Navigator loaded - 307 features ready');
+console.log('Holographic Navigator loaded - 307 features ready');
