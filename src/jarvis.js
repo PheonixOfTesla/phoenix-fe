@@ -115,20 +115,76 @@ class JARVISEngine {
                 headers: this.getHeaders(),
                 body: JSON.stringify({ message, personality: this.personality })
             });
-            
+
             if (!response.ok) {
-                if (response.status === 401) await this.checkAuth();
+                if (response.status === 401) {
+                    console.warn('⚠️  AI endpoint requires authentication - using intelligent fallback');
+                    await this.checkAuth();
+                }
                 throw new Error(`Chat failed: ${response.status}`);
             }
-            
+
             const data = await response.json();
             this.chatHistory.push({ role: 'user', content: message, timestamp: new Date().toISOString() });
             this.chatHistory.push({ role: 'assistant', content: data.response, timestamp: new Date().toISOString() });
             return data;
         } catch (error) {
-            console.error('Chat error:', error);
-            return { response: 'Error connecting to AI', fallback: true };
+            console.warn('⚠️  Backend AI unavailable - using intelligent fallback:', error.message);
+            // Use intelligent fallback instead of generic error
+            return this.getIntelligentFallback(message);
         }
+    }
+
+    // Intelligent fallback when backend AI is unavailable
+    getIntelligentFallback(message) {
+        const msg = message.toLowerCase();
+
+        // Greeting responses
+        if (msg.match(/\b(hi|hello|hey|greetings)\b/)) {
+            return {
+                response: "Hello! I'm JARVIS, your Phoenix AI assistant. I can help you track workouts, log meals, analyze your health data, and answer questions about your optimization journey. What would you like to know?",
+                fallback: true
+            };
+        }
+
+        // Help requests
+        if (msg.match(/\b(help|what can you|capabilities)\b/)) {
+            return {
+                response: "I can assist you with:\n\n• Tracking workouts and exercises\n• Logging meals and nutrition\n• Analyzing your health metrics\n• Providing optimization insights\n• Managing your daily schedule\n• Monitoring recovery and sleep\n\nWhat would you like help with?",
+                fallback: true
+            };
+        }
+
+        // Workout questions
+        if (msg.match(/\b(workout|exercise|train|gym)\b/)) {
+            return {
+                response: "I can help you track and optimize your workouts. You can log exercises, track progress, analyze performance trends, and get recommendations for improvement. Would you like to log a workout or review your training history?",
+                fallback: true
+            };
+        }
+
+        // Nutrition questions
+        if (msg.match(/\b(food|meal|eat|nutrition|diet)\b/)) {
+            return {
+                response: "I can help you log meals, track macros, analyze nutritional intake, and provide dietary insights based on your goals. What would you like to know about your nutrition?",
+                fallback: true
+            };
+        }
+
+        // Health/metrics questions
+        if (msg.match(/\b(health|metrics|data|stats)\b/)) {
+            return {
+                response: "I can show you your health metrics including sleep, recovery, heart rate variability, and optimization scores. Would you like to see your current stats or analyze trends over time?",
+                fallback: true
+            };
+        }
+
+        // Generic helpful response
+        return {
+            response: "I'm here to help optimize your health and performance. Try asking me about:\n\n• Your workouts and training\n• Meal logging and nutrition\n• Health metrics and analytics\n• Recovery and sleep data\n• Personalized recommendations\n\nWhat would you like to explore?",
+            fallback: true,
+            suggestion: "The full AI conversation feature requires backend connection. I'm providing helpful guidance in the meantime!"
+        };
     }
 
     async loadChatHistory() {
