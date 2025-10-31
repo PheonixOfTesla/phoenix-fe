@@ -489,6 +489,7 @@ class PhoenixConversationalAI {
      */
     async processConversation(userMessage) {
         try {
+            console.log('💬 User message:', userMessage);
             this.updateTranscript(userMessage, true);
             this.updateStatus('processing');
 
@@ -501,6 +502,7 @@ class PhoenixConversationalAI {
 
             // Classify the conversation type
             const classification = this.classifyConversation(userMessage);
+            console.log('🔍 Message classified as:', classification.type);
 
             // Route to appropriate handler
             let response;
@@ -535,6 +537,7 @@ class PhoenixConversationalAI {
             });
 
             // Display and speak response
+            console.log('🤖 Phoenix response:', response.reply);
             this.updateStatus('responding');
             this.displayResponse(response);
             this.speak(response.reply);
@@ -1135,6 +1138,12 @@ class PhoenixConversationalAI {
                 'PHOENIX_OPTIMIZED': 'master_ai'
             };
 
+            console.log('🎙️ Sending to PhoenixVoice API...', {
+                message: message.substring(0, 50),
+                personality: personalityMap[this.mode.type] || 'friendly_helpful',
+                voice: this.voice.personality
+            });
+
             const response = await this.api.phoenixVoiceChat({
                 message: message,
                 conversationHistory: this.conversationHistory.slice(-10),
@@ -1144,6 +1153,8 @@ class PhoenixConversationalAI {
                 optimizationScore: this.getOptimizationScore(),
                 traits: this.mode.traits
             });
+
+            console.log('✅ PhoenixVoice API response:', response);
 
             if (response.success) {
                 return {
