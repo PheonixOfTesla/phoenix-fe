@@ -52,7 +52,7 @@ class HolographicNavigator {
                 <!-- Feature Panel - Expands when domain selected -->
                 <div id="holo-feature-panel" class="holo-feature-panel hidden">
                     <div class="panel-header">
-                        <button id="close-panel" class="close-btn">✕</button>
+                        <button id="close-panel" class="close-btn">X</button>
                         <h2 id="panel-title"></h2>
                         <p id="panel-subtitle"></p>
                     </div>
@@ -80,13 +80,13 @@ class HolographicNavigator {
 
     createPlanetaryNodes() {
         const domains = [
-            { id: 'mercury', name: 'MERCURY', icon: '☿️', color: '#FF6B35', angle: 0, features: 38 },
-            { id: 'venus', name: 'VENUS', icon: '♀️', color: '#00FF88', angle: 51.4, features: 88 },
-            { id: 'earth', name: 'EARTH', icon: '🌍', color: '#00D9FF', angle: 102.8, features: 11 },
-            { id: 'mars', name: 'MARS', icon: '♂️', color: '#FF4444', angle: 154.2, features: 20 },
-            { id: 'jupiter', name: 'JUPITER', icon: '♃', color: '#FFAA00', angle: 205.6, features: 17 },
-            { id: 'saturn', name: 'SATURN', icon: '♄', color: '#8844FF', angle: 257, features: 12 },
-            { id: 'phoenix', name: 'PHOENIX', icon: 'Φ', color: '#00FFFF', angle: 308.4, features: 81 }
+            { id: 'mercury', name: 'MERCURY', icon: '', color: '#FF6B35', angle: 0, features: 38 },
+            { id: 'venus', name: 'VENUS', icon: '', color: '#00FF88', angle: 51.4, features: 88 },
+            { id: 'earth', name: 'EARTH', icon: '', color: '#00D9FF', angle: 102.8, features: 11 },
+            { id: 'mars', name: 'MARS', icon: '', color: '#FF4444', angle: 154.2, features: 20 },
+            { id: 'jupiter', name: 'JUPITER', icon: '', color: '#FFAA00', angle: 205.6, features: 17 },
+            { id: 'saturn', name: 'SATURN', icon: '', color: '#8844FF', angle: 257, features: 12 },
+            { id: 'phoenix', name: 'PHOENIX', icon: '', color: '#00FFFF', angle: 308.4, features: 81 }
         ];
 
         return domains.map(domain => `
@@ -105,11 +105,11 @@ class HolographicNavigator {
     createQuickAccessDock() {
         return `
             <div class="dock-item" data-action="voice">
-                <div class="dock-icon">🎤</div>
+                <div class="dock-icon"></div>
                 <div class="dock-label">Voice</div>
             </div>
             <div class="dock-item" data-action="butler">
-                <div class="dock-icon">🤵</div>
+                <div class="dock-icon"></div>
                 <div class="dock-label">Butler</div>
             </div>
             <div class="dock-item" data-action="sync">
@@ -221,7 +221,7 @@ class HolographicNavigator {
             {
                 id: 'dexa-scan',
                 name: 'DEXA Body Scan',
-                icon: '🔬',
+                icon: '',
                 description: 'Complete body composition analysis with bone density',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'dexa')
@@ -229,7 +229,7 @@ class HolographicNavigator {
             {
                 id: 'body-composition',
                 name: 'Body Composition',
-                icon: '💪',
+                icon: '',
                 description: 'Muscle mass, body fat %, lean mass breakdown',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'composition')
@@ -245,7 +245,7 @@ class HolographicNavigator {
             {
                 id: 'health-ratios',
                 name: 'Health Ratios',
-                icon: '📊',
+                icon: '',
                 description: 'WHR, BMI, body fat percentages, risk factors',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'ratios')
@@ -253,7 +253,7 @@ class HolographicNavigator {
             {
                 id: 'visceral-fat',
                 name: 'Visceral Fat',
-                icon: '⚠️',
+                icon: '',
                 description: 'Internal fat levels and health risks',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'visceral-fat')
@@ -261,7 +261,7 @@ class HolographicNavigator {
             {
                 id: 'bone-density',
                 name: 'Bone Density',
-                icon: '🦴',
+                icon: '',
                 description: 'Bone health and osteoporosis risk',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'bone-density')
@@ -269,7 +269,7 @@ class HolographicNavigator {
             {
                 id: 'hydration',
                 name: 'Hydration Status',
-                icon: '💧',
+                icon: '',
                 description: 'Hydration levels and recommendations',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'hydration')
@@ -277,7 +277,7 @@ class HolographicNavigator {
             {
                 id: 'biometric-trends',
                 name: 'Biometric Trends',
-                icon: '📈',
+                icon: '',
                 description: 'Long-term health trends and insights',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'trends')
@@ -285,7 +285,7 @@ class HolographicNavigator {
             {
                 id: 'correlations',
                 name: 'Cross-Metric Correlations',
-                icon: '🔗',
+                icon: '',
                 description: 'Discover hidden health patterns',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'correlations')
@@ -293,7 +293,7 @@ class HolographicNavigator {
             {
                 id: 'metabolic-calculator',
                 name: 'Metabolic Calculator',
-                icon: '🧮',
+                icon: '',
                 description: 'Custom metabolic rate calculations',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'calculate')
@@ -303,7 +303,7 @@ class HolographicNavigator {
             {
                 id: 'connect-wearable',
                 name: 'Connect Wearable',
-                icon: '⌚',
+                icon: '',
                 description: 'Apple Health, Oura, Whoop, Fitbit, Polar',
                 status: 'setup',
                 action: () => this.openFeature('mercury', 'connect-device')
@@ -311,7 +311,7 @@ class HolographicNavigator {
             {
                 id: 'device-list',
                 name: 'My Devices',
-                icon: '📱',
+                icon: '',
                 description: 'View all connected devices and sync status',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'devices')
@@ -319,7 +319,7 @@ class HolographicNavigator {
             {
                 id: 'manual-sync',
                 name: 'Manual Sync',
-                icon: '🔄',
+                icon: '',
                 description: 'Force sync with wearable devices',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'sync')
@@ -327,7 +327,7 @@ class HolographicNavigator {
             {
                 id: 'wearable-data',
                 name: 'Wearable Data',
-                icon: '📊',
+                icon: '',
                 description: 'Aggregated data from all devices',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'data')
@@ -335,7 +335,7 @@ class HolographicNavigator {
             {
                 id: 'raw-data',
                 name: 'Raw Device Data',
-                icon: '🔍',
+                icon: '',
                 description: 'Deep analysis of device metrics',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'raw-data')
@@ -343,7 +343,7 @@ class HolographicNavigator {
             {
                 id: 'manual-entry',
                 name: 'Manual Data Entry',
-                icon: '✍️',
+                icon: '',
                 description: 'Log metrics not captured by wearables',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'manual-entry')
@@ -353,7 +353,7 @@ class HolographicNavigator {
             {
                 id: 'hrv-analysis',
                 name: 'HRV Analysis',
-                icon: '❤️',
+                icon: '',
                 description: 'Heart rate variability metrics and trends',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'hrv')
@@ -361,7 +361,7 @@ class HolographicNavigator {
             {
                 id: 'hrv-deep',
                 name: 'Deep HRV Analysis',
-                icon: '🧬',
+                icon: '',
                 description: 'Frequency domains, stress analysis',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'hrv-deep')
@@ -369,7 +369,7 @@ class HolographicNavigator {
             {
                 id: 'heart-rate',
                 name: 'Heart Rate Zones',
-                icon: '💗',
+                icon: '',
                 description: 'HR zones, trends, and optimization',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'heart-rate')
@@ -387,7 +387,7 @@ class HolographicNavigator {
             {
                 id: 'sleep-data',
                 name: 'Sleep Analysis',
-                icon: '😴',
+                icon: '',
                 description: 'Sleep stages, duration, quality metrics',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'sleep')
@@ -395,7 +395,7 @@ class HolographicNavigator {
             {
                 id: 'sleep-ai',
                 name: 'AI Sleep Insights',
-                icon: '🌙',
+                icon: '',
                 description: 'Pattern analysis and quality predictions',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'sleep-analysis')
@@ -403,7 +403,7 @@ class HolographicNavigator {
             {
                 id: 'sleep-recommendations',
                 name: 'Sleep Optimization',
-                icon: '✨',
+                icon: '',
                 description: 'Personalized sleep improvement tips',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'sleep-recommendations')
@@ -413,7 +413,7 @@ class HolographicNavigator {
             {
                 id: 'recovery-latest',
                 name: 'Recovery Score',
-                icon: '🔋',
+                icon: '',
                 description: 'Today\'s recovery with breakdown',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'recovery-latest')
@@ -421,7 +421,7 @@ class HolographicNavigator {
             {
                 id: 'recovery-history',
                 name: 'Recovery History',
-                icon: '📜',
+                icon: '',
                 description: 'Historical recovery data and trends',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'recovery-history')
@@ -429,7 +429,7 @@ class HolographicNavigator {
             {
                 id: 'recovery-trends',
                 name: 'Recovery Trends',
-                icon: '📊',
+                icon: '',
                 description: 'Weekly, monthly, yearly patterns',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'recovery-trends')
@@ -437,7 +437,7 @@ class HolographicNavigator {
             {
                 id: 'recovery-prediction',
                 name: 'Predict Tomorrow',
-                icon: '🔮',
+                icon: '',
                 description: 'AI prediction of tomorrow\'s recovery',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'recovery-prediction')
@@ -445,7 +445,7 @@ class HolographicNavigator {
             {
                 id: 'recovery-protocols',
                 name: 'Recovery Protocols',
-                icon: '💊',
+                icon: '',
                 description: 'Personalized recovery strategies',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'recovery-protocols')
@@ -453,7 +453,7 @@ class HolographicNavigator {
             {
                 id: 'recovery-debt',
                 name: 'Recovery Debt',
-                icon: '⚠️',
+                icon: '',
                 description: 'Training load vs recovery deficit',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'recovery-debt')
@@ -461,7 +461,7 @@ class HolographicNavigator {
             {
                 id: 'overtraining-risk',
                 name: 'Overtraining Risk',
-                icon: '🚨',
+                icon: '',
                 description: 'AI assessment of overtraining probability',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'overtraining-risk')
@@ -469,7 +469,7 @@ class HolographicNavigator {
             {
                 id: 'training-load',
                 name: 'Training Load',
-                icon: '🏋️',
+                icon: '',
                 description: 'Acute vs chronic load analysis',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'training-load')
@@ -477,7 +477,7 @@ class HolographicNavigator {
             {
                 id: 'recovery-insights',
                 name: 'Recovery Insights',
-                icon: '💡',
+                icon: '',
                 description: 'AI insights on optimization',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'recovery-insights')
@@ -485,7 +485,7 @@ class HolographicNavigator {
             {
                 id: 'recovery-dashboard',
                 name: 'Recovery Dashboard',
-                icon: '📊',
+                icon: '',
                 description: 'Complete recovery overview',
                 status: 'active',
                 action: () => this.openFeature('mercury', 'recovery-dashboard')
@@ -511,7 +511,7 @@ class HolographicNavigator {
             {
                 id: 'start-workout',
                 name: 'Start Workout',
-                icon: '🏃',
+                icon: '',
                 description: 'Begin new workout session',
                 status: 'active',
                 action: () => this.openFeature('venus', 'workout-start')
@@ -519,7 +519,7 @@ class HolographicNavigator {
             {
                 id: 'workout-history',
                 name: 'Workout History',
-                icon: '📖',
+                icon: '',
                 description: 'View all past workouts',
                 status: 'active',
                 action: () => this.openFeature('venus', 'workouts')
@@ -527,7 +527,7 @@ class HolographicNavigator {
             {
                 id: 'active-workout',
                 name: 'Active Workout',
-                icon: '⏱️',
+                icon: '',
                 description: 'Resume current workout',
                 status: 'active',
                 action: () => this.openFeature('venus', 'workout-active')
@@ -535,7 +535,7 @@ class HolographicNavigator {
             {
                 id: 'workout-details',
                 name: 'Workout Details',
-                icon: '📋',
+                icon: '',
                 description: 'View specific workout breakdown',
                 status: 'active',
                 action: () => this.openFeature('venus', 'workout-detail')
@@ -543,7 +543,7 @@ class HolographicNavigator {
             {
                 id: 'log-exercise',
                 name: 'Log Exercise Set',
-                icon: '✍️',
+                icon: '',
                 description: 'Record reps, weight, RPE',
                 status: 'active',
                 action: () => this.openFeature('venus', 'log-exercise')
@@ -551,7 +551,7 @@ class HolographicNavigator {
             {
                 id: 'complete-workout',
                 name: 'Complete Workout',
-                icon: '✅',
+                icon: '',
                 description: 'Finish and generate summary',
                 status: 'active',
                 action: () => this.openFeature('venus', 'workout-complete')
@@ -559,7 +559,7 @@ class HolographicNavigator {
             {
                 id: 'edit-workout',
                 name: 'Edit Workout',
-                icon: '✏️',
+                icon: '',
                 description: 'Modify workout information',
                 status: 'active',
                 action: () => this.openFeature('venus', 'workout-edit')
@@ -567,7 +567,7 @@ class HolographicNavigator {
             {
                 id: 'delete-workout',
                 name: 'Delete Workout',
-                icon: '🗑️',
+                icon: '',
                 description: 'Remove workout from history',
                 status: 'active',
                 action: () => this.openFeature('venus', 'workout-delete')
@@ -585,7 +585,7 @@ class HolographicNavigator {
             {
                 id: 'similar-workouts',
                 name: 'Similar Workouts',
-                icon: '🔍',
+                icon: '',
                 description: 'Find past similar sessions',
                 status: 'active',
                 action: () => this.openFeature('venus', 'workout-similar')
@@ -593,7 +593,7 @@ class HolographicNavigator {
             {
                 id: 'workout-templates',
                 name: 'Template Library',
-                icon: '📚',
+                icon: '',
                 description: 'Browse workout templates',
                 status: 'active',
                 action: () => this.openFeature('venus', 'templates')
@@ -601,7 +601,7 @@ class HolographicNavigator {
             {
                 id: 'create-template',
                 name: 'Create Template',
-                icon: '➕',
+                icon: '',
                 description: 'Save custom workout template',
                 status: 'active',
                 action: () => this.openFeature('venus', 'template-create')
@@ -609,7 +609,7 @@ class HolographicNavigator {
             {
                 id: 'form-analysis',
                 name: 'Form Analysis',
-                icon: '👁️',
+                icon: '',
                 description: 'AI exercise form quality check',
                 status: 'active',
                 action: () => this.openFeature('venus', 'form-analysis')
@@ -617,7 +617,7 @@ class HolographicNavigator {
             {
                 id: 'effectiveness',
                 name: 'Workout Effectiveness',
-                icon: '📊',
+                icon: '',
                 description: 'Analyze workout quality and impact',
                 status: 'active',
                 action: () => this.openFeature('venus', 'effectiveness')
@@ -625,7 +625,7 @@ class HolographicNavigator {
             {
                 id: 'compare-workouts',
                 name: 'Compare Workouts',
-                icon: '⚖️',
+                icon: '',
                 description: 'Side-by-side workout comparison',
                 status: 'active',
                 action: () => this.openFeature('venus', 'workout-compare')
@@ -641,7 +641,7 @@ class HolographicNavigator {
             {
                 id: 'volume-progression',
                 name: 'Volume Progression',
-                icon: '📈',
+                icon: '',
                 description: 'Track volume over time',
                 status: 'active',
                 action: () => this.openFeature('venus', 'volume')
@@ -649,7 +649,7 @@ class HolographicNavigator {
             {
                 id: 'deload-planning',
                 name: 'Deload Planner',
-                icon: '🛌',
+                icon: '',
                 description: 'AI-powered deload week planning',
                 status: 'active',
                 action: () => this.openFeature('venus', 'deload')
@@ -657,7 +657,7 @@ class HolographicNavigator {
             {
                 id: 'periodization',
                 name: 'Periodization Program',
-                icon: '📅',
+                icon: '',
                 description: 'Generate training program',
                 status: 'active',
                 action: () => this.openFeature('venus', 'periodization')
@@ -665,7 +665,7 @@ class HolographicNavigator {
             {
                 id: 'optimal-window',
                 name: 'Optimal Training Window',
-                icon: '⏰',
+                icon: '',
                 description: 'Best time for training based on energy',
                 status: 'active',
                 action: () => this.openFeature('venus', 'optimal-window')
@@ -673,7 +673,7 @@ class HolographicNavigator {
             {
                 id: 'form-check',
                 name: 'Live Form Check',
-                icon: '📹',
+                icon: '',
                 description: 'Real-time form feedback',
                 status: 'premium',
                 action: () => this.openFeature('venus', 'form-check')
@@ -683,7 +683,7 @@ class HolographicNavigator {
             {
                 id: 'quantum-generate',
                 name: 'Generate Quantum Workout',
-                icon: '⚛️',
+                icon: '',
                 description: 'AI + chaos theory workout',
                 status: 'active',
                 action: () => this.openFeature('venus', 'quantum-generate')
@@ -691,7 +691,7 @@ class HolographicNavigator {
             {
                 id: 'quantum-history',
                 name: 'Quantum History',
-                icon: '📜',
+                icon: '',
                 description: 'Past quantum workouts',
                 status: 'active',
                 action: () => this.openFeature('venus', 'quantum-history')
@@ -699,7 +699,7 @@ class HolographicNavigator {
             {
                 id: 'quantum-effectiveness',
                 name: 'Quantum Analysis',
-                icon: '🔬',
+                icon: '',
                 description: 'Effectiveness of quantum workouts',
                 status: 'active',
                 action: () => this.openFeature('venus', 'quantum-effectiveness')
@@ -707,7 +707,7 @@ class HolographicNavigator {
             {
                 id: 'plateau-detection',
                 name: 'Plateau Detection',
-                icon: '🚧',
+                icon: '',
                 description: 'AI detects training plateaus',
                 status: 'active',
                 action: () => this.openFeature('venus', 'plateau')
@@ -715,7 +715,7 @@ class HolographicNavigator {
             {
                 id: 'quantum-settings',
                 name: 'Quantum Settings',
-                icon: '⚙️',
+                icon: '',
                 description: 'Configure quantum preferences',
                 status: 'active',
                 action: () => this.openFeature('venus', 'quantum-settings')
@@ -723,7 +723,7 @@ class HolographicNavigator {
             {
                 id: 'chaos-metrics',
                 name: 'Chaos Metrics',
-                icon: '🌀',
+                icon: '',
                 description: 'Variability and randomness analysis',
                 status: 'active',
                 action: () => this.openFeature('venus', 'chaos-metrics')
@@ -731,7 +731,7 @@ class HolographicNavigator {
             {
                 id: 'regenerate-seeds',
                 name: 'Regenerate Seeds',
-                icon: '🎲',
+                icon: '',
                 description: 'Fresh random seeds for new patterns',
                 status: 'active',
                 action: () => this.openFeature('venus', 'regenerate-seeds')
@@ -739,7 +739,7 @@ class HolographicNavigator {
             {
                 id: 'quantum-update-settings',
                 name: 'Update Settings',
-                icon: '🔧',
+                icon: '',
                 description: 'Modify quantum parameters',
                 status: 'active',
                 action: () => this.openFeature('venus', 'quantum-update')
@@ -749,7 +749,7 @@ class HolographicNavigator {
             {
                 id: 'exercise-library',
                 name: 'Exercise Database',
-                icon: '📚',
+                icon: '',
                 description: 'Browse all exercises',
                 status: 'active',
                 action: () => this.openFeature('venus', 'exercises')
@@ -757,7 +757,7 @@ class HolographicNavigator {
             {
                 id: 'exercise-search',
                 name: 'Search Exercises',
-                icon: '🔍',
+                icon: '',
                 description: 'Find by muscle group, equipment',
                 status: 'active',
                 action: () => this.openFeature('venus', 'exercise-search')
@@ -765,7 +765,7 @@ class HolographicNavigator {
             {
                 id: 'exercise-details',
                 name: 'Exercise Details',
-                icon: '📖',
+                icon: '',
                 description: 'Instructions, form cues, tips',
                 status: 'active',
                 action: () => this.openFeature('venus', 'exercise-detail')
@@ -773,7 +773,7 @@ class HolographicNavigator {
             {
                 id: 'exercise-alternatives',
                 name: 'Find Alternatives',
-                icon: '🔄',
+                icon: '',
                 description: 'Similar exercises for substitution',
                 status: 'active',
                 action: () => this.openFeature('venus', 'exercise-alternatives')
@@ -781,7 +781,7 @@ class HolographicNavigator {
             {
                 id: 'create-exercise',
                 name: 'Create Custom Exercise',
-                icon: '➕',
+                icon: '',
                 description: 'Add your own exercises',
                 status: 'active',
                 action: () => this.openFeature('venus', 'exercise-create')
@@ -799,7 +799,7 @@ class HolographicNavigator {
             {
                 id: 'progressive-overload',
                 name: 'Overload Tracking',
-                icon: '📈',
+                icon: '',
                 description: 'Track progressive overload metrics',
                 status: 'active',
                 action: () => this.openFeature('venus', 'overload')
@@ -807,7 +807,7 @@ class HolographicNavigator {
             {
                 id: '1rm-calculator',
                 name: '1RM Predictions',
-                icon: '🏋️',
+                icon: '',
                 description: 'Calculate one-rep max estimates',
                 status: 'active',
                 action: () => this.openFeature('venus', '1rm')
@@ -815,7 +815,7 @@ class HolographicNavigator {
             {
                 id: 'strength-standards',
                 name: 'Strength Standards',
-                icon: '📊',
+                icon: '',
                 description: 'Compare to population norms',
                 status: 'active',
                 action: () => this.openFeature('venus', 'standards')
@@ -823,7 +823,7 @@ class HolographicNavigator {
             {
                 id: 'personal-records',
                 name: 'Personal Records',
-                icon: '🏆',
+                icon: '',
                 description: 'PRs across all exercises',
                 status: 'active',
                 action: () => this.openFeature('venus', 'records')
@@ -833,7 +833,7 @@ class HolographicNavigator {
             {
                 id: 'log-meal',
                 name: 'Log Meal',
-                icon: '🍽️',
+                icon: '',
                 description: 'Record meal with macros',
                 status: 'active',
                 action: () => this.openFeature('venus', 'nutrition-log')
@@ -841,7 +841,7 @@ class HolographicNavigator {
             {
                 id: 'nutrition-history',
                 name: 'Nutrition Log',
-                icon: '📖',
+                icon: '',
                 description: 'View meal history',
                 status: 'active',
                 action: () => this.openFeature('venus', 'nutrition-logs')
@@ -849,7 +849,7 @@ class HolographicNavigator {
             {
                 id: 'edit-meal',
                 name: 'Edit Meal',
-                icon: '✏️',
+                icon: '',
                 description: 'Modify meal entry',
                 status: 'active',
                 action: () => this.openFeature('venus', 'nutrition-edit')
@@ -857,7 +857,7 @@ class HolographicNavigator {
             {
                 id: 'delete-meal',
                 name: 'Delete Meal',
-                icon: '🗑️',
+                icon: '',
                 description: 'Remove meal from log',
                 status: 'active',
                 action: () => this.openFeature('venus', 'nutrition-delete')
@@ -865,7 +865,7 @@ class HolographicNavigator {
             {
                 id: 'daily-macros',
                 name: 'Daily Macros',
-                icon: '📊',
+                icon: '',
                 description: 'Today\'s macro summary',
                 status: 'active',
                 action: () => this.openFeature('venus', 'macros')
@@ -873,7 +873,7 @@ class HolographicNavigator {
             {
                 id: 'set-targets',
                 name: 'Set Macro Targets',
-                icon: '🎯',
+                icon: '',
                 description: 'Define daily macro goals',
                 status: 'active',
                 action: () => this.openFeature('venus', 'targets')
@@ -881,7 +881,7 @@ class HolographicNavigator {
             {
                 id: 'calculate-targets',
                 name: 'Calculate Targets',
-                icon: '🧮',
+                icon: '',
                 description: 'AI macro calculation from goals',
                 status: 'active',
                 action: () => this.openFeature('venus', 'calculate-targets')
@@ -889,7 +889,7 @@ class HolographicNavigator {
             {
                 id: 'nutrition-insights',
                 name: 'Nutrition Insights',
-                icon: '💡',
+                icon: '',
                 description: 'AI nutrition recommendations',
                 status: 'active',
                 action: () => this.openFeature('venus', 'nutrition-insights')
@@ -897,7 +897,7 @@ class HolographicNavigator {
             {
                 id: 'track-water',
                 name: 'Track Water',
-                icon: '💧',
+                icon: '',
                 description: 'Log water intake',
                 status: 'active',
                 action: () => this.openFeature('venus', 'water-log')
@@ -905,7 +905,7 @@ class HolographicNavigator {
             {
                 id: 'water-data',
                 name: 'Water Tracking',
-                icon: '💦',
+                icon: '',
                 description: 'View hydration data',
                 status: 'active',
                 action: () => this.openFeature('venus', 'water')
@@ -921,7 +921,7 @@ class HolographicNavigator {
             {
                 id: 'photo-analyze',
                 name: 'Analyze Food Photo',
-                icon: '📸',
+                icon: '',
                 description: 'AI nutrition from photo',
                 status: 'premium',
                 action: () => this.openFeature('venus', 'photo-analyze')
@@ -929,7 +929,7 @@ class HolographicNavigator {
             {
                 id: 'barcode-scan',
                 name: 'Barcode Scanner',
-                icon: '📱',
+                icon: '',
                 description: 'Scan food for nutrition info',
                 status: 'active',
                 action: () => this.openFeature('venus', 'barcode')
@@ -937,7 +937,7 @@ class HolographicNavigator {
             {
                 id: 'recipe-suggest',
                 name: 'Recipe Suggestions',
-                icon: '📝',
+                icon: '',
                 description: 'Recipes matching your macros',
                 status: 'active',
                 action: () => this.openFeature('venus', 'recipes')
@@ -945,7 +945,7 @@ class HolographicNavigator {
             {
                 id: 'meal-prep',
                 name: 'Meal Prep Plans',
-                icon: '🥘',
+                icon: '',
                 description: 'View meal prep strategies',
                 status: 'active',
                 action: () => this.openFeature('venus', 'meal-prep')
@@ -953,7 +953,7 @@ class HolographicNavigator {
             {
                 id: 'create-meal-prep',
                 name: 'Plan Meal Prep',
-                icon: '📅',
+                icon: '',
                 description: 'Create weekly meal prep plan',
                 status: 'active',
                 action: () => this.openFeature('venus', 'meal-prep-plan')
@@ -961,7 +961,7 @@ class HolographicNavigator {
             {
                 id: 'restaurant-menu',
                 name: 'Restaurant Analysis',
-                icon: '🍴',
+                icon: '',
                 description: 'Analyze restaurant menus',
                 status: 'active',
                 action: () => this.openFeature('venus', 'restaurants')
@@ -969,7 +969,7 @@ class HolographicNavigator {
             {
                 id: 'restaurant-recommend',
                 name: 'Restaurant Recommendations',
-                icon: '🌟',
+                icon: '',
                 description: 'Find macro-friendly options',
                 status: 'active',
                 action: () => this.openFeature('venus', 'restaurant-recommend')
@@ -979,7 +979,7 @@ class HolographicNavigator {
             {
                 id: 'log-supplement',
                 name: 'Log Supplement',
-                icon: '💊',
+                icon: '',
                 description: 'Record supplement intake',
                 status: 'active',
                 action: () => this.openFeature('venus', 'supplement-log')
@@ -987,7 +987,7 @@ class HolographicNavigator {
             {
                 id: 'supplement-list',
                 name: 'My Supplements',
-                icon: '📋',
+                icon: '',
                 description: 'View supplement log',
                 status: 'active',
                 action: () => this.openFeature('venus', 'supplements')
@@ -995,7 +995,7 @@ class HolographicNavigator {
             {
                 id: 'supplement-interactions',
                 name: 'Check Interactions',
-                icon: '⚠️',
+                icon: '',
                 description: 'Supplement interaction warnings',
                 status: 'active',
                 action: () => this.openFeature('venus', 'interactions')
@@ -1003,7 +1003,7 @@ class HolographicNavigator {
             {
                 id: 'supplement-stack',
                 name: 'Build Stack',
-                icon: '🧪',
+                icon: '',
                 description: 'Create supplement stack',
                 status: 'active',
                 action: () => this.openFeature('venus', 'stack-builder')
@@ -1013,7 +1013,7 @@ class HolographicNavigator {
             {
                 id: 'log-measurements',
                 name: 'Log Measurements',
-                icon: '📏',
+                icon: '',
                 description: 'Record body measurements',
                 status: 'active',
                 action: () => this.openFeature('venus', 'measurements-log')
@@ -1021,7 +1021,7 @@ class HolographicNavigator {
             {
                 id: 'measurement-history',
                 name: 'Measurement History',
-                icon: '📊',
+                icon: '',
                 description: 'View measurement trends',
                 status: 'active',
                 action: () => this.openFeature('venus', 'measurements')
@@ -1029,7 +1029,7 @@ class HolographicNavigator {
             {
                 id: 'body-composition-analysis',
                 name: 'Composition Analysis',
-                icon: '🔬',
+                icon: '',
                 description: 'Body composition breakdown',
                 status: 'active',
                 action: () => this.openFeature('venus', 'composition')
@@ -1037,7 +1037,7 @@ class HolographicNavigator {
             {
                 id: 'upload-photo',
                 name: 'Progress Photos',
-                icon: '📸',
+                icon: '',
                 description: 'Upload progress photos',
                 status: 'active',
                 action: () => this.openFeature('venus', 'photos-upload')
@@ -1045,7 +1045,7 @@ class HolographicNavigator {
             {
                 id: 'view-photos',
                 name: 'Photo Gallery',
-                icon: '🖼️',
+                icon: '',
                 description: 'View all progress photos',
                 status: 'active',
                 action: () => this.openFeature('venus', 'photos')
@@ -1053,7 +1053,7 @@ class HolographicNavigator {
             {
                 id: 'compare-photos',
                 name: 'Compare Photos',
-                icon: '🔄',
+                icon: '',
                 description: 'Side-by-side comparison',
                 status: 'active',
                 action: () => this.openFeature('venus', 'photos-compare')
@@ -1061,7 +1061,7 @@ class HolographicNavigator {
             {
                 id: 'recomp-analysis',
                 name: 'Recomp Analysis',
-                icon: '⚖️',
+                icon: '',
                 description: 'Body recomposition progress',
                 status: 'active',
                 action: () => this.openFeature('venus', 'recomp')
@@ -1069,7 +1069,7 @@ class HolographicNavigator {
             {
                 id: 'muscle-symmetry',
                 name: 'Muscle Symmetry',
-                icon: '🏛️',
+                icon: '',
                 description: 'Analyze muscle balance',
                 status: 'active',
                 action: () => this.openFeature('venus', 'symmetry')
@@ -1077,7 +1077,7 @@ class HolographicNavigator {
             {
                 id: 'fat-distribution',
                 name: 'Fat Distribution',
-                icon: '📊',
+                icon: '',
                 description: 'Body fat distribution patterns',
                 status: 'active',
                 action: () => this.openFeature('venus', 'fat-distribution')
@@ -1087,7 +1087,7 @@ class HolographicNavigator {
             {
                 id: 'create-test',
                 name: 'Create Performance Test',
-                icon: '🏃',
+                icon: '',
                 description: 'Set up performance benchmark',
                 status: 'active',
                 action: () => this.openFeature('venus', 'test-create')
@@ -1095,7 +1095,7 @@ class HolographicNavigator {
             {
                 id: 'record-results',
                 name: 'Record Test Results',
-                icon: '✍️',
+                icon: '',
                 description: 'Log test performance',
                 status: 'active',
                 action: () => this.openFeature('venus', 'test-results')
@@ -1103,7 +1103,7 @@ class HolographicNavigator {
             {
                 id: 'test-history',
                 name: 'Test History',
-                icon: '📖',
+                icon: '',
                 description: 'View all performance tests',
                 status: 'active',
                 action: () => this.openFeature('venus', 'tests')
@@ -1111,7 +1111,7 @@ class HolographicNavigator {
             {
                 id: 'benchmarks',
                 name: 'Performance Benchmarks',
-                icon: '🎯',
+                icon: '',
                 description: 'View standard benchmarks',
                 status: 'active',
                 action: () => this.openFeature('venus', 'benchmarks')
@@ -1119,7 +1119,7 @@ class HolographicNavigator {
             {
                 id: 'detailed-standards',
                 name: 'Detailed Standards',
-                icon: '📊',
+                icon: '',
                 description: 'Comprehensive strength standards',
                 status: 'active',
                 action: () => this.openFeature('venus', 'detailed-standards')
@@ -1127,7 +1127,7 @@ class HolographicNavigator {
             {
                 id: 'percentile-rank',
                 name: 'Percentile Ranking',
-                icon: '📈',
+                icon: '',
                 description: 'Compare to population',
                 status: 'active',
                 action: () => this.openFeature('venus', 'percentile')
@@ -1135,7 +1135,7 @@ class HolographicNavigator {
             {
                 id: 'performance-predictions',
                 name: 'Performance Predictions',
-                icon: '🔮',
+                icon: '',
                 description: 'Predict future performance',
                 status: 'active',
                 action: () => this.openFeature('venus', 'performance-predictions')
@@ -1145,7 +1145,7 @@ class HolographicNavigator {
             {
                 id: 'social-feed',
                 name: 'Activity Feed',
-                icon: '📱',
+                icon: '',
                 description: 'View social activity',
                 status: 'active',
                 action: () => this.openFeature('venus', 'feed')
@@ -1153,7 +1153,7 @@ class HolographicNavigator {
             {
                 id: 'share-workout',
                 name: 'Share Workout',
-                icon: '📤',
+                icon: '',
                 description: 'Post workout to feed',
                 status: 'active',
                 action: () => this.openFeature('venus', 'share')
@@ -1161,7 +1161,7 @@ class HolographicNavigator {
             {
                 id: 'challenges',
                 name: 'Fitness Challenges',
-                icon: '🏆',
+                icon: '',
                 description: 'Browse active challenges',
                 status: 'active',
                 action: () => this.openFeature('venus', 'challenges')
@@ -1169,7 +1169,7 @@ class HolographicNavigator {
             {
                 id: 'join-challenge',
                 name: 'Join Challenge',
-                icon: '✅',
+                icon: '',
                 description: 'Participate in challenge',
                 status: 'active',
                 action: () => this.openFeature('venus', 'join-challenge')
@@ -1177,7 +1177,7 @@ class HolographicNavigator {
             {
                 id: 'friends',
                 name: 'Friends List',
-                icon: '👥',
+                icon: '',
                 description: 'View fitness friends',
                 status: 'active',
                 action: () => this.openFeature('venus', 'friends')
@@ -1185,7 +1185,7 @@ class HolographicNavigator {
             {
                 id: 'add-friend',
                 name: 'Add Friend',
-                icon: '➕',
+                icon: '',
                 description: 'Connect with other users',
                 status: 'active',
                 action: () => this.openFeature('venus', 'add-friend')
@@ -1195,7 +1195,7 @@ class HolographicNavigator {
             {
                 id: 'injury-assessment',
                 name: 'Injury Risk Assessment',
-                icon: '🚨',
+                icon: '',
                 description: 'AI injury risk evaluation',
                 status: 'active',
                 action: () => this.openFeature('venus', 'injury-risk')
@@ -1203,7 +1203,7 @@ class HolographicNavigator {
             {
                 id: 'injury-history',
                 name: 'Injury History',
-                icon: '📜',
+                icon: '',
                 description: 'View past injuries',
                 status: 'active',
                 action: () => this.openFeature('venus', 'injury-history')
@@ -1211,7 +1211,7 @@ class HolographicNavigator {
             {
                 id: 'report-injury',
                 name: 'Report Injury',
-                icon: '⚠️',
+                icon: '',
                 description: 'Log new injury',
                 status: 'active',
                 action: () => this.openFeature('venus', 'report-injury')
@@ -1219,7 +1219,7 @@ class HolographicNavigator {
             {
                 id: 'prevention-protocols',
                 name: 'Prevention Protocols',
-                icon: '🛡️',
+                icon: '',
                 description: 'Injury prevention strategies',
                 status: 'active',
                 action: () => this.openFeature('venus', 'prevention')
@@ -1227,7 +1227,7 @@ class HolographicNavigator {
             {
                 id: 'rehab-protocols',
                 name: 'Rehab Protocols',
-                icon: '💊',
+                icon: '',
                 description: 'Rehabilitation programs',
                 status: 'active',
                 action: () => this.openFeature('venus', 'rehab')
@@ -1243,7 +1243,7 @@ class HolographicNavigator {
             {
                 id: 'connect-calendar',
                 name: 'Connect Calendar',
-                icon: '📅',
+                icon: '',
                 description: 'Google Calendar, Outlook integration',
                 status: 'setup',
                 action: () => this.openFeature('earth', 'connect-calendar')
@@ -1251,7 +1251,7 @@ class HolographicNavigator {
             {
                 id: 'calendar-events',
                 name: 'My Events',
-                icon: '📆',
+                icon: '',
                 description: 'View all calendar events',
                 status: 'active',
                 action: () => this.openFeature('earth', 'events')
@@ -1259,7 +1259,7 @@ class HolographicNavigator {
             {
                 id: 'create-event',
                 name: 'Create Event',
-                icon: '➕',
+                icon: '',
                 description: 'Add new calendar event',
                 status: 'active',
                 action: () => this.openFeature('earth', 'create-event')
@@ -1275,7 +1275,7 @@ class HolographicNavigator {
             {
                 id: 'detect-conflicts',
                 name: 'Conflict Detection',
-                icon: '⚠️',
+                icon: '',
                 description: 'Find scheduling conflicts',
                 status: 'active',
                 action: () => this.openFeature('earth', 'conflicts')
@@ -1283,7 +1283,7 @@ class HolographicNavigator {
             {
                 id: 'sync-calendar',
                 name: 'Manual Sync',
-                icon: '🔄',
+                icon: '',
                 description: 'Force calendar synchronization',
                 status: 'active',
                 action: () => this.openFeature('earth', 'sync')
@@ -1291,7 +1291,7 @@ class HolographicNavigator {
             {
                 id: 'energy-pattern',
                 name: 'Energy Patterns',
-                icon: '📊',
+                icon: '',
                 description: 'Personal energy trends',
                 status: 'active',
                 action: () => this.openFeature('earth', 'energy-pattern')
@@ -1299,7 +1299,7 @@ class HolographicNavigator {
             {
                 id: 'log-energy',
                 name: 'Log Energy Level',
-                icon: '🔋',
+                icon: '',
                 description: 'Record current energy',
                 status: 'active',
                 action: () => this.openFeature('earth', 'log-energy')
@@ -1307,7 +1307,7 @@ class HolographicNavigator {
             {
                 id: 'optimal-times',
                 name: 'Optimal Meeting Times',
-                icon: '⏰',
+                icon: '',
                 description: 'Best times based on energy',
                 status: 'active',
                 action: () => this.openFeature('earth', 'optimal-times')
@@ -1315,7 +1315,7 @@ class HolographicNavigator {
             {
                 id: 'energy-prediction',
                 name: 'Energy Prediction',
-                icon: '🔮',
+                icon: '',
                 description: 'Predict future energy levels',
                 status: 'active',
                 action: () => this.openFeature('earth', 'energy-prediction')
@@ -1323,7 +1323,7 @@ class HolographicNavigator {
             {
                 id: 'oauth-callback',
                 name: 'OAuth Handler',
-                icon: '🔐',
+                icon: '',
                 description: 'Calendar authentication callback',
                 status: 'active',
                 action: () => {} // Internal use
@@ -1336,7 +1336,7 @@ class HolographicNavigator {
             {
                 id: 'create-goal',
                 name: 'Create Goal',
-                icon: '🎯',
+                icon: '',
                 description: 'Set new SMART goal',
                 status: 'active',
                 action: () => this.openFeature('mars', 'create-goal')
@@ -1344,7 +1344,7 @@ class HolographicNavigator {
             {
                 id: 'my-goals',
                 name: 'My Goals',
-                icon: '📋',
+                icon: '',
                 description: 'View all active goals',
                 status: 'active',
                 action: () => this.openFeature('mars', 'goals')
@@ -1352,7 +1352,7 @@ class HolographicNavigator {
             {
                 id: 'goal-details',
                 name: 'Goal Details',
-                icon: '🔍',
+                icon: '',
                 description: 'View specific goal progress',
                 status: 'active',
                 action: () => this.openFeature('mars', 'goal-detail')
@@ -1360,7 +1360,7 @@ class HolographicNavigator {
             {
                 id: 'update-goal',
                 name: 'Update Goal',
-                icon: '✏️',
+                icon: '',
                 description: 'Edit goal information',
                 status: 'active',
                 action: () => this.openFeature('mars', 'update-goal')
@@ -1368,7 +1368,7 @@ class HolographicNavigator {
             {
                 id: 'delete-goal',
                 name: 'Delete Goal',
-                icon: '🗑️',
+                icon: '',
                 description: 'Remove goal',
                 status: 'active',
                 action: () => this.openFeature('mars', 'delete-goal')
@@ -1376,7 +1376,7 @@ class HolographicNavigator {
             {
                 id: 'complete-goal',
                 name: 'Complete Goal',
-                icon: '✅',
+                icon: '',
                 description: 'Mark goal as achieved',
                 status: 'active',
                 action: () => this.openFeature('mars', 'complete-goal')
@@ -1392,7 +1392,7 @@ class HolographicNavigator {
             {
                 id: 'suggest-goals',
                 name: 'Goal Suggestions',
-                icon: '💡',
+                icon: '',
                 description: 'AI-powered goal ideas',
                 status: 'active',
                 action: () => this.openFeature('mars', 'suggest')
@@ -1400,7 +1400,7 @@ class HolographicNavigator {
             {
                 id: 'goal-templates',
                 name: 'Goal Templates',
-                icon: '📚',
+                icon: '',
                 description: 'Browse goal templates',
                 status: 'active',
                 action: () => this.openFeature('mars', 'templates')
@@ -1408,7 +1408,7 @@ class HolographicNavigator {
             {
                 id: 'log-progress',
                 name: 'Log Progress',
-                icon: '📈',
+                icon: '',
                 description: 'Update goal progress',
                 status: 'active',
                 action: () => this.openFeature('mars', 'log-progress')
@@ -1416,7 +1416,7 @@ class HolographicNavigator {
             {
                 id: 'progress-history',
                 name: 'Progress History',
-                icon: '📊',
+                icon: '',
                 description: 'View progress over time',
                 status: 'active',
                 action: () => this.openFeature('mars', 'progress')
@@ -1424,7 +1424,7 @@ class HolographicNavigator {
             {
                 id: 'progress-velocity',
                 name: 'Progress Velocity',
-                icon: '🚀',
+                icon: '',
                 description: 'Calculate progress rate',
                 status: 'active',
                 action: () => this.openFeature('mars', 'velocity')
@@ -1432,7 +1432,7 @@ class HolographicNavigator {
             {
                 id: 'ml-predictions',
                 name: 'ML Predictions',
-                icon: '🔮',
+                icon: '',
                 description: 'AI progress predictions',
                 status: 'active',
                 action: () => this.openFeature('mars', 'predictions')
@@ -1440,7 +1440,7 @@ class HolographicNavigator {
             {
                 id: 'bottlenecks',
                 name: 'Identify Bottlenecks',
-                icon: '🚧',
+                icon: '',
                 description: 'Find obstacles to progress',
                 status: 'active',
                 action: () => this.openFeature('mars', 'bottlenecks')
@@ -1448,7 +1448,7 @@ class HolographicNavigator {
             {
                 id: 'create-milestone',
                 name: 'Create Milestone',
-                icon: '🏁',
+                icon: '',
                 description: 'Add milestone to goal',
                 status: 'active',
                 action: () => this.openFeature('mars', 'milestone-create')
@@ -1456,7 +1456,7 @@ class HolographicNavigator {
             {
                 id: 'complete-milestone',
                 name: 'Complete Milestone',
-                icon: '✔️',
+                icon: '',
                 description: 'Mark milestone achieved',
                 status: 'active',
                 action: () => this.openFeature('mars', 'milestone-complete')
@@ -1464,7 +1464,7 @@ class HolographicNavigator {
             {
                 id: 'create-habit',
                 name: 'Create Habit',
-                icon: '🔄',
+                icon: '',
                 description: 'Start habit tracker',
                 status: 'active',
                 action: () => this.openFeature('mars', 'habit-create')
@@ -1472,7 +1472,7 @@ class HolographicNavigator {
             {
                 id: 'log-habit',
                 name: 'Log Habit',
-                icon: '✅',
+                icon: '',
                 description: 'Record habit completion',
                 status: 'active',
                 action: () => this.openFeature('mars', 'habit-log')
@@ -1480,7 +1480,7 @@ class HolographicNavigator {
             {
                 id: 'motivation-interventions',
                 name: 'Motivation Boost',
-                icon: '💪',
+                icon: '',
                 description: 'Get motivational interventions',
                 status: 'active',
                 action: () => this.openFeature('mars', 'interventions')
@@ -1501,7 +1501,7 @@ class HolographicNavigator {
             {
                 id: 'connect-plaid',
                 name: 'Connect Bank',
-                icon: '🏦',
+                icon: '',
                 description: 'Link bank accounts via Plaid',
                 status: 'setup',
                 action: () => this.openFeature('jupiter', 'link-token')
@@ -1509,7 +1509,7 @@ class HolographicNavigator {
             {
                 id: 'my-accounts',
                 name: 'My Accounts',
-                icon: '💳',
+                icon: '',
                 description: 'View connected bank accounts',
                 status: 'active',
                 action: () => this.openFeature('jupiter', 'accounts')
@@ -1517,7 +1517,7 @@ class HolographicNavigator {
             {
                 id: 'disconnect-account',
                 name: 'Disconnect Account',
-                icon: '🔌',
+                icon: '',
                 description: 'Remove bank connection',
                 status: 'active',
                 action: () => this.openFeature('jupiter', 'disconnect')
@@ -1525,7 +1525,7 @@ class HolographicNavigator {
             {
                 id: 'sync-transactions',
                 name: 'Sync Transactions',
-                icon: '🔄',
+                icon: '',
                 description: 'Manual transaction sync',
                 status: 'active',
                 action: () => this.openFeature('jupiter', 'sync')
@@ -1533,7 +1533,7 @@ class HolographicNavigator {
             {
                 id: 'transactions',
                 name: 'All Transactions',
-                icon: '💸',
+                icon: '',
                 description: 'View transaction history',
                 status: 'active',
                 action: () => this.openFeature('jupiter', 'transactions')
@@ -1541,7 +1541,7 @@ class HolographicNavigator {
             {
                 id: 'transactions-date-range',
                 name: 'Filter by Date',
-                icon: '📅',
+                icon: '',
                 description: 'View transactions in date range',
                 status: 'active',
                 action: () => this.openFeature('jupiter', 'date-range')
@@ -1549,7 +1549,7 @@ class HolographicNavigator {
             {
                 id: 'transactions-category',
                 name: 'Filter by Category',
-                icon: '🏷️',
+                icon: '',
                 description: 'View category transactions',
                 status: 'active',
                 action: () => this.openFeature('jupiter', 'by-category')
@@ -1557,7 +1557,7 @@ class HolographicNavigator {
             {
                 id: 'recategorize',
                 name: 'Recategorize Transaction',
-                icon: '🔄',
+                icon: '',
                 description: 'Change transaction category',
                 status: 'active',
                 action: () => this.openFeature('jupiter', 'recategorize')
@@ -1565,7 +1565,7 @@ class HolographicNavigator {
             {
                 id: 'recurring-transactions',
                 name: 'Recurring Transactions',
-                icon: '🔁',
+                icon: '',
                 description: 'Detect recurring charges',
                 status: 'active',
                 action: () => this.openFeature('jupiter', 'recurring')
@@ -1573,7 +1573,7 @@ class HolographicNavigator {
             {
                 id: 'spending-patterns',
                 name: 'Spending Patterns',
-                icon: '📊',
+                icon: '',
                 description: 'Analyze spending habits',
                 status: 'active',
                 action: () => this.openFeature('jupiter', 'spending-patterns')
@@ -1581,7 +1581,7 @@ class HolographicNavigator {
             {
                 id: 'create-budget',
                 name: 'Create Budget',
-                icon: '💰',
+                icon: '',
                 description: 'Set up budget categories',
                 status: 'active',
                 action: () => this.openFeature('jupiter', 'budget-create')
@@ -1589,7 +1589,7 @@ class HolographicNavigator {
             {
                 id: 'my-budgets',
                 name: 'My Budgets',
-                icon: '📋',
+                icon: '',
                 description: 'View all budgets with spending',
                 status: 'active',
                 action: () => this.openFeature('jupiter', 'budgets')
@@ -1597,7 +1597,7 @@ class HolographicNavigator {
             {
                 id: 'update-budget',
                 name: 'Update Budget',
-                icon: '✏️',
+                icon: '',
                 description: 'Modify budget amounts',
                 status: 'active',
                 action: () => this.openFeature('jupiter', 'budget-update')
@@ -1605,7 +1605,7 @@ class HolographicNavigator {
             {
                 id: 'delete-budget',
                 name: 'Delete Budget',
-                icon: '🗑️',
+                icon: '',
                 description: 'Remove budget category',
                 status: 'active',
                 action: () => this.openFeature('jupiter', 'budget-delete')
@@ -1613,7 +1613,7 @@ class HolographicNavigator {
             {
                 id: 'budget-alerts',
                 name: 'Budget Alerts',
-                icon: '🚨',
+                icon: '',
                 description: 'Overspending notifications',
                 status: 'active',
                 action: () => this.openFeature('jupiter', 'alerts')
@@ -1621,7 +1621,7 @@ class HolographicNavigator {
             {
                 id: 'stress-spending',
                 name: 'Stress-Spending Correlation',
-                icon: '📈',
+                icon: '',
                 description: 'Link stress/HRV to spending',
                 status: 'active',
                 action: () => this.openFeature('jupiter', 'stress-correlation')
@@ -1629,7 +1629,7 @@ class HolographicNavigator {
             {
                 id: 'exchange-token',
                 name: 'Exchange Token',
-                icon: '🔐',
+                icon: '',
                 description: 'Complete Plaid authentication',
                 status: 'active',
                 action: () => {} // Internal use
@@ -1642,7 +1642,7 @@ class HolographicNavigator {
             {
                 id: 'create-vision',
                 name: 'Create Legacy Vision',
-                icon: '🌟',
+                icon: '',
                 description: 'Define your life vision',
                 status: 'active',
                 action: () => this.openFeature('saturn', 'vision-create')
@@ -1650,7 +1650,7 @@ class HolographicNavigator {
             {
                 id: 'my-vision',
                 name: 'My Vision',
-                icon: '👁️',
+                icon: '',
                 description: 'View legacy vision',
                 status: 'active',
                 action: () => this.openFeature('saturn', 'vision')
@@ -1658,7 +1658,7 @@ class HolographicNavigator {
             {
                 id: 'update-life-areas',
                 name: 'Life Area Scores',
-                icon: '📊',
+                icon: '',
                 description: 'Rate life area satisfaction',
                 status: 'active',
                 action: () => this.openFeature('saturn', 'life-areas')
@@ -1666,7 +1666,7 @@ class HolographicNavigator {
             {
                 id: 'add-legacy-goal',
                 name: 'Add Legacy Goal',
-                icon: '🎯',
+                icon: '',
                 description: 'Create long-term legacy goal',
                 status: 'active',
                 action: () => this.openFeature('saturn', 'legacy-goal')
@@ -1674,7 +1674,7 @@ class HolographicNavigator {
             {
                 id: 'mortality-data',
                 name: 'Mortality Awareness',
-                icon: '⏳',
+                icon: '',
                 description: 'Days remaining based on life expectancy',
                 status: 'active',
                 action: () => this.openFeature('saturn', 'mortality')
@@ -1682,7 +1682,7 @@ class HolographicNavigator {
             {
                 id: 'update-review-date',
                 name: 'Update Review Date',
-                icon: '📅',
+                icon: '',
                 description: 'Mark vision last reviewed',
                 status: 'active',
                 action: () => this.openFeature('saturn', 'review-date')
@@ -1690,7 +1690,7 @@ class HolographicNavigator {
             {
                 id: 'create-quarterly',
                 name: 'Create Quarterly Review',
-                icon: '📝',
+                icon: '',
                 description: 'Start quarterly reflection',
                 status: 'active',
                 action: () => this.openFeature('saturn', 'quarterly-create')
@@ -1698,7 +1698,7 @@ class HolographicNavigator {
             {
                 id: 'quarterly-reviews',
                 name: 'Review History',
-                icon: '📚',
+                icon: '',
                 description: 'View all quarterly reviews',
                 status: 'active',
                 action: () => this.openFeature('saturn', 'quarterly')
@@ -1706,7 +1706,7 @@ class HolographicNavigator {
             {
                 id: 'latest-review',
                 name: 'Latest Review',
-                icon: '📄',
+                icon: '',
                 description: 'View most recent review',
                 status: 'active',
                 action: () => this.openFeature('saturn', 'latest')
@@ -1714,7 +1714,7 @@ class HolographicNavigator {
             {
                 id: 'update-review',
                 name: 'Update Review',
-                icon: '✏️',
+                icon: '',
                 description: 'Edit quarterly review',
                 status: 'active',
                 action: () => this.openFeature('saturn', 'quarterly-update')
@@ -1722,7 +1722,7 @@ class HolographicNavigator {
             {
                 id: 'satisfaction-trends',
                 name: 'Satisfaction Trends',
-                icon: '📈',
+                icon: '',
                 description: 'Life satisfaction over time',
                 status: 'active',
                 action: () => this.openFeature('saturn', 'trends')
@@ -1730,7 +1730,7 @@ class HolographicNavigator {
             {
                 id: 'compare-quarters',
                 name: 'Compare Quarters',
-                icon: '🔄',
+                icon: '',
                 description: 'Side-by-side quarter comparison',
                 status: 'active',
                 action: () => this.openFeature('saturn', 'compare')
@@ -1745,7 +1745,7 @@ class HolographicNavigator {
             {
                 id: 'ai-chat',
                 name: 'Chat with Phoenix',
-                icon: '💬',
+                icon: '',
                 description: 'Context-aware AI conversation',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'chat')
@@ -1753,7 +1753,7 @@ class HolographicNavigator {
             {
                 id: 'chat-history',
                 name: 'Conversation History',
-                icon: '📜',
+                icon: '',
                 description: 'View past conversations',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'history')
@@ -1761,7 +1761,7 @@ class HolographicNavigator {
             {
                 id: 'clear-history',
                 name: 'Clear History',
-                icon: '🗑️',
+                icon: '',
                 description: 'Delete conversation history',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'clear-history')
@@ -1769,7 +1769,7 @@ class HolographicNavigator {
             {
                 id: 'user-context',
                 name: 'User Context',
-                icon: '🎯',
+                icon: '',
                 description: 'View AI\'s understanding of you',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'context')
@@ -1777,7 +1777,7 @@ class HolographicNavigator {
             {
                 id: 'ai-personality',
                 name: 'AI Personality',
-                icon: '🎭',
+                icon: '',
                 description: 'View current personality settings',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'personality')
@@ -1785,7 +1785,7 @@ class HolographicNavigator {
             {
                 id: 'update-personality',
                 name: 'Change Personality',
-                icon: '🔧',
+                icon: '',
                 description: 'Customize AI personality',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'update-personality')
@@ -1795,7 +1795,7 @@ class HolographicNavigator {
             {
                 id: 'pattern-feed',
                 name: 'Pattern Discovery',
-                icon: '🔍',
+                icon: '',
                 description: 'AI-discovered behavioral patterns',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'patterns')
@@ -1803,7 +1803,7 @@ class HolographicNavigator {
             {
                 id: 'trigger-analysis',
                 name: 'Trigger Analysis',
-                icon: '🔬',
+                icon: '',
                 description: 'Force pattern discovery',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'analyze')
@@ -1819,7 +1819,7 @@ class HolographicNavigator {
             {
                 id: 'validate-pattern',
                 name: 'Validate Pattern',
-                icon: '✅',
+                icon: '',
                 description: 'Confirm pattern accuracy',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'validate')
@@ -1827,7 +1827,7 @@ class HolographicNavigator {
             {
                 id: 'delete-pattern',
                 name: 'Delete Pattern',
-                icon: '❌',
+                icon: '',
                 description: 'Remove false pattern',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'delete-pattern')
@@ -1835,7 +1835,7 @@ class HolographicNavigator {
             {
                 id: 'ai-insights',
                 name: 'AI Insights',
-                icon: '💡',
+                icon: '',
                 description: 'Insights from discovered patterns',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'insights')
@@ -1845,7 +1845,7 @@ class HolographicNavigator {
             {
                 id: 'all-predictions',
                 name: 'All Predictions',
-                icon: '🔮',
+                icon: '',
                 description: 'View all AI predictions',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'predictions')
@@ -1861,7 +1861,7 @@ class HolographicNavigator {
             {
                 id: 'prediction-detail',
                 name: 'Prediction Details',
-                icon: '🔍',
+                icon: '',
                 description: 'View specific prediction',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'prediction-detail')
@@ -1869,7 +1869,7 @@ class HolographicNavigator {
             {
                 id: 'request-prediction',
                 name: 'Request Prediction',
-                icon: '🎯',
+                icon: '',
                 description: 'Ask for specific prediction',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'request-prediction')
@@ -1877,7 +1877,7 @@ class HolographicNavigator {
             {
                 id: 'record-outcome',
                 name: 'Record Outcome',
-                icon: '📝',
+                icon: '',
                 description: 'Log actual vs predicted result',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'outcome')
@@ -1885,7 +1885,7 @@ class HolographicNavigator {
             {
                 id: 'prediction-accuracy',
                 name: 'Accuracy Stats',
-                icon: '📊',
+                icon: '',
                 description: 'AI prediction accuracy metrics',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'accuracy')
@@ -1893,7 +1893,7 @@ class HolographicNavigator {
             {
                 id: 'forecast',
                 name: 'Forecast Dashboard',
-                icon: '📈',
+                icon: '',
                 description: 'Future forecast predictions',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'forecast')
@@ -1901,7 +1901,7 @@ class HolographicNavigator {
             {
                 id: 'optimal-action-windows',
                 name: 'Optimal Windows',
-                icon: '⏰',
+                icon: '',
                 description: 'Best times for actions',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'optimal-window')
@@ -1909,7 +1909,7 @@ class HolographicNavigator {
             {
                 id: 'burnout-risk',
                 name: 'Burnout Risk',
-                icon: '🚨',
+                icon: '',
                 description: 'Predict burnout probability',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'burnout')
@@ -1917,7 +1917,7 @@ class HolographicNavigator {
             {
                 id: 'weight-trajectory',
                 name: 'Weight Trajectory',
-                icon: '📉',
+                icon: '',
                 description: 'Predict weight changes',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'weight-change')
@@ -1927,7 +1927,7 @@ class HolographicNavigator {
             {
                 id: 'interventions-all',
                 name: 'All Interventions',
-                icon: '🎯',
+                icon: '',
                 description: 'View intervention history',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'interventions')
@@ -1943,7 +1943,7 @@ class HolographicNavigator {
             {
                 id: 'pending-interventions',
                 name: 'Pending Approval',
-                icon: '⏳',
+                icon: '',
                 description: 'Interventions awaiting your approval',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'pending')
@@ -1951,7 +1951,7 @@ class HolographicNavigator {
             {
                 id: 'acknowledge-intervention',
                 name: 'Acknowledge',
-                icon: '✅',
+                icon: '',
                 description: 'Approve or deny intervention',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'acknowledge')
@@ -1959,7 +1959,7 @@ class HolographicNavigator {
             {
                 id: 'intervention-outcome',
                 name: 'Record Outcome',
-                icon: '📝',
+                icon: '',
                 description: 'Log intervention results',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'intervention-outcome')
@@ -1967,7 +1967,7 @@ class HolographicNavigator {
             {
                 id: 'intervention-stats',
                 name: 'Statistics',
-                icon: '📊',
+                icon: '',
                 description: 'Intervention success metrics',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'stats')
@@ -1975,7 +1975,7 @@ class HolographicNavigator {
             {
                 id: 'intervention-history',
                 name: 'History Timeline',
-                icon: '📜',
+                icon: '',
                 description: 'Intervention timeline view',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'intervention-history')
@@ -1983,7 +1983,7 @@ class HolographicNavigator {
             {
                 id: 'intervention-settings',
                 name: 'Configure Settings',
-                icon: '⚙️',
+                icon: '',
                 description: 'Set intervention preferences',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'intervention-settings')
@@ -1991,7 +1991,7 @@ class HolographicNavigator {
             {
                 id: 'manual-intervention',
                 name: 'Request Manual',
-                icon: '🆘',
+                icon: '',
                 description: 'Ask for immediate intervention',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'request-intervention')
@@ -2001,7 +2001,7 @@ class HolographicNavigator {
             {
                 id: 'intelligence-summary',
                 name: 'Intelligence Overview',
-                icon: '🧠',
+                icon: '',
                 description: 'Complete AI intelligence summary',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'intelligence')
@@ -2009,7 +2009,7 @@ class HolographicNavigator {
             {
                 id: 'trigger-intelligence',
                 name: 'Trigger Analysis',
-                icon: '🔬',
+                icon: '',
                 description: 'Force intelligence analysis',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'intelligence-analyze')
@@ -2017,7 +2017,7 @@ class HolographicNavigator {
             {
                 id: 'intelligence-insights',
                 name: 'Intelligence Insights',
-                icon: '💡',
+                icon: '',
                 description: 'AI-generated insights',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'intelligence-insights')
@@ -2025,7 +2025,7 @@ class HolographicNavigator {
             {
                 id: 'natural-query',
                 name: 'Natural Language Query',
-                icon: '🗣️',
+                icon: '',
                 description: 'Ask questions in plain English',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'query')
@@ -2033,7 +2033,7 @@ class HolographicNavigator {
             {
                 id: 'daily-summary',
                 name: 'Daily Summary',
-                icon: '📅',
+                icon: '',
                 description: 'Today\'s AI summary',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'summary')
@@ -2041,7 +2041,7 @@ class HolographicNavigator {
             {
                 id: 'deep-dive',
                 name: 'Deep Dive Analysis',
-                icon: '🕳️',
+                icon: '',
                 description: 'Comprehensive topic analysis',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'deep-dive')
@@ -2049,7 +2049,7 @@ class HolographicNavigator {
             {
                 id: 'recommendations',
                 name: 'Recommendations',
-                icon: '🎯',
+                icon: '',
                 description: 'Personalized AI recommendations',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'recommendations')
@@ -2067,7 +2067,7 @@ class HolographicNavigator {
             {
                 id: 'voice-session',
                 name: 'Start Voice Session',
-                icon: '🎤',
+                icon: '',
                 description: 'Begin voice conversation',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'voice-session')
@@ -2075,7 +2075,7 @@ class HolographicNavigator {
             {
                 id: 'end-voice',
                 name: 'End Voice Session',
-                icon: '🔇',
+                icon: '',
                 description: 'Stop voice conversation',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'voice-end')
@@ -2083,7 +2083,7 @@ class HolographicNavigator {
             {
                 id: 'voice-transcriptions',
                 name: 'Transcriptions',
-                icon: '📝',
+                icon: '',
                 description: 'View voice transcriptions',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'transcriptions')
@@ -2091,7 +2091,7 @@ class HolographicNavigator {
             {
                 id: 'voice-history',
                 name: 'Voice History',
-                icon: '📜',
+                icon: '',
                 description: 'Past voice interactions',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'voice-history')
@@ -2101,7 +2101,7 @@ class HolographicNavigator {
             {
                 id: 'train-model',
                 name: 'Train ML Model',
-                icon: '🧬',
+                icon: '',
                 description: 'Start ML model training',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'train')
@@ -2117,7 +2117,7 @@ class HolographicNavigator {
             {
                 id: 'training-status',
                 name: 'Training Status',
-                icon: '⏳',
+                icon: '',
                 description: 'Check ML training progress',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'training-status')
@@ -2125,7 +2125,7 @@ class HolographicNavigator {
             {
                 id: 'track-behavior',
                 name: 'Track Behavior',
-                icon: '📊',
+                icon: '',
                 description: 'Log behavior for ML',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'track-behavior')
@@ -2133,7 +2133,7 @@ class HolographicNavigator {
             {
                 id: 'behavior-patterns',
                 name: 'Behavior Patterns',
-                icon: '🔍',
+                icon: '',
                 description: 'Discovered behavior patterns',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'behavior-patterns')
@@ -2141,7 +2141,7 @@ class HolographicNavigator {
             {
                 id: 'behavioral-insights',
                 name: 'Behavioral Insights',
-                icon: '💡',
+                icon: '',
                 description: 'Insights from behavior data',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'behavioral-insights')
@@ -2149,7 +2149,7 @@ class HolographicNavigator {
             {
                 id: 'specific-behavior',
                 name: 'Specific Behavior Type',
-                icon: '🎯',
+                icon: '',
                 description: 'View specific behavior category',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'behavior-type')
@@ -2159,7 +2159,7 @@ class HolographicNavigator {
             {
                 id: 'make-reservation',
                 name: 'Make Reservation',
-                icon: '🍽️',
+                icon: '',
                 description: 'Book restaurant table',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'reservation')
@@ -2167,7 +2167,7 @@ class HolographicNavigator {
             {
                 id: 'reservation-history',
                 name: 'Reservation History',
-                icon: '📋',
+                icon: '',
                 description: 'Past reservations',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'reservations')
@@ -2177,7 +2177,7 @@ class HolographicNavigator {
             {
                 id: 'order-food',
                 name: 'Order Food Delivery',
-                icon: '🍕',
+                icon: '',
                 description: 'Order from restaurants',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'food')
@@ -2185,7 +2185,7 @@ class HolographicNavigator {
             {
                 id: 'food-history',
                 name: 'Order History',
-                icon: '📖',
+                icon: '',
                 description: 'Past food orders',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'food-history')
@@ -2193,7 +2193,7 @@ class HolographicNavigator {
             {
                 id: 'reorder-food',
                 name: 'Reorder Meal',
-                icon: '🔄',
+                icon: '',
                 description: 'Repeat previous order',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'reorder')
@@ -2203,7 +2203,7 @@ class HolographicNavigator {
             {
                 id: 'book-ride',
                 name: 'Book Ride',
-                icon: '🚗',
+                icon: '',
                 description: 'Uber/Lyft booking',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'ride')
@@ -2211,7 +2211,7 @@ class HolographicNavigator {
             {
                 id: 'ride-history',
                 name: 'Ride History',
-                icon: '📋',
+                icon: '',
                 description: 'Past rides',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'rides')
@@ -2221,7 +2221,7 @@ class HolographicNavigator {
             {
                 id: 'make-call',
                 name: 'Make Phone Call',
-                icon: '📞',
+                icon: '',
                 description: 'AI-powered calling via Twilio',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'call')
@@ -2229,7 +2229,7 @@ class HolographicNavigator {
             {
                 id: 'call-history',
                 name: 'Call History',
-                icon: '📜',
+                icon: '',
                 description: 'Past calls made',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'calls')
@@ -2239,7 +2239,7 @@ class HolographicNavigator {
             {
                 id: 'send-sms',
                 name: 'Send SMS',
-                icon: '💬',
+                icon: '',
                 description: 'Send text message',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'sms')
@@ -2247,7 +2247,7 @@ class HolographicNavigator {
             {
                 id: 'sms-history',
                 name: 'SMS History',
-                icon: '📋',
+                icon: '',
                 description: 'Sent messages',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'sms-list')
@@ -2257,7 +2257,7 @@ class HolographicNavigator {
             {
                 id: 'send-email',
                 name: 'Send Email',
-                icon: '📧',
+                icon: '',
                 description: 'Compose and send email',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'email')
@@ -2265,7 +2265,7 @@ class HolographicNavigator {
             {
                 id: 'email-history',
                 name: 'Email History',
-                icon: '📬',
+                icon: '',
                 description: 'Sent emails',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'emails')
@@ -2273,7 +2273,7 @@ class HolographicNavigator {
             {
                 id: 'reply-email',
                 name: 'Reply to Email',
-                icon: '↩️',
+                icon: '',
                 description: 'Reply to received email',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'email-reply')
@@ -2283,7 +2283,7 @@ class HolographicNavigator {
             {
                 id: 'manage-calendar',
                 name: 'Manage Calendar',
-                icon: '📅',
+                icon: '',
                 description: 'Calendar event management',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'calendar')
@@ -2301,7 +2301,7 @@ class HolographicNavigator {
             {
                 id: 'web-search',
                 name: 'Web Search',
-                icon: '🔍',
+                icon: '',
                 description: 'Search the web',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'search')
@@ -2309,7 +2309,7 @@ class HolographicNavigator {
             {
                 id: 'web-task',
                 name: 'Perform Web Task',
-                icon: '🌐',
+                icon: '',
                 description: 'Execute web automation',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'web-task')
@@ -2319,7 +2319,7 @@ class HolographicNavigator {
             {
                 id: 'summarize',
                 name: 'Summarize Content',
-                icon: '📄',
+                icon: '',
                 description: 'AI content summarization',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'summarize')
@@ -2327,7 +2327,7 @@ class HolographicNavigator {
             {
                 id: 'batch-summarize',
                 name: 'Batch Summarize',
-                icon: '📚',
+                icon: '',
                 description: 'Summarize multiple items',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'summarize-batch')
@@ -2345,7 +2345,7 @@ class HolographicNavigator {
             {
                 id: 'my-automations',
                 name: 'My Automations',
-                icon: '📋',
+                icon: '',
                 description: 'View active automations',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'automations')
@@ -2353,7 +2353,7 @@ class HolographicNavigator {
             {
                 id: 'delete-automation',
                 name: 'Delete Automation',
-                icon: '🗑️',
+                icon: '',
                 description: 'Remove automation',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'delete-automation')
@@ -2363,7 +2363,7 @@ class HolographicNavigator {
             {
                 id: 'butler-budget',
                 name: 'Budget Management',
-                icon: '💰',
+                icon: '',
                 description: 'AI budget insights',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'budget')
@@ -2371,7 +2371,7 @@ class HolographicNavigator {
             {
                 id: 'update-budget',
                 name: 'Update Budget',
-                icon: '✏️',
+                icon: '',
                 description: 'Modify budget settings',
                 status: 'active',
                 action: () => this.openFeature('phoenix', 'budget-update')

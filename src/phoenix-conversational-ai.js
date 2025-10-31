@@ -1080,12 +1080,12 @@ class PhoenixConversationalAI {
         if (!this.elements.status) return;
 
         const statusMap = {
-            idle: { text: 'Voice Inactive', class: 'idle', emoji: '🔴' },
-            listening: { text: 'Listening', class: 'listening', emoji: '🎤' },
-            processing: { text: 'Thinking', class: 'processing', emoji: '🧠' },
-            responding: { text: 'Speaking...', class: 'responding', emoji: '💬' },
-            done: { text: 'Done ✓', class: 'done', emoji: '✅' },
-            error: { text: 'Error', class: 'error', emoji: '⚠️' }
+            idle: { text: 'Voice Inactive', class: 'idle', emoji: '' },
+            listening: { text: 'Listening', class: 'listening', emoji: '' },
+            processing: { text: 'Thinking', class: 'processing', emoji: '' },
+            responding: { text: 'Speaking...', class: 'responding', emoji: '' },
+            done: { text: 'Done', class: 'done', emoji: '' },
+            error: { text: 'Error', class: 'error', emoji: '' }
         };
 
         const statusInfo = statusMap[status] || statusMap.idle;
