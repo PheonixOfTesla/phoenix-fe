@@ -1135,6 +1135,11 @@ class PhoenixAPI {
         return this.request('/users/profile', 'PUT', updates);
     }
 
+    // Alias for convenience (used in onboarding and other places)
+    async updateProfile(updates) {
+        return this.updateUserProfile(updates);
+    }
+
     // GET /api/users
     async getAllUsers() {
         return this.request('/users', 'GET');
@@ -1619,6 +1624,71 @@ class PhoenixAPI {
     // GET /api/venus/injury-risk/rehab-protocols
     async getInjuryRehab() {
         return this.request('/venus/injury-risk/rehab-protocols', 'GET', null, { cache: true });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // TTS ROUTES (Text-to-Speech)
+    // Backend: routes/tts.js
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    // POST /api/tts/generate
+    async textToSpeech(text, voice = 'nova', speed = 1.0) {
+        // Map language codes to backend format (en → en-US, es → es-ES, etc.)
+        const savedLanguageCode = localStorage.getItem('phoenixLanguage') || 'en';
+        const languageMap = {
+            'en': 'en-US',
+            'es': 'es-ES',
+            'fr': 'fr-FR',
+            'de': 'de-DE',
+            'it': 'it-IT',
+            'pt': 'pt-BR',
+            'nl': 'nl-NL',
+            'pl': 'pl-PL',
+            'ja': 'ja-JP',
+            'zh': 'zh-CN'
+        };
+        const language = languageMap[savedLanguageCode] || 'en-US';
+
+        const response = await fetch(`${this.baseURL}/tts/generate`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(this.token ? { 'Authorization': `Bearer ${this.token}` } : {})
+            },
+            body: JSON.stringify({
+                text,
+                voice,
+                language,
+                speed
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`TTS Error: ${response.status}`);
+        }
+
+        // Return audio blob directly
+        return await response.blob();
+    }
+
+    // POST /api/whisper/transcribe
+    async transcribeAudio(audioBlob) {
+        const formData = new FormData();
+        formData.append('audio', audioBlob, 'recording.webm');
+
+        const response = await fetch(`${this.baseURL}/whisper/transcribe`, {
+            method: 'POST',
+            headers: {
+                ...(this.token ? { 'Authorization': `Bearer ${this.token}` } : {})
+            },
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error(`Transcription Error: ${response.status}`);
+        }
+
+        return await response.json();
     }
 
     // ═══════════════════════════════════════════════════════════════════════════

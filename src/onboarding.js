@@ -7,7 +7,13 @@ class OnboardingEngine {
     constructor() {
         this.currentPhase = 0; // Start at Phase 0 (voice/language selection)
         this.totalPhases = 9;
-        this.userData = null;
+        this.userData = {
+            name: '',
+            age: null,
+            height: null,
+            weight: null,
+            goals: []
+        };
         this.locationData = null;
         this.liveMetrics = null;
         this.selectedIntegrations = [];
@@ -400,33 +406,299 @@ class OnboardingEngine {
     }
 
     async completePhase0() {
-        console.log('Phase 0 complete:', { 
-            language: this.selectedLanguage, 
-            voice: this.selectedVoice 
+        console.log('Phase 0 complete:', {
+            language: this.selectedLanguage,
+            voice: this.selectedVoice
         });
 
         // Save to localStorage
         localStorage.setItem('phoenixLanguage', this.selectedLanguage);
         localStorage.setItem('phoenixVoice', this.selectedVoice);
 
-        // Save to backend (update user profile)
+        // Update voice interface with selected voice
+        if (window.voiceInterface) {
+            window.voiceInterface.selectedVoice = this.selectedVoice;
+            window.voiceInterface.saveSettings();
+        }
+
+        // Proceed to Phase 0.5 (User Profile Collection)
+        this.renderPhase05();
+    }
+
+    // ========================================
+    // 👤 PHASE 0.5: USER PROFILE COLLECTION
+    // ========================================
+
+    renderPhase05() {
+        console.log('Rendering Phase 0.5: User Profile Collection');
+
+        // Hide Phase 0
+        const phase0 = document.getElementById('phase-0');
+        if (phase0) {
+            phase0.classList.remove('active');
+            phase0.style.display = 'none';
+        }
+
+        // Create or get Phase 0.5 container
+        let container = document.getElementById('phase-05');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'phase-05';
+            container.className = 'phase-container';
+            document.body.appendChild(container);
+        }
+
+        container.innerHTML = `
+            <div class="setup-container">
+                <!-- HEADER -->
+                <div class="setup-header">
+                    <div class="phoenix-logo-large">PHOENIX</div>
+                    <div class="setup-subtitle">Let's Get to Know You</div>
+                    <div class="setup-description">
+                        Tell me about yourself so I can personalize your experience.
+                    </div>
+                </div>
+
+                <!-- USER PROFILE FORM -->
+                <div class="setup-section">
+                    <div class="profile-form">
+                        <!-- NAME -->
+                        <div class="form-group">
+                            <label class="form-label">What's your name?</label>
+                            <input type="text" id="user-name" class="form-input" placeholder="Enter your full name" />
+                        </div>
+
+                        <!-- AGE -->
+                        <div class="form-group">
+                            <label class="form-label">How old are you?</label>
+                            <input type="number" id="user-age" class="form-input" placeholder="Age" min="13" max="120" />
+                        </div>
+
+                        <!-- HEIGHT -->
+                        <div class="form-group">
+                            <label class="form-label">What's your height?</label>
+                            <div class="form-row">
+                                <input type="number" id="user-height-ft" class="form-input form-input-small" placeholder="Feet" min="3" max="8" />
+                                <input type="number" id="user-height-in" class="form-input form-input-small" placeholder="Inches" min="0" max="11" />
+                                <span style="margin: 0 10px; color: rgba(255,255,255,0.5);">or</span>
+                                <input type="number" id="user-height-cm" class="form-input" placeholder="Centimeters" min="90" max="250" />
+                            </div>
+                        </div>
+
+                        <!-- WEIGHT -->
+                        <div class="form-group">
+                            <label class="form-label">What's your weight?</label>
+                            <div class="form-row">
+                                <input type="number" id="user-weight-lbs" class="form-input" placeholder="Pounds" min="50" max="500" />
+                                <span style="margin: 0 10px; color: rgba(255,255,255,0.5);">or</span>
+                                <input type="number" id="user-weight-kg" class="form-input" placeholder="Kilograms" min="20" max="250" />
+                            </div>
+                        </div>
+
+                        <!-- GOALS -->
+                        <div class="form-group">
+                            <label class="form-label">What are your primary goals? (Select all that apply)</label>
+                            <div class="goals-grid">
+                                <div class="goal-card" data-goal="weight_loss">
+                                    <div class="goal-icon">⚖️</div>
+                                    <div class="goal-name">Lose Weight</div>
+                                    <div class="goal-checkmark">✓</div>
+                                </div>
+                                <div class="goal-card" data-goal="muscle_gain">
+                                    <div class="goal-icon">💪</div>
+                                    <div class="goal-name">Build Muscle</div>
+                                    <div class="goal-checkmark">✓</div>
+                                </div>
+                                <div class="goal-card" data-goal="fitness">
+                                    <div class="goal-icon">🏃</div>
+                                    <div class="goal-name">Improve Fitness</div>
+                                    <div class="goal-checkmark">✓</div>
+                                </div>
+                                <div class="goal-card" data-goal="sleep">
+                                    <div class="goal-icon">😴</div>
+                                    <div class="goal-name">Better Sleep</div>
+                                    <div class="goal-checkmark">✓</div>
+                                </div>
+                                <div class="goal-card" data-goal="productivity">
+                                    <div class="goal-icon">📈</div>
+                                    <div class="goal-name">Boost Productivity</div>
+                                    <div class="goal-checkmark">✓</div>
+                                </div>
+                                <div class="goal-card" data-goal="stress">
+                                    <div class="goal-icon">🧘</div>
+                                    <div class="goal-name">Reduce Stress</div>
+                                    <div class="goal-checkmark">✓</div>
+                                </div>
+                                <div class="goal-card" data-goal="health">
+                                    <div class="goal-icon">❤️</div>
+                                    <div class="goal-name">General Health</div>
+                                    <div class="goal-checkmark">✓</div>
+                                </div>
+                                <div class="goal-card" data-goal="performance">
+                                    <div class="goal-icon">🎯</div>
+                                    <div class="goal-name">Peak Performance</div>
+                                    <div class="goal-checkmark">✓</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CONTINUE BUTTON -->
+                <div class="setup-actions">
+                    <button id="profile-continue" class="btn btn-primary">
+                        <span>CONTINUE →</span>
+                    </button>
+                </div>
+
+                <!-- PROGRESS INDICATOR -->
+                <div class="setup-progress">
+                    <div class="progress-step completed">1. Setup</div>
+                    <div class="progress-step active">2. Profile</div>
+                    <div class="progress-step">3. Introduction</div>
+                    <div class="progress-step">4. Activation</div>
+                </div>
+            </div>
+        `;
+
+        // Make Phase 0.5 visible
+        container.classList.add('active');
+        container.style.display = 'flex';
+
+        // Setup event handlers
+        this.setupPhase05Handlers();
+    }
+
+    setupPhase05Handlers() {
+        // Goal card selection
+        document.querySelectorAll('.goal-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const goal = card.dataset.goal;
+                if (this.userData.goals.includes(goal)) {
+                    // Remove
+                    this.userData.goals = this.userData.goals.filter(g => g !== goal);
+                    card.classList.remove('selected');
+                } else {
+                    // Add
+                    this.userData.goals.push(goal);
+                    card.classList.add('selected');
+                }
+                console.log('Selected goals:', this.userData.goals);
+            });
+        });
+
+        // Height field auto-switching (if user enters feet/inches, clear cm and vice versa)
+        const heightFt = document.getElementById('user-height-ft');
+        const heightIn = document.getElementById('user-height-in');
+        const heightCm = document.getElementById('user-height-cm');
+
+        [heightFt, heightIn].forEach(input => {
+            input?.addEventListener('input', () => {
+                if (input.value) {
+                    heightCm.value = '';
+                }
+            });
+        });
+
+        heightCm?.addEventListener('input', () => {
+            if (heightCm.value) {
+                heightFt.value = '';
+                heightIn.value = '';
+            }
+        });
+
+        // Weight field auto-switching
+        const weightLbs = document.getElementById('user-weight-lbs');
+        const weightKg = document.getElementById('user-weight-kg');
+
+        weightLbs?.addEventListener('input', () => {
+            if (weightLbs.value) {
+                weightKg.value = '';
+            }
+        });
+
+        weightKg?.addEventListener('input', () => {
+            if (weightKg.value) {
+                weightLbs.value = '';
+            }
+        });
+
+        // Continue button
+        const continueBtn = document.getElementById('profile-continue');
+        if (continueBtn) {
+            continueBtn.addEventListener('click', () => {
+                this.completePhase05();
+            });
+        }
+    }
+
+    async completePhase05() {
+        console.log('Phase 0.5: Collecting user profile data...');
+
+        // Collect name
+        const nameInput = document.getElementById('user-name');
+        this.userData.name = nameInput?.value?.trim() || '';
+
+        // Collect age
+        const ageInput = document.getElementById('user-age');
+        this.userData.age = ageInput?.value ? parseInt(ageInput.value) : null;
+
+        // Collect height (convert to cm for backend)
+        const heightFt = document.getElementById('user-height-ft');
+        const heightIn = document.getElementById('user-height-in');
+        const heightCm = document.getElementById('user-height-cm');
+
+        if (heightCm?.value) {
+            this.userData.height = parseInt(heightCm.value);
+        } else if (heightFt?.value || heightIn?.value) {
+            const ft = parseInt(heightFt?.value || 0);
+            const inches = parseInt(heightIn?.value || 0);
+            const totalInches = (ft * 12) + inches;
+            this.userData.height = Math.round(totalInches * 2.54); // Convert to cm
+        }
+
+        // Collect weight (convert to kg for backend)
+        const weightLbs = document.getElementById('user-weight-lbs');
+        const weightKg = document.getElementById('user-weight-kg');
+
+        if (weightKg?.value) {
+            this.userData.weight = parseFloat(weightKg.value);
+        } else if (weightLbs?.value) {
+            this.userData.weight = Math.round(parseFloat(weightLbs.value) * 0.453592 * 10) / 10; // Convert to kg
+        }
+
+        console.log('User profile collected:', this.userData);
+
+        // Validate - at least name is required
+        if (!this.userData.name) {
+            alert('Please enter your name to continue.');
+            return;
+        }
+
+        // Save user profile to backend
         try {
             await API.updateProfile({
+                name: this.userData.name,
+                age: this.userData.age,
+                height: this.userData.height,
+                weight: this.userData.weight,
+                goals: this.userData.goals,
                 preferences: {
                     language: this.selectedLanguage,
                     voice: this.selectedVoice
                 }
             });
-            console.log('Preferences saved to backend');
+            console.log('✅ User profile saved to backend');
         } catch (error) {
-            console.error('❌ Failed to save preferences:', error);
-            // Continue anyway - not critical
+            console.error('❌ Failed to save user profile:', error);
+            // Continue anyway - they can update later
         }
 
-        // Update voice interface with selected voice
-        if (window.voiceInterface) {
-            window.voiceInterface.selectedVoice = this.selectedVoice;
-            window.voiceInterface.saveSettings();
+        // Hide Phase 0.5
+        const container = document.getElementById('phase-05');
+        if (container) {
+            container.classList.remove('active');
+            container.style.display = 'none';
         }
 
         // Proceed to Phase 1 (Awakening)
@@ -867,6 +1139,11 @@ class OnboardingEngine {
     async saveOnboardingToBackend(choice, integrations) {
         try {
             await API.updateProfile({
+                name: this.userData.name,
+                age: this.userData.age,
+                height: this.userData.height,
+                weight: this.userData.weight,
+                goals: this.userData.goals,
                 onboarding: {
                     completed: true,
                     completedAt: new Date().toISOString(),
@@ -874,9 +1151,13 @@ class OnboardingEngine {
                     selectedIntegrations: integrations,
                     language: this.selectedLanguage,
                     voice: this.selectedVoice
+                },
+                preferences: {
+                    language: this.selectedLanguage,
+                    voice: this.selectedVoice
                 }
             });
-            console.log('Onboarding saved to backend');
+            console.log('✅ Onboarding and user profile saved to backend');
         } catch (error) {
             console.error('❌ Failed to save onboarding:', error);
             throw error;
