@@ -279,6 +279,89 @@
     }
 }
 
+/* Siri-Style Waveform Indicator */
+.siri-waveform {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    height: 24px;
+    margin-left: 12px;
+    vertical-align: middle;
+}
+
+.siri-waveform .bar {
+    width: 3px;
+    background: var(--primary-cyan, #00ffff);
+    border-radius: 2px;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+    box-shadow: 0 0 4px rgba(0, 255, 255, 0.6);
+}
+
+/* Individual bar animations with different heights and delays */
+.siri-waveform .bar:nth-child(1) {
+    animation: waveform-bar 0.6s infinite;
+    animation-delay: 0s;
+}
+
+.siri-waveform .bar:nth-child(2) {
+    animation: waveform-bar 0.7s infinite;
+    animation-delay: 0.1s;
+}
+
+.siri-waveform .bar:nth-child(3) {
+    animation: waveform-bar 0.5s infinite;
+    animation-delay: 0.2s;
+}
+
+.siri-waveform .bar:nth-child(4) {
+    animation: waveform-bar 0.8s infinite;
+    animation-delay: 0.15s;
+}
+
+.siri-waveform .bar:nth-child(5) {
+    animation: waveform-bar 0.6s infinite;
+    animation-delay: 0.25s;
+}
+
+.siri-waveform .bar:nth-child(6) {
+    animation: waveform-bar 0.7s infinite;
+    animation-delay: 0.3s;
+}
+
+.siri-waveform .bar:nth-child(7) {
+    animation: waveform-bar 0.5s infinite;
+    animation-delay: 0.35s;
+}
+
+@keyframes waveform-bar {
+    0% {
+        height: 4px;
+        opacity: 0.5;
+    }
+    50% {
+        height: 24px;
+        opacity: 1;
+        box-shadow: 0 0 8px rgba(0, 255, 255, 0.9);
+    }
+    100% {
+        height: 4px;
+        opacity: 0.5;
+    }
+}
+
+/* Listening state - more energetic */
+.voice-status.listening .siri-waveform .bar {
+    animation-duration: 0.4s;
+}
+
+/* Processing state - slower, thinking */
+.voice-status.processing .siri-waveform .bar {
+    animation-duration: 0.8s;
+    opacity: 0.8;
+}
+
 /* Success/Error Toast */
 .voice-toast {
     position: fixed;

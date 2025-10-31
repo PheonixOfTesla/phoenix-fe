@@ -1081,15 +1081,33 @@ class PhoenixConversationalAI {
 
         const statusMap = {
             idle: { text: 'Voice Inactive', class: 'idle', emoji: '🔴' },
-            listening: { text: 'Listening...', class: 'listening', emoji: '🎤' },
-            processing: { text: 'Thinking...', class: 'processing', emoji: '🧠' },
+            listening: { text: 'Listening', class: 'listening', emoji: '🎤' },
+            processing: { text: 'Thinking', class: 'processing', emoji: '🧠' },
             responding: { text: 'Speaking...', class: 'responding', emoji: '💬' },
             done: { text: 'Done ✓', class: 'done', emoji: '✅' },
             error: { text: 'Error', class: 'error', emoji: '⚠️' }
         };
 
         const statusInfo = statusMap[status] || statusMap.idle;
-        this.elements.status.textContent = `${statusInfo.emoji} ${statusInfo.text}`;
+
+        // Add Siri-style waveform for listening and processing states
+        if (status === 'listening' || status === 'processing') {
+            const waveformHTML = `
+                <div class="siri-waveform">
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                </div>
+            `;
+            this.elements.status.innerHTML = `${statusInfo.emoji} ${statusInfo.text}${waveformHTML}`;
+        } else {
+            this.elements.status.textContent = `${statusInfo.emoji} ${statusInfo.text}`;
+        }
+
         this.elements.status.className = `voice-status ${statusInfo.class}`;
 
         // Auto-reset to idle after showing "Done" for 2 seconds
