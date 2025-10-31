@@ -489,7 +489,7 @@ class PhoenixConversationalAI {
      */
     async processConversation(userMessage) {
         try {
-            console.log('💬 User message:', userMessage);
+            console.log('User message:', userMessage);
             this.updateTranscript(userMessage, true);
             this.updateStatus('processing');
 
@@ -500,34 +500,48 @@ class PhoenixConversationalAI {
                 timestamp: new Date().toISOString()
             });
 
+            // Start thinking message timeout
+            const thinkingTimeout = setTimeout(() => {
+                this.speak("Hold on, give me a moment to process that.");
+            }, 1500); // Show thinking message after 1.5s
+
             // Classify the conversation type
             const classification = this.classifyConversation(userMessage);
-            console.log('🔍 Message classified as:', classification.type);
+            console.log('Message classified as:', classification.type);
 
-            // Route to appropriate handler
+            // Route to appropriate handler with 5s max timeout
             let response;
-            switch (classification.type) {
-                case 'data_query':
-                    response = await this.handleDataQuery(userMessage, classification);
-                    break;
-                
-                case 'action_request':
-                    response = await this.handleButlerAction(userMessage, classification);
-                    break;
-                
-                case 'life_advice':
-                case 'emotional_support':
-                case 'complex_decision':
-                    response = await this.handleLifeAdvice(userMessage, classification);
-                    break;
-                
-                case 'general_chat':
-                    response = await this.handleGeneralConversation(userMessage, classification);
-                    break;
-                
-                default:
-                    response = await this.handleFallback(userMessage);
-            }
+            const responsePromise = (async () => {
+                switch (classification.type) {
+                    case 'data_query':
+                        return await this.handleDataQuery(userMessage, classification);
+
+                    case 'action_request':
+                        return await this.handleButlerAction(userMessage, classification);
+
+                    case 'life_advice':
+                    case 'emotional_support':
+                    case 'complex_decision':
+                        return await this.handleLifeAdvice(userMessage, classification);
+
+                    case 'general_chat':
+                        return await this.handleGeneralConversation(userMessage, classification);
+
+                    default:
+                        return await this.handleFallback(userMessage);
+                }
+            })();
+
+            // Race between response and 5s timeout
+            response = await Promise.race([
+                responsePromise,
+                new Promise((resolve) => setTimeout(() => resolve({
+                    reply: "I'm taking too long. Let me think about this and get back to you.",
+                    quickResponse: true
+                }), 5000))
+            ]);
+
+            clearTimeout(thinkingTimeout); // Cancel thinking message
 
             // Add to conversation history
             this.conversationHistory.push({
@@ -536,14 +550,16 @@ class PhoenixConversationalAI {
                 timestamp: new Date().toISOString()
             });
 
-            // Display and speak response
+            // Display and speak response FAST
             console.log('Phoenix response:', response.reply);
             this.updateStatus('responding');
             this.displayResponse(response);
-            this.speak(response.reply);
 
-            // Track behavior for learning
-            await this.trackBehavior(userMessage, response, classification);
+            // Speak immediately with streaming
+            await this.speak(response.reply);
+
+            // Track behavior for learning (async, don't wait)
+            this.trackBehavior(userMessage, response, classification).catch(e => console.error('Tracking error:', e));
 
         } catch (error) {
             console.error('Conversation processing error:', error);
@@ -926,42 +942,63 @@ class PhoenixConversationalAI {
     }
 
     /**
-     * Speak text using selected voice
+     * Speak text using OpenAI TTS (high quality, fast)
      */
-    speak(text) {
-        if (!this.synthesis) return;
+    async speak(text) {
+        try {
+            // Stop any currently playing audio
+            if (this.currentAudio) {
+                this.currentAudio.pause();
+                this.currentAudio = null;
+            }
 
-        // Cancel any ongoing speech
-        this.synthesis.cancel();
+            // Get voice from localStorage (set during onboarding)
+            const savedVoice = localStorage.getItem('phoenixVoice') || this.voice.personality || 'nova';
+            const savedLanguage = localStorage.getItem('phoenixLanguage') || 'en';
 
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = this.voice.rate;
-        utterance.pitch = this.voice.pitch;
+            console.log(`Speaking with voice: ${savedVoice}, language: ${savedLanguage}`);
 
-        // Try to find a voice that matches the personality
-        const voices = this.synthesis.getVoices();
-        
-        // Map personalities to voice preferences
-        const voicePreferences = {
-            echo: ['Google UK English Male', 'Microsoft George', 'en-GB'],
-            nova: ['Google US English', 'Microsoft Zira', 'en-US'],
-            onyx: ['Google US English Male', 'Microsoft David', 'en-US'],
-            fable: ['Google US English Female', 'Microsoft Zira', 'en-US'],
-            shimmer: ['Google UK English Female', 'Microsoft Hazel', 'en-GB'],
-            alloy: ['Google US English', 'Microsoft Mark', 'en-US']
-        };
+            // Call backend TTS endpoint
+            const response = await fetch('https://pal-backend-production.up.railway.app/api/tts/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    text: text,
+                    voice: savedVoice,
+                    language: savedLanguage
+                })
+            });
 
-        const preferences = voicePreferences[this.voice.personality] || ['en-US'];
-        
-        for (const pref of preferences) {
-            const matchingVoice = voices.find(v => v.name.includes(pref) || v.lang.includes(pref));
-            if (matchingVoice) {
-                utterance.voice = matchingVoice;
-                break;
+            if (!response.ok) {
+                throw new Error(`TTS failed: ${response.status}`);
+            }
+
+            // Get audio blob
+            const audioBlob = await response.blob();
+            const audioUrl = URL.createObjectURL(audioBlob);
+
+            // Play immediately
+            this.currentAudio = new Audio(audioUrl);
+            this.currentAudio.onended = () => {
+                URL.revokeObjectURL(audioUrl); // Clean up memory
+                this.currentAudio = null;
+                this.updateStatus('idle');
+            };
+
+            await this.currentAudio.play();
+            console.log('TTS audio playing');
+
+        } catch (error) {
+            console.error('TTS error:', error);
+
+            // Fallback to browser speech if TTS fails
+            if (this.synthesis) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                this.synthesis.speak(utterance);
             }
         }
-
-        this.synthesis.speak(utterance);
     }
 
     /**
