@@ -12,7 +12,6 @@
     <title>Phoenix - AI Life Operating System</title>
     <link rel="stylesheet" href="styles.css?v=1761926307">
     <link rel="stylesheet" href="phoenix-voice.css?v=1761926307">
-    <link rel="stylesheet" href="src/holographic-navigator.css?v=1761926307">
 </head>
 <body>
     <!-- ============================================ -->
@@ -997,10 +996,7 @@
         }
     </style>
 
-    <!-- ============================================ -->
-    <!-- THREE.JS LIBRARY -->
-    <!-- ============================================ -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- THREE.JS REMOVED - Too heavy, unnecessary for minimal UI -->
 
     <!-- ============================================ -->
     <!-- AUTHENTICATION CHECK -->
@@ -1139,19 +1135,19 @@
                     return; // Stop initialization if not authenticated
                 }
                 
-                // Step 2: Setup 3D Scene
-                this.setupScene();
-                this.createPhoenixCore();
-                this.createPlanets();
-                this.createParticleField();
-                this.setupLighting();
+                // Step 2: Setup 3D Scene - DISABLED (THREE.js removed for simplicity)
+                // this.setupScene();
+                // this.createPhoenixCore();
+                // this.createPlanets();
+                // this.createParticleField();
+                // this.setupLighting();
                 
                 // Step 3: Setup Event Listeners
-                this.setupEventListeners();
+                // this.setupEventListeners(); // DISABLED (uses THREE.js raycaster for 3D planet clicks)
                 this.setupUIHandlers();
                 
-                // Step 4: Start Animation Loop
-                this.animate();
+                // Step 4: Start Animation Loop - DISABLED (THREE.js removed)
+                // this.animate();
                 
                 // Step 5: Initialize HUD
                 this.startHUD();
@@ -2610,23 +2606,13 @@
     <!-- ============================================ -->
     <script src="src/orchestrator.js?v=1761926307"></script>
     <script type="module" src="./src/api.js?v=1761926307"></script>
-    <script type="module" src="./src/planets.js?v=1761926307"></script>
+    <!-- PLANETS.JS REMOVED - Heavy 3D planetary system -->
     <script type="module" src="./src/jarvis.js?v=1761926307"></script>
-    <script type="module" src="./src/reactor.js?v=1761926307"></script>
-    <script type="module" src="./src/shaders.js?v=1761926307"></script>
+    <!-- REACTOR.JS REMOVED - Arc reactor animation -->
+    <!-- SHADERS.JS REMOVED - WebGL shaders -->
     <script type="module" src="./src/wearables.js?v=1761926307"></script>
     <script src="src/phoenix-api-client.js?v=1761926307"></script>
     <script src="src/phoenix-conversational-ai.js?v=1761926307"></script>
-    <script src="src/holographic-navigator.js"></script>
-    <script>
-        // Initialize Holographic Navigator
-        window.addEventListener('DOMContentLoaded', () => {
-            if (typeof HolographicNavigator !== 'undefined') {
-                window.holoNav = new HolographicNavigator();
-                console.log('🌌 Holographic Navigator Initialized - All 307 Features Accessible');
-            }
-        });
-    </script>
 
     <!-- ============================================ -->
     <!-- CONSTELLATION BACKGROUND EFFECT -->
