@@ -224,7 +224,7 @@
     <!-- SIRI-STYLE WAVEFORM INDICATOR -->
     <div id="voice-waveform" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:6000;background:rgba(0,10,20,0.95);padding:20px 30px;border-radius:20px;border:2px solid rgba(0,255,255,0.4);backdrop-filter:blur(15px);display:none;flex-direction:column;align-items:center;gap:12px;box-shadow:0 0 30px rgba(0,255,255,0.3)">
         <!-- Waveform Canvas -->
-        <canvas id="waveform-canvas" width="300" height="80" style="display:block"></canvas>
+        <canvas id="waveform-canvas" width="300" height="80" style="display:block;will-change:transform;transform:translateZ(0)"></canvas>
 
         <!-- Status Text -->
         <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
@@ -532,7 +532,7 @@
         </div>
         
         <!-- Particle Canvas -->
-        <canvas id="phoenix-particles" width="200" height="200" style="position:absolute;top:0;left:0;pointer-events:none"></canvas>
+        <canvas id="phoenix-particles" width="200" height="200" style="position:absolute;top:0;left:0;pointer-events:none;will-change:transform;transform:translateZ(0)"></canvas>
         </div>
     </div>
 
@@ -628,7 +628,7 @@
     <!-- ============================================ -->
     <div id="voice-overlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:none;align-items:center;justify-content:center;z-index:9000;flex-direction:column">
         <div style="width:200px;height:100px;margin-bottom:30px">
-            <canvas id="waveform-canvas" width="200" height="100"></canvas>
+            <canvas id="waveform-canvas" width="200" height="100" style="will-change:transform;transform:translateZ(0)"></canvas>
         </div>
         <div id="voice-text" style="color:#00ffff;font-size:18px;text-align:center;padding:20px;max-width:80%;margin-bottom:20px;min-height:60px">
             Listening...
@@ -1068,6 +1068,11 @@
                 this.recoveryScore = null; // Loaded from API only
                 this.mouseX = 0;
                 this.mouseY = 0;
+
+                // FPS throttling for weak PCs
+                this.lastFrame = 0;
+                this.fpsLimit = 30;
+                this.frameInterval = 1000 / this.fpsLimit;
                 
                 // User Data
                 this.userId = null;
@@ -1785,52 +1790,57 @@
                 });
             }
 
-            animate() {
-                requestAnimationFrame(() => this.animate());
+            animate(timestamp) {
+                requestAnimationFrame((ts) => this.animate(ts));
+
+                // FPS throttling: Only render at 30fps for weak PCs
+                if (timestamp - this.lastFrame < this.frameInterval) return;
+                this.lastFrame = timestamp;
+
                 this.time += 0.01;
-                
+
                 if (this.phoenixCore) {
                     this.phoenixCore.rotation.y += 0.002;
                     const scale = 1 + Math.sin(this.time * 2) * 0.05;
                     this.phoenixCore.scale.set(scale, scale, scale);
-                    
+
                     this.phoenixCore.children.forEach(child => {
                         if (child.userData.rotationSpeed) {
                             child.rotation.z += child.userData.rotationSpeed;
                         }
                     });
                 }
-                
+
                 this.planets.forEach(planet => {
                     planet.userData.angle += planet.userData.speed;
                     planet.position.x = Math.cos(planet.userData.angle) * planet.userData.distance;
                     planet.position.z = Math.sin(planet.userData.angle) * planet.userData.distance;
                     planet.rotation.y += 0.01;
                 });
-                
+
                 this.particles.forEach(particleSystem => {
                     const positions = particleSystem.geometry.attributes.position.array;
                     const velocities = particleSystem.userData.velocities;
-                    
+
                     for (let i = 0; i < positions.length; i += 3) {
                         positions[i] += velocities[i / 3].x;
                         positions[i + 1] += velocities[i / 3].y;
                         positions[i + 2] += velocities[i / 3].z;
-                        
+
                         if (Math.abs(positions[i]) > 25) velocities[i / 3].x *= -1;
                         if (Math.abs(positions[i + 1]) > 25) velocities[i / 3].y *= -1;
                         if (Math.abs(positions[i + 2]) > 25) velocities[i / 3].z *= -1;
                     }
-                    
+
                     particleSystem.geometry.attributes.position.needsUpdate = true;
                 });
-                
+
                 const targetX = this.mouseX * 2;
                 const targetY = this.mouseY * 2;
                 this.camera.position.x += (targetX - this.camera.position.x) * 0.05;
                 this.camera.position.y += (targetY - this.camera.position.y) * 0.05;
                 this.camera.lookAt(this.scene.position);
-                
+
                 this.renderer.render(this.scene, this.camera);
             }
 
@@ -2506,17 +2516,18 @@
             const phoenixAI = new PhoenixConversationalAI(apiClient);
             window.phoenixAI = phoenixAI;
             
-            // Phoenix Particles Animation
+            // Phoenix Particles Animation (GPU optimized: 30fps, 25 particles)
             (function initPhoenixParticles() {
                 const canvas = document.getElementById('phoenix-particles');
                 if (!canvas) return;
-                
+
                 const ctx = canvas.getContext('2d');
                 const particles = [];
                 const centerX = 100;
                 const centerY = 100;
-                
-                for (let i = 0; i < 50; i++) {
+
+                // Reduced from 50 to 25 particles for better performance
+                for (let i = 0; i < 25; i++) {
                     particles.push({
                         angle: Math.random() * Math.PI * 2,
                         distance: Math.random() * 40 + 20,
@@ -2525,25 +2536,33 @@
                         alpha: Math.random() * 0.5 + 0.3
                     });
                 }
-                
-                function animate() {
+
+                // Throttle to 30fps for weak PCs
+                let lastFrame = 0;
+                const fps = 30;
+                const interval = 1000 / fps;
+
+                function animate(timestamp) {
+                    requestAnimationFrame(animate);
+
+                    if (timestamp - lastFrame < interval) return;
+                    lastFrame = timestamp;
+
                     ctx.clearRect(0, 0, 200, 200);
-                    
+
                     particles.forEach(p => {
                         p.angle += p.speed;
                         const x = centerX + Math.cos(p.angle) * p.distance;
                         const y = centerY + Math.sin(p.angle) * p.distance;
-                        
+
                         ctx.beginPath();
                         ctx.arc(x, y, p.size, 0, Math.PI * 2);
                         ctx.fillStyle = 'rgba(0,255,255,' + p.alpha + ')';
                         ctx.fill();
                     });
-                    
-                    requestAnimationFrame(animate);
                 }
-                
-                animate();
+
+                requestAnimationFrame(animate);
             })();
             
             // Phoenix Core Click Handler
