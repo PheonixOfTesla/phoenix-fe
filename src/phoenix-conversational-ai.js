@@ -295,9 +295,63 @@ class PhoenixConversationalAI {
     }
 
     /**
-     * Setup Web Speech Recognition API
+     * Setup Platform-Aware Speech Recognition
+     * Uses Capacitor SFSpeechRecognizer on iOS (FREE), Web Speech API on browser
      */
-    setupSpeechRecognition() {
+    async setupSpeechRecognition() {
+        try {
+            // Initialize platform speech recognition wrapper
+            this.recognition = new window.PlatformSpeechRecognition();
+
+            // Get platform info
+            const platformInfo = this.recognition.getPlatformInfo();
+            console.log(`[Phoenix] Speech Recognition Platform: ${platformInfo.platform}`);
+            console.log(`[Phoenix] Using: ${platformInfo.speechAPI} (${platformInfo.cost})`);
+
+            // Set up result handler
+            this.recognition.onResult((result) => {
+                const { transcript, isFinal, confidence } = result;
+
+                if (isFinal) {
+                    this.processConversation(transcript);
+                } else {
+                    this.updateTranscript(transcript, false);
+                }
+            });
+
+            // Set up error handler
+            this.recognition.onError((error) => {
+                console.error('[Phoenix] Speech recognition error:', error);
+                this.updateStatus('error');
+                this.stopListening();
+            });
+
+            // Set up end handler
+            this.recognition.onEnd(() => {
+                this.stopListening();
+            });
+
+            // Initialize with settings
+            await this.recognition.initialize({
+                language: this.voice.language,
+                interimResults: true,
+                maxAlternatives: 3,
+                continuous: false
+            });
+
+            console.log('[Phoenix] Speech recognition ready');
+        } catch (error) {
+            console.error('[Phoenix] Failed to setup speech recognition:', error);
+
+            // Fallback to Web Speech API if platform detection fails
+            this.setupWebSpeechFallback();
+        }
+    }
+
+    /**
+     * Fallback to Web Speech API if platform detection fails
+     */
+    setupWebSpeechFallback() {
         if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
             console.error('Speech recognition not supported');
             return;
@@ -338,6 +392,8 @@ class PhoenixConversationalAI {
         this.recognition.onend = () => {
             this.stopListening();
         };
+
+        console.log('[Phoenix] Using Web Speech API fallback');
     }
 
     /**
@@ -454,26 +510,50 @@ class PhoenixConversationalAI {
     }
 
     /**
-     * Start listening for voice input
+     * Start listening for voice input (platform-aware)
      */
-    startListening() {
+    async startListening() {
         try {
-            this.recognition.start();
+            // Check if using platform wrapper or fallback
+            if (this.recognition && typeof this.recognition.startListening === 'function') {
+                // Platform wrapper (Capacitor or Web Speech via wrapper)
+                await this.recognition.startListening({
+                    language: this.voice.language,
+                    interimResults: true,
+                    maxAlternatives: 3
+                });
+
+                this.isListening = true;
+                this.updateStatus('listening');
+                this.playSound('start');
+            } else if (this.recognition && typeof this.recognition.start === 'function') {
+                // Direct Web Speech API fallback
+                this.recognition.start();
+            } else {
+                console.error('[Phoenix] No speech recognition available');
+            }
         } catch (error) {
-            console.error('Failed to start recognition:', error);
+            console.error('[Phoenix] Failed to start recognition:', error);
         }
     }
 
     /**
-     * Stop listening
+     * Stop listening (platform-aware)
      */
-    stopListening() {
+    async stopListening() {
         this.isListening = false;
-        
+
         try {
-            this.recognition.stop();
+            // Check if using platform wrapper or fallback
+            if (this.recognition && typeof this.recognition.stopListening === 'function') {
+                // Platform wrapper
+                await this.recognition.stopListening();
+            } else if (this.recognition && typeof this.recognition.stop === 'function') {
+                // Direct Web Speech API fallback
+                this.recognition.stop();
+            }
         } catch (error) {
-            console.error('Failed to stop recognition:', error);
+            console.error('[Phoenix] Failed to stop recognition:', error);
         }
 
         this.updateStatus('idle');
@@ -955,7 +1035,10 @@ class PhoenixConversationalAI {
                 'it': 'it-IT',
                 'pt': 'pt-BR',
                 'nl': 'nl-NL',
-                'pl': 'pl-PL'
+                'pl': 'pl-PL',
+                'ru': 'ru-RU',
+                'ja': 'ja-JP',
+                'zh': 'zh-CN'
             };
             const savedLanguage = languageMap[savedLanguageCode] || 'en-US';
 

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+    iOS PERMISSIONS TEMPLATE FOR PHOENIX AI
+
+    This file contains the required permissions for Phoenix's voice recognition features.
+
+    IMPORTANT: After running `npx cap add ios`, you must add these permissions to your
+    ios/App/App/Info.plist file.
+
+    HOW TO USE:
+    1. Run: npx cap add ios
+    2. Open: ios/App/App/Info.plist
+    3. Copy the <dict> entries below into your Info.plist's main <dict> section
+    4. Save the file
+    5. Run: npx cap sync
+-->
+<plist version="1.0">
+<dict>
+    <!-- ========================================== -->
+    <!-- SPEECH RECOGNITION PERMISSIONS (REQUIRED) -->
+    <!-- ========================================== -->
+
+    <!-- Speech Recognition Permission -->
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>Phoenix uses speech recognition to enable voice conversations with your AI companion. This allows you to interact hands-free and receive personalized assistance.</string>
+
+    <!-- Microphone Access Permission -->
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Phoenix needs microphone access to listen to your voice commands and enable natural conversations with your AI assistant.</string>
+
+    <!-- ========================================== -->
+    <!-- OPTIONAL: ENHANCED FEATURES               -->
+    <!-- ========================================== -->
+
+    <!-- Siri Integration (Optional - if you want Siri shortcuts) -->
+    <key>NSSiriUsageDescription</key>
+    <string>Phoenix can integrate with Siri to provide quick access to your AI assistant through voice shortcuts.</string>
+
+    <!-- ========================================== -->
+    <!-- APP TRANSPORT SECURITY                    -->
+    <!-- ========================================== -->
+
+    <!-- Allow connections to your backend API -->
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSExceptionDomains</key>
+        <dict>
+            <key>pal-backend-production.up.railway.app</key>
+            <dict>
+                <key>NSExceptionAllowsInsecureHTTPLoads</key>
+                <false/>
+                <key>NSIncludesSubdomains</key>
+                <true/>
+                <key>NSExceptionRequiresForwardSecrecy</key>
+                <true/>
+                <key>NSExceptionMinimumTLSVersion</key>
+                <string>TLSv1.2</string>
+            </dict>
+        </dict>
+    </dict>
+
+    <!-- ========================================== -->
+    <!-- BACKGROUND MODES (Optional)               -->
+    <!-- ========================================== -->
+
+    <!-- Uncomment if you want background audio/voice processing -->
+    <!--
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>audio</string>
+        <string>processing</string>
+    </array>
+    -->
+
+</dict>
+</plist>
