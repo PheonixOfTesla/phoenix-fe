@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mercury - Health Intelligence | Phoenix</title>
+    <link rel="stylesheet" href="./src/styles.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .mercury-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        /* Header */
+        .mercury-header {
+            text-align: center;
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .planet-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: radial-gradient(circle at 30% 30%, #00d4ff, #0084ff);
+            border-radius: 50%;
+            box-shadow: 0 0 40px rgba(0, 212, 255, 0.6);
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(0, 212, 255, 0.6); }
+            50% { transform: scale(1.05); box-shadow: 0 0 60px rgba(0, 212, 255, 0.8); }
+        }
+
+        .mercury-header h1 {
+            font-size: 48px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00d4ff, #00ffaa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+        }
+
+        .mercury-header p {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 10px;
+        }
+
+        /* Recovery Score - Hero Section */
+        .recovery-hero {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            padding: 60px;
+            margin-bottom: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .recovery-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .recovery-score {
+            font-size: 120px;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .recovery-score.excellent { color: #00ff88; }
+        .recovery-score.good { color: #00d4ff; }
+        .recovery-score.fair { color: #ffd700; }
+        .recovery-score.poor { color: #ff6b6b; }
+
+        .recovery-label {
+            font-size: 24px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .recovery-status {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.5);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        /* Card Style */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 212, 255, 0.3);
+            box-shadow: 0 10px 40px rgba(0, 212, 255, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        /* Metrics Display */
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .metric-trend {
+            font-size: 12px;
+            margin-left: 8px;
+        }
+
+        .trend-up { color: #00ff88; }
+        .trend-down { color: #ff6b6b; }
+
+        /* Wearables Section */
+        .wearables-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .wearable-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .wearable-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(0, 212, 255, 0.5);
+            transform: scale(1.05);
+        }
+
+        .wearable-card.connected {
+            border-color: rgba(0, 255, 136, 0.5);
+            background: rgba(0, 255, 136, 0.05);
+        }
+
+        .wearable-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .wearable-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .wearable-status {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .wearable-status.connected {
+            color: #00ff88;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            height: 250px;
+            margin-top: 20px;
+            position: relative;
+        }
+
+        /* AI Insights */
+        .insights-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .insight-item {
+            background: rgba(0, 212, 255, 0.05);
+            border-left: 3px solid #00d4ff;
+            padding: 15px 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .insight-item:hover {
+            background: rgba(0, 212, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .insight-item.warning {
+            background: rgba(255, 107, 107, 0.05);
+            border-left-color: #ff6b6b;
+        }
+
+        .insight-item.success {
+            background: rgba(0, 255, 136, 0.05);
+            border-left-color: #00ff88;
+        }
+
+        .insight-icon {
+            font-size: 18px;
+            margin-right: 10px;
+        }
+
+        .insight-text {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.5;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #00d4ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Back Button */
+        .back-button {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px 24px;
+            border-radius: 30px;
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(-5px);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .empty-state-text {
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+
+        .connect-button {
+            background: linear-gradient(135deg, #00d4ff, #00ffaa);
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            color: #000;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .connect-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-button">← Back to Dashboard</a>
+
+    <div class="mercury-container">
+        <!-- Header -->
+        <div class="mercury-header">
+            <div class="planet-icon"></div>
+            <h1>Mercury Health Intelligence</h1>
+            <p>Your real-time health optimization dashboard</p>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+            <p>Loading health data...</p>
+        </div>
+
+        <!-- Main Dashboard (hidden initially) -->
+        <div id="dashboard" style="display: none;">
+            <!-- Recovery Score Hero -->
+            <div class="recovery-hero">
+                <div class="recovery-label">Recovery Score</div>
+                <div id="recoveryScore" class="recovery-score excellent">--</div>
+                <div id="recoveryStatus" class="recovery-status">Analyzing...</div>
+            </div>
+
+            <!-- Dashboard Grid -->
+            <div class="dashboard-grid">
+                <!-- HRV Card -->
+                <div class="glass-card">
+                    <div class="card-header">
+                        <div class="card-title">Heart Rate Variability</div>
+                        <div class="card-icon" style="background: rgba(255, 107, 107, 0.2);">❤️</div>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Current HRV</span>
+                        <span class="metric-value" id="currentHRV">-- <span class="metric-trend"></span></span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">7-day Average</span>
+                        <span class="metric-value" id="avgHRV">--</span>
+                    </div>
+                    <div class="chart-container" id="hrvChart"></div>
+                </div>
+
+                <!-- Sleep Card -->
+                <div class="glass-card">
+                    <div class="card-header">
+                        <div class="card-title">Sleep Quality</div>
+                        <div class="card-icon" style="background: rgba(138, 43, 226, 0.2);">🌙</div>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Last Night</span>
+                        <span class="metric-value" id="sleepScore">-- <span class="metric-trend"></span></span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Total Sleep</span>
+                        <span class="metric-value" id="sleepDuration">--</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Deep Sleep</span>
+                        <span class="metric-value" id="deepSleep">--</span>
+                    </div>
+                </div>
+
+                <!-- Stress Card -->
+                <div class="glass-card">
+                    <div class="card-header">
+                        <div class="card-title">Stress & Recovery</div>
+                        <div class="card-icon" style="background: rgba(255, 215, 0, 0.2);">⚡</div>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Stress Level</span>
+                        <span class="metric-value" id="stressLevel">--</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Resting Heart Rate</span>
+                        <span class="metric-value" id="restingHR">--</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Recovery Time</span>
+                        <span class="metric-value" id="recoveryTime">--</span>
+                    </div>
+                </div>
+
+                <!-- AI Insights Card -->
+                <div class="glass-card">
+                    <div class="card-header">
+                        <div class="card-title">AI Insights</div>
+                        <div class="card-icon" style="background: rgba(0, 212, 255, 0.2);">🧠</div>
+                    </div>
+                    <div id="aiInsights" class="insights-list">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wearables Section -->
+            <div class="glass-card">
+                <div class="card-header">
+                    <div class="card-title">Connected Devices</div>
+                    <div class="card-icon" style="background: rgba(0, 255, 136, 0.2);">⌚</div>
+                </div>
+                <div class="wearables-grid" id="wearablesList">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State (shown if no data) -->
+        <div id="emptyState" style="display: none;">
+            <div class="empty-state">
+                <div class="empty-state-icon">⌚</div>
+                <div class="empty-state-text">Connect a wearable device to start tracking your health</div>
+                <button class="connect-button" onclick="window.mercuryDashboard.showDeviceSetup()">
+                    Connect Your First Device
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Config -->
+    <script src="./src/config.js"></script>
+
+    <!-- Include Mercury Dashboard Logic -->
+    <script src="./src/mercury-dashboard.js"></script>
+</body>
+</html>

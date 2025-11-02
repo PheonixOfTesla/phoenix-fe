@@ -20,12 +20,10 @@ const isLocalhost = window.location.hostname === 'localhost' ||
                     window.location.hostname === '127.0.0.1' ||
                     window.location.hostname === '';
 
-// API Base URL - FORCE PRODUCTION BACKEND FOR LOCAL TESTING
-const API_BASE_URL = 'https://pal-backend-production.up.railway.app/api';
-// Original code (disabled for local testing):
-// const API_BASE_URL = isLocalhost
-//     ? 'http://localhost:5000/api'
-//     : 'https://pal-backend-production.up.railway.app/api';
+// API Base URL - Use local backend for testing new API key
+const API_BASE_URL = isLocalhost
+    ? 'http://localhost:5000/api'
+    : 'https://pal-backend-production.up.railway.app/api';
 
 // Frontend URL (for callbacks, redirects, etc.)
 const FRONTEND_URL = isLocalhost

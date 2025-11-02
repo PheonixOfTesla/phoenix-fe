@@ -117,7 +117,7 @@
     <!-- JARVIS FLOATING ORB (iPhone-style bubble) -->
     <!-- ============================================ -->
     <!-- JARVIS Orb -->
-    <div id="jarvis-orb" onclick="toggleJarvisMenu()" style="position:fixed;top:30px;right:30px;z-index:9999;pointer-events:auto;width:60px;height:60px;background:radial-gradient(circle, rgba(0,255,255,0.3), rgba(0,10,20,0.95));border:2px solid rgba(0,255,255,0.6);border-radius:50%;backdrop-filter:blur(15px);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s;box-shadow:0 0 30px rgba(0,255,255,0.5),inset 0 0 20px rgba(0,255,255,0.2);animation:jarvisPulse 2s infinite" onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 0 40px rgba(0,255,255,0.8),inset 0 0 25px rgba(0,255,255,0.3)'" onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 0 30px rgba(0,255,255,0.5),inset 0 0 20px rgba(0,255,255,0.2)'">
+    <div id="jarvis-orb" onclick="toggleJarvisMenu()" title="Click to talk to Phoenix (Siri-style)" style="position:fixed;top:30px;right:30px;z-index:9999;pointer-events:auto;width:60px;height:60px;background:radial-gradient(circle, rgba(0,255,255,0.3), rgba(0,10,20,0.95));border:2px solid rgba(0,255,255,0.6);border-radius:50%;backdrop-filter:blur(15px);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s;box-shadow:0 0 30px rgba(0,255,255,0.5),inset 0 0 20px rgba(0,255,255,0.2);animation:jarvisPulse 2s infinite" onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 0 40px rgba(0,255,255,0.8),inset 0 0 25px rgba(0,255,255,0.3)';document.getElementById('orb-hint').style.opacity='1'" onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 0 30px rgba(0,255,255,0.5),inset 0 0 20px rgba(0,255,255,0.2)';document.getElementById('orb-hint').style.opacity='0'">
         <!-- Arc Reactor Icon -->
         <svg width="32" height="32" viewBox="0 0 32 32" style="filter:drop-shadow(0 0 5px rgba(0,255,255,0.8))">
             <circle cx="16" cy="16" r="12" fill="none" stroke="#00ffff" stroke-width="2" opacity="0.8"/>
@@ -129,6 +129,62 @@
             <line x1="20" y1="16" x2="28" y2="16" stroke="#00ffff" stroke-width="1.5" opacity="0.7"/>
         </svg>
     </div>
+
+    <!-- Orb Hint Text -->
+    <div id="orb-hint" style="position:fixed;top:38px;right:100px;z-index:9998;background:rgba(0,10,20,0.95);border:1px solid rgba(0,255,255,0.5);padding:8px 16px;border-radius:20px;color:#00ffff;font-size:12px;font-weight:600;letter-spacing:1px;pointer-events:none;opacity:0;transition:opacity 0.3s;white-space:nowrap;backdrop-filter:blur(10px);box-shadow:0 0 20px rgba(0,255,255,0.3)">
+        🎤 CLICK TO TALK
+    </div>
+
+    <!-- SIRI-LIKE LISTENING INDICATOR (appears when voice is active) -->
+    <div id="voice-listening-indicator" style="display:none;position:fixed;top:100px;right:18px;z-index:9998;width:84px;height:84px;pointer-events:none">
+        <!-- Animated Waveform -->
+        <svg width="84" height="84" viewBox="0 0 84 84" style="filter:drop-shadow(0 0 10px rgba(0,255,255,0.8))">
+            <g id="waveform-bars" transform="translate(42, 42)">
+                <!-- Center bar -->
+                <rect x="-2" y="-20" width="4" height="40" fill="#00ffff" opacity="0.9" rx="2">
+                    <animate attributeName="height" values="40;60;40" dur="0.8s" repeatCount="indefinite"/>
+                    <animate attributeName="y" values="-20;-30;-20" dur="0.8s" repeatCount="indefinite"/>
+                </rect>
+                <!-- Left bars -->
+                <rect x="-12" y="-15" width="4" height="30" fill="#00ffff" opacity="0.7" rx="2">
+                    <animate attributeName="height" values="30;50;30" dur="0.6s" begin="0.1s" repeatCount="indefinite"/>
+                    <animate attributeName="y" values="-15;-25;-15" dur="0.6s" begin="0.1s" repeatCount="indefinite"/>
+                </rect>
+                <rect x="-22" y="-10" width="4" height="20" fill="#00ffff" opacity="0.5" rx="2">
+                    <animate attributeName="height" values="20;40;20" dur="0.7s" begin="0.2s" repeatCount="indefinite"/>
+                    <animate attributeName="y" values="-10;-20;-10" dur="0.7s" begin="0.2s" repeatCount="indefinite"/>
+                </rect>
+                <!-- Right bars -->
+                <rect x="8" y="-15" width="4" height="30" fill="#00ffff" opacity="0.7" rx="2">
+                    <animate attributeName="height" values="30;50;30" dur="0.6s" begin="0.15s" repeatCount="indefinite"/>
+                    <animate attributeName="y" values="-15;-25;-15" dur="0.6s" begin="0.15s" repeatCount="indefinite"/>
+                </rect>
+                <rect x="18" y="-10" width="4" height="20" fill="#00ffff" opacity="0.5" rx="2">
+                    <animate attributeName="height" values="20;40;20" dur="0.7s" begin="0.25s" repeatCount="indefinite"/>
+                    <animate attributeName="y" values="-10;-20;-10" dur="0.7s" begin="0.25s" repeatCount="indefinite"/>
+                </rect>
+            </g>
+        </svg>
+        <!-- Pulsing Ring -->
+        <div style="position:absolute;top:0;left:0;width:100%;height:100%;border:2px solid rgba(0,255,255,0.4);border-radius:50%;animation:listeningPulse 1.5s ease-out infinite"></div>
+    </div>
+
+    <style>
+        @keyframes listeningPulse {
+            0% {
+                transform: scale(0.8);
+                opacity: 0.8;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.4;
+            }
+            100% {
+                transform: scale(1.3);
+                opacity: 0;
+            }
+        }
+    </style>
 
     <!-- Quick Actions Orb -->
     <div id="quick-actions-orb" onclick="toggleQuickActionsMenu()" style="position:fixed;top:110px;right:30px;z-index:9999;pointer-events:auto;width:60px;height:60px;background:radial-gradient(circle, rgba(255,215,0,0.3), rgba(0,10,20,0.95));border:2px solid rgba(255,215,0,0.6);border-radius:50%;backdrop-filter:blur(15px);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s;box-shadow:0 0 30px rgba(255,215,0,0.5),inset 0 0 20px rgba(255,215,0,0.2);animation:jarvisPulse 2s infinite" onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 0 40px rgba(255,215,0,0.8),inset 0 0 25px rgba(255,215,0,0.3)'" onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 0 30px rgba(255,215,0,0.5),inset 0 0 20px rgba(255,215,0,0.2)'">
@@ -387,18 +443,60 @@
         function toggleJarvisMenu() {
             playOrbClickSound();
 
-            const menu = document.getElementById('jarvis-quick-menu');
+            // SIRI-LIKE VOICE INTERACTION
+            // Instead of opening menu, trigger voice conversation
+            console.log('🎤 JARVIS Orb clicked - Starting voice conversation...');
+
+            // Close any open menus first
             const quickMenu = document.getElementById('quick-actions-menu');
             const settingsMenu = document.getElementById('settings-menu');
+            const jarvisMenu = document.getElementById('jarvis-quick-menu');
 
-            // Close other menus
             if (quickMenu) quickMenu.style.display = 'none';
             if (settingsMenu) settingsMenu.style.display = 'none';
+            if (jarvisMenu) jarvisMenu.style.display = 'none';
 
-            if (menu.style.display === 'none' || !menu.style.display) {
-                menu.style.display = 'flex';
+            // Unlock audio (required for autoplay on mobile)
+            unlockAudio();
+
+            // Toggle listening indicator
+            const indicator = document.getElementById('voice-listening-indicator');
+            const isCurrentlyListening = indicator && indicator.style.display !== 'none';
+
+            if (!isCurrentlyListening) {
+                // Show listening indicator
+                if (indicator) indicator.style.display = 'block';
             } else {
-                menu.style.display = 'none';
+                // Hide listening indicator
+                if (indicator) indicator.style.display = 'none';
+            }
+
+            // Start voice listening
+            toggleVoice();
+
+            // Open conversation panel to show transcript
+            if (!isCurrentlyListening) {
+                toggleConversationPanel();
+            }
+
+            // Trigger orb visual feedback
+            const orb = document.getElementById('jarvis-orb');
+            if (orb) {
+                if (!isCurrentlyListening) {
+                    // Starting to listen - emphasize orb
+                    orb.style.transform = 'scale(1.2)';
+                    orb.style.boxShadow = '0 0 60px rgba(0,255,255,1), inset 0 0 40px rgba(0,255,255,0.5)';
+                    orb.style.animation = 'none'; // Stop pulse animation
+                    setTimeout(() => {
+                        orb.style.transform = 'scale(1.1)';
+                        orb.style.boxShadow = '0 0 50px rgba(0,255,255,0.9), inset 0 0 30px rgba(0,255,255,0.4)';
+                    }, 300);
+                } else {
+                    // Stopping - reset orb
+                    orb.style.transform = 'scale(1)';
+                    orb.style.boxShadow = '0 0 30px rgba(0,255,255,0.5), inset 0 0 20px rgba(0,255,255,0.2)';
+                    orb.style.animation = 'jarvisPulse 2s infinite'; // Resume pulse
+                }
             }
         }
 
@@ -602,18 +700,15 @@
                             <div style="font-size:16px;color:#ff6b35;font-weight:bold;margin-bottom:4px">HEALTH & RECOVERY</div>
                             <div style="font-size:11px;color:rgba(255,107,53,0.7)">Wearables • Biometrics • Sleep • Recovery</div>
                         </div>
-                        <div id="mercury-status" class="status-badge" style="padding:6px 12px;background:rgba(255,107,53,0.1);border:1px solid rgba(255,107,53,0.3);border-radius:4px;font-size:10px;color:#ff6b35">
-                            NOT CONNECTED
+                        <div id="mercury-status" class="status-badge" style="padding:6px 12px;background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.5);border-radius:4px;font-size:10px;color:#00ff88">
+                            ✓ ACTIVE
                         </div>
                     </div>
-                    
-                    <div class="device-list" style="margin:15px 0">
-                        <div class="device-item" data-device="polar">
-                            <span>❤️ Polar</span>
-                            <button onclick="connectDevice('polar')" class="connect-btn">CONNECT</button>
-                        </div>
-                    </div>
-                    
+
+                    <button onclick="window.location.href='mercury.html'" style="width:100%;padding:15px;background:linear-gradient(135deg, rgba(255,107,53,0.2), rgba(255,107,53,0.05));border:2px solid rgba(255,107,53,0.5);color:#ff6b35;font-family:inherit;font-size:14px;font-weight:bold;cursor:pointer;border-radius:8px;letter-spacing:1px;margin:15px 0;box-shadow:0 0 20px rgba(255,107,53,0.3);transition:all 0.3s" onmouseover="this.style.background='linear-gradient(135deg, rgba(255,107,53,0.3), rgba(255,107,53,0.1)';this.style.boxShadow='0 0 30px rgba(255,107,53,0.5)';this.style.transform='scale(1.02)'" onmouseout="this.style.background='linear-gradient(135deg, rgba(255,107,53,0.2), rgba(255,107,53,0.05)';this.style.boxShadow='0 0 20px rgba(255,107,53,0.3)';this.style.transform='scale(1)'">
+                        🔬 OPEN HEALTH DASHBOARD
+                    </button>
+
                     <div style="font-size:10px;color:rgba(255,107,53,0.6);line-height:1.6;margin-top:12px">
                         <strong>38 endpoints:</strong> HRV, Heart Rate, Sleep Analysis, Recovery Score, Readiness, Body Composition, Metabolic Rate, Training Load
                     </div>
@@ -3703,6 +3798,12 @@
          */
         function openPlanetHologram(planetName) {
             console.log(`🪐 Opening holographic view for: ${planetName.toUpperCase()}`);
+
+            // Special handling for Mercury - navigate to dedicated dashboard
+            if (planetName === 'mercury') {
+                window.location.href = 'mercury.html';
+                return;
+            }
 
             // Close planet selection panel first
             const panel = document.getElementById('planet-selection-panel');
