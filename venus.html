@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Venus - Fitness Gaming | Phoenix</title>
+    <link rel="stylesheet" href="./src/styles.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a2e1a 50%, #16213e 100%);
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .venus-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        /* Header */
+        .venus-header {
+            text-align: center;
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .planet-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: radial-gradient(circle at 30% 30%, #00ffaa, #00ff88);
+            border-radius: 50%;
+            box-shadow: 0 0 40px rgba(0, 255, 170, 0.6);
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(0, 255, 170, 0.6); }
+            50% { transform: scale(1.05); box-shadow: 0 0 60px rgba(0, 255, 170, 0.8); }
+        }
+
+        .venus-header h1 {
+            font-size: 48px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00ffaa, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+        }
+
+        .venus-header p {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 10px;
+        }
+
+        /* Streak Hero Section */
+        .streak-hero {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 255, 170, 0.3);
+            border-radius: 30px;
+            padding: 40px;
+            margin-bottom: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .streak-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 255, 170, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .streak-number {
+            font-size: 100px;
+            font-weight: 800;
+            line-height: 1;
+            background: linear-gradient(135deg, #00ffaa, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .streak-label {
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            position: relative;
+            z-index: 1;
+        }
+
+        .streak-emoji {
+            font-size: 60px;
+            margin-top: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Quick Action Buttons */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .action-btn {
+            background: rgba(0, 255, 170, 0.1);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(0, 255, 170, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 255, 170, 0.6);
+            box-shadow: 0 10px 40px rgba(0, 255, 170, 0.3);
+            background: rgba(0, 255, 170, 0.15);
+        }
+
+        .action-btn-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .action-btn-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #00ffaa;
+            margin-bottom: 8px;
+        }
+
+        .action-btn-subtitle {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        /* Glass Card Style */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 255, 170, 0.3);
+            box-shadow: 0 10px 40px rgba(0, 255, 170, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            background: rgba(0, 255, 170, 0.2);
+        }
+
+        /* Workout History List */
+        .workout-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .workout-item {
+            background: rgba(0, 255, 170, 0.05);
+            border-left: 3px solid #00ffaa;
+            padding: 20px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .workout-item:hover {
+            background: rgba(0, 255, 170, 0.1);
+            transform: translateX(5px);
+        }
+
+        .workout-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #00ffaa;
+            margin-bottom: 8px;
+        }
+
+        .workout-stats {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .workout-stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+
+        .workout-stat-icon {
+            font-size: 16px;
+        }
+
+        /* Nutrition Scanner */
+        .scanner-zone {
+            background: rgba(0, 255, 170, 0.05);
+            border: 2px dashed rgba(0, 255, 170, 0.3);
+            border-radius: 20px;
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .scanner-zone:hover {
+            border-color: rgba(0, 255, 170, 0.6);
+            background: rgba(0, 255, 170, 0.1);
+        }
+
+        .scanner-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.7;
+        }
+
+        .scanner-text {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 10px;
+        }
+
+        .scanner-hint {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Progress Bars */
+        .progress-container {
+            margin: 15px 0;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ffaa, #00ff88);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px rgba(0, 255, 170, 0.5);
+        }
+
+        /* Level Badge */
+        .level-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #00ffaa, #00ff88);
+            color: #000;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+
+        /* Back Button */
+        .back-button {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px 24px;
+            border-radius: 30px;
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(-5px);
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #00ffaa;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .empty-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .empty-text {
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 30px;
+        }
+
+        .cta-button {
+            background: linear-gradient(135deg, #00ffaa, #00ff88);
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            color: #000;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 255, 170, 0.4);
+        }
+
+        /* Achievement Popup */
+        .achievement {
+            position: fixed;
+            top: 100px;
+            right: 30px;
+            background: rgba(0, 10, 20, 0.95);
+            backdrop-filter: blur(20px);
+            border: 2px solid #00ffaa;
+            border-radius: 15px;
+            padding: 20px 30px;
+            display: none;
+            animation: slideInRight 0.5s ease-out;
+            z-index: 10000;
+            box-shadow: 0 0 40px rgba(0, 255, 170, 0.5);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .achievement-icon {
+            font-size: 48px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .achievement-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #00ffaa;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .achievement-subtitle {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <a href="dashboard.html" class="back-button">← Back to Dashboard</a>
+
+    <div class="venus-container">
+        <!-- Header -->
+        <div class="venus-header">
+            <div class="planet-icon"></div>
+            <h1>Venus Fitness Gaming</h1>
+            <p>Turn workouts into achievements</p>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+            <p>Loading workout data...</p>
+        </div>
+
+        <!-- Main Dashboard (hidden initially) -->
+        <div id="dashboard" style="display: none;">
+            <!-- Streak Hero -->
+            <div class="streak-hero">
+                <div class="streak-number" id="streakNumber">0</div>
+                <div class="streak-label">Day Workout Streak</div>
+                <div class="streak-emoji" id="streakEmoji">🔥</div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <div class="action-btn" onclick="window.venusApp.startWorkout()">
+                    <div class="action-btn-icon">💪</div>
+                    <div class="action-btn-title">Start Workout</div>
+                    <div class="action-btn-subtitle">Log exercises in real-time</div>
+                </div>
+
+                <div class="action-btn" onclick="window.venusApp.generateQuantumWorkout()">
+                    <div class="action-btn-icon">⚡</div>
+                    <div class="action-btn-title">Quantum Workout</div>
+                    <div class="action-btn-subtitle">AI-generated based on recovery</div>
+                </div>
+
+                <div class="action-btn" onclick="window.venusApp.scanNutrition()">
+                    <div class="action-btn-icon">📸</div>
+                    <div class="action-btn-title">Scan Meal</div>
+                    <div class="action-btn-subtitle">Photo or barcode nutrition</div>
+                </div>
+
+                <div class="action-btn" onclick="window.venusApp.viewChallenges()">
+                    <div class="action-btn-icon">🏆</div>
+                    <div class="action-btn-title">Challenges</div>
+                    <div class="action-btn-subtitle">Compete and earn achievements</div>
+                </div>
+            </div>
+
+            <!-- Dashboard Grid -->
+            <div class="dashboard-grid">
+                <!-- Weekly Progress -->
+                <div class="glass-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            Weekly Progress
+                            <span class="level-badge" id="levelBadge">Level 1</span>
+                        </div>
+                        <div class="card-icon">📊</div>
+                    </div>
+
+                    <div class="progress-container">
+                        <div class="progress-label">
+                            <span>Workouts</span>
+                            <span id="workoutProgress">0/5 this week</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="workoutProgressBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="progress-container">
+                        <div class="progress-label">
+                            <span>Volume (lbs)</span>
+                            <span id="volumeProgress">0/50,000</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="volumeProgressBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="progress-container">
+                        <div class="progress-label">
+                            <span>Nutrition Goal</span>
+                            <span id="nutritionProgress">0/7 days</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="nutritionProgressBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Workouts -->
+                <div class="glass-card">
+                    <div class="card-header">
+                        <div class="card-title">Recent Workouts</div>
+                        <div class="card-icon">🏋️</div>
+                    </div>
+                    <div id="workoutList" class="workout-list">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Nutrition Tracker -->
+                <div class="glass-card">
+                    <div class="card-header">
+                        <div class="card-title">Nutrition Scanner</div>
+                        <div class="card-icon">🍎</div>
+                    </div>
+                    <div class="scanner-zone" onclick="window.venusApp.scanNutrition()">
+                        <div class="scanner-icon">📸</div>
+                        <div class="scanner-text">Tap to scan meal</div>
+                        <div class="scanner-hint">Photo recognition or barcode</div>
+                    </div>
+                    <div id="todayNutrition" style="margin-top: 20px;">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- AI Recommendations -->
+                <div class="glass-card">
+                    <div class="card-header">
+                        <div class="card-title">AI Coach</div>
+                        <div class="card-icon">🤖</div>
+                    </div>
+                    <div id="aiRecommendations">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" style="display: none;">
+            <div class="empty-state">
+                <div class="empty-icon">💪</div>
+                <div class="empty-text">Ready to start your fitness journey?</div>
+                <button class="cta-button" onclick="window.venusApp.startFirstWorkout()">
+                    Start Your First Workout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Achievement Popup -->
+    <div id="achievementPopup" class="achievement">
+        <div class="achievement-icon" id="achievementIcon">🏆</div>
+        <div class="achievement-title" id="achievementTitle">Achievement Unlocked!</div>
+        <div class="achievement-subtitle" id="achievementSubtitle">Keep going!</div>
+    </div>
+
+    <!-- Include Config -->
+    <script src="./src/config.js"></script>
+
+    <!-- Include Venus App Logic -->
+    <script src="./src/venus-app.js"></script>
+</body>
+</html>

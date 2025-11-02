@@ -860,6 +860,30 @@ class PhoenixAPI {
         });
     }
 
+    // ⭐ NEW UNIVERSAL NATURAL LANGUAGE ENDPOINT ⭐
+    // POST /api/phoenix/universal - Process ANY natural language request
+    // Routes to appropriate planetary system automatically
+    async universalNaturalLanguage(message, conversationHistory = [], timezone = 'America/New_York') {
+        return this.request('/phoenix/universal', 'POST', {
+            message,
+            conversationHistory,
+            timezone
+        });
+    }
+
+    // GET /api/phoenix/universal/examples - Get example requests
+    async getUniversalExamples() {
+        return this.request('/phoenix/universal/examples', 'GET', null, {
+            cache: true,
+            cacheTTL: 600000 // Cache for 10 minutes
+        });
+    }
+
+    // GET /api/phoenix/universal/context - Get current user context
+    async getUniversalContext() {
+        return this.request('/phoenix/universal/context', 'GET');
+    }
+
     // POST /api/phoenix/ml/train
     async trainModel(modelData) {
         return this.request('/phoenix/ml/train', 'POST', modelData);

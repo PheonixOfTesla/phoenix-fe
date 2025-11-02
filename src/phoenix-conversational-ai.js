@@ -1300,39 +1300,38 @@ class PhoenixConversationalAI {
      */
     async sendVoiceMessageWithContext(message) {
         try {
-            const personalityMap = {
-                'PHOENIX': 'friendly_helpful',
-                'ALFRED': 'british_refined',
-                'BASIC_PHOENIX': 'friendly_helpful',
-                'JARVIS': 'analytical_robotic',
-                'BUTLER': 'british_refined',
-                'PHOENIX_OPTIMIZED': 'master_ai'
-            };
-
-            console.log('⚡ Sending to Gemini via PhoenixVoice...', {
+            console.log('⚡ Sending to Universal Natural Language Engine...', {
                 message: message.substring(0, 50),
-                personality: personalityMap[this.mode.type] || 'friendly_helpful'
+                mode: this.mode.type
             });
 
-            const response = await this.api.phoenixVoiceChat({
-                message: message,
-                conversationHistory: this.conversationHistory.slice(-5), // Reduced from 10 to 5 for speed
-                personality: personalityMap[this.mode.type] || 'friendly_helpful',
-                voice: this.voice.personality,
-                mode: this.mode.type,
-                optimizationScore: this.getOptimizationScore(),
-                traits: this.mode.traits
-            });
+            // ⭐ NEW: Use Universal Natural Language endpoint
+            // This routes the request to the appropriate planetary system
+            // and returns a conversational response
+            const response = await this.api.universalNaturalLanguage(
+                message,
+                this.conversationHistory.slice(-10), // Last 10 messages for context
+                Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York'
+            );
 
-            console.log('✅ Gemini response received');
+            console.log('✅ Universal NL response received', {
+                planet: response.intent?.planet,
+                action: response.intent?.action,
+                confidence: response.intent?.confidence
+            });
 
             if (response.success && response.response) {
                 return {
                     reply: response.response,
-                    personality: response.personality,
-                    voice: response.voice,
-                    timestamp: response.timestamp,
-                    hasFullContext: true
+                    personality: this.mode.type,
+                    voice: this.voice.personality,
+                    timestamp: response.timestamp || new Date().toISOString(),
+                    hasFullContext: true,
+                    // ⭐ NEW: Include planetary routing info
+                    planet: response.intent?.planet,
+                    action: response.intent?.action,
+                    confidence: response.intent?.confidence,
+                    data: response.data
                 };
             } else {
                 throw new Error(response.error || 'No response from AI');
