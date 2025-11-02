@@ -35,6 +35,20 @@ const config: CapacitorConfig = {
       prompt: 'Say something',
       partialResults: true,
       popup: false
+    },
+    SiriShortcuts: {
+      // Siri Shortcuts configuration
+      // Allows "Hey Siri" voice commands for Phoenix
+      appName: 'Phoenix',
+      suggestedPhrases: [
+        'Phoenix, book me a ride',
+        'Phoenix, order my usual',
+        'Phoenix, I finished my workout',
+        'Phoenix, make a dinner reservation',
+        'Phoenix, what\'s my day look like',
+        'Phoenix, check my recovery',
+        'Phoenix, help me out'
+      ]
     }
   }
 };
