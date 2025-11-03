@@ -73,6 +73,12 @@
     animation: orbProcessing 1.5s linear infinite;
 }
 
+/* Speaking State (like Siri) */
+.phoenix-orb.speaking {
+    animation: orbSpeaking 0.8s ease-in-out infinite;
+    box-shadow: 0 0 80px var(--planet-color-glow);
+}
+
 /* Expanded Panel State */
 .phoenix-panel {
     position: absolute;
@@ -357,6 +363,25 @@
 @keyframes orbProcessing {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+@keyframes orbSpeaking {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 40px var(--planet-color-glow), 0 0 80px var(--planet-color-glow);
+    }
+    25% {
+        transform: scale(1.08);
+        box-shadow: 0 0 60px var(--planet-color-glow), 0 0 100px var(--planet-color-glow);
+    }
+    50% {
+        transform: scale(1.15);
+        box-shadow: 0 0 80px var(--planet-color-glow), 0 0 120px var(--planet-color-glow);
+    }
+    75% {
+        transform: scale(1.08);
+        box-shadow: 0 0 60px var(--planet-color-glow), 0 0 100px var(--planet-color-glow);
+    }
 }
 
 /* ========================================

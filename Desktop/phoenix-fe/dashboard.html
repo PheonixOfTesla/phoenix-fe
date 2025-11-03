@@ -976,7 +976,7 @@
     <!-- PHOENIX CORE - CENTER SPHERE -->
     <!-- ============================================ -->
     <div style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:500;perspective:2000px;perspective-origin:center center;pointer-events:none">
-        <div id="phoenix-core-container" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:200px;height:200px;pointer-events:auto;cursor:pointer;transform-style:preserve-3d">
+        <div id="phoenix-core-container" onclick="if(window.phoenixOrb){phoenixOrb.togglePanel();phoenixOrb.switchTab('text')}" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:200px;height:200px;pointer-events:auto;cursor:pointer;transform-style:preserve-3d">
         <!-- Orbital Rings -->
         <div style="position:absolute;top:0;left:0;width:100%;height:100%">
             <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:100%;height:100%;border:1px solid rgba(0,255,255,0.4);border-radius:50%;animation:coreRotate 20s linear infinite"></div>
@@ -3242,7 +3242,22 @@
             if (phoenixCoreContainer) {
                 phoenixCoreContainer.addEventListener('click', function() {
                     console.log('⚡ Phoenix Core Activated');
-                    phoenix.toggleActionMenu();
+
+                    // Add Siri-like pulse animation
+                    const sphere = document.getElementById('phoenix-sphere');
+                    sphere.style.animation = 'corePulse 0.5s ease-in-out 3';
+                    sphere.style.boxShadow = '0 0 80px rgba(0,255,255,0.9), inset 0 0 40px rgba(0,255,255,0.5)';
+
+                    setTimeout(() => {
+                        sphere.style.animation = 'corePulse 2s ease-in-out infinite';
+                        sphere.style.boxShadow = '0 0 40px rgba(0,255,255,0.6), inset 0 0 20px rgba(0,255,255,0.3)';
+                    }, 1500);
+
+                    // Open Phoenix conversation panel
+                    if (window.phoenixOrb) {
+                        phoenixOrb.togglePanel();
+                        phoenixOrb.switchTab('text');
+                    }
                 });
             }
             

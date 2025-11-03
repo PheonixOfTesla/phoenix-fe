@@ -183,6 +183,23 @@ class PhoenixOrb {
     }
 
     /**
+     * Start voice interaction when clicking the center orb (like Siri)
+     */
+    startVoiceFromOrb() {
+        console.log('🎤 Orb clicked - starting voice interaction');
+
+        const orb = document.querySelector('.phoenix-orb');
+
+        // Add immediate visual feedback (animate like Siri)
+        orb.classList.add('listening');
+
+        // Start voice recognition
+        if (!this.isListening) {
+            this.toggleVoice();
+        }
+    }
+
+    /**
      * Get personalized greeting
      */
     getPersonalizedGreeting() {
@@ -205,9 +222,19 @@ class PhoenixOrb {
         }
 
         try {
+            const orb = document.querySelector('.phoenix-orb');
+
+            // Add speaking animation (like Siri)
+            orb.classList.add('speaking');
+
             await this.tts.speak(text, options);
+
+            // Remove speaking animation when done
+            orb.classList.remove('speaking');
         } catch (error) {
             console.error('TTS error:', error);
+            // Remove animation even if error
+            document.querySelector('.phoenix-orb')?.classList.remove('speaking');
         }
     }
 
@@ -221,7 +248,7 @@ class PhoenixOrb {
 
         container.innerHTML = `
             <!-- Collapsed Orb -->
-            <div class="phoenix-orb" onclick="phoenixOrb.togglePanel()" data-activity="0">
+            <div class="phoenix-orb" onclick="phoenixOrb.startVoiceFromOrb()" data-activity="0">
                 <svg class="phoenix-orb-icon" viewBox="0 0 24 24">
                     <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
                     <circle cx="12" cy="12" r="3" fill="currentColor"/>
@@ -573,6 +600,12 @@ class PhoenixOrb {
 
         if (!message) return;
 
+        // Show user's message immediately (like ChatGPT)
+        const responseEl = document.getElementById('phoenixResponse');
+        const responseTextEl = document.getElementById('phoenixResponseText');
+        responseTextEl.innerHTML = `<div style="color:#00ffff;margin-bottom:10px">You: ${message}</div><div style="color:#888">Phoenix is thinking...</div>`;
+        responseEl.style.display = 'block';
+
         input.value = '';
         this.processCommand(message, 'text');
     }
@@ -601,7 +634,10 @@ class PhoenixOrb {
                 return;
             }
 
-            // Send to Universal NL endpoint
+            // Send to Universal NL endpoint with 10-second timeout
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10-second timeout
+
             const response = await fetch(`${window.PhoenixConfig.API_BASE_URL}/phoenix/universal`, {
                 method: 'POST',
                 headers: {
@@ -616,8 +652,11 @@ class PhoenixOrb {
                         url: window.location.href,
                         inputType
                     }
-                })
+                }),
+                signal: controller.signal
             });
+
+            clearTimeout(timeoutId);
 
             orb.classList.remove('processing');
 
@@ -655,7 +694,13 @@ class PhoenixOrb {
         } catch (error) {
             console.error('❌ Command processing error:', error);
             orb.classList.remove('processing');
-            this.showResponse('error', 'Error processing command', error.message);
+
+            // Handle timeout specifically
+            if (error.name === 'AbortError') {
+                this.showResponse('error', 'Response timeout', 'Phoenix took too long to respond. Try again.');
+            } else {
+                this.showResponse('error', 'Error processing command', error.message);
+            }
 
             this.logActivity('command_error', {
                 message,
