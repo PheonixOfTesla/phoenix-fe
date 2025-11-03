@@ -1,0 +1,603 @@
+{
+  "timestamp": "2025-11-03T04:27:08.666Z",
+  "passed": [
+    "Login with Working Account",
+    "Venus - Fitness & Training Platform",
+    "Mars - Goals & Habits Tracker",
+    "Earth - Calendar & Productivity Optimizer",
+    "Backend API Integration Check",
+    "Console Errors Check"
+  ],
+  "failed": [
+    {
+      "name": "Mercury - Health Intelligence Dashboard",
+      "error": "Mercury: Recovery ring not found"
+    },
+    {
+      "name": "Jupiter - Finance & Wealth Manager",
+      "error": "Page.captureScreenshot timed out. Increase the 'protocolTimeout' setting in launch/connect calls for a higher timeout if needed."
+    },
+    {
+      "name": "Saturn - Legacy & Mortality Planner",
+      "error": "Protocol error (Runtime.callFunctionOn): Target closed"
+    },
+    {
+      "name": "Phoenix AI - Voice Interface with 3 Tabs",
+      "error": "Protocol error (Page.navigate): Session closed. Most likely the page has been closed."
+    }
+  ],
+  "warnings": [
+    "79 console errors detected"
+  ],
+  "apiCalls": [
+    {
+      "method": "POST",
+      "url": "https://pal-backend-production.up.railway.app/api/auth/login",
+      "timestamp": "2025-11-03T04:27:17.191Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/auth/login",
+      "timestamp": "2025-11-03T04:27:17.192Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/auth/me",
+      "timestamp": "2025-11-03T04:27:18.239Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/auth/me",
+      "timestamp": "2025-11-03T04:27:18.241Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/mercury/devices",
+      "timestamp": "2025-11-03T04:27:18.242Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/mercury/devices",
+      "timestamp": "2025-11-03T04:27:18.242Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/users/profile",
+      "timestamp": "2025-11-03T04:27:18.249Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/users/profile",
+      "timestamp": "2025-11-03T04:27:18.250Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/auth/me",
+      "timestamp": "2025-11-03T04:27:18.251Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/auth/me",
+      "timestamp": "2025-11-03T04:27:18.253Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/subscriptions/status",
+      "timestamp": "2025-11-03T04:27:18.361Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/subscriptions/status",
+      "timestamp": "2025-11-03T04:27:18.362Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/phoenix/companion/personality",
+      "timestamp": "2025-11-03T04:27:18.367Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/phoenix/companion/history",
+      "timestamp": "2025-11-03T04:27:18.370Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/phoenix/insights",
+      "timestamp": "2025-11-03T04:27:18.371Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/phoenix/companion/personality",
+      "timestamp": "2025-11-03T04:27:18.371Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/phoenix/companion/history",
+      "timestamp": "2025-11-03T04:27:18.371Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/phoenix/insights",
+      "timestamp": "2025-11-03T04:27:18.372Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/phoenix/companion/personality",
+      "timestamp": "2025-11-03T04:27:18.445Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/phoenix/predictions",
+      "timestamp": "2025-11-03T04:27:18.456Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/phoenix/patterns",
+      "timestamp": "2025-11-03T04:27:18.457Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/phoenix/interventions",
+      "timestamp": "2025-11-03T04:27:18.458Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/phoenix/intelligence/recommendations",
+      "timestamp": "2025-11-03T04:27:18.458Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/phoenix/predictions",
+      "timestamp": "2025-11-03T04:27:18.458Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/phoenix/patterns",
+      "timestamp": "2025-11-03T04:27:18.459Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/phoenix/interventions",
+      "timestamp": "2025-11-03T04:27:18.459Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/phoenix/intelligence/recommendations",
+      "timestamp": "2025-11-03T04:27:18.459Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/mercury/devices",
+      "timestamp": "2025-11-03T04:27:18.495Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/auth/me",
+      "timestamp": "2025-11-03T04:27:18.545Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/mercury/devices",
+      "timestamp": "2025-11-03T04:27:19.206Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/mercury/recovery/latest",
+      "timestamp": "2025-11-03T04:27:21.846Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/mercury/biometrics/hrv?days=7",
+      "timestamp": "2025-11-03T04:27:21.847Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/mercury/sleep/analysis?nights=1",
+      "timestamp": "2025-11-03T04:27:21.848Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/mercury/devices/list",
+      "timestamp": "2025-11-03T04:27:21.850Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/phoenix/insights?category=health&limit=5",
+      "timestamp": "2025-11-03T04:27:21.851Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/mercury/recovery/latest",
+      "timestamp": "2025-11-03T04:27:21.851Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/mercury/biometrics/hrv?days=7",
+      "timestamp": "2025-11-03T04:27:21.851Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/mercury/sleep/analysis?nights=1",
+      "timestamp": "2025-11-03T04:27:21.851Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/mercury/devices/list",
+      "timestamp": "2025-11-03T04:27:21.852Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/phoenix/insights?category=health&limit=5",
+      "timestamp": "2025-11-03T04:27:21.853Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/venus/streak",
+      "timestamp": "2025-11-03T04:27:25.965Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/venus/workouts/recent?limit=5",
+      "timestamp": "2025-11-03T04:27:25.966Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/venus/nutrition/today",
+      "timestamp": "2025-11-03T04:27:25.969Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/venus/stats/weekly",
+      "timestamp": "2025-11-03T04:27:25.971Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/venus/level",
+      "timestamp": "2025-11-03T04:27:25.972Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/venus/streak",
+      "timestamp": "2025-11-03T04:27:25.973Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/venus/workouts/recent?limit=5",
+      "timestamp": "2025-11-03T04:27:25.973Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/venus/nutrition/today",
+      "timestamp": "2025-11-03T04:27:25.974Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/venus/stats/weekly",
+      "timestamp": "2025-11-03T04:27:25.974Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/venus/level",
+      "timestamp": "2025-11-03T04:27:25.974Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/mars/okr/current",
+      "timestamp": "2025-11-03T04:27:31.443Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/mars/key-results/list",
+      "timestamp": "2025-11-03T04:27:31.444Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/mars/goals/active",
+      "timestamp": "2025-11-03T04:27:31.446Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/mars/habits/list",
+      "timestamp": "2025-11-03T04:27:31.447Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/mars/habits/grid?days=365",
+      "timestamp": "2025-11-03T04:27:31.451Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/mars/habits/streak",
+      "timestamp": "2025-11-03T04:27:31.452Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/phoenix/insights?category=goals&limit=5",
+      "timestamp": "2025-11-03T04:27:31.453Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/mars/okr/current",
+      "timestamp": "2025-11-03T04:27:31.453Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/mars/key-results/list",
+      "timestamp": "2025-11-03T04:27:31.453Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/mars/goals/active",
+      "timestamp": "2025-11-03T04:27:31.453Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/mars/habits/list",
+      "timestamp": "2025-11-03T04:27:31.454Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/mars/habits/grid?days=365",
+      "timestamp": "2025-11-03T04:27:31.454Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/mars/habits/streak",
+      "timestamp": "2025-11-03T04:27:31.454Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/phoenix/insights?category=goals&limit=5",
+      "timestamp": "2025-11-03T04:27:31.455Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/jupiter/networth/current",
+      "timestamp": "2025-11-03T04:27:36.822Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/jupiter/accounts/list",
+      "timestamp": "2025-11-03T04:27:36.822Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/jupiter/transactions/recent?limit=20",
+      "timestamp": "2025-11-03T04:27:36.823Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/jupiter/spending/breakdown?period=month",
+      "timestamp": "2025-11-03T04:27:36.823Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/jupiter/budget/status",
+      "timestamp": "2025-11-03T04:27:36.824Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/jupiter/networth/current",
+      "timestamp": "2025-11-03T04:27:36.826Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/jupiter/accounts/list",
+      "timestamp": "2025-11-03T04:27:36.826Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/jupiter/transactions/recent?limit=20",
+      "timestamp": "2025-11-03T04:27:36.827Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/jupiter/spending/breakdown?period=month",
+      "timestamp": "2025-11-03T04:27:36.828Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/jupiter/budget/status",
+      "timestamp": "2025-11-03T04:27:36.828Z"
+    },
+    {
+      "method": "POST",
+      "url": "https://pal-backend-production.up.railway.app/api/jupiter/plaid/link-token",
+      "timestamp": "2025-11-03T04:27:41.466Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/jupiter/plaid/link-token",
+      "timestamp": "2025-11-03T04:27:41.466Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/earth/calendar/events?start=2025-11-02T04:00:00.000Z&end=2025-11-09T04:59:59.999Z",
+      "timestamp": "2025-11-03T04:30:42.519Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/earth/calendar/events?start=2025-11-02T04:00:00.000Z&end=2025-11-09T04:59:59.999Z",
+      "timestamp": "2025-11-03T04:30:42.519Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/earth/energy/current",
+      "timestamp": "2025-11-03T04:30:42.520Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/earth/analytics/week",
+      "timestamp": "2025-11-03T04:30:42.520Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/earth/energy/current",
+      "timestamp": "2025-11-03T04:30:42.520Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/earth/analytics/week",
+      "timestamp": "2025-11-03T04:30:42.520Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/earth/schedule/optimize",
+      "timestamp": "2025-11-03T04:30:46.837Z"
+    },
+    {
+      "method": "POST",
+      "url": "https://pal-backend-production.up.railway.app/api/earth/schedule/optimize",
+      "timestamp": "2025-11-03T04:30:46.837Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/saturn/mortality/calculate",
+      "timestamp": "2025-11-03T04:30:49.155Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/saturn/reviews/list?limit=5",
+      "timestamp": "2025-11-03T04:30:49.157Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/saturn/goals/long-term",
+      "timestamp": "2025-11-03T04:30:49.160Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/saturn/legacy/projects",
+      "timestamp": "2025-11-03T04:30:49.160Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/saturn/relationships/important",
+      "timestamp": "2025-11-03T04:30:49.161Z"
+    },
+    {
+      "method": "OPTIONS",
+      "url": "https://pal-backend-production.up.railway.app/api/saturn/satisfaction/current",
+      "timestamp": "2025-11-03T04:30:49.161Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/saturn/mortality/calculate",
+      "timestamp": "2025-11-03T04:30:49.161Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/saturn/reviews/list?limit=5",
+      "timestamp": "2025-11-03T04:30:49.161Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/saturn/goals/long-term",
+      "timestamp": "2025-11-03T04:30:49.162Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/saturn/legacy/projects",
+      "timestamp": "2025-11-03T04:30:49.162Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/saturn/relationships/important",
+      "timestamp": "2025-11-03T04:30:49.162Z"
+    },
+    {
+      "method": "GET",
+      "url": "https://pal-backend-production.up.railway.app/api/saturn/satisfaction/current",
+      "timestamp": "2025-11-03T04:30:49.162Z"
+    }
+  ],
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "❌ API client incomplete: JSHandle@array",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Connection check error: JSHandle@error",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "API Error [GET /users/profile]: JSHandle@error",
+    "❌ Failed to load user profile: JSHandle@error",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "❌ Error: JSHandle@error",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "API Error [GET /subscriptions/status]: JSHandle@error",
+    "❌ Failed to check subscription: JSHandle@error",
+    "❌ Mercury failed: JSHandle@error",
+    "❌ Venus failed: JSHandle@error",
+    "❌ Earth failed: JSHandle@error",
+    "❌ Mars failed: JSHandle@error",
+    "❌ Jupiter failed: JSHandle@error",
+    "❌ Saturn failed: JSHandle@error",
+    "❌ Phoenix failed: JSHandle@error",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "API Error [GET /phoenix/companion/personality]: JSHandle@error",
+    "❌ AI context setup failed: JSHandle@error",
+    "❌ Butler initialization failed: JSHandle@error",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "API Error [GET /mercury/devices]: JSHandle@error",
+    "❌ Device check failed: JSHandle@error",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "API Error [GET /auth/me]: JSHandle@error",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "❌ Weather/Location error: JSHandle@error",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "❌ Error: JSHandle@error",
+    "Connection check error: JSHandle@error",
+    "Failed to fetch user profile: JSHandle@error",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Error loading dashboard: JSHandle@error",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Error loading dashboard: JSHandle@error",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Bank connection error: JSHandle@error",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 404 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()",
+    "Failed to load resource: the server responded with a status of 401 ()"
+  ],
+  "featuresTested": [
+    "Venus: Add Workout button",
+    "Mars: Habit grid visualization",
+    "Mars: Create OKR button",
+    "Jupiter: Connect Bank button",
+    "Earth: Energy curve visualization",
+    "Earth: Schedule Optimization (uses Mercury data)"
+  ]
+}

@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earth - Calendar | Phoenix</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Earth Theme - Blue/Green accent */
+        :root {
+            --earth-accent: #00D4FF;
+            --earth-glow: rgba(0, 212, 255, 0.5);
+            --earth-bg: rgba(0, 212, 255, 0.1);
+        }
+
+        /* Energy Hero */
+        .energy-hero {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 212, 255, 0.05));
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 32px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 212, 255, 0.2);
+        }
+
+        .energy-title {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* Energy Curve Visualization */
+        .energy-curve {
+            height: 150px;
+            position: relative;
+            margin: 24px 0;
+        }
+
+        .energy-curve svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .energy-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 12px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .current-energy {
+            text-align: center;
+            margin-top: 24px;
+        }
+
+        .energy-score {
+            font-size: 72px;
+            font-weight: 700;
+            color: var(--earth-accent);
+            text-shadow: 0 0 20px var(--earth-glow);
+            line-height: 1;
+        }
+
+        .energy-status {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 8px;
+        }
+
+        /* Quick Actions */
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .action-button {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(0, 212, 255, 0.05));
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 16px;
+            padding: 24px;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .action-button:hover {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.25), rgba(0, 212, 255, 0.1));
+            border-color: var(--earth-accent);
+            box-shadow: 0 8px 24px var(--earth-glow);
+            transform: translateY(-2px);
+        }
+
+        .action-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        /* Week View */
+        .week-view {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .day-column {
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 12px;
+            padding: 12px 8px;
+            min-height: 300px;
+        }
+
+        .day-header {
+            text-align: center;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .day-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .day-date {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--earth-accent);
+            margin-top: 4px;
+        }
+
+        .day-column.today {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: var(--earth-accent);
+            box-shadow: 0 0 20px var(--earth-glow);
+        }
+
+        .event-item {
+            background: rgba(0, 212, 255, 0.15);
+            border-left: 3px solid var(--earth-accent);
+            border-radius: 6px;
+            padding: 8px;
+            margin-bottom: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .event-item:hover {
+            background: rgba(0, 212, 255, 0.25);
+            transform: translateX(2px);
+        }
+
+        .event-time {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 4px;
+        }
+
+        .event-title {
+            font-weight: 600;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Today's Events List */
+        .events-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .event-card {
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-left: 4px solid var(--earth-accent);
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .event-card:hover {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: rgba(0, 212, 255, 0.4);
+            transform: translateX(4px);
+        }
+
+        .event-card-time {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--earth-accent);
+            margin-bottom: 8px;
+        }
+
+        .event-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .event-card-meta {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Stats Row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--earth-accent);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Time Blocks */
+        .time-blocks {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .time-block {
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .time-block-icon {
+            font-size: 24px;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 212, 255, 0.2);
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+
+        .time-block-info {
+            flex: 1;
+        }
+
+        .time-block-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .time-block-time {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .time-block-badge {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 8px;
+            background: rgba(0, 212, 255, 0.2);
+            color: var(--earth-accent);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state-icon {
+            font-size: 80px;
+            margin-bottom: 24px;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 32px;
+        }
+
+        .connect-button {
+            background: var(--earth-accent);
+            color: #000000;
+            border: none;
+            border-radius: 12px;
+            padding: 16px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px var(--earth-glow);
+        }
+
+        .connect-button:hover {
+            background: #00e6ff;
+            box-shadow: 0 6px 24px var(--earth-glow);
+            transform: translateY(-2px);
+        }
+
+        /* Loading State */
+        #loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(0, 212, 255, 0.2);
+            border-top-color: var(--earth-accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="nav-header">
+        <div class="nav-logo">
+            <span class="logo-icon"></span>
+            <span class="logo-text">Earth</span>
+            <span class="planet-subtitle">Intelligent Calendar</span>
+        </div>
+        <button class="back-button" onclick="window.location.href='dashboard.html'">
+            ← Back to Dashboard
+        </button>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Loading State -->
+        <div id="loading" style="display: block;">
+            <div class="loading-spinner"></div>
+            <span>Loading calendar...</span>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div id="dashboard" style="display: none;">
+            <!-- Energy Hero -->
+            <div class="energy-hero">
+                <div class="energy-title">Your Energy Today</div>
+
+                <!-- Energy Curve -->
+                <div class="energy-curve">
+                    <svg id="energyCurve" viewBox="0 0 1000 150" preserveAspectRatio="none">
+                        <!-- Gradient definition -->
+                        <defs>
+                            <linearGradient id="energyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:rgba(0,212,255,0.4);stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:rgba(0,212,255,0);stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <!-- Energy curve path -->
+                        <path id="energyPath" fill="url(#energyGradient)" stroke="none"/>
+                        <path id="energyLine" fill="none" stroke="#00D4FF" stroke-width="3"
+                              style="filter: drop-shadow(0 0 10px rgba(0,212,255,0.5));"/>
+                        <!-- Current time indicator -->
+                        <circle id="currentTimeMarker" r="6" fill="#00D4FF"
+                                style="filter: drop-shadow(0 0 10px rgba(0,212,255,0.8));"/>
+                    </svg>
+                </div>
+                <div class="energy-labels">
+                    <span>6 AM</span>
+                    <span>9 AM</span>
+                    <span>12 PM</span>
+                    <span>3 PM</span>
+                    <span>6 PM</span>
+                    <span>9 PM</span>
+                </div>
+
+                <!-- Current Energy Score -->
+                <div class="current-energy">
+                    <div class="energy-score" id="energyScore">--</div>
+                    <div class="energy-status" id="energyStatus">Calculating...</div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions-grid">
+                <button class="action-button" onclick="window.earthApp.connectCalendar()">
+                    <span class="action-icon"></span>
+                    Connect Calendar
+                </button>
+                <button class="action-button" onclick="window.earthApp.blockDeepWork()">
+                    <span class="action-icon"></span>
+                    Block Deep Work
+                </button>
+                <button class="action-button" onclick="window.earthApp.addEvent()">
+                    <span class="action-icon"></span>
+                    Add Event
+                </button>
+                <button class="action-button" onclick="window.earthApp.optimizeSchedule()">
+                    <span class="action-icon"></span>
+                    Optimize Schedule
+                </button>
+            </div>
+
+            <!-- Dashboard Grid -->
+            <div class="dashboard-grid">
+                <!-- Week View Card -->
+                <div class="glass-card" style="grid-column: 1 / -1;">
+                    <div class="card-header">
+                        <div class="card-title">
+                            This Week
+                            <span class="card-subtitle" id="weekRange">Loading...</span>
+                        </div>
+                        <div class="card-icon"></div>
+                    </div>
+                    <div class="week-view" id="weekView">
+                        <!-- Generated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Today's Schedule Card -->
+                <div class="glass-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            Today's Schedule
+                            <span class="card-subtitle" id="todayEventCount">0 events</span>
+                        </div>
+                        <div class="card-icon"></div>
+                    </div>
+                    <div class="events-list" id="todayEvents">
+                        <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.4);">
+                            No events today
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calendar Stats Card -->
+                <div class="glass-card">
+                    <div class="card-header">
+                        <div class="card-title">Weekly Insights</div>
+                        <div class="card-icon"></div>
+                    </div>
+                    <div class="stats-row">
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalEvents">0</div>
+                            <div class="stat-label">Events</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalMeetings">0</div>
+                            <div class="stat-label">Meetings</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="deepWorkHours">0h</div>
+                            <div class="stat-label">Deep Work</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="freeTime">0h</div>
+                            <div class="stat-label">Free Time</div>
+                        </div>
+                    </div>
+
+                    <div class="time-blocks" style="margin-top: 24px;">
+                        <div class="time-block">
+                            <div class="time-block-icon"></div>
+                            <div class="time-block-info">
+                                <div class="time-block-title">Peak Energy Window</div>
+                                <div class="time-block-time" id="peakEnergyTime">9:00 AM - 11:00 AM</div>
+                            </div>
+                            <div class="time-block-badge">Best for hard work</div>
+                        </div>
+                        <div class="time-block">
+                            <div class="time-block-icon"></div>
+                            <div class="time-block-info">
+                                <div class="time-block-title">Low Energy Window</div>
+                                <div class="time-block-time" id="lowEnergyTime">2:00 PM - 4:00 PM</div>
+                            </div>
+                            <div class="time-block-badge">Schedule meetings</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" style="display: none;">
+            <div class="empty-state">
+                <div class="empty-state-icon"></div>
+                <div class="empty-state-text">
+                    Connect your calendar to unlock<br>
+                    energy-optimized scheduling
+                </div>
+                <button class="connect-button" onclick="window.earthApp.connectCalendar()">
+                     Connect Google Calendar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load config and app -->
+    <script src="src/config.js"></script>
+    <script src="src/smooth-scroll.js"></script>
+    <script src="src/earth-app.js"></script>
+
+    <!-- Phoenix Orb - Universal AI Assistant -->
+    <link rel="stylesheet" href="src/phoenix-orb.css">
+    <script src="src/wake-word-detector.js"></script>
+    <script src="src/voice-tts.js"></script>
+    <script src="src/phoenix-orb.js"></script>
+</body>
+</html>

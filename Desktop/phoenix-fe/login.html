@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Phoenix - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+            background: #000;
+            color: #00ffff;
+            overflow-x: hidden;
+            overflow-y: auto;
+            width: 100vw;
+            min-height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        /* Constellation Canvas */
+        #constellation-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Animated Background */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Login Container */
+        .login-container {
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 450px;
+            background: rgba(0, 10, 20, 0.95);
+            border: 2px solid rgba(0, 255, 255, 0.5);
+            padding: 50px 40px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 0 60px rgba(0, 255, 255, 0.4);
+            animation: slideIn 0.8s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo-text {
+            font-size: 48px;
+            color: #00ffff;
+            text-shadow: 0 0 30px rgba(0, 255, 255, 1);
+            letter-spacing: 8px;
+            margin-bottom: 10px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                text-shadow: 0 0 30px rgba(0, 255, 255, 1);
+            }
+            50% {
+                text-shadow: 0 0 50px rgba(0, 255, 255, 1);
+            }
+        }
+
+        .logo-subtitle {
+            font-size: 14px;
+            color: rgba(0, 255, 255, 0.6);
+            letter-spacing: 2px;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: rgba(0, 255, 255, 0.5);
+            font-size: 14px;
+            letter-spacing: 2px;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab.active {
+            color: #00ffff;
+            border-bottom-color: #00ffff;
+        }
+
+        .tab:hover {
+            color: #00ffff;
+        }
+
+        .form-container {
+            display: none;
+        }
+
+        .form-container.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 11px;
+            color: rgba(0, 255, 255, 0.7);
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(0, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            color: #00ffff;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            background: rgba(0, 255, 255, 0.1);
+            border-color: #00ffff;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+
+        .form-input::placeholder {
+            color: rgba(0, 255, 255, 0.3);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: rgba(0, 255, 255, 0.1);
+            border: 2px solid #00ffff;
+            color: #00ffff;
+            font-family: inherit;
+            font-size: 14px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            background: rgba(0, 255, 255, 0.3);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid rgba(255, 68, 68, 0.5);
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #ff4444;
+            font-size: 12px;
+            display: none;
+            animation: shake 0.5s;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .success-message {
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.5);
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #00ffff;
+            font-size: 12px;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .loading-spinner.show {
+            display: block;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(0, 255, 255, 0.2);
+            border-top-color: #00ffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .forgot-password a {
+            color: rgba(0, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .forgot-password a:hover {
+            color: #00ffff;
+        }
+
+        /* Corner Brackets */
+        .corner-bracket {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            z-index: 5;
+        }
+
+        .bracket-tl {
+            top: 20px;
+            left: 20px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .bracket-tr {
+            top: 20px;
+            right: 20px;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .bracket-bl {
+            bottom: 20px;
+            left: 20px;
+            border-right: none;
+            border-top: none;
+        }
+
+        .bracket-br {
+            bottom: 20px;
+            right: 20px;
+            border-left: none;
+            border-top: none;
+        }
+
+        .checkbox-group {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #00ffff;
+        }
+
+        .checkbox-group label {
+            color: rgba(0, 255, 255, 0.7);
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .checkbox-group a {
+            color: #00ffff;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .checkbox-group a:hover {
+            border-bottom-color: #00ffff;
+        }
+
+        /* Modal Styles */
+        .terms-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .terms-content {
+            background: rgba(0, 10, 20, 0.95);
+            border: 2px solid rgba(0, 255, 255, 0.5);
+            padding: 40px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.4);
+        }
+
+        .terms-title {
+            font-size: 28px;
+            color: #00ffff;
+            margin-bottom: 20px;
+            text-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+        }
+
+        .terms-text {
+            color: rgba(0, 255, 255, 0.8);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .terms-text h3 {
+            color: #00ffff;
+            font-size: 18px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .terms-text ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .terms-text li {
+            margin-bottom: 8px;
+        }
+
+        .terms-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .terms-btn {
+            padding: 15px 30px;
+            border: 1px solid;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 1px;
+        }
+
+        .terms-btn.decline {
+            background: rgba(255, 68, 68, 0.1);
+            border-color: rgba(255, 68, 68, 0.5);
+            color: #ff4444;
+        }
+
+        .terms-btn.decline:hover {
+            background: rgba(255, 68, 68, 0.3);
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.5);
+        }
+
+        .terms-btn:not(.decline) {
+            background: rgba(0, 255, 255, 0.1);
+            border-color: rgba(0, 255, 255, 0.5);
+            color: #00ffff;
+        }
+
+        .terms-btn:not(.decline):hover {
+            background: rgba(0, 255, 255, 0.3);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+
+        @media (max-width: 600px) {
+            .login-container {
+                padding: 40px 30px;
+                width: 95%;
+            }
+
+            .logo-text {
+                font-size: 36px;
+            }
+
+            body {
+                padding: 20px 10px;
+            }
+        }
+
+        @media (max-height: 800px) {
+            .login-container {
+                padding: 30px 25px;
+            }
+
+            .logo-text {
+                font-size: 36px;
+                margin-bottom: 5px;
+            }
+
+            .form-group {
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="constellation-canvas"></canvas>
+    <!-- Corner Brackets -->
+    <div class="corner-bracket bracket-tl"></div>
+    <div class="corner-bracket bracket-tr"></div>
+    <div class="corner-bracket bracket-bl"></div>
+    <div class="corner-bracket bracket-br"></div>
+
+    <!-- Animated Background -->
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- Login Container -->
+    <div class="login-container">
+        <div class="logo">
+            <div class="logo-text">PHOENIX</div>
+            <div class="logo-subtitle">AI COMPANION</div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" id="login-tab">LOGIN</div>
+            <div class="tab" id="register-tab">REGISTER</div>
+        </div>
+
+        <div class="error-message" id="error-message"></div>
+        <div class="success-message" id="success-message"></div>
+
+        <!-- Login Form -->
+        <div class="form-container active" id="login-form">
+            <form id="login-form-element">
+                <div class="form-group">
+                    <label class="form-label">Email or Phone Number</label>
+                    <input
+                        type="text"
+                        class="form-input"
+                        id="login-email"
+                        placeholder="your@email.com or +1 (555) 123-4567"
+                        required
+                    >
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input
+                        type="password"
+                        class="form-input"
+                        id="login-password" 
+                        placeholder="••••••••"
+                        required
+                    >
+                </div>
+                <button type="submit" class="submit-btn" id="login-btn">
+                    ACTIVATE PHOENIX
+                </button>
+            </form>
+            
+            <div class="forgot-password">
+                <a href="#" id="forgot-password-link">Forgot password?</a>
+            </div>
+        </div>
+
+        <!-- Register Form -->
+        <div class="form-container" id="register-form">
+            <form id="register-form-element">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input 
+                        type="text" 
+                        class="form-input" 
+                        id="register-name" 
+                        placeholder="John Doe"
+                        required
+                    >
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input 
+                        type="email" 
+                        class="form-input" 
+                        id="register-email" 
+                        placeholder="your@email.com"
+                        required
+                    >
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input 
+                        type="password" 
+                        class="form-input" 
+                        id="register-password" 
+                        placeholder="••••••••"
+                        required
+                        minlength="6"
+                    >
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Confirm Password</label>
+                    <input 
+                        type="password" 
+                        class="form-input" 
+                        id="register-password-confirm" 
+                        placeholder="••••••••"
+                        required
+                        minlength="6"
+                    >
+                </div>
+                <button type="submit" class="submit-btn" id="register-btn">
+                    CREATE ACCOUNT
+                </button>
+            </form>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="terms-checkbox" required>
+                <label for="terms-checkbox">
+                    I agree to the <a href="/terms" target="_blank">Terms of Service</a> and <a href="/privacy" target="_blank">Privacy Policy</a>
+                </label>
+            </div>
+        </div>
+
+        <div class="loading-spinner" id="loading-spinner">
+            <div class="spinner"></div>
+            <div style="margin-top: 15px; font-size: 12px; color: rgba(0,255,255,0.7);">
+                Connecting to Phoenix...
+            </div>
+        </div>
+    </div>
+
+    <!-- Terms & Privacy Modal -->
+    <div class="terms-modal" id="terms-modal">
+        <div class="terms-content">
+            <div class="terms-title" id="modal-title">Terms of Service</div>
+            <div class="terms-text" id="modal-text">
+                <!-- Content loaded dynamically -->
+            </div>
+            <div class="terms-buttons">
+                <button class="terms-btn decline" id="decline-btn">DECLINE</button>
+                <button class="terms-btn" id="accept-btn">ACCEPT & CONTINUE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Centralized Configuration -->
+    <script src="src/config.js"></script>
+
+    <script>
+        // ========================================
+        // CONFIGURATION
+        // ========================================
+
+        const API_BASE = PhoenixConfig.API_BASE_URL;
+
+        // ========================================
+        // ANIMATED BACKGROUND
+        // ========================================
+        
+        class AnimatedBackground {
+            constructor() {
+                this.canvas = document.getElementById('bg-canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.particles = [];
+                this.width = window.innerWidth;
+                this.height = window.innerHeight;
+                this.canvas.width = this.width;
+                this.canvas.height = this.height;
+                this.init();
+            }
+
+            init() {
+                const particleCount = Math.floor((this.width * this.height) / 5000); // Dynamic particle count
+                for (let i = 0; i < particleCount; i++) {
+                    this.particles.push({
+                        x: Math.random() * this.width,
+                        y: Math.random() * this.height,
+                        vx: (Math.random() - 0.5) * 0.5,
+                        vy: (Math.random() - 0.5) * 0.5,
+                        size: Math.random() * 2 + 1,
+                        alpha: Math.random() * 0.5 + 0.3
+                    });
+                }
+                this.animate();
+                
+                window.addEventListener('resize', () => {
+                    this.width = window.innerWidth;
+                    this.height = window.innerHeight;
+                    this.canvas.width = this.width;
+                    this.canvas.height = this.height;
+                });
+            }
+
+            animate() {
+                this.ctx.clearRect(0, 0, this.width, this.height);
+
+                this.particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    if (p.x < 0 || p.x > this.width) p.vx *= -1;
+                    if (p.y < 0 || p.y > this.height) p.vy *= -1;
+
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    this.ctx.fillStyle = `rgba(0, 255, 255, ${p.alpha})`;
+                    this.ctx.fill();
+                });
+
+                // Draw connections
+                this.particles.forEach((p1, i) => {
+                    this.particles.slice(i + 1).forEach(p2 => {
+                        const dx = p1.x - p2.x;
+                        const dy = p1.y - p2.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (dist < 150) {
+                            this.ctx.beginPath();
+                            this.ctx.moveTo(p1.x, p1.y);
+                            this.ctx.lineTo(p2.x, p2.y);
+                            this.ctx.strokeStyle = `rgba(0, 255, 255, ${(1 - dist / 150) * 0.2})`;
+                            this.ctx.lineWidth = 1;
+                            this.ctx.stroke();
+                        }
+                    });
+                });
+
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+
+        new AnimatedBackground();
+
+        // ========================================
+        // TAB SWITCHING
+        // ========================================
+        
+        document.getElementById('login-tab').addEventListener('click', () => {
+            document.getElementById('login-tab').classList.add('active');
+            document.getElementById('register-tab').classList.remove('active');
+            document.getElementById('login-form').classList.add('active');
+            document.getElementById('register-form').classList.remove('active');
+            hideMessages();
+        });
+
+       document.getElementById('register-tab').addEventListener('click', () => {
+    // Redirect to onboarding page
+    window.location.href = 'onboarding.html';
+});
+
+        // ========================================
+        // AUTHENTICATION
+        // ========================================
+        
+        let registrationData = null;
+        let registrationStep = 0; // 0 = form, 1 = privacy, 2 = terms, 3 = complete
+
+        // Check if already logged in
+        const token = localStorage.getItem('phoenixToken');
+        if (token) {
+            // Verify token is still valid
+            fetch(`${API_BASE}/auth/me`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    localStorage.setItem('phoenixOnboardingComplete', 'true'); // Prevent redirect loop
+                    window.location.href = 'index.html';
+                } else {
+                    localStorage.removeItem('phoenixToken');
+                    localStorage.removeItem('phoenixUser');
+                }
+            })
+            .catch(() => {
+                localStorage.removeItem('phoenixToken');
+                localStorage.removeItem('phoenixUser');
+            });
+        }
+
+        // Login Form Submission
+        document.getElementById('login-form-element').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            showLoading();
+            hideMessages();
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                hideLoading();
+
+                // Handle rate limiting (429)
+                if (response.status === 429) {
+                    showError('Too many login attempts. Please wait 2 minutes and try again.');
+                    return;
+                }
+
+                // Handle non-200 responses
+                if (!response.ok) {
+                    showError(`Login failed (Error ${response.status}). Please try again.`);
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (data.success && data.token) {
+                    localStorage.setItem('phoenixToken', data.token);
+                    localStorage.setItem('phoenixUser', JSON.stringify(data.user));
+                    localStorage.setItem('phoenixOnboardingComplete', 'true'); // Prevent redirect loop
+
+                    showSuccess('Login successful! Redirecting to Phoenix...');
+
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1000);
+                } else {
+                    showError(data.message || 'Login failed. Please check your credentials.');
+                }
+            } catch (error) {
+                hideLoading();
+                showError('Connection error. Please try again.');
+                console.error('Login error:', error);
+            }
+        });
+
+        // Register Form Submission
+        document.getElementById('register-form-element').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const passwordConfirm = document.getElementById('register-password-confirm').value;
+            const termsChecked = document.getElementById('terms-checkbox').checked;
+            
+            if (password !== passwordConfirm) {
+                showError('Passwords do not match');
+                return;
+            }
+
+            if (!termsChecked) {
+                showError('You must agree to the Terms of Service and Privacy Policy');
+                return;
+            }
+
+            // Store registration data temporarily
+            registrationData = { name, email, password };
+            registrationStep = 1;
+            
+            // Show Privacy Policy first
+            showModal('privacy');
+        });
+
+        // Modal handlers
+        function showModal(type) {
+            const modal = document.getElementById('terms-modal');
+            const title = document.getElementById('modal-title');
+            const text = document.getElementById('modal-text');
+            
+            modal.style.display = 'flex';
+            
+            if (type === 'privacy') {
+                title.textContent = 'Privacy Policy';
+                text.innerHTML = `
+                    <h3>Information We Collect</h3>
+                    <p>Phoenix collects health and fitness data to provide personalized insights:</p>
+                    <ul>
+                        <li>Wearable device data (heart rate, sleep, activity)</li>
+                        <li>Workout and nutrition logs</li>
+                        <li>Calendar events (with permission)</li>
+                        <li>Goal and habit tracking</li>
+                    </ul>
+                    
+                    <h3>How We Use Your Data</h3>
+                    <p>We use your data to:</p>
+                    <ul>
+                        <li>Provide personalized health insights</li>
+                        <li>Generate predictions and recommendations</li>
+                        <li>Automate interventions and optimizations</li>
+                        <li>Improve the service</li>
+                    </ul>
+                    
+                    <h3>Data Storage and Security</h3>
+                    <p>All data is encrypted in transit (TLS/SSL) and at rest (AES-256). Data is stored on secure MongoDB Atlas servers with automated backups.</p>
+                    
+                    <h3>Data Sharing</h3>
+                    <p><strong>We do NOT sell, rent, or share your personal data with third parties for marketing purposes.</strong></p>
+                    
+                    <h3>Your Rights</h3>
+                    <p>You have the right to access, delete, export, and control your data at any time.</p>
+                    
+                    <p style="margin-top: 20px; font-size: 11px; color: rgba(0,255,255,0.5);">
+                        <a href="/privacy" target="_blank" style="color: #00ffff;">View Full Privacy Policy</a>
+                    </p>
+                `;
+            } else if (type === 'terms') {
+                title.textContent = 'Terms of Service';
+                text.innerHTML = `
+                    <h3>1. Acceptance of Terms</h3>
+                    <p>By using Phoenix, you agree to be bound by these Terms of Service.</p>
+                    
+                    <h3>2. Description of Service</h3>
+                    <p>Phoenix is an AI-powered life optimization platform that integrates health, fitness, calendar, and goal tracking to provide personalized insights.</p>
+                    
+                    <h3>3. User Responsibilities</h3>
+                    <p>You are responsible for:</p>
+                    <ul>
+                        <li>Maintaining the confidentiality of your account</li>
+                        <li>Ensuring accuracy of data you provide</li>
+                        <li>Using the Service in compliance with laws</li>
+                        <li>Not attempting to compromise the Service</li>
+                    </ul>
+                    
+                    <h3>4. Medical Disclaimer</h3>
+                    <p><strong>Phoenix is not a medical device and does not provide medical advice.</strong> All insights are for informational purposes only. Consult healthcare professionals before making health decisions.</p>
+                    
+                    <h3>5. Limitation of Liability</h3>
+                    <p>Phoenix is provided "as is" without warranties. We are not liable for damages arising from your use of the Service.</p>
+                    
+                    <h3>6. Privacy</h3>
+                    <p>Your use of Phoenix is also governed by our Privacy Policy.</p>
+                    
+                    <p style="margin-top: 20px; font-size: 11px; color: rgba(0,255,255,0.5);">
+                        <a href="/terms" target="_blank" style="color: #00ffff;">View Full Terms of Service</a>
+                    </p>
+                `;
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('terms-modal').style.display = 'none';
+        }
+
+        document.getElementById('decline-btn').addEventListener('click', () => {
+            closeModal();
+            registrationData = null;
+            registrationStep = 0;
+            showError('You must accept the Terms and Privacy Policy to create an account');
+        });
+
+        document.getElementById('accept-btn').addEventListener('click', () => {
+            closeModal();
+            
+            if (registrationStep === 1) {
+                // Just accepted privacy, now show terms
+                registrationStep = 2;
+                setTimeout(() => showModal('terms'), 300);
+            } else if (registrationStep === 2) {
+                // Accepted both, now create account
+                registrationStep = 3;
+                createAccount();
+            }
+        });
+
+        async function createAccount() {
+            if (!registrationData) return;
+            
+            showLoading();
+            hideMessages();
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        name: registrationData.name,
+                        email: registrationData.email,
+                        password: registrationData.password,
+                        role: 'client'
+                    })
+                });
+
+                const data = await response.json();
+                hideLoading();
+
+                if (data.success && data.token) {
+                    localStorage.setItem('phoenixToken', data.token);
+                    localStorage.setItem('phoenixUser', JSON.stringify(data.user));
+                    localStorage.setItem('phoenixOnboardingComplete', 'true'); // Prevent redirect loop
+
+                    showSuccess('Account created! Welcome to Phoenix...');
+
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1000);
+                } else {
+                    showError(data.message || 'Registration failed. Please try again.');
+                    registrationData = null;
+                    registrationStep = 0;
+                }
+            } catch (error) {
+                hideLoading();
+                showError('Connection error. Please try again.');
+                console.error('Register error:', error);
+                registrationData = null;
+                registrationStep = 0;
+            }
+        }
+
+        // Forgot Password
+        document.getElementById('forgot-password-link').addEventListener('click', (e) => {
+            e.preventDefault();
+            const email = prompt('Enter your email address:');
+            if (email) {
+                showSuccess('Password reset link sent to ' + email);
+                // TODO: Implement password reset
+            }
+        });
+
+        // ========================================
+        // UI HELPERS
+        // ========================================
+        
+        function showLoading() {
+            document.getElementById('loading-spinner').classList.add('show');
+            document.getElementById('login-btn').disabled = true;
+            document.getElementById('register-btn').disabled = true;
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-spinner').classList.remove('show');
+            document.getElementById('login-btn').disabled = false;
+            document.getElementById('register-btn').disabled = false;
+        }
+
+        function showError(message) {
+            const errorEl = document.getElementById('error-message');
+            errorEl.textContent = message;
+            errorEl.classList.add('show');
+        }
+
+        function showSuccess(message) {
+            const successEl = document.getElementById('success-message');
+            successEl.textContent = message;
+            successEl.classList.add('show');
+        }
+
+        function hideMessages() {
+            document.getElementById('error-message').classList.remove('show');
+            document.getElementById('success-message').classList.remove('show');
+        }
+
+        /**
+         * Constellation Background Animation
+         */
+        (function initConstellations() {
+            const canvas = document.getElementById('constellation-canvas');
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            let stars = [];
+
+            // Set canvas size
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            resize();
+            window.addEventListener('resize', resize);
+
+            // Create stars
+            function createStars() {
+                stars = [];
+                const starCount = Math.floor((canvas.width * canvas.height) / 4000); // More stars for denser web
+
+                for (let i = 0; i < starCount; i++) {
+                    stars.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        size: Math.random() * 2 + 0.5,
+                        vx: (Math.random() - 0.5) * 0.3,
+                        vy: (Math.random() - 0.5) * 0.3,
+                        alpha: Math.random() * 0.5 + 0.3
+                    });
+                }
+            }
+            createStars();
+
+            // Draw stars and connections
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Draw connections
+                ctx.strokeStyle = 'rgba(0, 255, 255, 0.15)';
+                ctx.lineWidth = 0.5;
+
+                for (let i = 0; i < stars.length; i++) {
+                    for (let j = i + 1; j < stars.length; j++) {
+                        const dx = stars[i].x - stars[j].x;
+                        const dy = stars[i].y - stars[j].y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+
+                        if (distance < 150) {
+                            const opacity = (1 - distance / 150) * 0.15;
+                            ctx.strokeStyle = `rgba(0, 255, 255, ${opacity})`;
+                            ctx.beginPath();
+                            ctx.moveTo(stars[i].x, stars[i].y);
+                            ctx.lineTo(stars[j].x, stars[j].y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+
+                // Draw stars
+                stars.forEach(star => {
+                    ctx.fillStyle = `rgba(0, 255, 255, ${star.alpha})`;
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Glow effect
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = 'rgba(0, 255, 255, 0.5)';
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                });
+            }
+
+            // Update star positions
+            function update() {
+                stars.forEach(star => {
+                    star.x += star.vx;
+                    star.y += star.vy;
+
+                    // Wrap around edges
+                    if (star.x < 0) star.x = canvas.width;
+                    if (star.x > canvas.width) star.x = 0;
+                    if (star.y < 0) star.y = canvas.height;
+                    if (star.y > canvas.height) star.y = 0;
+
+                    // Twinkle
+                    star.alpha += (Math.random() - 0.5) * 0.02;
+                    star.alpha = Math.max(0.2, Math.min(0.8, star.alpha));
+                });
+            }
+
+            // Animation loop
+            function animate() {
+                update();
+                draw();
+                requestAnimationFrame(animate);
+            }
+            animate();
+        })();
+    </script>
+</body>
+</html>

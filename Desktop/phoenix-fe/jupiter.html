@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jupiter - Finance | Phoenix</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Jupiter Theme - Gold/Orange accent */
+        :root {
+            --jupiter-accent: #FFD700;
+            --jupiter-glow: rgba(255, 215, 0, 0.5);
+            --jupiter-bg: rgba(255, 215, 0, 0.1);
+        }
+
+        /* Net Worth Hero */
+        .networth-hero {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 215, 0, 0.05));
+            border-radius: 24px;
+            padding: 48px;
+            margin-bottom: 32px;
+            text-align: center;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 8px 32px rgba(255, 215, 0, 0.2);
+        }
+
+        .networth-label {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 12px;
+        }
+
+        .networth-value {
+            font-size: 64px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 16px;
+            text-shadow: 0 0 20px var(--jupiter-glow);
+        }
+
+        .networth-change {
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .networth-change.positive {
+            color: #00ffaa;
+        }
+
+        .networth-change.negative {
+            color: #ff6b6b;
+        }
+
+        .networth-change-icon {
+            font-size: 24px;
+        }
+
+        /* Quick Stats Row */
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-box {
+            background: rgba(255, 215, 0, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-box:hover {
+            background: rgba(255, 215, 0, 0.1);
+            border-color: rgba(255, 215, 0, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .stat-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--jupiter-accent);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Quick Actions */
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .action-button {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 215, 0, 0.05));
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 16px;
+            padding: 24px;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .action-button:hover {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.25), rgba(255, 215, 0, 0.1));
+            border-color: var(--jupiter-accent);
+            box-shadow: 0 8px 24px var(--jupiter-glow);
+            transform: translateY(-2px);
+        }
+
+        .action-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        /* Spending Chart */
+        .spending-chart {
+            margin-top: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .spending-category {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .category-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        .category-info {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .category-name {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .category-amount {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--jupiter-accent);
+        }
+
+        .category-bar {
+            flex: 1;
+            height: 8px;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-left: 24px;
+        }
+
+        .category-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--jupiter-accent), rgba(255, 215, 0, 0.7));
+            border-radius: 4px;
+            transition: width 0.6s ease;
+            box-shadow: 0 0 10px var(--jupiter-glow);
+        }
+
+        /* Transactions List */
+        .transactions-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 16px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .transaction-item {
+            background: rgba(255, 215, 0, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .transaction-item:hover {
+            background: rgba(255, 215, 0, 0.1);
+            border-color: rgba(255, 215, 0, 0.3);
+        }
+
+        .transaction-icon {
+            font-size: 24px;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+
+        .transaction-details {
+            flex: 1;
+        }
+
+        .transaction-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .transaction-meta {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .transaction-amount {
+            font-size: 18px;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        .transaction-amount.income {
+            color: #00ffaa;
+        }
+
+        .transaction-amount.expense {
+            color: #ff6b6b;
+        }
+
+        /* Budget Progress */
+        .budget-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .budget-item {
+            background: rgba(255, 215, 0, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .budget-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .budget-category {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .budget-amounts {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .budget-bar {
+            width: 100%;
+            height: 12px;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .budget-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--jupiter-accent), rgba(255, 215, 0, 0.7));
+            border-radius: 6px;
+            transition: width 0.6s ease;
+        }
+
+        .budget-bar-fill.over-budget {
+            background: linear-gradient(90deg, #ff6b6b, #ff4444);
+        }
+
+        .budget-remaining {
+            font-size: 13px;
+            text-align: right;
+        }
+
+        .budget-remaining.positive {
+            color: #00ffaa;
+        }
+
+        .budget-remaining.negative {
+            color: #ff6b6b;
+        }
+
+        /* Accounts List */
+        .accounts-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .account-item {
+            background: rgba(255, 215, 0, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .account-item:hover {
+            background: rgba(255, 215, 0, 0.1);
+            border-color: rgba(255, 215, 0, 0.4);
+        }
+
+        .account-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .account-icon {
+            font-size: 24px;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 215, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        .account-details h4 {
+            font-size: 15px;
+            color: #ffffff;
+            margin: 0 0 4px 0;
+        }
+
+        .account-details p {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            margin: 0;
+        }
+
+        .account-balance {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--jupiter-accent);
+        }
+
+        /* Connect Bank Button */
+        .connect-bank-card {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0.05));
+            border: 2px dashed rgba(255, 215, 0, 0.3);
+            border-radius: 12px;
+            padding: 32px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .connect-bank-card:hover {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 215, 0, 0.1));
+            border-color: var(--jupiter-accent);
+        }
+
+        .connect-bank-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .connect-bank-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--jupiter-accent);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state-icon {
+            font-size: 80px;
+            margin-bottom: 24px;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 32px;
+        }
+
+        .connect-button {
+            background: var(--jupiter-accent);
+            color: #000000;
+            border: none;
+            border-radius: 12px;
+            padding: 16px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px var(--jupiter-glow);
+        }
+
+        .connect-button:hover {
+            background: #ffd900;
+            box-shadow: 0 6px 24px var(--jupiter-glow);
+            transform: translateY(-2px);
+        }
+
+        /* Loading State */
+        #loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(255, 215, 0, 0.2);
+            border-top-color: var(--jupiter-accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="nav-header">
+        <div class="nav-logo">
+            <span class="logo-icon"></span>
+            <span class="logo-text">Jupiter</span>
+            <span class="planet-subtitle">Finance Intelligence</span>
+        </div>
+        <button class="back-button" onclick="window.location.href='dashboard.html'">
+            ← Back to Dashboard
+        </button>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Loading State -->
+        <div id="loading" style="display: block;">
+            <div class="loading-spinner"></div>
+            <span>Loading financial data...</span>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div id="dashboard" style="display: none;">
+            <!-- Net Worth Hero -->
+            <div class="networth-hero">
+                <div class="networth-label">Total Net Worth</div>
+                <div class="networth-value" id="netWorthValue">$0</div>
+                <div class="networth-change positive" id="netWorthChange">
+                    <span class="networth-change-icon">↑</span>
+                    <span id="netWorthChangeText">+$0 this month</span>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="quick-stats">
+                <div class="stat-box">
+                    <div class="stat-icon"></div>
+                    <div class="stat-value" id="totalIncome">$0</div>
+                    <div class="stat-label">Income This Month</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-icon"></div>
+                    <div class="stat-value" id="totalSpent">$0</div>
+                    <div class="stat-label">Spent This Month</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-icon"></div>
+                    <div class="stat-value" id="savingsRate">0%</div>
+                    <div class="stat-label">Savings Rate</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-icon"></div>
+                    <div class="stat-value" id="budgetRemaining">$0</div>
+                    <div class="stat-label">Budget Remaining</div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions-grid">
+                <button class="action-button" onclick="window.jupiterApp.connectBank()">
+                    <span class="action-icon"></span>
+                    Connect Bank
+                </button>
+                <button class="action-button" onclick="window.jupiterApp.addTransaction()">
+                    <span class="action-icon"></span>
+                    Add Transaction
+                </button>
+                <button class="action-button" onclick="window.jupiterApp.setBudget()">
+                    <span class="action-icon"></span>
+                    Set Budget
+                </button>
+                <button class="action-button" onclick="window.jupiterApp.viewInsights()">
+                    <span class="action-icon"></span>
+                    AI Insights
+                </button>
+            </div>
+
+            <!-- Dashboard Grid -->
+            <div class="dashboard-grid">
+                <!-- Spending Breakdown Card -->
+                <div class="glass-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            Spending This Month
+                            <span class="card-subtitle" id="spendingTotal">$0 total</span>
+                        </div>
+                        <div class="card-icon"></div>
+                    </div>
+                    <div class="spending-chart" id="spendingChart">
+                        <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.4);">
+                            No spending data yet
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Transactions Card -->
+                <div class="glass-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            Recent Transactions
+                            <span class="card-subtitle" id="transactionCount">0 this week</span>
+                        </div>
+                        <div class="card-icon"></div>
+                    </div>
+                    <div class="transactions-list" id="transactionsList">
+                        <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.4);">
+                            No transactions yet
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Budget Progress Card -->
+                <div class="glass-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            Budget Tracking
+                            <span class="card-subtitle" id="budgetStatus">On track</span>
+                        </div>
+                        <div class="card-icon"></div>
+                    </div>
+                    <div class="budget-list" id="budgetList">
+                        <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.4);">
+                            No budgets set
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Connected Accounts Card -->
+                <div class="glass-card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            Connected Accounts
+                            <span class="card-subtitle" id="accountsCount">0 accounts</span>
+                        </div>
+                        <div class="card-icon"></div>
+                    </div>
+                    <div class="accounts-list" id="accountsList">
+                        <div class="connect-bank-card" onclick="window.jupiterApp.connectBank()">
+                            <div class="connect-bank-icon"></div>
+                            <div class="connect-bank-text">Connect Your First Account</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" style="display: none;">
+            <div class="empty-state">
+                <div class="empty-state-icon"></div>
+                <div class="empty-state-text">
+                    Welcome to Jupiter Finance Intelligence<br>
+                    Connect your bank to get started
+                </div>
+                <button class="connect-button" onclick="window.jupiterApp.connectBank()">
+                     Connect Bank with Plaid
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load config and app -->
+    <script src="src/config.js"></script>
+    <script src="src/smooth-scroll.js"></script>
+    <script src="src/jupiter-app.js"></script>
+
+    <!-- Phoenix Orb - Universal AI Assistant -->
+    <link rel="stylesheet" href="src/phoenix-orb.css">
+    <script src="src/wake-word-detector.js"></script>
+    <script src="src/voice-tts.js"></script>
+    <script src="src/phoenix-orb.js"></script>
+</body>
+</html>
