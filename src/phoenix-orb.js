@@ -757,6 +757,41 @@ class PhoenixOrb {
      * Handle Auto-Navigation
      */
     handleAutoNavigation(result) {
+        // ⭐ NEW: Check for navigation command from backend FIRST
+        if (result.navigation) {
+            const { target, planetName, action } = result.navigation;
+            console.log(`🧭 Navigation command received: ${target} (${action})`);
+
+            const planetMap = {
+                'mercury': 'mercury.html',
+                'venus': 'venus.html',
+                'earth': 'earth.html',
+                'mars': 'mars.html',
+                'jupiter': 'jupiter.html',
+                'saturn': 'saturn.html',
+                'uranus': 'uranus.html',
+                'neptune': 'neptune.html'
+            };
+
+            const targetUrl = planetMap[target];
+            if (targetUrl && !window.location.href.includes(targetUrl)) {
+                // Pre-navigation announcement
+                const announcement = `Taking you to ${planetName} now, ${this.userName || 'there'}`;
+                this.speak(announcement);
+
+                setTimeout(() => {
+                    console.log(`🚀 Auto-navigating to ${targetUrl}`);
+                    // Store greeting flag for post-navigation
+                    sessionStorage.setItem('phoenixNavigated', 'true');
+                    sessionStorage.setItem('phoenixTargetPlanet', target);
+                    sessionStorage.setItem('phoenixFromVoice', 'true');
+                    window.location.href = targetUrl;
+                }, 2000);
+            }
+            return;
+        }
+
+        // ⭐ LEGACY: Fallback to old intent-based navigation
         if (!result.intent) return;
 
         const navigationActions = ['open', 'show', 'display', 'view', 'navigate'];
@@ -767,7 +802,9 @@ class PhoenixOrb {
                 'earth': 'earth.html',
                 'mars': 'mars.html',
                 'jupiter': 'jupiter.html',
-                'saturn': 'saturn.html'
+                'saturn': 'saturn.html',
+                'uranus': 'uranus.html',
+                'neptune': 'neptune.html'
             };
 
             const targetUrl = planetMap[result.intent.planet];
