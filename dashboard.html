@@ -3006,8 +3006,13 @@
             // Unlock audio on first interaction
             await window.unlockAudio();
 
-            if (window.phoenixAI) {
-                window.phoenixAI.toggleListening();
+            if (window.wakeWordAI) {
+                // Toggle continuous mode for wake word AI
+                if (window.wakeWordAI.continuousMode) {
+                    await window.wakeWordAI.deactivateContinuousMode();
+                } else {
+                    window.wakeWordAI.enterContinuousMode();
+                }
             }
         };
 
@@ -3182,13 +3187,10 @@
             console.log('🌐 Backend API:', API_BASE);
             
             await phoenix.init();
-            
-            const token = localStorage.getItem('phoenixToken');
-            const apiClient = new PhoenixAPIClient(API_BASE, token);
-            window.api = apiClient;
-            
-            const phoenixAI = new PhoenixConversationalAI(apiClient);
-            window.phoenixAI = phoenixAI;
+
+            // FIXED: Use jarvisEngine instead of non-existent PhoenixConversationalAI
+            // jarvisEngine is already initialized in src/jarvis.js as window.jarvisEngine
+            window.phoenixAI = window.jarvisEngine; // Alias for compatibility
             
             // Phoenix Particles Animation (GPU optimized: 30fps, 25 particles)
             (function initPhoenixParticles() {
@@ -3682,6 +3684,7 @@
 
                 // Initialize Wake Word AI
                 window.wakeWordAI = new WakeWordAI();
+                window.voiceSystem = window.wakeWordAI; // Alias for testing compatibility
 
                 // Check if user has previously granted mic permission
                 const micEnabled = localStorage.getItem('phoenixMicEnabled');
