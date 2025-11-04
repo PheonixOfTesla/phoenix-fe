@@ -1364,6 +1364,335 @@
         }
     </script>
 
+    <!-- Metric Spotlight Modal (voice-activated) -->
+    <div id="metricSpotlightModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <div class="modal-title" id="spotlightMetricName">Loading...</div>
+                <button class="modal-close" onclick="closeMetricSpotlight()">&times;</button>
+            </div>
+            <div id="spotlightMetricContent" style="padding: 20px 0;">
+                <div class="loading-spinner"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Metric Spotlight Functions -->
+    <script>
+        // ⭐ INTERACTIVE UI - Voice-Activated Metric Spotlight
+        // This creates the "woahhh this thing is smart" moment
+
+        // Metric data mapping - MATCHED TO ACTUAL BACKEND ENDPOINTS
+        const METRIC_DATA_MAP = {
+            // HRV & STRESS - Using /api/mercury/biometrics/hrv
+            hrv: {
+                api: '/mercury/biometrics/hrv',
+                field: 'average',  // Returns: { data: { average, baseline, deviation, trend, alert } }
+                display: 'Heart Rate Variability',
+                unit: ' ms',
+                normal: '50-100 ms',
+                icon: '📊',
+                transform: (data) => data.data || data
+            },
+
+            // RECOVERY - Using /api/mercury/recovery/latest
+            recovery_score: {
+                api: '/mercury/recovery/latest',
+                field: 'score',  // Returns: { data: { score, components, recommendation, trainingLoad } }
+                display: 'Recovery Score',
+                unit: '',
+                normal: '70+',
+                icon: '🔋',
+                transform: (data) => data.data || data
+            },
+            readiness: {
+                api: '/mercury/biometrics/readiness',
+                field: 'score',  // Returns: { data: { score, factors, recommendation, trainingReady } }
+                display: 'Readiness Score',
+                unit: '',
+                normal: '70+',
+                icon: '⚡',
+                transform: (data) => data.data || data
+            },
+
+            // SLEEP - Using /api/mercury/sleep
+            sleep_score: {
+                api: '/mercury/sleep',
+                field: 'average',  // Returns: { sleepLogs, average, trends }
+                display: 'Sleep Duration',
+                unit: ' hrs',
+                normal: '7-9 hrs',
+                icon: '😴',
+                transform: (data) => {
+                    // Convert minutes to hours
+                    const avgMinutes = data.average || 0;
+                    return { ...data, average: Math.round(avgMinutes / 60 * 10) / 10 };
+                }
+            },
+            sleep_duration: {
+                api: '/mercury/sleep/analysis',
+                field: 'quality',  // Returns: { data: { quality, stages, efficiency, recommendations } }
+                display: 'Sleep Quality',
+                unit: '',
+                normal: '70+',
+                icon: '🌙',
+                transform: (data) => data.data || data
+            },
+
+            // HEART RATE - Using /api/mercury/biometrics/heart-rate
+            heart_rate: {
+                api: '/mercury/biometrics/heart-rate',
+                field: 'rhr',  // Returns: { data: { rhr, trends, zones, recovery } }
+                display: 'Resting Heart Rate',
+                unit: ' bpm',
+                normal: '60-100 bpm',
+                icon: '❤️',
+                transform: (data) => data.data || data
+            },
+
+            // BODY COMPOSITION - Using /api/mercury/biometrics/composition
+            weight: {
+                api: '/mercury/biometrics/composition',
+                field: 'dexa',  // Returns: { data: { dexa, ratios, metabolic, predictions, insights } }
+                display: 'Body Composition',
+                unit: '',
+                normal: 'See details',
+                icon: '⚖️',
+                transform: (data) => {
+                    const dexa = data.data?.dexa || {};
+                    return { ...data, dexa: dexa.bodyFatPercentage || '--' };
+                }
+            },
+            body_fat: {
+                api: '/mercury/biometrics/composition',
+                field: 'dexa',
+                display: 'Body Fat %',
+                unit: '%',
+                normal: '10-25%',
+                icon: '📉',
+                transform: (data) => {
+                    const dexa = data.data?.dexa || {};
+                    return { ...data, dexa: dexa.bodyFatPercentage || '--' };
+                }
+            },
+
+            // HYDRATION - Using /api/mercury/biometrics/hydration
+            hydration: {
+                api: '/mercury/biometrics/hydration',
+                field: 'todayIntake',  // Returns: { data: { status, todayIntake, dailyGoal, recommendations, alerts } }
+                display: 'Hydration',
+                unit: ' ml',
+                normal: '2000+ ml',
+                icon: '💧',
+                transform: (data) => data.data || data
+            },
+
+            // TRAINING LOAD - Using /api/mercury/recovery/training-load
+            strain: {
+                api: '/mercury/recovery/training-load',
+                field: 'ratio',  // Returns: { data: { acuteLoad, chronicLoad, ratio, status } }
+                display: 'Training Load',
+                unit: '',
+                normal: '0.8-1.3',
+                icon: '🏋️',
+                transform: (data) => data.data || data
+            },
+
+            // STRESS - Calculated from HRV alert
+            stress_level: {
+                api: '/mercury/biometrics/hrv',
+                field: 'alert',  // Use HRV alert as proxy for stress
+                display: 'Stress Level',
+                unit: '',
+                normal: 'Low',
+                icon: '😌',
+                transform: (data) => {
+                    const alert = data.data?.alert || 'normal';
+                    const stressMap = { 'high': 75, 'normal': 40, 'low': 20 };
+                    return { ...data, alert: stressMap[alert] || 40 };
+                }
+            }
+        };
+
+        // Global function to spotlight a metric
+        function spotlightMetric(metricId, metricName) {
+            console.log(`🎯 Spotlighting metric: ${metricId}`);
+
+            const modal = document.getElementById('metricSpotlightModal');
+            const titleEl = document.getElementById('spotlightMetricName');
+            const contentEl = document.getElementById('spotlightMetricContent');
+
+            // Get metric configuration
+            const metricConfig = METRIC_DATA_MAP[metricId];
+            if (!metricConfig) {
+                console.error(`Unknown metric: ${metricId}`);
+                return;
+            }
+
+            // Show modal with loading state
+            titleEl.textContent = `${metricConfig.icon} ${metricConfig.display}`;
+            contentEl.innerHTML = '<div class="loading-spinner" style="margin: 40px auto;"></div>';
+            modal.classList.add('active');
+
+            // Dim background
+            document.body.style.filter = 'blur(5px)';
+            modal.style.filter = 'none';
+
+            // Fetch metric data
+            fetchMetricData(metricId, metricConfig)
+                .then(data => {
+                    renderMetricSpotlight(data, metricConfig);
+                })
+                .catch(error => {
+                    console.error('Error fetching metric:', error);
+                    contentEl.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.6);">
+                            <p>Unable to load ${metricConfig.display} data.</p>
+                            <p style="font-size: 14px; margin-top: 10px;">Connect a wearable device to track this metric.</p>
+                        </div>
+                    `;
+                });
+        }
+
+        // Fetch metric data from API with proper error handling
+        async function fetchMetricData(metricId, config) {
+            try {
+                const token = localStorage.getItem('phoenixToken');
+                if (!token) {
+                    throw new Error('Not authenticated');
+                }
+
+                console.log(`Fetching ${metricId} from ${config.api}...`);
+
+                const response = await fetch(`${window.PhoenixConfig.API_BASE_URL}${config.api}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error(`API error for ${metricId}:`, response.status, errorText);
+                    throw new Error(`API returned ${response.status}`);
+                }
+
+                const rawData = await response.json();
+                console.log(`Raw data for ${metricId}:`, rawData);
+
+                // Apply transform function if provided
+                const transformedData = config.transform ? config.transform(rawData) : rawData;
+
+                // Extract value from the field
+                let value = transformedData[config.field];
+
+                // Handle nested data structures
+                if (value === undefined && transformedData.data) {
+                    value = transformedData.data[config.field];
+                }
+
+                // Default to '--' if no value found
+                if (value === undefined || value === null) {
+                    console.warn(`No value found for field "${config.field}" in metric ${metricId}`);
+                    value = '--';
+                }
+
+                // Format value
+                if (typeof value === 'number') {
+                    value = Math.round(value * 10) / 10; // Round to 1 decimal
+                }
+
+                return {
+                    value: value,
+                    trend: null,  // We'll calculate trends later if needed
+                    history: []   // We'll add history endpoints later
+                };
+
+            } catch (error) {
+                console.error(`Error fetching ${metricId}:`, error);
+                throw error; // Re-throw to be caught by spotlight function
+            }
+        }
+
+        // Render metric spotlight
+        function renderMetricSpotlight(data, config) {
+            const contentEl = document.getElementById('spotlightMetricContent');
+            const { value, trend, history } = data;
+
+            const trendIcon = trend > 0 ? '↗️' : trend < 0 ? '↘️' : '→';
+            const trendColor = trend > 0 ? '#00ff88' : trend < 0 ? '#ff6b6b' : '#ffd700';
+
+            contentEl.innerHTML = `
+                <div style="text-align: center; padding: 20px;">
+                    <div style="font-size: 80px; font-weight: 800; color: #ffffff; margin-bottom: 10px;">
+                        ${value}${config.unit}
+                    </div>
+                    <div style="font-size: 18px; color: rgba(255,255,255,0.6); margin-bottom: 20px;">
+                        Normal range: ${config.normal}
+                    </div>
+                    ${trend !== null ? `
+                        <div style="font-size: 16px; color: ${trendColor}; margin-bottom: 30px;">
+                            ${trendIcon} ${Math.abs(trend)}% from yesterday
+                        </div>
+                    ` : ''}
+                    <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px;">
+                        <div style="font-size: 14px; color: rgba(255,255,255,0.5); margin-bottom: 10px;">
+                            7-Day Trend
+                        </div>
+                        ${history.length > 0 ? renderMiniChart(history) : '<p style="color: rgba(255,255,255,0.4);">Not enough data</p>'}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render mini chart for history
+        function renderMiniChart(history) {
+            const max = Math.max(...history);
+            const min = Math.min(...history);
+            const range = max - min || 1;
+
+            const bars = history.map((val, i) => {
+                const height = ((val - min) / range) * 100;
+                return `<div style="flex: 1; height: 80px; display: flex; align-items: flex-end;">
+                    <div style="width: 100%; height: ${height}%; background: linear-gradient(180deg, #00d4ff, #00ffaa); border-radius: 5px;"></div>
+                </div>`;
+            }).join('');
+
+            return `<div style="display: flex; gap: 5px; height: 80px; margin-top: 15px;">${bars}</div>`;
+        }
+
+        // Close metric spotlight
+        function closeMetricSpotlight() {
+            document.getElementById('metricSpotlightModal').classList.remove('active');
+            document.body.style.filter = 'none';
+        }
+
+        // Check for spotlight trigger on page load (from navigation)
+        window.addEventListener('DOMContentLoaded', () => {
+            const spotlightMetric = sessionStorage.getItem('phoenixSpotlightMetric');
+            const spotlightMetricName = sessionStorage.getItem('phoenixSpotlightMetricName');
+
+            if (spotlightMetric) {
+                sessionStorage.removeItem('phoenixSpotlightMetric');
+                sessionStorage.removeItem('phoenixSpotlightMetricName');
+
+                // Wait for dashboard to load, then spotlight
+                setTimeout(() => {
+                    if (window.mercuryDashboard && window.mercuryDashboard.spotlightMetric) {
+                        window.mercuryDashboard.spotlightMetric(spotlightMetric, spotlightMetricName);
+                    } else {
+                        spotlightMetric(spotlightMetric, spotlightMetricName);
+                    }
+                }, 1000);
+            }
+
+            // Attach to mercury dashboard
+            if (window.mercuryDashboard) {
+                window.mercuryDashboard.spotlightMetric = spotlightMetric;
+            }
+        });
+    </script>
+
     <!-- Phoenix Orb - Universal AI Assistant -->
     <link rel="stylesheet" href="src/phoenix-orb.css">
     <script src="src/wake-word-detector.js"></script>

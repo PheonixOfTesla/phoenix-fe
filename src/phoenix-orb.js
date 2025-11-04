@@ -759,9 +759,29 @@ class PhoenixOrb {
     handleAutoNavigation(result) {
         // ⭐ NEW: Check for navigation command from backend FIRST
         if (result.navigation) {
-            const { target, planetName, action } = result.navigation;
-            console.log(`🧭 Navigation command received: ${target} (${action})`);
+            const { target, planetName, action, metric, metricName } = result.navigation;
+            console.log(`🧭 Navigation command received: ${action} - ${target} (metric: ${metric || 'none'})`);
 
+            // ⭐ METRIC SPOTLIGHT - Show specific metric modal
+            if (action === 'spotlight_metric' && metric) {
+                console.log(`🎯 Spotlighting metric: ${metric}`);
+
+                // Trigger metric spotlight on current page
+                if (window.mercuryDashboard && typeof window.mercuryDashboard.spotlightMetric === 'function') {
+                    window.mercuryDashboard.spotlightMetric(metric, metricName);
+                } else {
+                    // Navigate to Mercury first, then spotlight
+                    const targetUrl = 'mercury.html';
+                    if (!window.location.href.includes(targetUrl)) {
+                        sessionStorage.setItem('phoenixSpotlightMetric', metric);
+                        sessionStorage.setItem('phoenixSpotlightMetricName', metricName);
+                        window.location.href = targetUrl;
+                    }
+                }
+                return;
+            }
+
+            // ⭐ PLANET NAVIGATION - Navigate to different planet
             const planetMap = {
                 'mercury': 'mercury.html',
                 'venus': 'venus.html',
