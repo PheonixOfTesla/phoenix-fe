@@ -3287,10 +3287,8 @@
     <!-- REACTOR.JS REMOVED - Arc reactor animation -->
     <!-- SHADERS.JS REMOVED - WebGL shaders -->
     <script type="module" src="./src/wearables.js?v=1761926307"></script>
-    <script src="src/phoenix-api-client.js?v=1761926307"></script>
     <!-- Capacitor Platform Detection for Speech Recognition -->
     <script src="src/capacitor-platform.js?v=1761926307"></script>
-    <script src="src/phoenix-conversational-ai.js?v=1761926307"></script>
 
     <!-- CONSTELLATION ANIMATION REMOVED FOR CPU EFFICIENCY -->
     <!-- Static CSS background uses 0% CPU vs 25%+ for animated canvas -->
@@ -3308,6 +3306,11 @@
                 this.context = [];
                 this.isProcessing = false;
                 this.continuousMode = false; // NEW: Continuous conversation mode
+
+                // Inactivity timeout for continuous mode
+                this.lastActivityTime = null;
+                this.inactivityTimeout = null;
+                this.INACTIVITY_LIMIT = 20000; // 20 seconds of inactivity before auto-deactivate
 
                 // Load from onboarding preferences
                 const savedVoice = localStorage.getItem('phoenixVoice');
@@ -3392,13 +3395,20 @@
                             if (hasWake && !this.continuousMode) {
                                 console.log('🎙️ Wake word detected - entering continuous mode:', text);
                                 this.enterContinuousMode();
-                                this.processWithGemini(text);
+
+                                // Strip wake word before processing
+                                const cleanedText = this.stripWakeWord(text);
+                                console.log('🧹 Cleaned command:', cleanedText);
+                                this.processWithGemini(cleanedText);
                                 return;
                             }
 
                             // In continuous mode, process ALL speech
                             if (this.continuousMode) {
                                 console.log('💬 Continuous mode - processing:', text);
+
+                                // Reset inactivity timer on user speech
+                                this.resetInactivityTimer();
 
                                 // Update mic status
                                 const statusText = document.getElementById('mic-status-text');
@@ -3450,7 +3460,10 @@
 
             enterContinuousMode() {
                 this.continuousMode = true;
-                console.log('✅ Continuous mode activated - I\'m listening until you say "deactivate Phoenix"');
+                console.log('✅ Continuous mode activated - 20-second inactivity timer started');
+
+                // Start inactivity timer
+                this.resetInactivityTimer();
 
                 // Update UI to show continuous mode
                 const statusText = document.getElementById('mic-status-text');
@@ -3462,6 +3475,9 @@
             async deactivateContinuousMode() {
                 this.continuousMode = false;
                 console.log('👋 Continuous mode deactivated - returning to wake word mode');
+
+                // Clear inactivity timer
+                this.clearInactivityTimer();
 
                 // Say goodbye
                 const goodbyeMessages = {
@@ -3488,6 +3504,47 @@
 
                 // Clear conversation context
                 this.context = [];
+            }
+
+            stripWakeWord(text) {
+                // Remove wake words from the beginning of the text
+                let cleanedText = text.trim();
+
+                for (const wakeWord of this.wakeWords) {
+                    // Case-insensitive replacement at the start
+                    const regex = new RegExp(`^${wakeWord}[,\\s]*`, 'i');
+                    cleanedText = cleanedText.replace(regex, '').trim();
+                }
+
+                return cleanedText || text; // Return original if cleaned is empty
+            }
+
+            resetInactivityTimer() {
+                // Clear existing timeout
+                if (this.inactivityTimeout) {
+                    clearTimeout(this.inactivityTimeout);
+                }
+
+                // Update last activity time
+                this.lastActivityTime = Date.now();
+
+                // Start new 20-second countdown
+                this.inactivityTimeout = setTimeout(() => {
+                    if (this.continuousMode) {
+                        console.log('⏱️ 20 seconds of inactivity - auto-deactivating continuous mode');
+                        this.deactivateContinuousMode();
+                    }
+                }, this.INACTIVITY_LIMIT);
+
+                console.log('⏱️ Inactivity timer reset - will auto-deactivate in 20 seconds if no activity');
+            }
+
+            clearInactivityTimer() {
+                if (this.inactivityTimeout) {
+                    clearTimeout(this.inactivityTimeout);
+                    this.inactivityTimeout = null;
+                }
+                this.lastActivityTime = null;
             }
 
             async processWithGemini(input) {
@@ -3528,6 +3585,11 @@
                     console.error('Gemini error:', err);
                 } finally {
                     this.isProcessing = false;
+
+                    // Reset inactivity timer after Phoenix responds
+                    if (this.continuousMode) {
+                        this.resetInactivityTimer();
+                    }
 
                     // Reset mic status back to listening
                     const statusText = document.getElementById('mic-status-text');
