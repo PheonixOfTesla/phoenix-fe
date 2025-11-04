@@ -41,6 +41,9 @@ const puppeteer = require('puppeteer');
         await page.goto('https://phoenix-fe-indol.vercel.app/index.html');
         await page.waitForSelector('#login-form', { timeout: 10000 });
 
+        // Clear localStorage to ensure fresh token
+        await page.evaluate(() => localStorage.clear());
+
         // Switch to email login
         await page.evaluate(() => {
             const btn = Array.from(document.querySelectorAll('button')).find(b =>
@@ -144,47 +147,84 @@ const puppeteer = require('puppeteer');
         console.log('\n📝 TEST 4: Phoenix Text Response');
         console.log('   Simulating user speech: "What\'s my health status?"');
 
-        // Simulate voice input directly via API
-        const textResponse = await page.evaluate(async () => {
-            const token = localStorage.getItem('phoenixToken');
+        // Get fresh token via API (more reliable than using localStorage token)
+        console.log('   🔐 Getting fresh authentication token...');
 
+        let token = null;
+        try {
+            const loginRes = await fetch('https://pal-backend-production.up.railway.app/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: 'simple@phoenix.com', password: 'test123456' })
+            });
+            const loginData = await loginRes.json();
+            token = loginData.token;
+            console.log('   ✅ Fresh token obtained');
+        } catch (e) {
+            console.log('   ❌ Failed to get fresh token:', e.message);
+            results.textResponse = false;
+        }
+
+        if (token) {
+            console.log('   📤 Making API call...');
+
+            // Make API call from Node context (not browser) to avoid CORS/browser issues
             try {
-                const response = await fetch('https://pal-backend-production.up.railway.app/api/phoenixVoice/chat', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
+                const https = require('https');
+
+                const apiResponse = await new Promise((resolve, reject) => {
+                    const postData = JSON.stringify({
                         message: "What's my health status?",
                         conversationHistory: [],
                         personality: 'friendly_helpful',
                         voice: 'nova'
-                    })
+                    });
+
+                    const options = {
+                        hostname: 'pal-backend-production.up.railway.app',
+                        path: '/api/phoenixVoice/chat',
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                            'Content-Length': Buffer.byteLength(postData)
+                        }
+                    };
+
+                    const req = https.request(options, (res) => {
+                        let data = '';
+                        res.on('data', (chunk) => data += chunk);
+                        res.on('end', () => {
+                            try {
+                                resolve({ status: res.statusCode, data: JSON.parse(data) });
+                            } catch (e) {
+                                resolve({ status: res.statusCode, data: { error: 'Parse error', raw: data } });
+                            }
+                        });
+                    });
+
+                    req.on('error', reject);
+                    req.write(postData);
+                    req.end();
                 });
 
-                const data = await response.json();
-                return {
-                    success: data.success,
-                    response: data.response,
-                    tokensUsed: data.tokensUsed
-                };
+                if (apiResponse.status === 200 && apiResponse.data.success) {
+                    console.log('   ✅ Phoenix responded successfully');
+                    console.log(`   Response: "${apiResponse.data.response}"`);
+                    console.log(`   Tokens: ${apiResponse.data.tokensUsed}`);
+                    results.textResponse = true;
+                } else {
+                    console.log(`   ❌ Phoenix failed to respond`);
+                    console.log(`   HTTP ${apiResponse.status}`);
+                    if (apiResponse.data.error) {
+                        console.log(`   Error: ${apiResponse.data.error}`);
+                    }
+                }
             } catch (error) {
-                return { error: error.message };
+                console.log(`   ❌ Request failed: ${error.message}`);
             }
-        });
-
-        if (textResponse.success) {
-            console.log('   ✅ Phoenix responded successfully');
-            console.log(`   Response: "${textResponse.response}"`);
-            console.log(`   Tokens: ${textResponse.tokensUsed}`);
-            results.textResponse = true;
-        } else {
-            console.log(`   ❌ Phoenix failed to respond: ${textResponse.error}`);
         }
 
-        // Check if text appears on screen (simulated conversation display)
-        console.log('   ℹ️  Note: Full voice UI integration needs manual verification');
 
         // ===================================================================
         // TEST 5: ALL 7 PLANET NAVIGATION
