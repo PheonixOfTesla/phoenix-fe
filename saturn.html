@@ -525,19 +525,19 @@
             <!-- Quick Actions -->
             <div class="quick-actions-grid">
                 <button class="action-button" onclick="window.saturnApp.quarterlyReview()">
-                    <span class="action-icon">📝</span>
+                    <span class="action-icon"></span>
                     Quarterly Review
                 </button>
                 <button class="action-button" onclick="window.saturnApp.setLongTermGoal()">
-                    <span class="action-icon">🎯</span>
+                    <span class="action-icon"></span>
                     Set 10-Year Goal
                 </button>
                 <button class="action-button" onclick="window.saturnApp.addLegacyProject()">
-                    <span class="action-icon">🌟</span>
+                    <span class="action-icon"></span>
                     Legacy Project
                 </button>
                 <button class="action-button" onclick="window.saturnApp.contactImportant()">
-                    <span class="action-icon">💬</span>
+                    <span class="action-icon"></span>
                     Reach Out
                 </button>
             </div>
@@ -551,7 +551,7 @@
                             Life Reviews
                             <span class="card-subtitle" id="reviewsCount">0 completed</span>
                         </div>
-                        <div class="card-icon">📖</div>
+                        <div class="card-icon"></div>
                     </div>
                     <div class="reviews-timeline" id="reviewsTimeline">
                         <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.4);">
@@ -564,7 +564,7 @@
                 <div class="glass-card">
                     <div class="card-header">
                         <div class="card-title">Long-term Vision</div>
-                        <div class="card-icon">🔮</div>
+                        <div class="card-icon"></div>
                     </div>
                     <div class="goals-grid" id="longTermGoals">
                         <div class="goal-column">
@@ -601,7 +601,7 @@
                             Legacy Projects
                             <span class="card-subtitle" id="legacyCount">0 active</span>
                         </div>
-                        <div class="card-icon">🏛️</div>
+                        <div class="card-icon"></div>
                     </div>
                     <div class="legacy-list" id="legacyList">
                         <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.4);">
@@ -617,7 +617,7 @@
                             Important People
                             <span class="card-subtitle" id="relationshipsCount">0 tracked</span>
                         </div>
-                        <div class="card-icon">👥</div>
+                        <div class="card-icon"></div>
                     </div>
                     <div class="relationships-grid" id="relationshipsGrid">
                         <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.4); grid-column: 1/-1;">
@@ -630,7 +630,7 @@
                 <div class="glass-card" style="grid-column: 1/-1;">
                     <div class="card-header">
                         <div class="card-title">Life Satisfaction</div>
-                        <div class="card-icon">⭐</div>
+                        <div class="card-icon"></div>
                     </div>
                     <div class="satisfaction-grid" id="satisfactionGrid">
                         <!-- Generated dynamically -->
@@ -648,14 +648,21 @@
                     Start planning your legacy today.
                 </div>
                 <button class="start-button" onclick="window.saturnApp.setupProfile()">
-                    🚀 Begin Legacy Planning
+                     Begin Legacy Planning
                 </button>
             </div>
         </div>
     </div>
 
     <!-- Load config and app -->
-    <script src="config.js"></script>
+    <script src="src/config.js"></script>
+    <script src="src/smooth-scroll.js"></script>
     <script src="src/saturn-app.js"></script>
+
+    <!-- Phoenix Orb - Universal AI Assistant -->
+    <link rel="stylesheet" href="src/phoenix-orb.css">
+    <script src="src/wake-word-detector.js"></script>
+    <script src="src/voice-tts.js"></script>
+    <script src="src/phoenix-orb.js"></script>
 </body>
 </html>

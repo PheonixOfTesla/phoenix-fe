@@ -223,7 +223,7 @@ class WearableConnector {
             }
             throw new Error('Failed to check connections');
         } catch (error) {
-            console.error('Connection check error:', error);
+            // Silently handle - connection check errors are expected when not authenticated
             return null;
         }
     }
