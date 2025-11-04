@@ -134,7 +134,10 @@ class ButlerService {
             
             // Update trust level on success
             this.updateTrustLevel(true, 'reservation');
-            
+
+            // BUDGET INTEGRATION: Check if user has dining budget
+            await this.checkAndSuggestBudget('Food & Dining', 100, 'restaurant reservation');
+
             // Voice confirmation
             if (window.voiceInterface) {
                 window.voiceInterface.speak(
@@ -142,11 +145,11 @@ class ButlerService {
                     'normal'
                 );
             }
-            
+
             // Log to history
             this.taskHistory.push(task);
             this.saveTaskHistory();
-            
+
             return response;
             
         } catch (error) {
@@ -234,17 +237,20 @@ class ButlerService {
             
             // Update trust level on success
             this.updateTrustLevel(true, 'food_order');
-            
+
+            // BUDGET INTEGRATION: Check if user has food delivery budget
+            await this.checkAndSuggestBudget('Food & Dining', response.total || 35, 'food delivery');
+
             if (window.voiceInterface) {
                 window.voiceInterface.speak(
                     `Your ${order.restaurant} order has been placed. Delivery in approximately ${response.estimatedTime || '30'} minutes.`,
                     'normal'
                 );
             }
-            
+
             this.taskHistory.push(task);
             this.saveTaskHistory();
-            
+
             return response;
             
         } catch (error) {
@@ -364,17 +370,20 @@ class ButlerService {
             
             // Update trust level on success
             this.updateTrustLevel(true, 'ride_booking');
-            
+
+            // BUDGET INTEGRATION: Check if user has transportation budget
+            await this.checkAndSuggestBudget('Transportation', response.estimatedCost || 25, 'ride-sharing');
+
             if (window.voiceInterface) {
                 window.voiceInterface.speak(
                     `Your ${response.service} is booked. Driver arriving in ${response.eta || '5'} minutes.`,
                     'normal'
                 );
             }
-            
+
             this.taskHistory.push(task);
             this.saveTaskHistory();
-            
+
             return response;
             
         } catch (error) {
@@ -1120,6 +1129,188 @@ class ButlerService {
                 error: 'Command not recognized. Try: "Order dinner", "Book ride to airport", "Make reservation", "Send email", "Call [contact]", "Optimize calendar", etc.' 
             };
         }
+    }
+
+    // ========================================
+    // 💰 BUDGET INTEGRATION WITH JUPITER
+    // ========================================
+
+    /**
+     * Check if user has budget for category, suggest creating one if not
+     * Integrates Butler spending with Jupiter budget tracking
+     */
+    async checkAndSuggestBudget(category, estimatedAmount, actionDescription) {
+        try {
+            // Get user's budgets from Jupiter
+            const budgets = await this.API.getBudgets();
+
+            // Check if budget exists for this category
+            const existingBudget = budgets?.budgets?.find(b =>
+                b.category.toLowerCase() === category.toLowerCase()
+            );
+
+            if (!existingBudget) {
+                // No budget exists - suggest creating one
+                console.log(`💡 No ${category} budget found - suggesting creation`);
+
+                const suggestedMonthlyBudget = Math.ceil(estimatedAmount * 10); // 10x current spend as suggestion
+
+                // Voice suggestion
+                if (window.voiceInterface) {
+                    const message = `You don't have a ${category} budget set. Would you like to create one? I suggest $${suggestedMonthlyBudget} per month based on your ${actionDescription} spending.`;
+                    window.voiceInterface.speak(message, 'normal');
+                }
+
+                // Show UI notification
+                this.showBudgetSuggestion(category, suggestedMonthlyBudget, actionDescription);
+
+            } else {
+                // Budget exists - check if approaching limit
+                const currentSpend = existingBudget.spent || 0;
+                const budgetLimit = existingBudget.amount;
+                const percentUsed = (currentSpend / budgetLimit) * 100;
+
+                if (percentUsed >= 80) {
+                    console.log(`⚠️  ${category} budget at ${percentUsed.toFixed(0)}%`);
+
+                    if (window.voiceInterface) {
+                        const message = `Heads up: You've used ${percentUsed.toFixed(0)}% of your ${category} budget this month.`;
+                        window.voiceInterface.speak(message, 'normal');
+                    }
+                }
+            }
+
+        } catch (error) {
+            console.error('Budget check error:', error);
+            // Non-critical - don't interrupt the main action
+        }
+    }
+
+    /**
+     * Show budget creation suggestion UI
+     */
+    showBudgetSuggestion(category, suggestedAmount, actionDescription) {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 120px;
+            right: 30px;
+            background: rgba(0,10,20,0.95);
+            border: 2px solid #00ffff;
+            padding: 25px;
+            max-width: 400px;
+            z-index: 10001;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,255,255,0.3);
+        `;
+
+        notification.innerHTML = `
+            <div style="font-size: 16px; font-weight: bold; color: #00ffff; margin-bottom: 10px;">
+                💰 Budget Suggestion
+            </div>
+            <div style="font-size: 13px; color: rgba(0,255,255,0.8); margin-bottom: 15px;">
+                You don't have a <strong>${category}</strong> budget. Based on this ${actionDescription},
+                I suggest <strong>$${suggestedAmount}/month</strong>.
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button onclick="butlerService.createBudgetFromSuggestion('${category}', ${suggestedAmount}); this.closest('div').parentElement.remove();"
+                        style="flex: 1; padding: 10px; background: #00ffff; color: #000; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                    Create Budget
+                </button>
+                <button onclick="this.closest('div').parentElement.remove();"
+                        style="flex: 1; padding: 10px; background: transparent; color: rgba(0,255,255,0.6); border: 1px solid rgba(0,255,255,0.3); border-radius: 6px; cursor: pointer;">
+                    Dismiss
+                </button>
+            </div>
+        `;
+
+        document.body.appendChild(notification);
+
+        // Auto-dismiss after 15 seconds
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.5s';
+                setTimeout(() => notification.remove(), 500);
+            }
+        }, 15000);
+    }
+
+    /**
+     * Create budget from Butler suggestion
+     */
+    async createBudgetFromSuggestion(category, amount) {
+        try {
+            const budget = {
+                category: category,
+                amount: amount,
+                period: 'monthly',
+                startDate: new Date().toISOString().split('T')[0]
+            };
+
+            const response = await this.API.createBudget(budget);
+
+            if (response.success !== false) {
+                console.log(`✅ Budget created: ${category} - $${amount}/month`);
+
+                if (window.voiceInterface) {
+                    window.voiceInterface.speak(
+                        `Budget created. I'll track your ${category} spending and alert you if you go over $${amount} per month.`,
+                        'normal'
+                    );
+                }
+
+                // Show success notification
+                this.showNotification(
+                    'Budget Created',
+                    `${category}: $${amount}/month`,
+                    'success'
+                );
+            }
+
+        } catch (error) {
+            console.error('Budget creation error:', error);
+            this.showNotification(
+                'Budget Creation Failed',
+                error.message,
+                'error'
+            );
+        }
+    }
+
+    showNotification(title, message, type = 'info') {
+        const colors = {
+            info: '#00ffff',
+            success: '#00ff88',
+            warning: '#ffc800',
+            error: '#ff4444'
+        };
+
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 100px;
+            right: 30px;
+            background: rgba(0,10,20,0.95);
+            border: 2px solid ${colors[type]};
+            padding: 20px;
+            max-width: 350px;
+            z-index: 10000;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px ${colors[type]}33;
+        `;
+
+        notification.innerHTML = `
+            <div style="font-size: 14px; font-weight: bold; color: ${colors[type]}; margin-bottom: 8px;">${title}</div>
+            <div style="font-size: 12px; color: ${colors[type]}; opacity: 0.8;">${message}</div>
+        `;
+
+        document.body.appendChild(notification);
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transition = 'opacity 0.5s';
+            setTimeout(() => notification.remove(), 500);
+        }, 5000);
     }
 
     // ========================================
