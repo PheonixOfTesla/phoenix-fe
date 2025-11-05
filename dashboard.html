@@ -2215,12 +2215,29 @@
                         this.userId = data.user._id;
                         console.log('✅ User info loaded:', data.user.name);
 
-                        // Personalized greeting
-                        const hour = new Date().getHours();
-                        const greeting = hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : 'Good Evening';
+                        // ✅ SMART SESSION-AWARE GREETING LOGIC
+                        // Only greet if this is a fresh login, NOT when navigating between planets
+                        const hasGreetedThisSession = sessionStorage.getItem('phoenix_greeted');
                         const greetingEl = document.querySelector('.greeting-main');
-                        if (greetingEl) {
-                            greetingEl.textContent = greeting + ', ' + data.user.name.split(' ')[0];
+
+                        if (!hasGreetedThisSession && greetingEl) {
+                            // First time this session - show personalized greeting
+                            const hour = new Date().getHours();
+                            const greeting = hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : 'Good Evening';
+                            const firstName = data.user.name.split(' ')[0];
+
+                            greetingEl.textContent = `${greeting}, ${firstName}`;
+
+                            // Mark as greeted for this session
+                            sessionStorage.setItem('phoenix_greeted', 'true');
+                            console.log('👋 First login greeting shown:', greeting);
+                        } else if (greetingEl) {
+                            // Already greeted this session - hide greeting entirely
+                            const greetingContainer = document.getElementById('greeting');
+                            if (greetingContainer) {
+                                greetingContainer.style.display = 'none';
+                            }
+                            console.log('✅ Already greeted this session - greeting hidden');
                         }
                     }
                 } catch (error) {
