@@ -1682,13 +1682,73 @@
         };
 
         /**
-         * PROPER API CLIENT - REPLACES fetchAPI
+         * ✅ JWT TOKEN EXPIRATION HELPER
+         * Decodes JWT and checks if it's expired
+         */
+        function isTokenExpired(token) {
+            if (!token) return true;
+
+            try {
+                // JWT format: header.payload.signature
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const exp = payload.exp * 1000; // Convert to milliseconds
+                const now = Date.now();
+
+                // Consider expired if less than 5 minutes remaining
+                const bufferTime = 5 * 60 * 1000; // 5 minutes
+                return exp - now < bufferTime;
+            } catch (error) {
+                console.error('❌ Token decode error:', error);
+                return true; // If can't decode, consider expired
+            }
+        }
+
+        /**
+         * ✅ PROPER API CLIENT WITH AUTO-REFRESH
+         * - Checks token expiration before every request
+         * - Auto-refreshes expired tokens
+         * - Handles 401 errors with re-login prompt
          */
         async function apiRequest(endpoint, options = {}) {
-            const token = localStorage.getItem('phoenixToken');
-            
+            let token = localStorage.getItem('phoenixToken');
+
+            // ✅ CHECK TOKEN EXPIRATION BEFORE REQUEST
+            if (token && isTokenExpired(token)) {
+                console.log('⚠️  Token expired, attempting auto-refresh...');
+
+                // Try to refresh token silently
+                try {
+                    const refreshResponse = await fetch(`${API_BASE}/auth/refresh`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (refreshResponse.ok) {
+                        const refreshData = await refreshResponse.json();
+                        if (refreshData.token) {
+                            localStorage.setItem('phoenixToken', refreshData.token);
+                            token = refreshData.token;
+                            console.log('✅ Token auto-refreshed successfully');
+                        }
+                    } else {
+                        // Refresh failed - redirect to login
+                        console.log('❌ Token refresh failed - redirecting to login');
+                        localStorage.removeItem('phoenixToken');
+                        sessionStorage.removeItem('phoenix_greeted');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                } catch (refreshError) {
+                    console.error('❌ Token refresh error:', refreshError);
+                    // If refresh fails, continue with expired token (will likely get 401)
+                }
+            }
+
             const url = endpoint.startsWith('http') ? endpoint : `${API_BASE}${endpoint}`;
-            
+
             const config = {
                 method: options.method || 'GET',
                 headers: {
@@ -1697,21 +1757,30 @@
                     ...options.headers
                 }
             };
-            
+
             if (options.body) {
                 config.body = typeof options.body === 'string' ? options.body : JSON.stringify(options.body);
             }
-            
+
             console.log(`🌐 ${config.method} ${url}`, options.body ? JSON.parse(config.body) : '');
-            
+
             try {
                 const response = await fetch(url, config);
                 const data = await response.json();
-                
+
+                // ✅ HANDLE 401 UNAUTHORIZED
+                if (response.status === 401) {
+                    console.log('❌ 401 Unauthorized - session expired');
+                    localStorage.removeItem('phoenixToken');
+                    sessionStorage.removeItem('phoenix_greeted');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
                 if (!response.ok) {
                     throw new Error(data.error || `HTTP ${response.status}`);
                 }
-                
+
                 console.log(`✅ Success:`, data);
                 return data;
             } catch (error) {
