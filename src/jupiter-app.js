@@ -186,7 +186,7 @@ class JupiterApp {
      * Fetch connected accounts
      */
     async fetchAccounts() {
-        const response = await fetch(`${this.apiBaseUrl}/jupiter/accounts/list`, {
+        const response = await fetch(`${this.apiBaseUrl}/jupiter/accounts`, {
             headers: {
                 'Authorization': `Bearer ${this.authToken}`,
                 'Content-Type': 'application/json'
@@ -204,7 +204,7 @@ class JupiterApp {
      * Fetch recent transactions
      */
     async fetchTransactions() {
-        const response = await fetch(`${this.apiBaseUrl}/jupiter/transactions/recent?limit=20`, {
+        const response = await fetch(`${this.apiBaseUrl}/jupiter/transactions?limit=20`, {
             headers: {
                 'Authorization': `Bearer ${this.authToken}`,
                 'Content-Type': 'application/json'
@@ -240,7 +240,7 @@ class JupiterApp {
      * Fetch budgets
      */
     async fetchBudgets() {
-        const response = await fetch(`${this.apiBaseUrl}/jupiter/budget/status`, {
+        const response = await fetch(`${this.apiBaseUrl}/jupiter/budgets`, {
             headers: {
                 'Authorization': `Bearer ${this.authToken}`,
                 'Content-Type': 'application/json'
