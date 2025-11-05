@@ -863,6 +863,7 @@
 
             async checkAuthentication() {
                 const token = localStorage.getItem('phoenixToken');
+                const justLoggedIn = sessionStorage.getItem('phoenix_just_logged_in');
 
                 if (!token) {
                     console.log('[ViewManager] No token found, showing login view');
@@ -870,7 +871,15 @@
                     return;
                 }
 
-                // Token exists - redirect to dashboard
+                // Skip auto-redirect if user just logged in (will be handled by login success handler)
+                if (justLoggedIn === 'true') {
+                    console.log('[ViewManager] Just logged in flag detected, skipping auto-redirect');
+                    sessionStorage.removeItem('phoenix_just_logged_in');
+                    this.showView('login'); // Show login view to prevent flash
+                    return;
+                }
+
+                // Token exists and not in the middle of login flow - redirect to dashboard
                 console.log('[ViewManager] Token found, redirecting to dashboard');
                 window.location.href = 'dashboard.html';
             },
@@ -1109,6 +1118,9 @@
                     const token = data.token || data.accessToken || data.jwt || data.access_token;
 
                     if (token) {
+                        // Set flag to prevent double-redirect loop
+                        sessionStorage.setItem('phoenix_just_logged_in', 'true');
+
                         localStorage.setItem('phoenixToken', token);
                         if (data.user) {
                             localStorage.setItem('phoenixUser', JSON.stringify(data.user));
@@ -1116,6 +1128,7 @@
 
                         this.showSuccess('Login successful!');
                         setTimeout(() => {
+                            sessionStorage.removeItem('phoenix_just_logged_in');
                             window.location.href = 'dashboard.html';
                         }, 500);
                     } else {
