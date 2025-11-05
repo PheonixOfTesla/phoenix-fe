@@ -514,11 +514,11 @@ class JARVISEngine {
     async handleUserMessage(message) {
         this.addMessageToUI(message, 'user');
         this.showTypingIndicator();
-        
+
         try {
             const response = await this.chat(message);
             this.hideTypingIndicator();
-            
+
             if (response?.response) {
                 this.addMessageToUI(response.response, 'assistant');
             } else {
@@ -528,6 +528,101 @@ class JARVISEngine {
             this.hideTypingIndicator();
             this.addMessageToUI('Connection error', 'assistant');
         }
+    }
+
+    // NEW: processConversation method for dashboard conversation panel
+    async processConversation(message) {
+        // Display user message immediately in conversation panel
+        this.addMessageToConversationPanel(message, 'user');
+
+        // Show thinking indicator
+        this.showThinkingInPanel();
+
+        try {
+            const startTime = performance.now();
+            const response = await this.chat(message);
+            const responseTime = Math.round(performance.now() - startTime);
+
+            this.hideThinkingInPanel();
+
+            if (response?.response) {
+                this.addMessageToConversationPanel(response.response, 'assistant');
+                console.log(`✅ Response time: ${responseTime}ms`);
+            } else {
+                this.addMessageToConversationPanel('Error processing message', 'assistant');
+            }
+        } catch (error) {
+            this.hideThinkingInPanel();
+            this.addMessageToConversationPanel('Connection error. Please try again.', 'assistant');
+            console.error('Conversation error:', error);
+        }
+    }
+
+    addMessageToConversationPanel(message, role) {
+        const container = document.getElementById('conversation-container');
+        if (!container) return;
+
+        const msgDiv = document.createElement('div');
+        msgDiv.style.cssText = `
+            display: flex;
+            justify-content: ${role === 'user' ? 'flex-end' : 'flex-start'};
+            margin-bottom: 12px;
+            animation: slideIn 0.3s ease-out;
+        `;
+
+        const bubble = document.createElement('div');
+        bubble.style.cssText = `
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 13px;
+            line-height: 1.5;
+            ${role === 'user'
+                ? 'background: linear-gradient(135deg, rgba(0,255,255,0.2), rgba(0,255,255,0.1)); color: #00ffff; border: 1px solid rgba(0,255,255,0.3);'
+                : 'background: rgba(0,10,20,0.8); color: rgba(255,255,255,0.9); border: 1px solid rgba(0,255,255,0.2);'
+            }
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        `;
+        bubble.textContent = message;
+
+        msgDiv.appendChild(bubble);
+        container.appendChild(msgDiv);
+
+        // Auto-scroll to bottom
+        container.scrollTop = container.scrollHeight;
+    }
+
+    showThinkingInPanel() {
+        const container = document.getElementById('conversation-container');
+        if (!container) return;
+
+        const thinkingDiv = document.createElement('div');
+        thinkingDiv.id = 'thinking-indicator';
+        thinkingDiv.style.cssText = `
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 12px;
+        `;
+
+        const bubble = document.createElement('div');
+        bubble.style.cssText = `
+            padding: 12px 16px;
+            border-radius: 18px;
+            background: rgba(0,10,20,0.8);
+            border: 1px solid rgba(0,255,255,0.2);
+            color: rgba(0,255,255,0.6);
+            font-size: 12px;
+            font-style: italic;
+        `;
+        bubble.textContent = 'Phoenix is thinking...';
+
+        thinkingDiv.appendChild(bubble);
+        container.appendChild(thinkingDiv);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    hideThinkingInPanel() {
+        document.getElementById('thinking-indicator')?.remove();
     }
 
     addMessageToUI(message, role, scroll = true) {
@@ -541,19 +636,19 @@ class JARVISEngine {
             border-left: 3px solid ${role === 'assistant' ? '#00ffff' : 'rgba(0,255,255,0.3)'};
             border-radius: 4px;
         `;
-        
+
         const label = document.createElement('div');
         label.style.cssText = 'font-size: 10px; color: #00ffff; margin-bottom: 6px; font-weight: bold;';
         label.textContent = role === 'assistant' ? this.personality.style : 'YOU';
-        
+
         const content = document.createElement('div');
         content.style.cssText = 'font-size: 13px; color: rgba(0,255,255,0.9);';
         content.textContent = message;
-        
+
         msgDiv.appendChild(label);
         msgDiv.appendChild(content);
         messagesEl.appendChild(msgDiv);
-        
+
         if (scroll) messagesEl.scrollTop = messagesEl.scrollHeight;
     }
 
