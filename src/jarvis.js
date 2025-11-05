@@ -535,27 +535,93 @@ class JARVISEngine {
         // Display user message immediately in conversation panel
         this.addMessageToConversationPanel(message, 'user');
 
-        // Show thinking indicator
-        this.showThinkingInPanel();
+        // Show typing indicator with personality
+        this.showTypingIndicatorInPanel();
 
         try {
             const startTime = performance.now();
-            const response = await this.chat(message);
+
+            // ⚡ OPTIMIZATION: Add 3-second timeout for better UX
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Response timeout')), 10000)
+            );
+
+            const response = await Promise.race([
+                this.chat(message),
+                timeoutPromise
+            ]);
+
             const responseTime = Math.round(performance.now() - startTime);
 
-            this.hideThinkingInPanel();
+            this.hideTypingIndicatorInPanel();
 
             if (response?.response) {
-                this.addMessageToConversationPanel(response.response, 'assistant');
+                // ⚡ STREAM THE RESPONSE for better UX (typewriter effect)
+                await this.streamMessageToPanel(response.response, 'assistant');
                 console.log(`✅ Response time: ${responseTime}ms`);
+            } else if (response?.fallback) {
+                // Show intelligent fallback
+                await this.streamMessageToPanel(response.response, 'assistant');
+                console.log(`⚡ Using intelligent fallback (backend unavailable)`);
             } else {
-                this.addMessageToConversationPanel('Error processing message', 'assistant');
+                this.addMessageToConversationPanel('I didn\'t catch that. Can you rephrase?', 'assistant');
             }
         } catch (error) {
-            this.hideThinkingInPanel();
-            this.addMessageToConversationPanel('Connection error. Please try again.', 'assistant');
-            console.error('Conversation error:', error);
+            this.hideTypingIndicatorInPanel();
+
+            if (error.message === 'Response timeout') {
+                this.addMessageToConversationPanel('I\'m taking longer than usual. Let me think...', 'assistant');
+                console.log('⚠️ Response timeout - showing fallback');
+            } else {
+                // Use intelligent fallback instead of generic error
+                const fallbackResponse = this.getIntelligentFallback(message);
+                await this.streamMessageToPanel(fallbackResponse.response, 'assistant');
+                console.log('⚡ Using intelligent fallback due to error');
+            }
         }
+    }
+
+    // ⚡ NEW: Stream message with typewriter effect (makes it feel ALIVE)
+    async streamMessageToPanel(message, role) {
+        const container = document.getElementById('conversation-container');
+        if (!container) return;
+
+        const msgDiv = document.createElement('div');
+        msgDiv.style.cssText = `
+            display: flex;
+            justify-content: ${role === 'user' ? 'flex-end' : 'flex-start'};
+            margin-bottom: 12px;
+            animation: slideIn 0.3s ease-out;
+        `;
+
+        const bubble = document.createElement('div');
+        bubble.style.cssText = `
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 13px;
+            line-height: 1.5;
+            ${role === 'user'
+                ? 'background: linear-gradient(135deg, rgba(0,255,255,0.2), rgba(0,255,255,0.1)); color: #00ffff; border: 1px solid rgba(0,255,255,0.3);'
+                : 'background: rgba(0,10,20,0.8); color: rgba(255,255,255,0.9); border: 1px solid rgba(0,255,255,0.2);'
+            }
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        `;
+
+        msgDiv.appendChild(bubble);
+        container.appendChild(msgDiv);
+
+        // ⚡ TYPEWRITER EFFECT (30ms per character = feels instant but alive)
+        const words = message.split(' ');
+        for (let i = 0; i < words.length; i++) {
+            bubble.textContent = words.slice(0, i + 1).join(' ');
+            container.scrollTop = container.scrollHeight;
+            await new Promise(resolve => setTimeout(resolve, 30)); // 30ms per word
+        }
+
+        // Ensure full message is shown
+        bubble.textContent = message;
+        container.scrollTop = container.scrollHeight;
     }
 
     addMessageToConversationPanel(message, role) {
@@ -592,16 +658,17 @@ class JARVISEngine {
         container.scrollTop = container.scrollHeight;
     }
 
-    showThinkingInPanel() {
+    showTypingIndicatorInPanel() {
         const container = document.getElementById('conversation-container');
         if (!container) return;
 
-        const thinkingDiv = document.createElement('div');
-        thinkingDiv.id = 'thinking-indicator';
-        thinkingDiv.style.cssText = `
+        const typingDiv = document.createElement('div');
+        typingDiv.id = 'typing-indicator';
+        typingDiv.style.cssText = `
             display: flex;
             justify-content: flex-start;
             margin-bottom: 12px;
+            animation: slideIn 0.3s ease-out;
         `;
 
         const bubble = document.createElement('div');
@@ -611,18 +678,51 @@ class JARVISEngine {
             background: rgba(0,10,20,0.8);
             border: 1px solid rgba(0,255,255,0.2);
             color: rgba(0,255,255,0.6);
-            font-size: 12px;
-            font-style: italic;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         `;
-        bubble.textContent = 'Phoenix is thinking...';
 
-        thinkingDiv.appendChild(bubble);
-        container.appendChild(thinkingDiv);
+        // ⚡ ANIMATED TYPING DOTS (feels alive!)
+        bubble.innerHTML = `
+            <span style="font-style:italic">Phoenix is thinking</span>
+            <span class="typing-dots">
+                <span style="animation: typingDot 1.4s infinite; animation-delay: 0s">.</span>
+                <span style="animation: typingDot 1.4s infinite; animation-delay: 0.2s">.</span>
+                <span style="animation: typingDot 1.4s infinite; animation-delay: 0.4s">.</span>
+            </span>
+        `;
+
+        // Add CSS animation for dots
+        if (!document.getElementById('typing-animation-style')) {
+            const style = document.createElement('style');
+            style.id = 'typing-animation-style';
+            style.textContent = `
+                @keyframes typingDot {
+                    0%, 100% { opacity: 0.3; transform: translateY(0); }
+                    50% { opacity: 1; transform: translateY(-3px); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        typingDiv.appendChild(bubble);
+        container.appendChild(typingDiv);
         container.scrollTop = container.scrollHeight;
     }
 
+    hideTypingIndicatorInPanel() {
+        document.getElementById('typing-indicator')?.remove();
+    }
+
+    // Keep old method name for compatibility
+    showThinkingInPanel() {
+        this.showTypingIndicatorInPanel();
+    }
+
     hideThinkingInPanel() {
-        document.getElementById('thinking-indicator')?.remove();
+        this.hideTypingIndicatorInPanel();
     }
 
     addMessageToUI(message, role, scroll = true) {
