@@ -1738,7 +1738,7 @@
                         console.log('❌ Token refresh failed - redirecting to login');
                         localStorage.removeItem('phoenixToken');
                         sessionStorage.removeItem('phoenix_greeted');
-                        window.location.href = 'login.html';
+                        window.location.href = 'index.html';
                         return;
                     }
                 } catch (refreshError) {
@@ -1773,7 +1773,7 @@
                     console.log('❌ 401 Unauthorized - session expired');
                     localStorage.removeItem('phoenixToken');
                     sessionStorage.removeItem('phoenix_greeted');
-                    window.location.href = 'login.html';
+                    window.location.href = 'index.html';
                     return;
                 }
 
