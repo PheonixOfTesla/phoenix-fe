@@ -1670,8 +1670,33 @@
         }
 
         const token = localStorage.getItem('phoenixToken');
+        const justLoggedIn = sessionStorage.getItem('phoenix_just_logged_in');
 
-        if (!token) {
+        // If user just logged in, clear the flag and skip token check to prevent redirect loop
+        if (justLoggedIn === 'true') {
+            console.log('✅ Just logged in - clearing flag and proceeding to dashboard');
+            sessionStorage.removeItem('phoenix_just_logged_in');
+
+            // Verify token exists (should be set by index.html before redirect)
+            if (!token) {
+                console.error('❌ CRITICAL: Just logged in flag set but no token found!');
+                console.log('🔄 Waiting 500ms for localStorage to sync...');
+
+                // Wait for localStorage to sync across redirect
+                setTimeout(() => {
+                    const tokenRetry = localStorage.getItem('phoenixToken');
+                    if (tokenRetry) {
+                        console.log('✅ Token found after retry - continuing');
+                        // Page will continue loading normally
+                    } else {
+                        console.error('❌ Still no token - authentication failed');
+                        alert('Authentication error: Token not found. Please try logging in again.');
+                        window.location.href = 'index.html';
+                    }
+                }, 500);
+                return; // Prevent further execution until retry completes
+            }
+        } else if (!token) {
             // Add redirect guard to prevent rapid bouncing
             const lastRedirect = sessionStorage.getItem('last_dashboard_redirect');
             const now = Date.now();
