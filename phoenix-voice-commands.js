@@ -661,7 +661,7 @@ class PhoenixVoiceCommands {
                 return;
             }
 
-            const response = await fetch(`${window.PhoenixConfig.API_BASE_URL}/phoenix/chat`, {
+            const response = await fetch(`${window.PhoenixConfig.API_BASE_URL}/phoenixVoice/chat`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -669,12 +669,9 @@ class PhoenixVoiceCommands {
                 },
                 body: JSON.stringify({
                     message: transcript,
-                    includeContext: true,
-                    context: {
-                        page: window.location.pathname,
-                        timestamp: new Date().toISOString(),
-                        mode: document.body.getAttribute('data-mode')
-                    }
+                    conversationHistory: [],
+                    personality: 'friendly_helpful',
+                    voice: 'echo'
                 })
             });
 
@@ -797,7 +794,7 @@ class PhoenixVoiceCommands {
                 return;
             }
 
-            const response = await fetch(`${window.PhoenixConfig.API_BASE_URL}/phoenix/chat`, {
+            const response = await fetch(`${window.PhoenixConfig.API_BASE_URL}/phoenixVoice/chat`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -805,10 +802,9 @@ class PhoenixVoiceCommands {
                 },
                 body: JSON.stringify({
                     message: transcript,
-                    context: {
-                        page: window.location.pathname,
-                        timestamp: new Date().toISOString()
-                    }
+                    conversationHistory: [],
+                    personality: 'friendly_helpful',
+                    voice: 'echo'
                 })
             });
 
@@ -825,9 +821,9 @@ class PhoenixVoiceCommands {
     }
 
     /* ============================================
-       TEXT-TO-SPEECH (Optimized for Apple devices)
+       TEXT-TO-SPEECH (Backend OpenAI TTS - Natural Voice)
        ============================================ */
-    speak(text, skipStateChange = false) {
+    async speak(text, skipStateChange = false) {
         console.log('Speaking:', text);
 
         // OPTIMIZATION: Skip state change if action is already executing
@@ -836,67 +832,68 @@ class PhoenixVoiceCommands {
             this.isSpeaking = true;
         }
 
-        // Apple devices: Use native higher-quality voices
-        if (this.useNativeAPIs && 'speechSynthesis' in window) {
-            window.speechSynthesis.cancel();
+        try {
+            // Use backend TTS endpoint for natural OpenAI voice
+            const response = await fetch(`${window.PhoenixConfig.API_BASE_URL}/tts/generate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    text: text,
+                    voice: 'echo',  // British butler - most natural
+                    speed: 1.4,     // Fast for natural conversation
+                    language: 'en-GB',
+                    model: 'tts-1'
+                })
+            });
 
-            const utterance = new SpeechSynthesisUtterance(text);
-
-            // Apple devices have better native voices
-            const voices = window.speechSynthesis.getVoices();
-            const appleVoice = voices.find(v =>
-                v.name.includes('Samantha') || // Natural female voice
-                v.name.includes('Karen') ||    // Australian accent
-                v.name.includes('Daniel') ||   // British male
-                v.name.includes('Siri')        // Siri voice if available
-            );
-            if (appleVoice) {
-                utterance.voice = appleVoice;
+            if (!response.ok) {
+                throw new Error('TTS generation failed');
             }
 
-            utterance.rate = 1.4; // Faster for Apple (better quality at high speed)
-            utterance.pitch = 1.0;
-            utterance.volume = 1.0;
+            // Get audio blob
+            const audioBlob = await response.blob();
 
-            utterance.onend = () => {
+            // Create audio URL and play
+            const audioUrl = URL.createObjectURL(audioBlob);
+            const audio = new Audio(audioUrl);
+
+            audio.onended = () => {
+                URL.revokeObjectURL(audioUrl); // Clean up
                 this.isSpeaking = false;
                 if (!this.isListening && !this.isProcessing) {
                     this.setOrbState('idle');
                 }
             };
 
-            utterance.onerror = () => {
+            audio.onerror = () => {
+                URL.revokeObjectURL(audioUrl);
                 this.isSpeaking = false;
                 this.setOrbState('idle');
+                console.error('Audio playback error');
             };
 
-            window.speechSynthesis.speak(utterance);
-        } else if ('speechSynthesis' in window) {
-            // Non-Apple devices: Standard Web Speech API
-            window.speechSynthesis.cancel();
+            await audio.play();
 
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 1.3; // Slightly slower for other browsers
-            utterance.pitch = 1.0;
-            utterance.volume = 1.0;
-
-            utterance.onend = () => {
-                this.isSpeaking = false;
-                if (!this.isListening && !this.isProcessing) {
-                    this.setOrbState('idle');
-                }
-            };
-
-            utterance.onerror = () => {
-                this.isSpeaking = false;
-                this.setOrbState('idle');
-            };
-
-            window.speechSynthesis.speak(utterance);
-        } else {
-            // Fallback: no TTS available
+        } catch (error) {
+            console.error('TTS Error:', error);
             this.isSpeaking = false;
             this.setOrbState('idle');
+
+            // Fallback to Web Speech API if backend fails
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = this.useNativeAPIs ? 1.4 : 1.3;
+                utterance.onend = () => {
+                    this.isSpeaking = false;
+                    if (!this.isListening && !this.isProcessing) {
+                        this.setOrbState('idle');
+                    }
+                };
+                window.speechSynthesis.speak(utterance);
+            }
         }
     }
 

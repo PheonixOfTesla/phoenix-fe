@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="phoenix-voice.css?v=1761926307">
     <link rel="stylesheet" href="voice-mode.css?v=1761926307">
     <link rel="stylesheet" href="phoenix-orb-states.css?v=1761926307">
+    <link rel="stylesheet" href="widget-styles.css?v=1761926307">
 </head>
 <body data-mode="voice">
     <!-- ============================================ -->
@@ -120,6 +121,7 @@
         <!-- Weather Widget -->
         <div style="font-size:9px;color:rgba(0,255,255,0.5);letter-spacing:1px;margin-top:10px">WEATHER</div>
         <div id="weather-display" style="display:flex;align-items:center;gap:10px;margin-top:6px;padding:8px;background:rgba(0,255,255,0.05);border-radius:6px">
+            <div id="weather-icon" style="font-size:24px;min-width:30px;text-align:center">☀️</div>
             <div style="flex:1">
                 <div id="weather-temp" style="font-size:16px;color:#00ffff;font-weight:bold">--°F</div>
                 <div id="weather-condition" style="font-size:10px;color:rgba(0,255,255,0.7)">Loading...</div>
@@ -240,7 +242,7 @@
         <div onclick="openJarvisHub('optimization')" style="cursor:pointer;padding:12px 18px;background:rgba(0,10,20,0.95);border:2px solid rgba(0,255,255,0.5);border-radius:30px;backdrop-filter:blur(15px);transition:all 0.3s;box-shadow:0 0 20px rgba(0,255,255,0.3);display:flex;align-items:center;gap:12px;min-width:160px" onmouseover="this.style.borderColor='rgba(0,255,255,0.9)';this.style.boxShadow='0 0 30px rgba(0,255,255,0.6)';this.style.transform='translateX(-5px)'" onmouseout="this.style.borderColor='rgba(0,255,255,0.5)';this.style.boxShadow='0 0 20px rgba(0,255,255,0.3)';this.style.transform='translateX(0)'">
             <svg width="24" height="24" viewBox="0 0 24 24" style="flex-shrink:0">
                 <polygon points="12,2 4,12 12,22 20,12" fill="none" stroke="#00ffff" stroke-width="1.5"/>
-                <circle cx="12" cy="12" r="4" fill="none" stroke="#00ffff" stroke-width="1.5"/>
+                <circle id="opt-progress-circle" cx="12" cy="12" r="4" fill="none" stroke="#00ffff" stroke-width="1.5" style="stroke-dasharray: 377; stroke-dashoffset: 377; transition: stroke-dashoffset 0.5s ease, stroke 0.5s ease;"/>
                 <path d="M12 8 L12 16" stroke="#00ffff" stroke-width="2"/>
             </svg>
             <div>
@@ -268,6 +270,7 @@
             <div>
                 <div style="font-size:10px;color:rgba(0,255,255,0.6);letter-spacing:1px">TIER</div>
                 <div id="opt-tier-name" style="font-size:11px;color:#00ffff;font-weight:bold">BASIC</div>
+                <div id="opt-tier-desc" style="font-size:9px;color:rgba(0,255,255,0.4);margin-top:2px">Starting level</div>
             </div>
         </div>
     </div>
@@ -1659,9 +1662,27 @@
     <!-- ============================================ -->
     <script>
     (function checkAuth() {
+        // Clear the just logged in flag to prevent redirect loop
+        const justLoggedIn = sessionStorage.getItem('phoenix_just_logged_in');
+        if (justLoggedIn === 'true') {
+            console.log('✅ Just logged in - clearing flag');
+            sessionStorage.removeItem('phoenix_just_logged_in');
+        }
+
         const token = localStorage.getItem('phoenixToken');
 
         if (!token) {
+            // Add redirect guard to prevent rapid bouncing
+            const lastRedirect = sessionStorage.getItem('last_dashboard_redirect');
+            const now = Date.now();
+
+            if (lastRedirect && (now - parseInt(lastRedirect)) < 2000) {
+                console.log('⚠️ Redirect loop detected - stopping');
+                document.body.innerHTML = '<div style="color: white; text-align: center; padding: 50px;">Authentication error. Please <a href="index.html" style="color: cyan;">log in again</a>.</div>';
+                return;
+            }
+
+            sessionStorage.setItem('last_dashboard_redirect', now.toString());
             console.log('❌ No token found on dashboard - redirecting to index.html');
             window.location.href = 'index.html';
             return;
