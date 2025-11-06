@@ -51,6 +51,11 @@ class PhoenixVoiceCommands {
         this.recognition.lang = 'en-US';
         this.recognition.maxAlternatives = 1;
 
+        // OPTIMIZATION: Track silence for faster response
+        this.lastSpeechTime = 0;
+        this.silenceThreshold = 400; // ms - much shorter than default 1000ms
+        this.silenceTimer = null;
+
         this.recognition.onstart = () => {
             console.log('Voice recognition started');
             this.isListening = true;
@@ -73,7 +78,29 @@ class PhoenixVoiceCommands {
             this.currentTranscript = finalTranscript || interimTranscript;
             console.log('Transcript:', this.currentTranscript);
 
+            // OPTIMIZATION: Track when user last spoke
+            this.lastSpeechTime = Date.now();
+
+            // Clear existing silence timer
+            if (this.silenceTimer) {
+                clearTimeout(this.silenceTimer);
+            }
+
+            // OPTIMIZATION: Process interim results after short silence
+            if (interimTranscript && !finalTranscript) {
+                this.silenceTimer = setTimeout(() => {
+                    if (Date.now() - this.lastSpeechTime >= this.silenceThreshold) {
+                        // User stopped talking, process command now
+                        this.recognition.stop();
+                        this.processCommand(interimTranscript.trim().toLowerCase());
+                    }
+                }, this.silenceThreshold);
+            }
+
             if (finalTranscript) {
+                if (this.silenceTimer) {
+                    clearTimeout(this.silenceTimer);
+                }
                 this.processCommand(finalTranscript.trim().toLowerCase());
             }
         };
@@ -146,16 +173,26 @@ class PhoenixVoiceCommands {
     async processCommand(transcript) {
         console.log('Processing command:', transcript);
 
-        this.setOrbState('thinking');
-        this.isProcessing = true;
-
         // Command routing
         const command = this.parseCommand(transcript);
 
-        if (command) {
+        // OPTIMIZATION: Natural, instant responses
+        if (command && this.isLocalCommand(command)) {
+            // Local commands: acknowledge WHILE executing (parallel)
+            this.setOrbState('thinking');
+            this.isProcessing = true;
+            this.giveNaturalAcknowledgment(command);
+            await this.executeCommand(command);
+        } else if (command) {
+            // Backend required: acknowledge immediately
+            this.giveNaturalAcknowledgment(command);
+            this.setOrbState('thinking');
+            this.isProcessing = true;
             await this.executeCommand(command);
         } else {
             // Fallback to AI conversation
+            this.setOrbState('thinking');
+            this.isProcessing = true;
             await this.sendToAI(transcript);
         }
 
@@ -163,6 +200,83 @@ class PhoenixVoiceCommands {
 
         if (!this.isSpeaking) {
             this.setOrbState('idle');
+        }
+    }
+
+    /* ============================================
+       LOCAL COMMAND CHECK
+       ============================================ */
+    isLocalCommand(command) {
+        // Commands that don't require backend API calls
+        const localTypes = ['navigate', 'show', 'hide', 'mode', 'replace'];
+        return localTypes.includes(command.type);
+    }
+
+    /* ============================================
+       NATURAL ACKNOWLEDGMENTS
+       ============================================ */
+    giveNaturalAcknowledgment(command) {
+        // Fast, natural responses that feel conversational
+        const acknowledgments = {
+            'navigate': [
+                'On it',
+                'Opening that now',
+                'Sure',
+                'Got it'
+            ],
+            'show': [
+                'Let me pull that up',
+                'Here you go',
+                'Sure thing',
+                'Coming up'
+            ],
+            'hide': [
+                'Done',
+                'Hidden',
+                'Got it',
+                'Closing that'
+            ],
+            'replace': [
+                'Swapping now',
+                'On it',
+                'Switching'
+            ],
+            'mode': [
+                'Switching modes',
+                'Done',
+                'Changed'
+            ],
+            'log': [
+                'Logged',
+                'Got it',
+                'Tracked',
+                'Added'
+            ],
+            'sync': [
+                'Syncing now',
+                'On it',
+                'Refreshing'
+            ]
+        };
+
+        const phrases = acknowledgments[command.type] || ['Got it'];
+        const phrase = phrases[Math.floor(Math.random() * phrases.length)];
+
+        // Speak without blocking execution
+        this.speakQuick(phrase);
+    }
+
+    /* ============================================
+       QUICK SPEECH (non-blocking)
+       ============================================ */
+    speakQuick(text) {
+        // Ultra-fast speech for acknowledgments
+        if ('speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 1.5; // Even faster for short phrases
+            utterance.pitch = 1.0;
+            utterance.volume = 0.8; // Slightly quieter for quick acks
+            window.speechSynthesis.speak(utterance);
         }
     }
 
@@ -332,9 +446,9 @@ class PhoenixVoiceCommands {
         };
 
         if (planetUrls[target]) {
-            this.speak(`Opening ${target}`);
-            await this.delay(800);
+            // OPTIMIZATION: Instant navigation, speak while transitioning
             window.location.href = planetUrls[target];
+            // Note: speak() won't complete before navigation, but that's OK
         }
     }
 
@@ -342,38 +456,33 @@ class PhoenixVoiceCommands {
        SHOW HANDLERS
        ============================================ */
     async handleShow(target) {
+        // OPTIMIZATION: Instant navigation, no waiting
         switch (target) {
             case 'today-schedule':
-                this.speak('Showing your schedule for today');
-                // Open Earth planet or calendar view
                 if (window.location.pathname.includes('dashboard')) {
                     window.location.href = 'earth.html';
                 }
                 break;
 
             case 'health-metrics':
-                this.speak('Displaying your health metrics');
                 if (window.location.pathname.includes('dashboard')) {
                     window.location.href = 'mercury.html';
                 }
                 break;
 
             case 'finance-overview':
-                this.speak('Showing your financial overview');
                 if (window.location.pathname.includes('dashboard')) {
                     window.location.href = 'jupiter.html';
                 }
                 break;
 
             case 'goals-progress':
-                this.speak('Here are your goals and progress');
                 if (window.location.pathname.includes('dashboard')) {
                     window.location.href = 'mars.html';
                 }
                 break;
 
             case 'workout-plan':
-                this.speak('Loading your workout plan');
                 if (window.location.pathname.includes('dashboard')) {
                     window.location.href = 'venus.html';
                 }
@@ -385,9 +494,9 @@ class PhoenixVoiceCommands {
        HIDE HANDLERS
        ============================================ */
     async handleHide(target) {
+        // OPTIMIZATION: Execute instantly, no speech delay
         switch (target) {
             case 'all-panels':
-                this.speak('Closing all panels');
                 // Close any open menus or panels
                 document.querySelectorAll('.panel, .menu, [id*="menu"]').forEach(el => {
                     el.style.display = 'none';
@@ -396,7 +505,6 @@ class PhoenixVoiceCommands {
 
             case 'health':
             case 'finance':
-                this.speak(`Hiding ${target} information`);
                 // Logic to hide specific sections
                 break;
         }
@@ -554,18 +662,21 @@ class PhoenixVoiceCommands {
     /* ============================================
        TEXT-TO-SPEECH
        ============================================ */
-    speak(text) {
+    speak(text, skipStateChange = false) {
         console.log('Speaking:', text);
 
-        this.setOrbState('speaking');
-        this.isSpeaking = true;
+        // OPTIMIZATION: Skip state change if action is already executing
+        if (!skipStateChange) {
+            this.setOrbState('speaking');
+            this.isSpeaking = true;
+        }
 
         if ('speechSynthesis' in window) {
             // Cancel any ongoing speech
             window.speechSynthesis.cancel();
 
             const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 1.1;
+            utterance.rate = 1.3; // FASTER: 1.1 -> 1.3
             utterance.pitch = 1.0;
             utterance.volume = 1.0;
 
