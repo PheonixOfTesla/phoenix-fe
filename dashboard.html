@@ -12,8 +12,22 @@
     <title>Phoenix - AI Life Operating System</title>
     <link rel="stylesheet" href="styles.css?v=1761926307">
     <link rel="stylesheet" href="phoenix-voice.css?v=1761926307">
+    <link rel="stylesheet" href="voice-mode.css?v=1761926307">
+    <link rel="stylesheet" href="phoenix-orb-states.css?v=1761926307">
 </head>
-<body>
+<body data-mode="voice">
+    <!-- ============================================ -->
+    <!-- VOICE/MANUAL MODE TOGGLE -->
+    <!-- ============================================ -->
+    <div id="mode-toggle-container" style="position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:10001;display:flex;gap:0;background:rgba(0,10,20,0.95);border:2px solid rgba(0,255,255,0.4);border-radius:50px;padding:4px;backdrop-filter:blur(15px);box-shadow:0 0 30px rgba(0,255,255,0.3);pointer-events:auto">
+        <button id="voice-mode-btn" onclick="switchToVoiceMode()" style="padding:12px 24px;background:rgba(0,255,255,0.3);border:none;color:#00ffff;font-family:inherit;font-size:12px;font-weight:bold;cursor:pointer;border-radius:50px;letter-spacing:1px;transition:all 0.3s;box-shadow:0 0 20px rgba(0,255,255,0.5),inset 0 0 15px rgba(0,255,255,0.3)">
+            VOICE
+        </button>
+        <button id="manual-mode-btn" onclick="switchToManualMode()" style="padding:12px 24px;background:transparent;border:none;color:rgba(0,255,255,0.5);font-family:inherit;font-size:12px;font-weight:bold;cursor:pointer;border-radius:50px;letter-spacing:1px;transition:all 0.3s">
+            MANUAL
+        </button>
+    </div>
+
     <!-- ============================================ -->
     <!-- LOADING SCREEN -->
     <!-- ============================================ -->
@@ -4260,6 +4274,12 @@
 
     <!-- Smooth Scroll Enhancement -->
     <script src="src/smooth-scroll.js"></script>
+
+    <!-- Voice/Manual Mode Controller -->
+    <script src="voice-controller.js?v=1761926307"></script>
+
+    <!-- Phoenix Voice Command System -->
+    <script src="phoenix-voice-commands.js?v=1761926307"></script>
 
 </body>
 </html>
