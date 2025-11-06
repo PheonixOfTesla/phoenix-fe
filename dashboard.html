@@ -1676,9 +1676,12 @@
         const token = localStorage.getItem('phoenixToken');
 
         if (!token) {
-            window.location.href = './';
+            console.log('❌ No token found on dashboard - redirecting to index.html');
+            window.location.href = 'index.html';
             return;
         }
+
+        console.log('✅ Authenticated - Token found');
     })();
     </script>
 

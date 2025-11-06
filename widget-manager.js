@@ -336,8 +336,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Add CSS animations
-const style = document.createElement('style');
-style.textContent = `
+const widgetStyles = document.createElement('style');
+widgetStyles.textContent = `
     @keyframes widgetFadeIn {
         from {
             opacity: 0;
@@ -369,4 +369,4 @@ style.textContent = `
         }
     }
 `;
-document.head.appendChild(style);
+document.head.appendChild(widgetStyles);
