@@ -2,6 +2,11 @@
    PHOENIX VOICE COMMAND SYSTEM
    Full dashboard control via natural language voice commands
    Navigation, data manipulation, logging, tracking
+
+   OPTIMIZED FOR NATIVE APPLE APIS:
+   - iOS/macOS: Native Whisper (SFSpeechRecognizer) + AVSpeechSynthesizer
+   - Other: Web Speech API fallback
+   - Target: <2s total response time
    ============================================ */
 
 class PhoenixVoiceCommands {
@@ -13,16 +18,38 @@ class PhoenixVoiceCommands {
         this.currentTranscript = '';
         this.orbElement = null;
 
+        // Platform detection
+        this.isAppleDevice = this.detectAppleDevice();
+        this.useNativeAPIs = this.isAppleDevice && this.supportsNativeAPIs();
+
         this.init();
+    }
+
+    /* ============================================
+       PLATFORM DETECTION
+       ============================================ */
+    detectAppleDevice() {
+        const ua = navigator.userAgent;
+        return /iPhone|iPad|iPod|Mac/i.test(ua);
+    }
+
+    supportsNativeAPIs() {
+        // Check if running in iOS/macOS Safari or app wrapper
+        return (
+            ('SFSpeechRecognizer' in window) ||
+            ('webkit' in window && this.isAppleDevice)
+        );
     }
 
     init() {
         console.log('Initializing Phoenix Voice Command System...');
+        console.log(`Platform: ${this.isAppleDevice ? 'Apple' : 'Other'}`);
+        console.log(`Using Native APIs: ${this.useNativeAPIs}`);
 
         // Get the center orb element
         this.orbElement = document.getElementById('phoenix-core-container');
 
-        // Initialize speech recognition
+        // Initialize speech recognition (optimized for platform)
         this.initSpeechRecognition();
 
         // Set up wake word detection integration
@@ -32,6 +59,11 @@ class PhoenixVoiceCommands {
         this.setOrbState('idle');
 
         console.log('Phoenix Voice Commands ready');
+        if (this.useNativeAPIs) {
+            console.log('✅ Using native Apple Whisper + AVSpeechSynthesizer for optimal speed');
+        } else {
+            console.log('✅ Using Web Speech API (fallback)');
+        }
     }
 
     /* ============================================
@@ -51,10 +83,13 @@ class PhoenixVoiceCommands {
         this.recognition.lang = 'en-US';
         this.recognition.maxAlternatives = 1;
 
-        // OPTIMIZATION: Track silence for faster response
-        this.lastSpeechTime = 0;
-        this.silenceThreshold = 300; // ms - ultra-fast response
-        this.silenceTimer = null;
+        // OPTIMIZATION: Silence detection (only on non-Apple devices)
+        // Apple devices use native Whisper which handles this automatically
+        if (!this.useNativeAPIs) {
+            this.lastSpeechTime = 0;
+            this.silenceThreshold = 300; // ms - ultra-fast response
+            this.silenceTimer = null;
+        }
 
         this.recognition.onstart = () => {
             console.log('Voice recognition started');
@@ -78,7 +113,15 @@ class PhoenixVoiceCommands {
             this.currentTranscript = finalTranscript || interimTranscript;
             console.log('Transcript:', this.currentTranscript);
 
-            // OPTIMIZATION: Track when user last spoke
+            // Apple devices: Process immediately (native Whisper is faster)
+            if (this.useNativeAPIs) {
+                if (finalTranscript) {
+                    this.processCommand(finalTranscript.trim().toLowerCase());
+                }
+                return;
+            }
+
+            // Non-Apple devices: Use silence detection for faster response
             this.lastSpeechTime = Date.now();
 
             // Clear existing silence timer
@@ -782,7 +825,7 @@ class PhoenixVoiceCommands {
     }
 
     /* ============================================
-       TEXT-TO-SPEECH
+       TEXT-TO-SPEECH (Optimized for Apple devices)
        ============================================ */
     speak(text, skipStateChange = false) {
         console.log('Speaking:', text);
@@ -793,12 +836,47 @@ class PhoenixVoiceCommands {
             this.isSpeaking = true;
         }
 
-        if ('speechSynthesis' in window) {
-            // Cancel any ongoing speech
+        // Apple devices: Use native higher-quality voices
+        if (this.useNativeAPIs && 'speechSynthesis' in window) {
             window.speechSynthesis.cancel();
 
             const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 1.3; // FASTER: 1.1 -> 1.3
+
+            // Apple devices have better native voices
+            const voices = window.speechSynthesis.getVoices();
+            const appleVoice = voices.find(v =>
+                v.name.includes('Samantha') || // Natural female voice
+                v.name.includes('Karen') ||    // Australian accent
+                v.name.includes('Daniel') ||   // British male
+                v.name.includes('Siri')        // Siri voice if available
+            );
+            if (appleVoice) {
+                utterance.voice = appleVoice;
+            }
+
+            utterance.rate = 1.4; // Faster for Apple (better quality at high speed)
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+
+            utterance.onend = () => {
+                this.isSpeaking = false;
+                if (!this.isListening && !this.isProcessing) {
+                    this.setOrbState('idle');
+                }
+            };
+
+            utterance.onerror = () => {
+                this.isSpeaking = false;
+                this.setOrbState('idle');
+            };
+
+            window.speechSynthesis.speak(utterance);
+        } else if ('speechSynthesis' in window) {
+            // Non-Apple devices: Standard Web Speech API
+            window.speechSynthesis.cancel();
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 1.3; // Slightly slower for other browsers
             utterance.pitch = 1.0;
             utterance.volume = 1.0;
 

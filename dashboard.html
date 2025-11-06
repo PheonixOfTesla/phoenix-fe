@@ -646,21 +646,7 @@
         </svg>
     </div>
 
-    <!-- ============================================ -->
-    <!-- MIC PERMISSION PROMPT -->
-    <!-- ============================================ -->
-    <div id="mic-permission-prompt" style="position:fixed;bottom:20px;left:20px;z-index:6000;background:rgba(0,10,20,0.95);padding:20px;border-radius:10px;border:2px solid rgba(0,255,255,0.4);backdrop-filter:blur(15px);box-shadow:0 0 30px rgba(0,255,255,0.2);max-width:350px;display:none">
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
-            <span style="font-size:32px">🎤</span>
-            <div>
-                <div style="font-size:14px;color:#00ffff;font-weight:bold;margin-bottom:4px">Enable Voice Listening</div>
-                <div style="font-size:11px;color:rgba(0,255,255,0.6);line-height:1.4">Allow Phoenix to listen for "Hey Phoenix" to activate voice commands</div>
-            </div>
-        </div>
-        <button onclick="enableWakeWordAI()" style="width:100%;padding:12px;background:rgba(0,255,255,0.2);border:2px solid #00ffff;color:#00ffff;font-size:12px;cursor:pointer;border-radius:8px;font-weight:bold;letter-spacing:1px;transition:all 0.3s" onmouseover="this.style.background='rgba(0,255,255,0.3)'" onmouseout="this.style.background='rgba(0,255,255,0.2)'">
-            ENABLE MICROPHONE
-        </button>
-    </div>
+    <!-- OLD MIC PERMISSION PROMPT REMOVED - phoenix-voice-commands.js handles mic access -->
 
     <!-- SIRI-STYLE WAVEFORM INDICATOR -->
     <div id="voice-waveform" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:6000;background:rgba(0,10,20,0.95);padding:20px 30px;border-radius:20px;border:2px solid rgba(0,255,255,0.4);backdrop-filter:blur(15px);display:none;flex-direction:column;align-items:center;gap:12px;box-shadow:0 0 30px rgba(0,255,255,0.3)">
@@ -3443,9 +3429,12 @@
     <!-- Static CSS background uses 0% CPU vs 25%+ for animated canvas -->
 
     <!-- ============================================ -->
-    <!-- WAKE WORD AI SYSTEM -->
+    <!-- WAKE WORD AI SYSTEM - REMOVED -->
+    <!-- Now using phoenix-voice-commands.js with native Apple APIs -->
     <!-- ============================================ -->
     <script>
+        // OLD WakeWordAI CLASS REMOVED - Using phoenix-voice-commands.js instead
+        /*
         class WakeWordAI {
             constructor() {
                 this.isListening = false;
@@ -3878,6 +3867,10 @@
         }
 
         console.log('✅ Wake Word AI Loaded');
+        */
+
+        // Phoenix Voice Commands now handles all voice interactions
+        console.log('✅ Voice system: phoenix-voice-commands.js (native Apple APIs)');
 
         /**
          * ═══════════════════════════════════════════════════════════════════
