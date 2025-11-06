@@ -3827,7 +3827,9 @@
                     console.error('Failed to fetch user profile:', err);
                 }
 
-                // Initialize Wake Word AI
+                // OLD WAKE WORD AI DISABLED - Now using phoenix-voice-commands.js with /phoenix/chat endpoint
+                // This old system was using /phoenixVoice/chat and hallucinating about Fitbit
+                /*
                 window.wakeWordAI = new WakeWordAI();
                 window.voiceSystem = window.wakeWordAI; // Alias for testing compatibility
 
@@ -3846,6 +3848,8 @@
                     // Show mic permission prompt
                     document.getElementById('mic-permission-prompt').style.display = 'block';
                 }
+                */
+                console.log('✅ Using new Phoenix Voice Command system (phoenix-voice-commands.js)');
             }, 3000);
         });
 
