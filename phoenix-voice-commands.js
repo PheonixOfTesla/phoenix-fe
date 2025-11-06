@@ -53,7 +53,7 @@ class PhoenixVoiceCommands {
 
         // OPTIMIZATION: Track silence for faster response
         this.lastSpeechTime = 0;
-        this.silenceThreshold = 400; // ms - much shorter than default 1000ms
+        this.silenceThreshold = 300; // ms - ultra-fast response
         this.silenceTimer = null;
 
         this.recognition.onstart = () => {
@@ -173,28 +173,13 @@ class PhoenixVoiceCommands {
     async processCommand(transcript) {
         console.log('Processing command:', transcript);
 
-        // Command routing
-        const command = this.parseCommand(transcript);
+        this.setOrbState('thinking');
+        this.isProcessing = true;
 
-        // OPTIMIZATION: Natural, instant responses
-        if (command && this.isLocalCommand(command)) {
-            // Local commands: acknowledge WHILE executing (parallel)
-            this.setOrbState('thinking');
-            this.isProcessing = true;
-            this.giveNaturalAcknowledgment(command);
-            await this.executeCommand(command);
-        } else if (command) {
-            // Backend required: acknowledge immediately
-            this.giveNaturalAcknowledgment(command);
-            this.setOrbState('thinking');
-            this.isProcessing = true;
-            await this.executeCommand(command);
-        } else {
-            // Fallback to AI conversation
-            this.setOrbState('thinking');
-            this.isProcessing = true;
-            await this.sendToAI(transcript);
-        }
+        // NEW STRATEGY: Route ALL commands through AI first
+        // Let Claude/Gemini intelligence determine intent and actions
+        // AI backend will return both message AND UI actions
+        await this.sendToAIIntelligent(transcript);
 
         this.isProcessing = false;
 
@@ -286,29 +271,30 @@ class PhoenixVoiceCommands {
     parseCommand(transcript) {
         const t = transcript.toLowerCase();
 
-        // NAVIGATION COMMANDS
-        if (t.match(/open|show|go to|navigate to|take me to/)) {
-            if (t.includes('mercury') || t.includes('health') || t.includes('biometric')) {
-                return { type: 'navigate', target: 'mercury' };
-            }
-            if (t.includes('venus') || t.includes('fitness') || t.includes('nutrition') || t.includes('workout')) {
-                return { type: 'navigate', target: 'venus' };
-            }
-            if (t.includes('earth') || t.includes('calendar') || t.includes('schedule') || t.includes('time')) {
-                return { type: 'navigate', target: 'earth' };
-            }
-            if (t.includes('mars') || t.includes('goal') || t.includes('habit')) {
-                return { type: 'navigate', target: 'mars' };
-            }
-            if (t.includes('jupiter') || t.includes('finance') || t.includes('money') || t.includes('budget')) {
-                return { type: 'navigate', target: 'jupiter' };
-            }
-            if (t.includes('saturn') || t.includes('social') || t.includes('relationship')) {
-                return { type: 'navigate', target: 'saturn' };
-            }
-            if (t.includes('dashboard') || t.includes('home') || t.includes('main')) {
-                return { type: 'navigate', target: 'dashboard' };
-            }
+        console.log('Parsing transcript:', t);
+
+        // PRIORITY: Check for planet keywords FIRST (more flexible matching)
+        // This ensures "open up nutrition" or just "nutrition" works
+        if (t.includes('mercury') || t.includes('health') || t.includes('biometric') || t.includes('recovery')) {
+            return { type: 'navigate', target: 'mercury' };
+        }
+        if (t.includes('venus') || t.includes('fitness') || t.includes('nutrition') || t.includes('workout') || t.includes('meal') || t.includes('food')) {
+            return { type: 'navigate', target: 'venus' };
+        }
+        if (t.includes('earth') || t.includes('calendar') || t.includes('schedule') || t.includes('time') || t.includes('meeting')) {
+            return { type: 'navigate', target: 'earth' };
+        }
+        if (t.includes('mars') || t.includes('goal') || t.includes('habit') || t.includes('progress')) {
+            return { type: 'navigate', target: 'mars' };
+        }
+        if (t.includes('jupiter') || t.includes('finance') || t.includes('money') || t.includes('budget') || t.includes('spending') || t.includes('expense')) {
+            return { type: 'navigate', target: 'jupiter' };
+        }
+        if (t.includes('saturn') || t.includes('social') || t.includes('relationship') || t.includes('people')) {
+            return { type: 'navigate', target: 'saturn' };
+        }
+        if (t.includes('dashboard') || t.includes('home') || t.includes('main')) {
+            return { type: 'navigate', target: 'dashboard' };
         }
 
         // VIEW COMMANDS - "show me X"
@@ -617,6 +603,142 @@ class PhoenixVoiceCommands {
         }
 
         this.speak('Sync complete');
+    }
+
+    /* ============================================
+       INTELLIGENT AI PROCESSING (Claude/Gemini)
+       ============================================ */
+    async sendToAIIntelligent(transcript) {
+        console.log('Sending to AI intelligence:', transcript);
+
+        try {
+            const token = localStorage.getItem('phoenixToken');
+            if (!token) {
+                this.speak('Please log in to use Phoenix');
+                return;
+            }
+
+            const response = await fetch(`${window.PhoenixConfig.API_BASE_URL}/phoenix/chat`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: transcript,
+                    includeContext: true,
+                    context: {
+                        page: window.location.pathname,
+                        timestamp: new Date().toISOString(),
+                        mode: document.body.getAttribute('data-mode')
+                    }
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+
+                // Handle AI response
+                const aiResponse = data.data || data;
+
+                // Execute UI actions if AI provided them
+                if (aiResponse.uiActions) {
+                    await this.executeUIActions(aiResponse.uiActions);
+                }
+
+                // Speak the response
+                if (aiResponse.message || aiResponse.response) {
+                    this.speak(aiResponse.message || aiResponse.response);
+                }
+
+                // Check for follow-up questions (conversational logging)
+                if (aiResponse.followUp) {
+                    setTimeout(() => {
+                        this.speak(aiResponse.followUp);
+                        // Re-enable listening for follow-up answer
+                        setTimeout(() => this.startListening(), 2000);
+                    }, 3000);
+                }
+            } else {
+                this.speak('Sorry, I could not process that request');
+            }
+        } catch (error) {
+            console.error('AI error:', error);
+            this.speak('There was an error processing your request');
+        }
+    }
+
+    /* ============================================
+       EXECUTE UI ACTIONS FROM AI RESPONSE
+       ============================================ */
+    async executeUIActions(uiActions) {
+        console.log('Executing UI actions:', uiActions);
+
+        // Navigate to different page
+        if (uiActions.navigation) {
+            window.location.href = uiActions.navigation;
+            return;
+        }
+
+        // Display widgets on dashboard
+        if (uiActions.displayWidgets && uiActions.displayWidgets.length > 0) {
+            if (window.widgetManager) {
+                await window.widgetManager.displayWidgets(uiActions.displayWidgets, uiActions.widgetData);
+            }
+        }
+
+        // Highlight specific metrics
+        if (uiActions.highlightMetrics && uiActions.highlightMetrics.length > 0) {
+            uiActions.highlightMetrics.forEach(metricId => {
+                const element = document.getElementById(metricId);
+                if (element) {
+                    element.style.animation = 'highlight-pulse 1s ease-in-out 2';
+                }
+            });
+        }
+
+        // Hide widgets
+        if (uiActions.hideWidgets && uiActions.hideWidgets.length > 0) {
+            if (window.widgetManager) {
+                await window.widgetManager.hideWidgets(uiActions.hideWidgets);
+            }
+        }
+
+        // Show notification
+        if (uiActions.notification) {
+            this.showNotification(uiActions.notification);
+        }
+    }
+
+    /* ============================================
+       SHOW NOTIFICATION
+       ============================================ */
+    showNotification(message) {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 10, 20, 0.95);
+            border: 2px solid rgba(0, 255, 255, 0.4);
+            border-radius: 12px;
+            padding: 15px 25px;
+            color: #00ffff;
+            font-size: 14px;
+            z-index: 10000;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+            animation: slideUp 0.3s ease-out;
+        `;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateX(-50%) translateY(20px)';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
     }
 
     /* ============================================
