@@ -681,6 +681,23 @@ class PhoenixVoiceCommands {
                 // Handle AI response
                 const aiResponse = data.data || data;
 
+                // CONSCIOUSNESS INTEGRATION: Request orchestration with voice query
+                if (window.consciousnessClient) {
+                    const orchestration = await window.consciousnessClient.orchestrate(
+                        {
+                            location: 'unknown',
+                            activity: 'voice_command',
+                            voiceQuery: transcript
+                        },
+                        transcript
+                    );
+
+                    // Apply orchestration to display
+                    if (orchestration && window.widgetManager) {
+                        await window.widgetManager.displayFromOrchestration(orchestration);
+                    }
+                }
+
                 // Execute UI actions if AI provided them
                 if (aiResponse.uiActions) {
                     await this.executeUIActions(aiResponse.uiActions);

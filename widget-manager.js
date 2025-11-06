@@ -1,13 +1,15 @@
 /* ============================================
-   PHOENIX WIDGET MANAGER - OPTIMIZED
+   PHOENIX WIDGET MANAGER - CONSCIOUS
    Dynamic widget system for dashboard
-   Show/hide/replace widgets based on voice commands
+   Priority-based layout, organic animations, consciousness integration
 
-   OPTIMIZATIONS:
+   FEATURES:
+   - Priority-based positioning (most important = most prominent)
    - CSS classes instead of inline styles (faster rendering)
    - Parallel widget creation (instant display)
    - Widget pooling (reuse instead of destroy/create)
-   - RequestAnimationFrame for smooth animations
+   - Organic animations (breathe, flow, pulse)
+   - Consciousness integration (orchestration-driven)
    ============================================ */
 
 class WidgetManager {
@@ -15,6 +17,7 @@ class WidgetManager {
         this.activeWidgets = new Map();
         this.widgetPool = new Map(); // Pooled widgets for reuse
         this.widgetContainer = null;
+        this.currentOrchestration = null;
         this.init();
     }
 
@@ -41,7 +44,110 @@ class WidgetManager {
     }
 
     /* ============================================
-       DISPLAY WIDGETS (PARALLEL)
+       DISPLAY WIDGETS FROM ORCHESTRATION (CONSCIOUS)
+       ============================================ */
+    async displayFromOrchestration(orchestration) {
+        if (!orchestration || !orchestration.layout) return;
+
+        console.log('[WidgetManager] Displaying from orchestration:', orchestration);
+
+        this.currentOrchestration = orchestration;
+
+        // Hide widgets marked for hiding
+        if (orchestration.layout.hidden) {
+            orchestration.layout.hidden.forEach(widgetId => {
+                this.removeWidget(widgetId);
+            });
+        }
+
+        // Display widgets with priorities
+        if (orchestration.layout.widgets) {
+            const widgetPromises = orchestration.layout.widgets.map(widgetConfig =>
+                this.createWidgetWithPriority(widgetConfig)
+            );
+
+            await Promise.all(widgetPromises);
+        }
+
+        // Apply dimming to low-priority widgets
+        if (orchestration.layout.dimmed) {
+            orchestration.layout.dimmed.forEach(widgetId => {
+                const widget = this.activeWidgets.get(widgetId);
+                if (widget) {
+                    widget.style.opacity = '0.5';
+                }
+            });
+        }
+
+        console.log('[WidgetManager] Orchestration complete');
+    }
+
+    /* ============================================
+       CREATE WIDGET WITH PRIORITY (CONSCIOUS)
+       ============================================ */
+    async createWidgetWithPriority(widgetConfig) {
+        const { id, position, size, urgency, priority } = widgetConfig;
+
+        // Try to get widget from pool first
+        let widget = this.getFromPool(id);
+
+        if (!widget) {
+            // Create new widget if none in pool
+            widget = document.createElement('div');
+            widget.id = `widget-${id}`;
+            widget.className = 'phoenix-widget';
+            widget.dataset.widgetType = id;
+        }
+
+        // Update widget content
+        const content = this.renderWidgetContent(id, widgetConfig.data || {});
+        widget.innerHTML = content;
+
+        // Apply priority-based classes
+        widget.dataset.priority = priority;
+        widget.dataset.urgency = urgency;
+        widget.classList.add(`widget-${size}`);
+        widget.classList.add(`widget-${position}`);
+        widget.classList.add(`urgency-${urgency}`);
+
+        // Add widget to container if not already there
+        if (!widget.parentElement) {
+            this.widgetContainer.appendChild(widget);
+        }
+
+        // Store in active widgets
+        this.activeWidgets.set(id, widget);
+
+        // Use organic motion for entrance
+        if (window.organicMotion) {
+            window.organicMotion.enterWidget(widget, priority === 0 ? 'high' : priority < 3 ? 'medium' : 'low');
+
+            // Apply urgency indicator
+            if (urgency) {
+                window.organicMotion.indicateUrgency(widget, urgency);
+            }
+
+            // Start breathing animation
+            window.organicMotion.breathe(widget, { type: 'glow', intensity: 0.5 });
+        } else {
+            // Fallback: Animate in using requestAnimationFrame
+            requestAnimationFrame(() => {
+                widget.classList.add('show');
+                widget.classList.remove('hide', 'pooled');
+            });
+        }
+
+        // Log interaction with consciousness client
+        if (window.consciousnessClient) {
+            window.consciousnessClient.logInteraction(id, 'viewed', {
+                displayedWidgets: Array.from(this.activeWidgets.keys()),
+                layoutType: this.currentOrchestration?.layout?.layoutType
+            });
+        }
+    }
+
+    /* ============================================
+       DISPLAY WIDGETS (PARALLEL) - Legacy support
        ============================================ */
     async displayWidgets(widgetIds, widgetData = {}) {
         console.log('Displaying widgets (parallel):', widgetIds);

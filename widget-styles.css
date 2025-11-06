@@ -193,6 +193,62 @@
     display: none;
 }
 
+/* ============================================
+   CONSCIOUSNESS - PRIORITY-BASED POSITIONING
+   ============================================ */
+
+/* Size Classes */
+.phoenix-widget.widget-large {
+    grid-column: span 2;
+    min-height: 250px;
+    font-size: 1.2em;
+}
+
+.phoenix-widget.widget-medium {
+    min-height: 180px;
+}
+
+.phoenix-widget.widget-small {
+    min-height: 120px;
+    font-size: 0.9em;
+}
+
+/* Position Classes */
+.phoenix-widget.widget-center {
+    grid-column: 1 / -1;
+    justify-self: center;
+    max-width: 800px;
+}
+
+.phoenix-widget.widget-top {
+    order: -1;
+}
+
+.phoenix-widget.widget-bottom {
+    order: 1;
+}
+
+/* Urgency Indicators */
+.phoenix-widget.urgency-high {
+    border-color: rgba(0, 255, 255, 0.8);
+    box-shadow: 0 0 40px rgba(0, 255, 255, 0.4);
+}
+
+.phoenix-widget.urgency-medium {
+    border-color: rgba(0, 255, 255, 0.5);
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.25);
+}
+
+.phoenix-widget.urgency-low {
+    border-color: rgba(0, 255, 255, 0.3);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.15);
+}
+
+/* Dimmed Widgets (low priority) */
+.phoenix-widget[style*="opacity: 0.5"] {
+    filter: brightness(0.7);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     #phoenix-widget-container {
