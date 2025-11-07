@@ -73,6 +73,8 @@ const translations = {
     // Misc
     'voice.status': 'VOICE STANDBY',
     'goals.placeholder': 'Type your goals here (e.g., "I want to lose 10kg and run a marathon")',
+    'goals.ai_note': '✨ Phoenix AI will analyze and structure your goals automatically',
+    'voice.loading': 'Loading available voices...',
   },
 
   es: {
@@ -125,6 +127,8 @@ const translations = {
     'status.voice.standby': 'VOZ EN ESPERA',
     'status.voice.active': 'VOZ ACTIVA',
     'goals.placeholder': 'Escribe tus objetivos aquí (ej: "Quiero perder 10kg y correr un maratón")',
+    'goals.ai_note': '✨ Phoenix AI analizará y estructurará tus objetivos automáticamente',
+    'voice.loading': 'Cargando voces disponibles...',
   },
 
   fr: {
@@ -176,6 +180,8 @@ const translations = {
     'status.voice.standby': 'VOIX EN ATTENTE',
     'status.voice.active': 'VOIX ACTIVE',
     'goals.placeholder': 'Écrivez vos objectifs ici (ex: "Je veux perdre 10kg et courir un marathon")',
+    'goals.ai_note': '✨ Phoenix AI analysera et structurera automatiquement vos objectifs',
+    'voice.loading': 'Chargement des voix disponibles...',
   },
 
   de: {
@@ -227,6 +233,8 @@ const translations = {
     'status.voice.standby': 'STIMME BEREIT',
     'status.voice.active': 'STIMME AKTIV',
     'goals.placeholder': 'Schreiben Sie hier Ihre Ziele (z.B. "Ich möchte 10kg abnehmen und einen Marathon laufen")',
+    'goals.ai_note': '✨ Phoenix AI wird Ihre Ziele automatisch analysieren und strukturieren',
+    'voice.loading': 'Verfügbare Stimmen werden geladen...',
   },
 
   it: {
@@ -278,6 +286,8 @@ const translations = {
     'status.voice.standby': 'VOCE IN ATTESA',
     'status.voice.active': 'VOCE ATTIVA',
     'goals.placeholder': 'Scrivi qui i tuoi obiettivi (es: "Voglio perdere 10kg e correre una maratona")',
+    'goals.ai_note': '✨ Phoenix AI analizzerà e strutturerà automaticamente i tuoi obiettivi',
+    'voice.loading': 'Caricamento voci disponibili...',
   },
 
   pt: {
@@ -329,6 +339,8 @@ const translations = {
     'status.voice.standby': 'VOZ EM ESPERA',
     'status.voice.active': 'VOZ ATIVA',
     'goals.placeholder': 'Digite seus objetivos aqui (ex: "Quero perder 10kg e correr uma maratona")',
+    'goals.ai_note': '✨ Phoenix AI analisará e estruturará seus objetivos automaticamente',
+    'voice.loading': 'Carregando vozes disponíveis...',
   },
 
   nl: {
@@ -380,6 +392,8 @@ const translations = {
     'status.voice.standby': 'STEM STAND-BY',
     'status.voice.active': 'STEM ACTIEF',
     'goals.placeholder': 'Typ hier je doelen (bijv. "Ik wil 10kg afvallen en een marathon lopen")',
+    'goals.ai_note': '✨ Phoenix AI zal je doelen automatisch analyseren en structureren',
+    'voice.loading': 'Beschikbare stemmen laden...',
   },
 
   pl: {
@@ -431,6 +445,8 @@ const translations = {
     'status.voice.standby': 'GŁOS W GOTOWOŚCI',
     'status.voice.active': 'GŁOS AKTYWNY',
     'goals.placeholder': 'Wpisz tutaj swoje cele (np. "Chcę schudnąć 10kg i przebiec maraton")',
+    'goals.ai_note': '✨ Phoenix AI automatycznie przeanalizuje i uporządkuje Twoje cele',
+    'voice.loading': 'Ładowanie dostępnych głosów...',
   },
 
   ru: {
@@ -482,6 +498,8 @@ const translations = {
     'status.voice.standby': 'ГОЛОС В ОЖИДАНИИ',
     'status.voice.active': 'ГОЛОС АКТИВЕН',
     'goals.placeholder': 'Введите здесь свои цели (напр. "Я хочу похудеть на 10кг и пробежать марафон")',
+    'goals.ai_note': '✨ Phoenix AI автоматически проанализирует и структурирует ваши цели',
+    'voice.loading': 'Загрузка доступных голосов...',
   },
 
   ja: {
@@ -533,6 +551,8 @@ const translations = {
     'status.voice.standby': '音声スタンバイ',
     'status.voice.active': '音声アクティブ',
     'goals.placeholder': 'ここに目標を入力してください（例：「10kg痩せてマラソンを走りたい」）',
+    'goals.ai_note': '✨ Phoenix AIが目標を自動的に分析して構造化します',
+    'voice.loading': '利用可能な音声を読み込んでいます...',
   },
 
   zh: {
@@ -584,6 +604,8 @@ const translations = {
     'status.voice.standby': '语音待机',
     'status.voice.active': '语音激活',
     'goals.placeholder': '在此输入您的目标（例如："我想减掉10公斤并跑马拉松"）',
+    'goals.ai_note': '✨ Phoenix AI将自动分析和构建您的目标',
+    'voice.loading': '正在加载可用语音...',
   },
 };
 

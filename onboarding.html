@@ -938,7 +938,7 @@
             </div>
         </div>
 
-        <!-- Phase 2: Voice Selection -->
+        <!-- Phase 2: iOS Voice Selection -->
         <div class="phase" id="phase2">
             <div class="phoenix-avatar">
                 <div class="avatar-circle" id="avatarCircle2"></div>
@@ -948,56 +948,114 @@
                 <h1 class="phase-title" data-i18n="phase.voice">SELECT VOICE</h1>
                 <p class="phase-subtitle" data-i18n="phase.voice.subtitle">CHOOSE YOUR PREFERRED VOICE</p>
             </div>
-            <div class="selection-grid" id="voiceGrid">
-                <div class="selection-card" data-voice="nova">
-                    <div class="icon">😊</div>
-                    <div class="title">NOVA</div>
-                    <div class="subtitle">Friendly Helper</div>
-                    <button class="voice-preview-btn" onclick="previewVoice('nova', event)">▶ PREVIEW</button>
-                </div>
-                <div class="selection-card" data-voice="echo">
-                    <div class="icon">🇬🇧</div>
-                    <div class="title">ECHO</div>
-                    <div class="subtitle">British Butler</div>
-                    <button class="voice-preview-btn" onclick="previewVoice('echo', event)">▶ PREVIEW</button>
-                </div>
-                <div class="selection-card" data-voice="onyx">
-                    <div class="icon">💼</div>
-                    <div class="title">ONYX</div>
-                    <div class="subtitle">Professional</div>
-                    <button class="voice-preview-btn" onclick="previewVoice('onyx', event)">▶ PREVIEW</button>
-                </div>
-                <div class="selection-card" data-voice="shimmer">
-                    <div class="icon">🌸</div>
-                    <div class="title">SHIMMER</div>
-                    <div class="subtitle">Gentle Guide</div>
-                    <button class="voice-preview-btn" onclick="previewVoice('shimmer', event)">▶ PREVIEW</button>
-                </div>
-                <div class="selection-card" data-voice="alloy">
-                    <div class="icon">🤖</div>
-                    <div class="title">ALLOY</div>
-                    <div class="subtitle">Neutral Balanced</div>
-                    <button class="voice-preview-btn" onclick="previewVoice('alloy', event)">▶ PREVIEW</button>
-                </div>
-                <div class="selection-card" data-voice="fable">
-                    <div class="icon">📖</div>
-                    <div class="title">FABLE</div>
-                    <div class="subtitle">Storyteller</div>
-                    <button class="voice-preview-btn" onclick="previewVoice('fable', event)">▶ PREVIEW</button>
-                </div>
+            <div id="iosVoiceLoading" style="text-align: center; padding: 40px;">
+                <div class="loading-spinner"></div>
+                <p data-i18n="voice.loading">Loading available voices...</p>
+            </div>
+            <div class="selection-grid" id="iosVoiceGrid" style="display: none;">
+                <!-- iOS voices will be populated by JavaScript based on selected language -->
             </div>
             <div class="button-group">
                 <button class="btn btn-secondary" onclick="previousPhase()"><span data-i18n="btn.back">BACK</span></button>
                 <button class="btn btn-primary" id="nextPhase2" disabled><span data-i18n="btn.continue">CONTINUE</span></button>
             </div>
         </div>
-
-        <!-- Phase 3: Account Creation -->
-        <div class="phase" id="phase3">
+        <!-- Phase 3: Personality Selection (NEW) -->
+        <div class="phase" id="phase3persona">
             <div class="phoenix-avatar">
-                <div class="avatar-circle" id="avatarCircle3"></div>
+                <div class="avatar-circle" id="avatarCircle3persona"></div>
             </div>
-            <div class="voice-status" id="voiceStatus3">[ VOICE ACTIVE ]</div>
+            <div class="voice-status" id="voiceStatus3persona">[ VOICE ACTIVE ]</div>
+            <div class="phase-header">
+                <h1 class="phase-title" data-i18n="phase.persona">SELECT PERSONALITY</h1>
+                <p class="phase-subtitle" data-i18n="phase.persona.subtitle">CHOOSE YOUR AI PERSONALITY</p>
+            </div>
+            <div class="selection-grid" id="personaGrid">
+                <div class="selection-card" data-persona="friendly_helpful" onclick="selectPersona('friendly_helpful')">
+                    <div class="icon">😊</div>
+                    <div class="title" data-i18n="persona.friendly">FRIENDLY HELPER</div>
+                    <div class="subtitle">Warm and supportive</div>
+                    <button class="voice-preview-btn" onclick="testVoicePersona('friendly_helpful', event)">▶ TEST</button>
+                </div>
+                <div class="selection-card" data-persona="professional_serious" onclick="selectPersona('professional_serious')">
+                    <div class="icon">💼</div>
+                    <div class="title" data-i18n="persona.professional">PROFESSIONAL</div>
+                    <div class="subtitle">Direct and efficient</div>
+                    <button class="voice-preview-btn" onclick="testVoicePersona('professional_serious', event)">▶ TEST</button>
+                </div>
+                <div class="selection-card" data-persona="british_refined" onclick="selectPersona('british_refined')">
+                    <div class="icon">🎩</div>
+                    <div class="title" data-i18n="persona.british">BRITISH BUTLER</div>
+                    <div class="subtitle">Refined and courteous</div>
+                    <button class="voice-preview-btn" onclick="testVoicePersona('british_refined', event)">▶ TEST</button>
+                </div>
+                <div class="selection-card" data-persona="whimsical_storyteller" onclick="selectPersona('whimsical_storyteller')">
+                    <div class="icon">📚</div>
+                    <div class="title" data-i18n="persona.storyteller">STORYTELLER</div>
+                    <div class="subtitle">Creative and imaginative</div>
+                    <button class="voice-preview-btn" onclick="testVoicePersona('whimsical_storyteller', event)">▶ TEST</button>
+                </div>
+                <div class="selection-card" data-persona="gentle_nurturing" onclick="selectPersona('gentle_nurturing')">
+                    <div class="icon">🌸</div>
+                    <div class="title" data-i18n="persona.nurturing">GENTLE GUIDE</div>
+                    <div class="subtitle">Caring and patient</div>
+                    <button class="voice-preview-btn" onclick="testVoicePersona('gentle_nurturing', event)">▶ TEST</button>
+                </div>
+                <div class="selection-card" data-persona="neutral_efficient" onclick="selectPersona('neutral_efficient')">
+                    <div class="icon">⚡</div>
+                    <div class="title" data-i18n="persona.efficient">EFFICIENT</div>
+                    <div class="subtitle">Neutral and balanced</div>
+                    <button class="voice-preview-btn" onclick="testVoicePersona('neutral_efficient', event)">▶ TEST</button>
+                </div>
+                <div class="selection-card" data-persona="motivational_coach" onclick="selectPersona('motivational_coach')">
+                    <div class="icon">🔥</div>
+                    <div class="title" data-i18n="persona.coach">COACH</div>
+                    <div class="subtitle">Energetic motivator</div>
+                    <button class="voice-preview-btn" onclick="testVoicePersona('motivational_coach', event)">▶ TEST</button>
+                </div>
+                <div class="selection-card" data-persona="zen_master" onclick="selectPersona('zen_master')">
+                    <div class="icon">🧘</div>
+                    <div class="title" data-i18n="persona.zen">ZEN MASTER</div>
+                    <div class="subtitle">Calm and mindful</div>
+                    <button class="voice-preview-btn" onclick="testVoicePersona('zen_master', event)">▶ TEST</button>
+                </div>
+                <div class="selection-card" data-persona="tech_genius" onclick="selectPersona('tech_genius')">
+                    <div class="icon">🤖</div>
+                    <div class="title" data-i18n="persona.tech">TECH GENIUS</div>
+                    <div class="subtitle">Smart and analytical</div>
+                    <button class="voice-preview-btn" onclick="testVoicePersona('tech_genius', event)">▶ TEST</button>
+                </div>
+                <div class="selection-card" data-persona="comedian" onclick="selectPersona('comedian')">
+                    <div class="icon">🎭</div>
+                    <div class="title" data-i18n="persona.comedian">COMEDIAN</div>
+                    <div class="subtitle">Witty and fun</div>
+                    <button class="voice-preview-btn" onclick="testVoicePersona('comedian', event)">▶ TEST</button>
+                </div>
+                <div class="selection-card" data-persona="therapist" onclick="selectPersona('therapist')">
+                    <div class="icon">💭</div>
+                    <div class="title" data-i18n="persona.therapist">THERAPIST</div>
+                    <div class="subtitle">Understanding listener</div>
+                    <button class="voice-preview-btn" onclick="testVoicePersona('therapist', event)">▶ TEST</button>
+                </div>
+                <div class="selection-card" data-persona="commander" onclick="selectPersona('commander')">
+                    <div class="icon">⚔️</div>
+                    <div class="title" data-i18n="persona.commander">COMMANDER</div>
+                    <div class="subtitle">Decisive leader</div>
+                    <button class="voice-preview-btn" onclick="testVoicePersona('commander', event)">▶ TEST</button>
+                </div>
+            </div>
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="previousPhase()"><span data-i18n="btn.back">BACK</span></button>
+                <button class="btn btn-primary" id="nextPhase3persona" disabled><span data-i18n="btn.continue">CONTINUE</span></button>
+            </div>
+        </div>
+
+        <!-- Phase 4: Account Creation -->
+        <div class="phase" id="phase4">
+            <div class="phoenix-avatar">
+                <div class="avatar-circle" id="avatarCircle4"></div>
+            </div>
+            <div class="voice-status" id="voiceStatus4">[ VOICE ACTIVE ]</div>
             <div class="phase-header">
                 <h1 class="phase-title" data-i18n="phase.auth">CREATE ACCOUNT</h1>
                 <p class="phase-subtitle" data-i18n="phase.auth.subtitle">REGISTER YOUR CREDENTIALS</p>
@@ -1143,7 +1201,7 @@
             </div>
         </div>
 
-        <!-- Phase 6: Goals Setup -->
+        <!-- Phase 6: Goals Setup (Open Text) -->
         <div class="phase" id="phase6">
             <div class="phoenix-avatar">
                 <div class="avatar-circle" id="avatarCircle6"></div>
@@ -1151,27 +1209,35 @@
             <div class="voice-status" id="voiceStatus6">[ VOICE ACTIVE ]</div>
             <div class="phase-header">
                 <h1 class="phase-title" data-i18n="phase.goals">SET OBJECTIVES</h1>
-                <p class="phase-subtitle">DEFINE YOUR PRIMARY GOALS</p>
+                <p class="phase-subtitle" data-i18n="phase.goals.subtitle">TELL ME YOUR GOALS IN YOUR OWN WORDS</p>
             </div>
-            <form id="goalsForm">
-                <div class="form-group">
-                    <label>PRIMARY OBJECTIVE</label>
-                    <input type="text" id="primaryGoal" placeholder="e.g., Lose 20 pounds, Run marathon, Build muscle">
+            <div class="goals-container" style="max-width: 700px; margin: 0 auto; padding: 20px;">
+                <textarea
+                    id="openGoalsText"
+                    data-i18n-placeholder="goals.placeholder"
+                    placeholder="Tell me what you want to achieve... (e.g., 'I want to lose 10kg, run a marathon, improve my sleep, and build a meditation habit')"
+                    rows="8"
+                    style="
+                        width: 100%;
+                        padding: 20px;
+                        font-size: 16px;
+                        font-family: 'Courier New', monospace;
+                        background: rgba(0, 0, 0, 0.3);
+                        border: 2px solid var(--primary-cyan);
+                        color: var(--primary-cyan);
+                        border-radius: 8px;
+                        resize: vertical;
+                        min-height: 200px;
+                        line-height: 1.6;
+                    "
+                ></textarea>
+                <div class="goals-ai-note" style="margin-top: 15px; text-align: center; opacity: 0.7; font-size: 14px;">
+                    <p data-i18n="goals.ai_note">✨ Phoenix AI will analyze and structure your goals automatically</p>
                 </div>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>CURRENT WEIGHT (LBS)</label>
-                        <input type="number" id="currentWeight" placeholder="150">
-                    </div>
-                    <div class="form-group">
-                        <label>TARGET WEIGHT (LBS)</label>
-                        <input type="number" id="targetWeight" placeholder="140">
-                    </div>
-                </div>
-            </form>
+            </div>
             <div class="button-group">
                 <button class="btn btn-secondary" onclick="previousPhase()"><span data-i18n="btn.back">BACK</span></button>
-                <button class="btn btn-primary" onclick="saveGoals()"><span data-i18n="btn.continue">CONTINUE</span></button>
+                <button class="btn btn-primary" onclick="saveOpenGoals()"><span data-i18n="btn.continue">CONTINUE</span></button>
                 <button class="btn btn-skip" onclick="nextPhase()"><span data-i18n="btn.skip">SKIP</span></button>
             </div>
         </div>
@@ -2753,6 +2819,240 @@
         document.addEventListener('DOMContentLoaded', () => {
             PhoenixI18n.updateAllTranslations();
         });
+
+    // ========================================
+    // iOS VOICE SELECTION (Phase 2)
+    // ========================================
+    async function loadIOSVoices() {
+        console.log('🎤 Loading iOS voices for selected language...');
+
+        const selectedLang = localStorage.getItem('phoenixLanguage') || 'en';
+        console.log('Selected language:', selectedLang);
+
+        // Map our language codes to iOS voice language codes
+        const langMap = {
+            'en': 'en-US',
+            'es': 'es-ES',
+            'fr': 'fr-FR',
+            'de': 'de-DE',
+            'it': 'it-IT',
+            'pt': 'pt-PT',
+            'nl': 'nl-NL',
+            'pl': 'pl-PL',
+            'ru': 'ru-RU',
+            'ja': 'ja-JP',
+            'zh': 'zh-CN'
+        };
+
+        const iosLangCode = langMap[selectedLang] || 'en-US';
+
+        // Wait for voices to load
+        let voices = speechSynthesis.getVoices();
+        if (voices.length === 0) {
+            await new Promise(resolve => {
+                speechSynthesis.onvoiceschanged = resolve;
+            });
+            voices = speechSynthesis.getVoices();
+        }
+
+        // Filter voices by language
+        const filteredVoices = voices.filter(voice =>
+            voice.lang.startsWith(iosLangCode.split('-')[0])
+        );
+
+        console.log(`Found ${filteredVoices.length} voices for ${iosLangCode}:`,
+                   filteredVoices.map(v => v.name));
+
+        // Hide loading, show grid
+        document.getElementById('iosVoiceLoading').style.display = 'none';
+        document.getElementById('iosVoiceGrid').style.display = 'grid';
+
+        // Populate voice grid
+        const grid = document.getElementById('iosVoiceGrid');
+        grid.innerHTML = '';
+
+        filteredVoices.forEach((voice, index) => {
+            const card = document.createElement('div');
+            card.className = 'selection-card';
+            card.setAttribute('data-voice-name', voice.name);
+            card.setAttribute('data-voice-uri', voice.voiceURI);
+            card.setAttribute('data-voice-lang', voice.lang);
+
+            const quality = voice.localService ? '⭐' : '☁️';
+
+            card.innerHTML = `
+                <div class="icon">🎤</div>
+                <div class="title">${voice.name.split(' ')[0].toUpperCase()}</div>
+                <div class="subtitle">${quality} ${voice.lang}</div>
+                <button class="voice-preview-btn" onclick="previewIOSVoice('${voice.name}', event)">▶ PREVIEW</button>
+            `;
+
+            card.onclick = function() {
+                selectIOSVoice(voice.name, voice.voiceURI, voice.lang);
+            };
+
+            grid.appendChild(card);
+        });
+
+        console.log('✅ iOS voice grid populated');
+    }
+
+    function selectIOSVoice(name, uri, lang) {
+        console.log('Selected voice:', name, uri, lang);
+
+        // Remove selected class from all cards
+        document.querySelectorAll('#iosVoiceGrid .selection-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+
+        // Add selected to clicked card
+        const card = document.querySelector(`[data-voice-name="${name}"]`);
+        if (card) {
+            card.classList.add('selected');
+        }
+
+        // Save to localStorage
+        localStorage.setItem('phoenixVoiceName', name);
+        localStorage.setItem('phoenixVoiceURI', uri);
+        localStorage.setItem('phoenixVoiceLang', lang);
+
+        // Enable continue button
+        const continueBtn = document.getElementById('nextPhase2');
+        if (continueBtn) {
+            continueBtn.disabled = false;
+        }
+
+        console.log('✅ Voice selected:', name);
+    }
+
+    function previewIOSVoice(voiceName, event) {
+        if (event) event.stopPropagation();
+
+        const utterance = new SpeechSynthesisUtterance('Hello! This is how I sound. I am your Phoenix AI assistant.');
+        const voices = speechSynthesis.getVoices();
+        const voice = voices.find(v => v.name === voiceName);
+
+        if (voice) {
+            utterance.voice = voice;
+            speechSynthesis.cancel();
+            speechSynthesis.speak(utterance);
+            console.log('🎤 Playing voice preview:', voiceName);
+        }
+    }
+
+    // ========================================
+    // PERSONALITY SELECTION (Phase 3)
+    // ========================================
+    function selectPersona(persona) {
+        console.log('Selected persona:', persona);
+
+        // Remove selected class from all cards
+        document.querySelectorAll('#personaGrid .selection-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+
+        // Add selected to clicked card
+        const card = document.querySelector(`[data-persona="${persona}"]`);
+        if (card) {
+            card.classList.add('selected');
+        }
+
+        // Save to localStorage
+        localStorage.setItem('phoenixPersonality', persona);
+
+        // Enable continue button
+        const continueBtn = document.getElementById('nextPhase3persona');
+        if (continueBtn) {
+            continueBtn.disabled = false;
+        }
+
+        console.log('✅ Persona selected:', persona);
+    }
+
+    function testVoicePersona(persona, event) {
+        if (event) event.stopPropagation();
+
+        const voiceName = localStorage.getItem('phoenixVoiceName');
+        if (!voiceName) {
+            alert('Please select a voice in the previous step first!');
+            return;
+        }
+
+        // Sample phrases for each persona
+        const phrases = {
+            friendly_helpful: "Hey there! I'm here to help you achieve your goals. Let's make today amazing!",
+            professional_serious: "Good day. I'm ready to assist you with your objectives. Let's proceed efficiently.",
+            british_refined: "Good afternoon. It would be my pleasure to assist you today. Shall we begin?",
+            whimsical_storyteller: "Ah, welcome dear friend! Your journey to greatness begins with a single step...",
+            gentle_nurturing: "Hello there. I'm here for you, every step of the way. Take your time.",
+            neutral_efficient: "System ready. Awaiting your input. How may I assist you today?",
+            motivational_coach: "Let's GO! You've got this! Time to crush those goals! Are you ready?!",
+            zen_master: "Breathe. Center yourself. Together, we shall find harmony in your path.",
+            tech_genius: "Systems online. All parameters optimized. Ready to compute your success.",
+            comedian: "Hey! Did you hear the one about the AI who walked into a bar? Just kidding, let's get to work!",
+            therapist: "I'm here to listen and support you. How are you feeling today? Let's talk.",
+            commander: "Attention! Mission objectives are clear. We will succeed. Let's execute the plan."
+        };
+
+        const utterance = new SpeechSynthesisUtterance(phrases[persona] || 'Hello! This is a test.');
+        const voices = speechSynthesis.getVoices();
+        const voice = voices.find(v => v.name === voiceName);
+
+        if (voice) {
+            utterance.voice = voice;
+            speechSynthesis.cancel();
+            speechSynthesis.speak(utterance);
+            console.log('🎤 Testing voice + persona:', voiceName, persona);
+        }
+    }
+
+
+    // ========================================
+    // OPEN TEXT GOALS (Phase 6)
+    // ========================================
+    async function saveOpenGoals() {
+        const goalsText = document.getElementById('openGoalsText').value.trim();
+
+        if (!goalsText) {
+            alert('Please enter your goals before continuing.');
+            return;
+        }
+
+        console.log('💾 Saving open text goals:', goalsText);
+
+        // Save to localStorage
+        localStorage.setItem('phoenixGoalsText', goalsText);
+
+        // TODO: Send to backend for AI processing
+        try {
+            const token = localStorage.getItem('phoenixToken');
+            if (token) {
+                const response = await fetch(`${CONFIG.API_BASE_URL}/users/goals`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        goalsText: goalsText,
+                        language: localStorage.getItem('phoenixLanguage') || 'en'
+                    })
+                });
+
+                if (response.ok) {
+                    console.log('✅ Goals saved to backend');
+                } else {
+                    console.warn('⚠️  Could not save goals to backend');
+                }
+            }
+        } catch (error) {
+            console.error('Error saving goals:', error);
+            // Continue anyway - we have it in localStorage
+        }
+
+        nextPhase();
+    }
+
     </script>
 </body>
 </html>
