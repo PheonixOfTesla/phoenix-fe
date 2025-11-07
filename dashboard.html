@@ -393,7 +393,7 @@
             <div style="font-size:11px;color:#8a2be2;font-weight:bold;letter-spacing:0.5px">PRIVACY</div>
         </div>
 
-        <div onclick="window.location.href='index.html'" style="cursor:pointer;padding:12px 18px;background:rgba(0,10,20,0.95);border:2px solid rgba(255,68,68,0.5);border-radius:30px;backdrop-filter:blur(15px);transition:all 0.3s;box-shadow:0 0 20px rgba(255,68,68,0.3);display:flex;align-items:center;gap:12px;min-width:160px" onmouseover="this.style.borderColor='rgba(255,68,68,0.9)';this.style.boxShadow='0 0 30px rgba(255,68,68,0.6)';this.style.transform='translateX(-5px)'" onmouseout="this.style.borderColor='rgba(255,68,68,0.5)';this.style.boxShadow='0 0 20px rgba(255,68,68,0.3)';this.style.transform='translateX(0)'">
+        <div onclick="logoutUser()" style="cursor:pointer;padding:12px 18px;background:rgba(0,10,20,0.95);border:2px solid rgba(255,68,68,0.5);border-radius:30px;backdrop-filter:blur(15px);transition:all 0.3s;box-shadow:0 0 20px rgba(255,68,68,0.3);display:flex;align-items:center;gap:12px;min-width:160px" onmouseover="this.style.borderColor='rgba(255,68,68,0.9)';this.style.boxShadow='0 0 30px rgba(255,68,68,0.6)';this.style.transform='translateX(-5px)'" onmouseout="this.style.borderColor='rgba(255,68,68,0.5)';this.style.boxShadow='0 0 20px rgba(255,68,68,0.3)';this.style.transform='translateX(0)'">
             <svg width="24" height="24" viewBox="0 0 24 24" style="flex-shrink:0">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" fill="none" stroke="#ff4444" stroke-width="1.5"/>
                 <line x1="16" y1="17" x2="21" y2="12" stroke="#ff4444" stroke-width="1.5"/>
@@ -551,6 +551,19 @@
             } else {
                 menu.style.display = 'none';
             }
+        }
+
+        function logoutUser() {
+            console.log('🔓 Logging out user...');
+
+            // Clear all auth tokens and session data
+            localStorage.removeItem('phoenixToken');
+            localStorage.removeItem('phoenixUser');
+            sessionStorage.removeItem('phoenix_greeted');
+            sessionStorage.removeItem('phoenix_just_logged_in');
+
+            // Redirect to index.html
+            window.location.href = 'index.html';
         }
 
         // Close menus when clicking outside
