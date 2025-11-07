@@ -834,6 +834,10 @@
             </div>
             <div class="progress-step" data-step="7">
                 <div class="step-number">7</div>
+                <span>PERSONA</span>
+            </div>
+            <div class="progress-step" data-step="8">
+                <div class="step-number">8</div>
                 <span>LAUNCH</span>
             </div>
         </div>
@@ -1172,12 +1176,30 @@
             </div>
         </div>
 
-        <!-- Phase 7: Complete -->
+        <!-- Phase 7: Voice & Personality Selection -->
         <div class="phase" id="phase7">
             <div class="phoenix-avatar">
                 <div class="avatar-circle" id="avatarCircle7"></div>
             </div>
-            <div class="voice-status" id="voiceStatus7">[ SYSTEM READY ]</div>
+            <div class="voice-status" id="voiceStatus7">[ VOICE CUSTOMIZATION ]</div>
+            <div class="phase-header">
+                <h1 class="phase-title">CUSTOMIZE PHOENIX VOICE</h1>
+                <p class="phase-subtitle">CHOOSE YOUR AI PERSONALITY & VOICE</p>
+            </div>
+            <div id="voice-onboarding-container" style="max-height: 60vh; overflow-y: auto; padding: 20px;"></div>
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="previousPhase()">[ BACK ]</button>
+                <button class="btn btn-primary" onclick="saveVoiceAndContinue()">[ CONTINUE ]</button>
+                <button class="btn btn-skip" onclick="skipVoiceSetup()">[ SKIP ]</button>
+            </div>
+        </div>
+
+        <!-- Phase 8: Complete -->
+        <div class="phase" id="phase8">
+            <div class="phoenix-avatar">
+                <div class="avatar-circle" id="avatarCircle8"></div>
+            </div>
+            <div class="voice-status" id="voiceStatus8">[ SYSTEM READY ]</div>
             <div class="phase-header">
                 <h1 class="phase-title">INITIALIZATION COMPLETE</h1>
                 <p class="phase-subtitle">WELCOME TO PHOENIX, <span id="welcomeName" style="color: var(--primary-cyan);"></span></p>
@@ -2399,6 +2421,46 @@
         }
 
         /**
+         * Voice & Personality Selection Functions
+         */
+        let voiceOnboardingInstance = null;
+
+        async function initVoiceOnboarding() {
+            console.log('🎭 Initializing voice onboarding...');
+
+            if (!voiceOnboardingInstance) {
+                voiceOnboardingInstance = new VoiceOnboarding();
+                const container = document.getElementById('voice-onboarding-container');
+                await voiceOnboardingInstance.render(container);
+                console.log('✅ Voice onboarding initialized');
+            }
+        }
+
+        function saveVoiceAndContinue() {
+            if (voiceOnboardingInstance) {
+                voiceOnboardingInstance.saveAndContinue();
+            }
+
+            // Continue to next phase
+            nextPhase();
+        }
+
+        function skipVoiceSetup() {
+            console.log('⏭️  Skipping voice setup - using default (Friendly Helper)');
+
+            // Set default voice settings
+            const defaultSettings = {
+                personality: 'friendly_helpful',
+                language: 'en-US',
+                voiceName: 'Samantha',
+                voiceURI: 'com.apple.ttsbundle.Samantha-compact'
+            };
+            localStorage.setItem('phoenixVoiceSettings', JSON.stringify(defaultSettings));
+
+            nextPhase();
+        }
+
+        /**
          * Launch App
          */
         function launchApp() {
@@ -2436,7 +2498,7 @@
          * Navigation
          */
         function nextPhase() {
-            if (currentPhase < 7) {
+            if (currentPhase < 8) {
                 document.getElementById(`phase${currentPhase}`).classList.remove('active');
                 currentPhase++;
                 document.getElementById(`phase${currentPhase}`).classList.add('active');
@@ -2455,7 +2517,15 @@
                     }, 500);
                 }
 
-                if (currentPhase === 7 && userData.profile.name) {
+                // Initialize voice & personality onboarding when entering Phase 7
+                if (currentPhase === 7) {
+                    setTimeout(() => {
+                        initVoiceOnboarding();
+                    }, 300);
+                }
+
+                // Set welcome name on final phase
+                if (currentPhase === 8 && userData.profile.name) {
                     document.getElementById('welcomeName').textContent = userData.profile.name.split(' ')[0].toUpperCase();
                 }
             }
@@ -2478,7 +2548,7 @@
         }
 
         function goToPhase(phaseNumber) {
-            if (phaseNumber >= 0 && phaseNumber <= 7) {
+            if (phaseNumber >= 0 && phaseNumber <= 8) {
                 document.getElementById(`phase${currentPhase}`).classList.remove('active');
                 currentPhase = phaseNumber;
                 document.getElementById(`phase${currentPhase}`).classList.add('active');
@@ -2642,5 +2712,11 @@
             animate();
         })();
     </script>
+
+    <!-- Voice System Integration (150+ voices, 12 personalities, 37+ languages) -->
+    <script src="src/capacitor-platform.js"></script>
+    <script src="src/voice-tts.js"></script>
+    <script src="src/voice-enumerator.js"></script>
+    <script src="src/voice-onboarding.js"></script>
 </body>
 </html>
