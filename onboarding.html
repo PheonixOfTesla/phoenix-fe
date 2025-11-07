@@ -1586,8 +1586,71 @@
             'zh': 'zh'
         };
 
+        // Auto-detect user's system language
+        function autoDetectLanguage() {
+            // Check if already set in localStorage
+            const savedLang = localStorage.getItem('phoenixLanguage');
+            if (savedLang) {
+                console.log('🌍 Using saved language:', savedLang);
+                return savedLang;
+            }
+
+            // Detect from browser/system
+            const browserLang = navigator.language || navigator.userLanguage;
+            console.log('🌍 Detected browser language:', browserLang);
+
+            // Map to our supported languages
+            const langMap = {
+                'en': 'en', 'en-US': 'en', 'en-GB': 'en', 'en-AU': 'en-AU', 'en-IN': 'en-IN', 'en-IE': 'en-IE', 'en-ZA': 'en-ZA',
+                'es': 'es', 'es-ES': 'es', 'es-MX': 'es',
+                'fr': 'fr', 'fr-FR': 'fr', 'fr-CA': 'fr',
+                'de': 'de', 'de-DE': 'de', 'de-AT': 'de', 'de-CH': 'de',
+                'it': 'it', 'it-IT': 'it',
+                'pt': 'pt', 'pt-PT': 'pt', 'pt-BR': 'pt-BR',
+                'nl': 'nl', 'nl-NL': 'nl',
+                'pl': 'pl', 'pl-PL': 'pl',
+                'ru': 'ru', 'ru-RU': 'ru',
+                'ja': 'ja', 'ja-JP': 'ja',
+                'zh': 'zh', 'zh-CN': 'zh', 'zh-TW': 'zh',
+                'ar': 'ar', 'ar-SA': 'ar',
+                'cs': 'cs', 'cs-CZ': 'cs',
+                'da': 'da', 'da-DK': 'da',
+                'el': 'el', 'el-GR': 'el',
+                'fi': 'fi', 'fi-FI': 'fi',
+                'he': 'he', 'he-IL': 'he',
+                'hi': 'hi', 'hi-IN': 'hi',
+                'hu': 'hu', 'hu-HU': 'hu',
+                'id': 'id', 'id-ID': 'id',
+                'ko': 'ko', 'ko-KR': 'ko',
+                'ms': 'ms', 'ms-MY': 'ms',
+                'no': 'no', 'nb-NO': 'no', 'nn-NO': 'no',
+                'ro': 'ro', 'ro-RO': 'ro',
+                'sk': 'sk', 'sk-SK': 'sk',
+                'sv': 'sv', 'sv-SE': 'sv',
+                'th': 'th', 'th-TH': 'th',
+                'tr': 'tr', 'tr-TR': 'tr',
+                'uk': 'uk', 'uk-UA': 'uk',
+                'vi': 'vi', 'vi-VN': 'vi',
+                'ca': 'ca', 'ca-ES': 'ca',
+                'hr': 'hr', 'hr-HR': 'hr'
+            };
+
+            const detectedLang = langMap[browserLang] || langMap[browserLang.split('-')[0]] || 'en';
+            console.log('✅ Auto-detected language:', detectedLang);
+
+            // Save and apply
+            localStorage.setItem('phoenixLanguage', detectedLang);
+            return detectedLang;
+        }
+
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
+            // Auto-detect and set language FIRST
+            const detectedLang = autoDetectLanguage();
+            if (window.PhoenixI18n) {
+                PhoenixI18n.setLanguage(detectedLang);
+            }
+
             setupLanguageSelection();
             setupVoiceSelection();
             setupDeviceCards();
