@@ -851,7 +851,7 @@ class PhoenixVoiceCommands {
 
         try {
             // Use backend TTS endpoint for natural OpenAI voice
-            const response = await fetch(`${window.PhoenixConfig.API_BASE_URL}/tts/generate`, {
+            const response = await fetch(`${window.PhoenixConfig.API_BASE_URL}/api/tts/generate`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

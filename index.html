@@ -1120,7 +1120,15 @@
                     if (token) {
                         console.log('✅ [Login] Token received, saving to localStorage');
                         localStorage.setItem('phoenixToken', token);
-                        console.log('✅ [Login] Token saved:', token.substring(0, 20) + '...');
+
+                        // Force localStorage persistence with verification
+                        const verifyToken = localStorage.getItem('phoenixToken');
+                        if (!verifyToken) {
+                            console.error('❌ Token persistence verification failed!');
+                            this.showError('Authentication error: Unable to save session. Please try again.');
+                            return;
+                        }
+                        console.log('✅ [Login] Token saved and verified:', verifyToken.substring(0, 20) + '...');
 
                         if (data.user) {
                             localStorage.setItem('phoenixUser', JSON.stringify(data.user));
@@ -1132,12 +1140,14 @@
                         // Set flag JUST before redirect to prevent index.html from auto-redirecting if dashboard bounces back
                         sessionStorage.setItem('phoenix_just_logged_in', 'true');
                         console.log('✅ [Login] Just logged in flag set');
-                        console.log('✅ [Login] Redirecting to dashboard in 500ms...');
+                        console.log('✅ [Login] Redirecting to dashboard in 800ms...');
 
+                        // Increased timeout to ensure localStorage fully persists
                         setTimeout(() => {
                             console.log('🚀 [Login] REDIRECTING NOW to dashboard.html');
+                            console.log('🚀 [Login] Final token check:', localStorage.getItem('phoenixToken') ? 'PRESENT' : 'MISSING');
                             window.location.href = 'dashboard.html';
-                        }, 500);
+                        }, 800);
                     } else {
                         console.error('❌ No token found in response:', data);
                         this.showError(data.message || 'Login failed - no token received');

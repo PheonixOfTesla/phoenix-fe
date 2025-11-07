@@ -367,10 +367,13 @@
             border-radius: 4px;
             padding: 24px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: border-color 0.1s ease, background 0.1s ease, transform 0.1s ease;
             text-align: center;
             position: relative;
             overflow: hidden;
+            will-change: transform;
+            transform: translateZ(0);
+            backface-visibility: hidden;
         }
 
         .selection-card::before {
@@ -381,13 +384,14 @@
             width: 100%;
             height: 100%;
             background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.2), transparent);
-            transition: left 0.5s;
+            transition: left 0.15s ease;
+            will-change: left;
         }
 
         .selection-card:hover {
             border-color: var(--primary-cyan);
             background: rgba(0, 255, 255, 0.15);
-            transform: translateY(-4px);
+            transform: translateY(-4px) translateZ(0);
             box-shadow: var(--shadow-glow-cyan-strong);
         }
 
@@ -1874,6 +1878,10 @@
                     userData.language = langCode;
                     userData.languageName = langName;
 
+                    // Immediately persist to localStorage so it carries to next phases
+                    localStorage.setItem('phoenixLanguage', langCode);
+                    console.log('✅ Language saved to localStorage:', langCode);
+
                     // Speak welcome message
                     phoenixSpeak(welcomeMessages[langCode] || welcomeMessages['en'], 1);
                 });
@@ -1912,6 +1920,11 @@
                     document.querySelectorAll('#voiceGrid .selection-card').forEach(c => c.classList.remove('selected'));
                     card.classList.add('selected');
                     userData.voice = card.dataset.voice;
+
+                    // Immediately persist to localStorage so it carries to next phases
+                    localStorage.setItem('phoenixVoice', card.dataset.voice);
+                    console.log('✅ Voice saved to localStorage:', card.dataset.voice);
+
                     document.getElementById('nextPhase2').disabled = false;
                 });
             });
@@ -2332,12 +2345,16 @@
             showLoading(true);
 
             try {
+                // Get personality from localStorage
+                const personality = localStorage.getItem('phoenixPersonality') || 'friendly_helpful';
+
                 console.log('[Registration] Submitting:', {
                     name: userData.profile.name,
                     email: userData.profile.email,
                     phone: userData.profile.phone,
                     language: userData.language,
-                    voice: userData.voice
+                    voice: userData.voice,
+                    personality: personality
                 });
 
                 const response = await api.auth.register({
@@ -2346,7 +2363,8 @@
                     phone: userData.profile.phone,
                     password: userData.profile.password,
                     language: userData.language,
-                    voice: userData.voice
+                    voice: userData.voice,
+                    personality: personality
                 });
 
                 // Extract token from response (handle different response structures)
@@ -3196,7 +3214,7 @@
         console.log('✅ Persona selected:', persona);
     }
 
-    function testVoicePersona(persona, event) {
+    async function testVoicePersona(persona, event) {
         if (event) event.stopPropagation();
 
         const voiceName = localStorage.getItem('phoenixVoiceName');
@@ -3221,16 +3239,22 @@
             commander: "Attention! Mission objectives are clear. We will succeed. Let's execute the plan."
         };
 
-        const utterance = new SpeechSynthesisUtterance(phrases[persona] || 'Hello! This is a test.');
-        const voices = speechSynthesis.getVoices();
-        const voice = voices.find(v => v.name === voiceName);
+        const sampleText = phrases[persona] || 'Hello! This is a test.';
 
-        if (voice) {
-            utterance.voice = voice;
-            speechSynthesis.cancel();
-            speechSynthesis.speak(utterance);
-            console.log('🎤 Testing voice + persona:', voiceName, persona);
+        // Use OpenAI TTS for consistent, high-quality voice preview
+        const originalVoice = userData.voice;
+        userData.voice = voiceName;
+
+        try {
+            console.log('🎤 Testing voice + persona with OpenAI TTS:', voiceName, persona);
+            await phoenixSpeak(sampleText, 2);
+        } catch (err) {
+            console.error('[Personality Test] Error:', err);
+            alert('Unable to preview personality. Please try again.');
         }
+
+        // Restore original voice
+        userData.voice = originalVoice;
     }
 
 

@@ -1691,20 +1691,34 @@
             // Verify token exists (should be set by index.html before redirect)
             if (!token) {
                 console.error('❌ CRITICAL: Just logged in flag set but no token found!');
-                console.log('🔄 Waiting 500ms for localStorage to sync...');
+                console.log('🔄 Implementing aggressive retry strategy for localStorage sync...');
 
-                // Wait for localStorage to sync across redirect
-                setTimeout(() => {
+                // Implement multiple retry attempts with increasing timeout
+                let retryCount = 0;
+                const maxRetries = 4;
+                const retryInterval = 500;
+
+                const retryTokenCheck = () => {
                     const tokenRetry = localStorage.getItem('phoenixToken');
+                    retryCount++;
+
                     if (tokenRetry) {
-                        console.log('✅ Token found after retry - continuing');
+                        console.log(`✅ Token found after retry ${retryCount}/${maxRetries} - continuing`);
                         // Page will continue loading normally
+                        return;
+                    }
+
+                    if (retryCount < maxRetries) {
+                        console.log(`⏳ Retry ${retryCount}/${maxRetries} failed - trying again in ${retryInterval}ms...`);
+                        setTimeout(retryTokenCheck, retryInterval);
                     } else {
-                        console.error('❌ Still no token - authentication failed');
-                        alert('Authentication error: Token not found. Please try logging in again.');
+                        console.error(`❌ Still no token after ${maxRetries} retries (${maxRetries * retryInterval}ms total) - authentication failed`);
+                        alert('Authentication error: Token not found after multiple attempts. Please try logging in again.');
                         window.location.href = 'index.html';
                     }
-                }, 500);
+                };
+
+                setTimeout(retryTokenCheck, retryInterval);
                 return; // Prevent further execution until retry completes
             }
         } else if (!token) {
