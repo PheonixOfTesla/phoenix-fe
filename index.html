@@ -1118,17 +1118,24 @@
                     const token = data.token || data.accessToken || data.jwt || data.access_token;
 
                     if (token) {
+                        console.log('✅ [Login] Token received, saving to localStorage');
                         localStorage.setItem('phoenixToken', token);
+                        console.log('✅ [Login] Token saved:', token.substring(0, 20) + '...');
+
                         if (data.user) {
                             localStorage.setItem('phoenixUser', JSON.stringify(data.user));
+                            console.log('✅ [Login] User data saved');
                         }
 
                         this.showSuccess('Login successful!');
 
                         // Set flag JUST before redirect to prevent index.html from auto-redirecting if dashboard bounces back
                         sessionStorage.setItem('phoenix_just_logged_in', 'true');
+                        console.log('✅ [Login] Just logged in flag set');
+                        console.log('✅ [Login] Redirecting to dashboard in 500ms...');
 
                         setTimeout(() => {
+                            console.log('🚀 [Login] REDIRECTING NOW to dashboard.html');
                             window.location.href = 'dashboard.html';
                         }, 500);
                     } else {

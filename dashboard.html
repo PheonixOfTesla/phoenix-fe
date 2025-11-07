@@ -1675,15 +1675,13 @@
     <!-- ============================================ -->
     <script>
     (function checkAuth() {
-        // Clear the just logged in flag to prevent redirect loop
-        const justLoggedIn = sessionStorage.getItem('phoenix_just_logged_in');
-        if (justLoggedIn === 'true') {
-            console.log('✅ Just logged in - clearing flag');
-            sessionStorage.removeItem('phoenix_just_logged_in');
-        }
+        console.log('🔐 [Dashboard Auth Check] Starting...');
 
         const token = localStorage.getItem('phoenixToken');
         const justLoggedIn = sessionStorage.getItem('phoenix_just_logged_in');
+
+        console.log('🔐 [Dashboard Auth Check] Token:', token ? token.substring(0, 20) + '...' : 'NONE');
+        console.log('🔐 [Dashboard Auth Check] Just Logged In Flag:', justLoggedIn);
 
         // If user just logged in, clear the flag and skip token check to prevent redirect loop
         if (justLoggedIn === 'true') {
