@@ -1113,12 +1113,12 @@
             </div>
         </div>
 
-        <!-- Phase 4: Verification Choice -->
-        <div class="phase" id="phase4">
+        <!-- Phase 5: Verification Choice -->
+        <div class="phase" id="phase5">
             <div class="phoenix-avatar">
-                <div class="avatar-circle" id="avatarCircle4"></div>
+                <div class="avatar-circle" id="avatarCircle5"></div>
             </div>
-            <div class="voice-status" id="voiceStatus4">[ CHOOSE VERIFICATION METHOD ]</div>
+            <div class="voice-status" id="voiceStatus5">[ CHOOSE VERIFICATION METHOD ]</div>
             <div class="phase-header">
                 <h1 class="phase-title" data-i18n="phase.verify">VERIFY YOUR ACCOUNT</h1>
                 <p class="phase-subtitle">CHOOSE HOW YOU'D LIKE TO VERIFY</p>
@@ -1136,7 +1136,7 @@
         </div>
 
         <!-- Phase 4b: Phone Verification (shown if user chooses phone) -->
-        <div class="phase" id="phase4b" style="display: none;">
+        <div class="phase" id="phase5b" style="display: none;">
             <div class="phoenix-avatar">
                 <div class="avatar-circle" id="avatarCircle4b"></div>
             </div>
@@ -1162,12 +1162,12 @@
             </div>
         </div>
 
-        <!-- Phase 5: Device Connections -->
-        <div class="phase" id="phase5">
+        <!-- Phase 6: Device Connections -->
+        <div class="phase" id="phase6">
             <div class="phoenix-avatar">
-                <div class="avatar-circle" id="avatarCircle5"></div>
+                <div class="avatar-circle" id="avatarCircle6"></div>
             </div>
-            <div class="voice-status" id="voiceStatus5">[ VOICE ACTIVE ]</div>
+            <div class="voice-status" id="voiceStatus6">[ VOICE ACTIVE ]</div>
             <div class="phase-header">
                 <h1 class="phase-title" data-i18n="phase.sync">SYNC DEVICES</h1>
                 <p class="phase-subtitle">CONNECT WEARABLES FOR HEALTH TRACKING</p>
@@ -1201,12 +1201,12 @@
             </div>
         </div>
 
-        <!-- Phase 6: Goals Setup (Open Text) -->
-        <div class="phase" id="phase6">
+        <!-- Phase 7: Goals Setup (Open Text) -->
+        <div class="phase" id="phase7">
             <div class="phoenix-avatar">
-                <div class="avatar-circle" id="avatarCircle6"></div>
+                <div class="avatar-circle" id="avatarCircle7"></div>
             </div>
-            <div class="voice-status" id="voiceStatus6">[ VOICE ACTIVE ]</div>
+            <div class="voice-status" id="voiceStatus7">[ VOICE ACTIVE ]</div>
             <div class="phase-header">
                 <h1 class="phase-title" data-i18n="phase.goals">SET OBJECTIVES</h1>
                 <p class="phase-subtitle" data-i18n="phase.goals.subtitle">TELL ME YOUR GOALS IN YOUR OWN WORDS</p>
@@ -1239,24 +1239,6 @@
                 <button class="btn btn-secondary" onclick="previousPhase()"><span data-i18n="btn.back">BACK</span></button>
                 <button class="btn btn-primary" onclick="saveOpenGoals()"><span data-i18n="btn.continue">CONTINUE</span></button>
                 <button class="btn btn-skip" onclick="nextPhase()"><span data-i18n="btn.skip">SKIP</span></button>
-            </div>
-        </div>
-
-        <!-- Phase 7: Voice & Personality Selection -->
-        <div class="phase" id="phase7">
-            <div class="phoenix-avatar">
-                <div class="avatar-circle" id="avatarCircle7"></div>
-            </div>
-            <div class="voice-status" id="voiceStatus7">[ VOICE CUSTOMIZATION ]</div>
-            <div class="phase-header">
-                <h1 class="phase-title" data-i18n="phase.persona">SELECT PERSONALITY</h1>
-                <p class="phase-subtitle" data-i18n="phase.persona.subtitle">CHOOSE YOUR AI PERSONALITY</p>
-            </div>
-            <div id="voice-onboarding-container" style="max-height: 60vh; overflow-y: auto; padding: 20px;"></div>
-            <div class="button-group">
-                <button class="btn btn-secondary" onclick="previousPhase()"><span data-i18n="btn.back">BACK</span></button>
-                <button class="btn btn-primary" onclick="saveVoiceAndContinue()"><span data-i18n="btn.continue">CONTINUE</span></button>
-                <button class="btn btn-skip" onclick="skipVoiceSetup()"><span data-i18n="btn.skip">SKIP</span></button>
             </div>
         </div>
 
