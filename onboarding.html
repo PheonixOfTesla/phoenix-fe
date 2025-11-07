@@ -2547,14 +2547,29 @@
          */
         function nextPhase() {
             if (currentPhase < 8) {
-                document.getElementById(`phase${currentPhase}`).classList.remove('active');
+                // Handle special phase IDs
+                let currentPhaseId = currentPhase === 2 ? 'phase2' :
+                                    currentPhase === 3 ? 'phase3persona' :
+                                    `phase${currentPhase}`;
+
+                const currentEl = document.getElementById(currentPhaseId);
+                if (currentEl) currentEl.classList.remove('active');
+
                 currentPhase++;
-                document.getElementById(`phase${currentPhase}`).classList.add('active');
+
+                let nextPhaseId = currentPhase === 3 ? 'phase3persona' :
+                                 `phase${currentPhase}`;
+
+                const nextEl = document.getElementById(nextPhaseId);
+                if (nextEl) nextEl.classList.add('active');
+
                 updateProgress();
 
-                // Preload voice previews when entering Phase 2 (Voice Selection)
+                // Load iOS voices when entering Phase 2 (Voice Selection)
                 if (currentPhase === 2) {
-                    preloadVoicePreviews();
+                    setTimeout(() => {
+                        loadIOSVoices();
+                    }, 500);
                 }
 
                 // Show phone verification screen when reaching Phase 4
@@ -2588,9 +2603,16 @@
             }
 
             if (currentPhase > 1) {
-                document.getElementById(`phase${currentPhase}`).classList.remove('active');
+                let currentPhaseId = currentPhase === 3 ? 'phase3persona' : `phase${currentPhase}`;
+                const currentEl = document.getElementById(currentPhaseId);
+                if (currentEl) currentEl.classList.remove('active');
+
                 currentPhase--;
-                document.getElementById(`phase${currentPhase}`).classList.add('active');
+
+                let prevPhaseId = currentPhase === 3 ? 'phase3persona' : `phase${currentPhase}`;
+                const prevEl = document.getElementById(prevPhaseId);
+                if (prevEl) prevEl.classList.add('active');
+
                 updateProgress();
             }
         }
