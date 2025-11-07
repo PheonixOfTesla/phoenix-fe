@@ -2350,7 +2350,7 @@
 
                 // Try to get user info but don't fail if it errors
                 try {
-                    const data = await fetchAPI('/auth/me');
+                    const data = await fetchAPI('/users/profile');
                     if (data.success && data.user) {
                         this.userId = data.user._id;
                         console.log('✅ User info loaded:', data.user.name);
