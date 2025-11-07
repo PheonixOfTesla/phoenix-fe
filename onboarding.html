@@ -853,7 +853,7 @@
                 [ SYSTEM READY ]
             </div>
             <div class="phase-header">
-                <h1 class="phase-title">PHOENIX INITIALIZE</h1>
+                <h1 class="phase-title" data-i18n="phase.init">PHOENIX INITIALIZE</h1>
                 <p class="phase-subtitle">AI-POWERED LIFE OPERATING SYSTEM</p>
             </div>
             <div class="intro-text">
@@ -873,68 +873,68 @@
             </div>
             <div class="voice-status" id="voiceStatus1">[ VOICE ACTIVE ]</div>
             <div class="phase-header">
-                <h1 class="phase-title">SELECT LANGUAGE</h1>
-                <p class="phase-subtitle">CHOOSE YOUR PREFERRED LANGUAGE</p>
+                <h1 class="phase-title" data-i18n="phase.language">SELECT LANGUAGE</h1>
+                <p class="phase-subtitle" data-i18n="phase.language.subtitle">CHOOSE YOUR PREFERRED LANGUAGE</p>
             </div>
             <div class="selection-grid" id="languageGrid">
-                <div class="selection-card" data-lang="en" data-name="English">
+                <div class="selection-card" data-lang="en" onclick="switchLanguage('en')" data-name="English">
                     <div class="icon">🇬🇧</div>
                     <div class="title">ENGLISH</div>
                     <div class="subtitle">Global</div>
                 </div>
-                <div class="selection-card" data-lang="es" data-name="Spanish">
+                <div class="selection-card" data-lang="es" onclick="switchLanguage('es')" data-name="Spanish">
                     <div class="icon">🇪🇸</div>
                     <div class="title">ESPAÑOL</div>
                     <div class="subtitle">Spanish</div>
                 </div>
-                <div class="selection-card" data-lang="fr" data-name="French">
+                <div class="selection-card" data-lang="fr" onclick="switchLanguage('fr')" data-name="French">
                     <div class="icon">🇫🇷</div>
                     <div class="title">FRANÇAIS</div>
                     <div class="subtitle">French</div>
                 </div>
-                <div class="selection-card" data-lang="de" data-name="German">
+                <div class="selection-card" data-lang="de" onclick="switchLanguage('de')" data-name="German">
                     <div class="icon">🇩🇪</div>
                     <div class="title">DEUTSCH</div>
                     <div class="subtitle">German</div>
                 </div>
-                <div class="selection-card" data-lang="it" data-name="Italian">
+                <div class="selection-card" data-lang="it" onclick="switchLanguage('it')" data-name="Italian">
                     <div class="icon">🇮🇹</div>
                     <div class="title">ITALIANO</div>
                     <div class="subtitle">Italian</div>
                 </div>
-                <div class="selection-card" data-lang="pt" data-name="Portuguese">
+                <div class="selection-card" data-lang="pt" onclick="switchLanguage('pt')" data-name="Portuguese">
                     <div class="icon">🇵🇹</div>
                     <div class="title">PORTUGUÊS</div>
                     <div class="subtitle">Portuguese</div>
                 </div>
-                <div class="selection-card" data-lang="nl" data-name="Dutch">
+                <div class="selection-card" data-lang="nl" onclick="switchLanguage('nl')" data-name="Dutch">
                     <div class="icon">🇳🇱</div>
                     <div class="title">NEDERLANDS</div>
                     <div class="subtitle">Dutch</div>
                 </div>
-                <div class="selection-card" data-lang="pl" data-name="Polish">
+                <div class="selection-card" data-lang="pl" onclick="switchLanguage('pl')" data-name="Polish">
                     <div class="icon">🇵🇱</div>
                     <div class="title">POLSKI</div>
                     <div class="subtitle">Polish</div>
                 </div>
-                <div class="selection-card" data-lang="ru" data-name="Russian">
+                <div class="selection-card" data-lang="ru" onclick="switchLanguage('ru')" data-name="Russian">
                     <div class="icon">🇷🇺</div>
                     <div class="title">РУССКИЙ</div>
                     <div class="subtitle">Russian</div>
                 </div>
-                <div class="selection-card" data-lang="ja" data-name="Japanese">
+                <div class="selection-card" data-lang="ja" onclick="switchLanguage('ja')" data-name="Japanese">
                     <div class="icon">🇯🇵</div>
                     <div class="title">日本語</div>
                     <div class="subtitle">Japanese</div>
                 </div>
-                <div class="selection-card" data-lang="zh" data-name="Chinese">
+                <div class="selection-card" data-lang="zh" onclick="switchLanguage('zh')" data-name="Chinese">
                     <div class="icon">🇨🇳</div>
                     <div class="title">中文</div>
                     <div class="subtitle">Chinese</div>
                 </div>
             </div>
             <div class="button-group">
-                <button class="btn btn-primary" id="nextPhase1" disabled>[ CONTINUE ]</button>
+                <button class="btn btn-primary" id="nextPhase1" disabled><span data-i18n="btn.continue">CONTINUE</span></button>
             </div>
         </div>
 
@@ -945,8 +945,8 @@
             </div>
             <div class="voice-status" id="voiceStatus2">[ VOICE ACTIVE ]</div>
             <div class="phase-header">
-                <h1 class="phase-title">SELECT VOICE PROFILE</h1>
-                <p class="phase-subtitle">CHOOSE YOUR PREFERRED VOICE PERSONALITY</p>
+                <h1 class="phase-title" data-i18n="phase.voice">SELECT VOICE</h1>
+                <p class="phase-subtitle" data-i18n="phase.voice.subtitle">CHOOSE YOUR PREFERRED VOICE</p>
             </div>
             <div class="selection-grid" id="voiceGrid">
                 <div class="selection-card" data-voice="nova">
@@ -987,8 +987,8 @@
                 </div>
             </div>
             <div class="button-group">
-                <button class="btn btn-secondary" onclick="previousPhase()">[ BACK ]</button>
-                <button class="btn btn-primary" id="nextPhase2" disabled>[ CONTINUE ]</button>
+                <button class="btn btn-secondary" onclick="previousPhase()"><span data-i18n="btn.back">BACK</span></button>
+                <button class="btn btn-primary" id="nextPhase2" disabled><span data-i18n="btn.continue">CONTINUE</span></button>
             </div>
         </div>
 
@@ -999,8 +999,8 @@
             </div>
             <div class="voice-status" id="voiceStatus3">[ VOICE ACTIVE ]</div>
             <div class="phase-header">
-                <h1 class="phase-title">CREATE ACCOUNT</h1>
-                <p class="phase-subtitle">REGISTER YOUR CREDENTIALS</p>
+                <h1 class="phase-title" data-i18n="phase.auth">CREATE ACCOUNT</h1>
+                <p class="phase-subtitle" data-i18n="phase.auth.subtitle">REGISTER YOUR CREDENTIALS</p>
             </div>
             <form id="accountForm">
                 <div class="form-grid">
@@ -1050,7 +1050,7 @@
                 </div>
             </form>
             <div class="button-group">
-                <button class="btn btn-secondary" onclick="previousPhase()">[ BACK ]</button>
+                <button class="btn btn-secondary" onclick="previousPhase()"><span data-i18n="btn.back">BACK</span></button>
                 <button class="btn btn-primary" onclick="createAccount()">[ CREATE ACCOUNT ]</button>
             </div>
         </div>
@@ -1062,7 +1062,7 @@
             </div>
             <div class="voice-status" id="voiceStatus4">[ CHOOSE VERIFICATION METHOD ]</div>
             <div class="phase-header">
-                <h1 class="phase-title">VERIFY YOUR ACCOUNT</h1>
+                <h1 class="phase-title" data-i18n="phase.verify">VERIFY YOUR ACCOUNT</h1>
                 <p class="phase-subtitle">CHOOSE HOW YOU'D LIKE TO VERIFY</p>
             </div>
             <div class="button-group" style="display: flex; flex-direction: column; gap: 20px; max-width: 400px; margin: 40px auto;">
@@ -1084,7 +1084,7 @@
             </div>
             <div class="voice-status" id="voiceStatus4b">[ VERIFICATION SENT ]</div>
             <div class="phase-header">
-                <h1 class="phase-title">VERIFY PHONE</h1>
+                <h1 class="phase-title" data-i18n="phase.verify">VERIFY PHONE</h1>
                 <p class="phase-subtitle">ENTER 6-DIGIT CODE SENT TO <span id="userPhone" style="color: var(--primary-cyan);"></span></p>
             </div>
             <div class="code-input-wrapper">
@@ -1111,7 +1111,7 @@
             </div>
             <div class="voice-status" id="voiceStatus5">[ VOICE ACTIVE ]</div>
             <div class="phase-header">
-                <h1 class="phase-title">SYNC DEVICES</h1>
+                <h1 class="phase-title" data-i18n="phase.sync">SYNC DEVICES</h1>
                 <p class="phase-subtitle">CONNECT WEARABLES FOR HEALTH TRACKING</p>
             </div>
             <div class="selection-grid">
@@ -1137,9 +1137,9 @@
                 </div>
             </div>
             <div class="button-group">
-                <button class="btn btn-secondary" onclick="previousPhase()">[ BACK ]</button>
-                <button class="btn btn-primary" onclick="nextPhase()">[ CONTINUE ]</button>
-                <button class="btn btn-skip" onclick="nextPhase()">[ SKIP ]</button>
+                <button class="btn btn-secondary" onclick="previousPhase()"><span data-i18n="btn.back">BACK</span></button>
+                <button class="btn btn-primary" onclick="nextPhase()"><span data-i18n="btn.continue">CONTINUE</span></button>
+                <button class="btn btn-skip" onclick="nextPhase()"><span data-i18n="btn.skip">SKIP</span></button>
             </div>
         </div>
 
@@ -1150,7 +1150,7 @@
             </div>
             <div class="voice-status" id="voiceStatus6">[ VOICE ACTIVE ]</div>
             <div class="phase-header">
-                <h1 class="phase-title">SET OBJECTIVES</h1>
+                <h1 class="phase-title" data-i18n="phase.goals">SET OBJECTIVES</h1>
                 <p class="phase-subtitle">DEFINE YOUR PRIMARY GOALS</p>
             </div>
             <form id="goalsForm">
@@ -1170,9 +1170,9 @@
                 </div>
             </form>
             <div class="button-group">
-                <button class="btn btn-secondary" onclick="previousPhase()">[ BACK ]</button>
-                <button class="btn btn-primary" onclick="saveGoals()">[ CONTINUE ]</button>
-                <button class="btn btn-skip" onclick="nextPhase()">[ SKIP ]</button>
+                <button class="btn btn-secondary" onclick="previousPhase()"><span data-i18n="btn.back">BACK</span></button>
+                <button class="btn btn-primary" onclick="saveGoals()"><span data-i18n="btn.continue">CONTINUE</span></button>
+                <button class="btn btn-skip" onclick="nextPhase()"><span data-i18n="btn.skip">SKIP</span></button>
             </div>
         </div>
 
@@ -1183,14 +1183,14 @@
             </div>
             <div class="voice-status" id="voiceStatus7">[ VOICE CUSTOMIZATION ]</div>
             <div class="phase-header">
-                <h1 class="phase-title">CUSTOMIZE PHOENIX VOICE</h1>
-                <p class="phase-subtitle">CHOOSE YOUR AI PERSONALITY & VOICE</p>
+                <h1 class="phase-title" data-i18n="phase.persona">SELECT PERSONALITY</h1>
+                <p class="phase-subtitle" data-i18n="phase.persona.subtitle">CHOOSE YOUR AI PERSONALITY</p>
             </div>
             <div id="voice-onboarding-container" style="max-height: 60vh; overflow-y: auto; padding: 20px;"></div>
             <div class="button-group">
-                <button class="btn btn-secondary" onclick="previousPhase()">[ BACK ]</button>
-                <button class="btn btn-primary" onclick="saveVoiceAndContinue()">[ CONTINUE ]</button>
-                <button class="btn btn-skip" onclick="skipVoiceSetup()">[ SKIP ]</button>
+                <button class="btn btn-secondary" onclick="previousPhase()"><span data-i18n="btn.back">BACK</span></button>
+                <button class="btn btn-primary" onclick="saveVoiceAndContinue()"><span data-i18n="btn.continue">CONTINUE</span></button>
+                <button class="btn btn-skip" onclick="skipVoiceSetup()"><span data-i18n="btn.skip">SKIP</span></button>
             </div>
         </div>
 
@@ -1201,7 +1201,7 @@
             </div>
             <div class="voice-status" id="voiceStatus8">[ SYSTEM READY ]</div>
             <div class="phase-header">
-                <h1 class="phase-title">INITIALIZATION COMPLETE</h1>
+                <h1 class="phase-title" data-i18n="phase.launch">INITIALIZATION COMPLETE</h1>
                 <p class="phase-subtitle">WELCOME TO PHOENIX, <span id="welcomeName" style="color: var(--primary-cyan);"></span></p>
             </div>
             <div class="intro-text">
@@ -2718,5 +2718,41 @@
     <script src="src/voice-tts.js"></script>
     <script src="src/voice-enumerator.js"></script>
     <script src="src/voice-onboarding.js"></script>
+    <script src="src/i18n.js"></script>
+    <script>
+    // Switch language and update UI instantly
+    function switchLanguage(langCode) {
+        console.log('🌍 Switching language to:', langCode);
+
+        // Update i18n system
+        PhoenixI18n.setLanguage(langCode);
+
+        // Remove selected class from all language cards
+        document.querySelectorAll('.selection-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+
+        // Add selected class to clicked language
+        const selectedCard = document.querySelector(`[data-lang="${langCode}"]`);
+        if (selectedCard) {
+            selectedCard.classList.add('selected');
+        }
+
+        // Enable continue button
+        const continueBtn = document.getElementById('nextPhase1');
+        if (continueBtn) {
+            continueBtn.disabled = false;
+        }
+
+        console.log('✅ Language switched to', langCode, '- UI updated!');
+    }
+
+    </script>
+    <script>
+        // Initialize i18n on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            PhoenixI18n.updateAllTranslations();
+        });
+    </script>
 </body>
 </html>
