@@ -1871,6 +1871,15 @@
                     const langCode = card.dataset.lang;
                     const langName = card.dataset.name;
 
+                    // Remove previous selection
+                    document.querySelectorAll('#languageGrid .selection-card').forEach(c => c.classList.remove('selected'));
+
+                    // Mark this card as selected
+                    card.classList.add('selected');
+
+                    // Enable Continue button
+                    document.getElementById('nextPhase1').disabled = false;
+
                     // Call switchLanguage to update i18n system
                     switchLanguage(langCode);
 
