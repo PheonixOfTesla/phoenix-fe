@@ -1677,13 +1677,29 @@
     (function checkAuth() {
         console.log('🔐 [Dashboard Auth Check] Starting...');
 
-        // Check URL parameters for fresh login indicator
-        const urlParams = new URLSearchParams(window.location.search);
-        const isFreshLogin = urlParams.get('fresh_login') === '1';
+        // CRITICAL: Check URL hash for token first (passed from login page)
+        const hash = window.location.hash;
+        if (hash && hash.includes('token=')) {
+            console.log('🔐 [Dashboard Auth Check] Token found in URL hash - saving to localStorage');
+            const hashParams = new URLSearchParams(hash.substring(1)); // Remove '#'
+            const tokenFromUrl = decodeURIComponent(hashParams.get('token'));
 
+            if (tokenFromUrl && tokenFromUrl !== 'null' && tokenFromUrl !== 'undefined') {
+                localStorage.setItem('phoenixToken', tokenFromUrl);
+                console.log('✅ Token saved from URL hash:', tokenFromUrl.substring(0, 20) + '...');
+
+                // Clean URL hash immediately
+                window.history.replaceState({}, document.title, window.location.pathname);
+
+                // Token is now in localStorage, proceed with normal flow
+                console.log('✅ Fresh login via URL hash - proceeding to dashboard');
+                return; // Exit early, page will continue loading normally
+            }
+        }
+
+        // Check localStorage for existing token
         const token = localStorage.getItem('phoenixToken');
 
-        console.log('🔐 [Dashboard Auth Check] Fresh Login:', isFreshLogin);
         console.log('🔐 [Dashboard Auth Check] Token:', token ? token.substring(0, 20) + '...' : 'NONE');
 
         // DEBUG: Show full token details if present
@@ -1692,7 +1708,16 @@
             console.log('🔐 [Dashboard Auth Check] Token parts count:', token.split('.').length);
         }
 
-        // If user just logged in (via URL parameter), proceed without redirect
+        // If user just logged in (token exists and is valid JWT), don't redirect
+        if (token && token.startsWith('eyJ')) {
+            console.log('✅ Valid JWT token found - proceeding to dashboard');
+            return; // Exit early, page will continue loading normally
+        }
+
+        // Legacy check for old fresh_login parameter (keeping for backwards compatibility)
+        const urlParams = new URLSearchParams(window.location.search);
+        const isFreshLogin = urlParams.get('fresh_login') === '1';
+
         if (isFreshLogin) {
             console.log('✅ Fresh login detected via URL parameter - cleaning URL and proceeding');
 
