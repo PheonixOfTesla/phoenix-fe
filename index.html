@@ -1137,16 +1137,18 @@
 
                         this.showSuccess('Login successful!');
 
-                        // Set flag JUST before redirect to prevent index.html from auto-redirecting if dashboard bounces back
-                        sessionStorage.setItem('phoenix_just_logged_in', 'true');
-                        console.log('✅ [Login] Just logged in flag set');
-                        console.log('✅ [Login] Redirecting to dashboard in 800ms...');
+                        // Use URL parameter instead of sessionStorage for more reliable cross-page authentication state
+                        console.log('✅ [Login] Token saved and verified');
+                        console.log('✅ [Login] Redirecting to dashboard with auth param...');
 
-                        // Increased timeout to ensure localStorage fully persists
+                        // Use location.replace() instead of location.href to prevent back button issues
+                        // Add timestamp to URL to force cache invalidation
                         setTimeout(() => {
                             console.log('🚀 [Login] REDIRECTING NOW to dashboard.html');
                             console.log('🚀 [Login] Final token check:', localStorage.getItem('phoenixToken') ? 'PRESENT' : 'MISSING');
-                            window.location.href = 'dashboard.html';
+
+                            // Replace current history entry and add fresh_login parameter
+                            window.location.replace('dashboard.html?fresh_login=1&t=' + Date.now());
                         }, 800);
                     } else {
                         console.error('❌ No token found in response:', data);

@@ -1677,16 +1677,21 @@
     (function checkAuth() {
         console.log('🔐 [Dashboard Auth Check] Starting...');
 
+        // Check URL parameters for fresh login indicator
+        const urlParams = new URLSearchParams(window.location.search);
+        const isFreshLogin = urlParams.get('fresh_login') === '1';
+
         const token = localStorage.getItem('phoenixToken');
-        const justLoggedIn = sessionStorage.getItem('phoenix_just_logged_in');
 
+        console.log('🔐 [Dashboard Auth Check] Fresh Login:', isFreshLogin);
         console.log('🔐 [Dashboard Auth Check] Token:', token ? token.substring(0, 20) + '...' : 'NONE');
-        console.log('🔐 [Dashboard Auth Check] Just Logged In Flag:', justLoggedIn);
 
-        // If user just logged in, clear the flag and skip token check to prevent redirect loop
-        if (justLoggedIn === 'true') {
-            console.log('✅ Just logged in - clearing flag and proceeding to dashboard');
-            sessionStorage.removeItem('phoenix_just_logged_in');
+        // If user just logged in (via URL parameter), proceed without redirect
+        if (isFreshLogin) {
+            console.log('✅ Fresh login detected via URL parameter - cleaning URL and proceeding');
+
+            // Clean URL by removing parameters (use replaceState to avoid adding to history)
+            window.history.replaceState({}, document.title, window.location.pathname);
 
             // Verify token exists (should be set by index.html before redirect)
             if (!token) {
