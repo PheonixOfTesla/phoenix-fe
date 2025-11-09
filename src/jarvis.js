@@ -602,8 +602,8 @@ class JARVISEngine {
             font-size: 13px;
             line-height: 1.5;
             ${role === 'user'
-                ? 'background: linear-gradient(135deg, rgba(0,255,255,0.2), rgba(0,255,255,0.1)); color: #00ffff; border: 1px solid rgba(0,255,255,0.3);'
-                : 'background: rgba(0,10,20,0.8); color: rgba(255,255,255,0.9); border: 1px solid rgba(0,255,255,0.2);'
+                ? 'background: linear-gradient(135deg, rgba(0, 217, 255,0.2), rgba(0, 217, 255,0.1)); color: #00d9ff; border: 1px solid rgba(0, 217, 255,0.3);'
+                : 'background: rgba(0,10,20,0.8); color: rgba(255,255,255,0.9); border: 1px solid rgba(0, 217, 255,0.2);'
             }
             box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         `;
@@ -644,8 +644,8 @@ class JARVISEngine {
             font-size: 13px;
             line-height: 1.5;
             ${role === 'user'
-                ? 'background: linear-gradient(135deg, rgba(0,255,255,0.2), rgba(0,255,255,0.1)); color: #00ffff; border: 1px solid rgba(0,255,255,0.3);'
-                : 'background: rgba(0,10,20,0.8); color: rgba(255,255,255,0.9); border: 1px solid rgba(0,255,255,0.2);'
+                ? 'background: linear-gradient(135deg, rgba(0, 217, 255,0.2), rgba(0, 217, 255,0.1)); color: #00d9ff; border: 1px solid rgba(0, 217, 255,0.3);'
+                : 'background: rgba(0,10,20,0.8); color: rgba(255,255,255,0.9); border: 1px solid rgba(0, 217, 255,0.2);'
             }
             box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         `;
@@ -676,8 +676,8 @@ class JARVISEngine {
             padding: 12px 16px;
             border-radius: 18px;
             background: rgba(0,10,20,0.8);
-            border: 1px solid rgba(0,255,255,0.2);
-            color: rgba(0,255,255,0.6);
+            border: 1px solid rgba(0, 217, 255,0.2);
+            color: rgba(0, 217, 255,0.6);
             font-size: 13px;
             display: flex;
             align-items: center;
@@ -732,17 +732,17 @@ class JARVISEngine {
         const msgDiv = document.createElement('div');
         msgDiv.style.cssText = `
             margin-bottom: 15px; padding: 12px;
-            background: ${role === 'assistant' ? 'rgba(0,255,255,0.1)' : 'rgba(0,255,255,0.05)'};
-            border-left: 3px solid ${role === 'assistant' ? '#00ffff' : 'rgba(0,255,255,0.3)'};
+            background: ${role === 'assistant' ? 'rgba(0, 217, 255,0.1)' : 'rgba(0, 217, 255,0.05)'};
+            border-left: 3px solid ${role === 'assistant' ? '#00d9ff' : 'rgba(0, 217, 255,0.3)'};
             border-radius: 4px;
         `;
 
         const label = document.createElement('div');
-        label.style.cssText = 'font-size: 10px; color: #00ffff; margin-bottom: 6px; font-weight: bold;';
+        label.style.cssText = 'font-size: 10px; color: #00d9ff; margin-bottom: 6px; font-weight: bold;';
         label.textContent = role === 'assistant' ? this.personality.style : 'YOU';
 
         const content = document.createElement('div');
-        content.style.cssText = 'font-size: 13px; color: rgba(0,255,255,0.9);';
+        content.style.cssText = 'font-size: 13px; color: rgba(0, 217, 255,0.9);';
         content.textContent = message;
 
         msgDiv.appendChild(label);
@@ -758,7 +758,7 @@ class JARVISEngine {
         
         const indicator = document.createElement('div');
         indicator.id = 'typing-indicator';
-        indicator.style.cssText = 'padding: 12px; color: rgba(0,255,255,0.5); font-size: 12px; font-style: italic;';
+        indicator.style.cssText = 'padding: 12px; color: rgba(0, 217, 255,0.5); font-size: 12px; font-style: italic;';
         indicator.textContent = `${this.personality.style} is thinking...`;
         messagesEl.appendChild(indicator);
         messagesEl.scrollTop = messagesEl.scrollHeight;
@@ -786,7 +786,7 @@ class JARVISEngine {
         console.log(`📢 ${type.toUpperCase()} - ${title}: ${message}`);
         
         const colors = {
-            info: '#00ffff',
+            info: '#00d9ff',
             warning: '#ffc800',
             error: '#ff4444'
         };

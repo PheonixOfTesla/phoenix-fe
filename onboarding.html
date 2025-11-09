@@ -10,11 +10,11 @@
            ============================================ */
         
         :root {
-            --primary-cyan: #00ffff;
-            --primary-cyan-glow: rgba(0, 255, 255, 1);
-            --primary-cyan-dim: rgba(0, 255, 255, 0.6);
-            --primary-cyan-border: rgba(0, 255, 255, 0.3);
-            --primary-cyan-bg: rgba(0, 255, 255, 0.1);
+            --primary-cyan: #00d9ff;
+            --primary-cyan-glow: rgba(0, 217, 255, 1);
+            --primary-cyan-dim: rgba(0, 217, 255, 0.6);
+            --primary-cyan-border: rgba(0, 217, 255, 0.3);
+            --primary-cyan-bg: rgba(0, 217, 255, 0.1);
             
             --bg-dark: #000;
             --bg-panel: rgba(0, 10, 20, 0.9);
@@ -25,8 +25,8 @@
             
             --font-primary: 'Courier New', 'Consolas', monospace;
             
-            --shadow-glow-cyan: 0 0 20px rgba(0, 255, 255, 0.4);
-            --shadow-glow-cyan-strong: 0 0 30px rgba(0, 255, 255, 0.8);
+            --shadow-glow-cyan: 0 0 20px rgba(0, 217, 255, 0.4);
+            --shadow-glow-cyan-strong: 0 0 30px rgba(0, 217, 255, 0.8);
         }
 
         * {
@@ -309,7 +309,7 @@
             text-align: center;
             margin-bottom: 30px;
             padding: 12px;
-            background: rgba(0, 255, 255, 0.03);
+            background: rgba(0, 217, 255, 0.03);
             border: 1px solid var(--primary-cyan-border);
             border-radius: 4px;
             font-size: 12px;
@@ -323,11 +323,11 @@
 
         @keyframes statusGlow {
             0%, 100% { 
-                box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+                box-shadow: 0 0 10px rgba(0, 217, 255, 0.3);
                 border-color: var(--primary-cyan-border);
             }
             50% { 
-                box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+                box-shadow: 0 0 20px rgba(0, 217, 255, 0.6);
                 border-color: var(--primary-cyan);
             }
         }
@@ -362,7 +362,7 @@
         }
 
         .selection-card {
-            background: linear-gradient(135deg, rgba(0, 255, 255, 0.05), rgba(0, 255, 255, 0.1));
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.05), rgba(0, 217, 255, 0.1));
             border: 1px solid var(--primary-cyan-border);
             border-radius: 4px;
             padding: 24px;
@@ -383,14 +383,14 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.2), transparent);
+            background: linear-gradient(90deg, transparent, rgba(0, 217, 255, 0.2), transparent);
             transition: left 0.15s ease;
             will-change: left;
         }
 
         .selection-card:hover {
             border-color: var(--primary-cyan);
-            background: rgba(0, 255, 255, 0.15);
+            background: rgba(0, 217, 255, 0.15);
             transform: translateY(-4px) translateZ(0);
             box-shadow: var(--shadow-glow-cyan-strong);
         }
@@ -401,7 +401,7 @@
 
         .selection-card.selected {
             border-color: var(--primary-cyan);
-            background: rgba(0, 255, 255, 0.2);
+            background: rgba(0, 217, 255, 0.2);
             box-shadow: var(--shadow-glow-cyan);
         }
 
@@ -425,7 +425,7 @@
 
         /* Voice Preview Button */
         .voice-preview-btn {
-            background: rgba(0, 255, 255, 0.1);
+            background: rgba(0, 217, 255, 0.1);
             border: 1px solid var(--primary-cyan-border);
             color: var(--primary-cyan);
             padding: 8px 16px;
@@ -439,7 +439,7 @@
         }
 
         .voice-preview-btn:hover {
-            background: rgba(0, 255, 255, 0.2);
+            background: rgba(0, 217, 255, 0.2);
             border-color: var(--primary-cyan);
             box-shadow: var(--shadow-glow-cyan);
         }
@@ -470,7 +470,7 @@
         .form-group select {
             width: 100%;
             padding: 14px;
-            background: rgba(0, 255, 255, 0.05);
+            background: rgba(0, 217, 255, 0.05);
             border: 1px solid var(--primary-cyan-border);
             border-radius: 4px;
             color: var(--primary-cyan);
@@ -483,7 +483,7 @@
         .form-group select:focus {
             outline: none;
             border-color: var(--primary-cyan);
-            background: rgba(0, 255, 255, 0.1);
+            background: rgba(0, 217, 255, 0.1);
             box-shadow: var(--shadow-glow-cyan);
         }
 
@@ -498,7 +498,7 @@
             flex-shrink: 0;
             cursor: pointer;
             padding: 14px 10px !important;
-            background: rgba(0, 255, 255, 0.05) !important;
+            background: rgba(0, 217, 255, 0.05) !important;
             border: 1px solid var(--primary-cyan-border) !important;
             color: var(--primary-cyan) !important;
         }
@@ -506,7 +506,7 @@
         .country-selector:focus {
             outline: none !important;
             border-color: var(--primary-cyan) !important;
-            background: rgba(0, 255, 255, 0.1) !important;
+            background: rgba(0, 217, 255, 0.1) !important;
             box-shadow: var(--shadow-glow-cyan) !important;
         }
 
@@ -527,7 +527,7 @@
             height: 70px;
             font-size: 32px;
             text-align: center;
-            background: rgba(0, 255, 255, 0.05);
+            background: rgba(0, 217, 255, 0.05);
             border: 2px solid var(--primary-cyan-border);
             border-radius: 4px;
             color: var(--primary-cyan);
@@ -539,7 +539,7 @@
         .code-digit:focus {
             outline: none;
             border-color: var(--primary-cyan);
-            background: rgba(0, 255, 255, 0.1);
+            background: rgba(0, 217, 255, 0.1);
             box-shadow: var(--shadow-glow-cyan);
         }
 
@@ -623,7 +623,7 @@
 
         /* Device Cards */
         .device-card {
-            background: linear-gradient(135deg, rgba(0, 255, 255, 0.05), rgba(0, 255, 255, 0.1));
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.05), rgba(0, 217, 255, 0.1));
             border: 1px solid var(--primary-cyan-border);
             border-radius: 4px;
             padding: 24px;
@@ -734,7 +734,7 @@
         .loading-spinner {
             width: 60px;
             height: 60px;
-            border: 4px solid rgba(0, 255, 255, 0.2);
+            border: 4px solid rgba(0, 217, 255, 0.2);
             border-top-color: var(--primary-cyan);
             border-radius: 50%;
             animation: spin 1s linear infinite;
@@ -822,7 +822,7 @@
             </div>
             <div class="progress-step" data-step="3">
                 <div class="step-number">3</div>
-                <span>AUTH</span>
+                <span>PERSONA</span>
             </div>
             <div class="progress-step" data-step="4">
                 <div class="step-number">4</div>
@@ -854,20 +854,20 @@
                 <div class="avatar-circle" id="avatarCircle0"></div>
             </div>
             <div class="voice-status" id="voiceStatus0">
-                [ SYSTEM READY ]
+                <span data-i18n="status.systemReady">[ SYSTEM READY ]</span>
             </div>
             <div class="phase-header">
                 <h1 class="phase-title" data-i18n="phase.init">PHOENIX INITIALIZE</h1>
-                <p class="phase-subtitle">AI-POWERED LIFE OPERATING SYSTEM</p>
+                <p class="phase-subtitle" data-i18n="phase.subtitle">AI-POWERED LIFE OPERATING SYSTEM</p>
             </div>
             <div class="intro-text">
-                <p>I'M PHOENIX, YOUR PERSONAL AI COMPANION.</p>
-                <p>I'LL HELP YOU OPTIMIZE YOUR HEALTH, FITNESS, PRODUCTIVITY, AND LIFE DECISIONS.</p>
-                <p>LET'S GET YOU SET UP. THIS WILL TAKE APPROXIMATELY 180 SECONDS.</p>
+                <p data-i18n="intro.companion">I'M PHOENIX, YOUR PERSONAL AI COMPANION.</p>
+                <p data-i18n="intro.help">I'LL HELP YOU OPTIMIZE YOUR HEALTH, FITNESS, PRODUCTIVITY, AND LIFE DECISIONS.</p>
+                <p data-i18n="intro.setup">LET'S GET YOU SET UP. THIS WILL TAKE APPROXIMATELY 180 SECONDS.</p>
                 <p id="detectedLanguageNote" style="margin-top: 20px; opacity: 0.7; font-size: 14px;"></p>
             </div>
             <div class="button-group">
-                <button class="btn btn-primary" onclick="startOnboarding()">[ INITIALIZE SYSTEM ]</button>
+                <button class="btn btn-primary" onclick="startOnboarding()"><span data-i18n="btn.initializeSystem">[ INITIALIZE SYSTEM ]</span></button>
             </div>
         </div>
 
@@ -1076,7 +1076,7 @@
             </div>
         </div>
 
-        <!-- Phase 2: iOS Voice Selection -->
+        <!-- Phase 2: OpenAI Voice Selection -->
         <div class="phase" id="phase2">
             <div class="phoenix-avatar">
                 <div class="avatar-circle" id="avatarCircle2"></div>
@@ -1086,12 +1086,44 @@
                 <h1 class="phase-title" data-i18n="phase.voice">SELECT VOICE</h1>
                 <p class="phase-subtitle" data-i18n="phase.voice.subtitle">CHOOSE YOUR PREFERRED VOICE</p>
             </div>
-            <div id="iosVoiceLoading" style="text-align: center; padding: 40px;">
-                <div class="loading-spinner"></div>
-                <p data-i18n="voice.loading">Loading available voices...</p>
-            </div>
-            <div class="selection-grid" id="iosVoiceGrid" style="display: none;">
-                <!-- iOS voices will be populated by JavaScript based on selected language -->
+            <div class="selection-grid" id="voiceGrid">
+                <!-- OpenAI TTS Voices (6 voices, work across all 37 languages) -->
+                <div class="selection-card" data-voice="nova">
+                    <div class="icon">🎤</div>
+                    <div class="title">NOVA</div>
+                    <div class="subtitle" data-i18n="voice.nova">Warm friendly</div>
+                    <button class="voice-preview-btn" onclick="previewOpenAIVoice('nova', event)"><span data-i18n="btn.preview">▶ PREVIEW</span></button>
+                </div>
+                <div class="selection-card" data-voice="fable">
+                    <div class="icon">🎤</div>
+                    <div class="title">FABLE</div>
+                    <div class="subtitle" data-i18n="voice.fable">British storyteller</div>
+                    <button class="voice-preview-btn" onclick="previewOpenAIVoice('fable', event)"><span data-i18n="btn.preview">▶ PREVIEW</span></button>
+                </div>
+                <div class="selection-card" data-voice="echo">
+                    <div class="icon">🎤</div>
+                    <div class="title">ECHO</div>
+                    <div class="subtitle" data-i18n="voice.echo">British butler</div>
+                    <button class="voice-preview-btn" onclick="previewOpenAIVoice('echo', event)"><span data-i18n="btn.preview">▶ PREVIEW</span></button>
+                </div>
+                <div class="selection-card" data-voice="alloy">
+                    <div class="icon">🎤</div>
+                    <div class="title">ALLOY</div>
+                    <div class="subtitle" data-i18n="voice.alloy">Neutral balanced</div>
+                    <button class="voice-preview-btn" onclick="previewOpenAIVoice('alloy', event)"><span data-i18n="btn.preview">▶ PREVIEW</span></button>
+                </div>
+                <div class="selection-card" data-voice="onyx">
+                    <div class="icon">🎤</div>
+                    <div class="title">ONYX</div>
+                    <div class="subtitle" data-i18n="voice.onyx">Deep professional</div>
+                    <button class="voice-preview-btn" onclick="previewOpenAIVoice('onyx', event)"><span data-i18n="btn.preview">▶ PREVIEW</span></button>
+                </div>
+                <div class="selection-card" data-voice="shimmer">
+                    <div class="icon">🎤</div>
+                    <div class="title">SHIMMER</div>
+                    <div class="subtitle" data-i18n="voice.shimmer">Gentle guide</div>
+                    <button class="voice-preview-btn" onclick="previewOpenAIVoice('shimmer', event)"><span data-i18n="btn.preview">▶ PREVIEW</span></button>
+                </div>
             </div>
             <div class="button-group">
                 <button class="btn btn-secondary" onclick="previousPhase()"><span data-i18n="btn.back">BACK</span></button>
@@ -1112,73 +1144,73 @@
                 <div class="selection-card" data-persona="friendly_helpful" onclick="selectPersona('friendly_helpful')">
                     <div class="icon">😊</div>
                     <div class="title" data-i18n="persona.friendly">FRIENDLY HELPER</div>
-                    <div class="subtitle">Warm and supportive</div>
+                    <div class="subtitle" data-i18n="persona.friendly.desc">Warm and supportive</div>
                     <button class="voice-preview-btn" onclick="testVoicePersona('friendly_helpful', event)">▶ TEST</button>
                 </div>
                 <div class="selection-card" data-persona="professional_serious" onclick="selectPersona('professional_serious')">
                     <div class="icon">💼</div>
                     <div class="title" data-i18n="persona.professional">PROFESSIONAL</div>
-                    <div class="subtitle">Direct and efficient</div>
+                    <div class="subtitle" data-i18n="persona.professional.desc">Direct and efficient</div>
                     <button class="voice-preview-btn" onclick="testVoicePersona('professional_serious', event)">▶ TEST</button>
                 </div>
                 <div class="selection-card" data-persona="british_refined" onclick="selectPersona('british_refined')">
                     <div class="icon">🎩</div>
                     <div class="title" data-i18n="persona.british">BRITISH BUTLER</div>
-                    <div class="subtitle">Refined and courteous</div>
+                    <div class="subtitle" data-i18n="persona.british.desc">Refined and courteous</div>
                     <button class="voice-preview-btn" onclick="testVoicePersona('british_refined', event)">▶ TEST</button>
                 </div>
                 <div class="selection-card" data-persona="whimsical_storyteller" onclick="selectPersona('whimsical_storyteller')">
                     <div class="icon">📚</div>
                     <div class="title" data-i18n="persona.storyteller">STORYTELLER</div>
-                    <div class="subtitle">Creative and imaginative</div>
+                    <div class="subtitle" data-i18n="persona.storyteller.desc">Creative and imaginative</div>
                     <button class="voice-preview-btn" onclick="testVoicePersona('whimsical_storyteller', event)">▶ TEST</button>
                 </div>
                 <div class="selection-card" data-persona="gentle_nurturing" onclick="selectPersona('gentle_nurturing')">
                     <div class="icon">🌸</div>
                     <div class="title" data-i18n="persona.nurturing">GENTLE GUIDE</div>
-                    <div class="subtitle">Caring and patient</div>
+                    <div class="subtitle" data-i18n="persona.nurturing.desc">Caring and patient</div>
                     <button class="voice-preview-btn" onclick="testVoicePersona('gentle_nurturing', event)">▶ TEST</button>
                 </div>
                 <div class="selection-card" data-persona="neutral_efficient" onclick="selectPersona('neutral_efficient')">
                     <div class="icon">⚡</div>
                     <div class="title" data-i18n="persona.efficient">EFFICIENT</div>
-                    <div class="subtitle">Neutral and balanced</div>
+                    <div class="subtitle" data-i18n="persona.efficient.desc">Neutral and balanced</div>
                     <button class="voice-preview-btn" onclick="testVoicePersona('neutral_efficient', event)">▶ TEST</button>
                 </div>
                 <div class="selection-card" data-persona="motivational_coach" onclick="selectPersona('motivational_coach')">
                     <div class="icon">🔥</div>
                     <div class="title" data-i18n="persona.coach">COACH</div>
-                    <div class="subtitle">Energetic motivator</div>
+                    <div class="subtitle" data-i18n="persona.coach.desc">Energetic motivator</div>
                     <button class="voice-preview-btn" onclick="testVoicePersona('motivational_coach', event)">▶ TEST</button>
                 </div>
                 <div class="selection-card" data-persona="zen_master" onclick="selectPersona('zen_master')">
                     <div class="icon">🧘</div>
                     <div class="title" data-i18n="persona.zen">ZEN MASTER</div>
-                    <div class="subtitle">Calm and mindful</div>
+                    <div class="subtitle" data-i18n="persona.zen.desc">Calm and mindful</div>
                     <button class="voice-preview-btn" onclick="testVoicePersona('zen_master', event)">▶ TEST</button>
                 </div>
                 <div class="selection-card" data-persona="tech_genius" onclick="selectPersona('tech_genius')">
                     <div class="icon">🤖</div>
                     <div class="title" data-i18n="persona.tech">TECH GENIUS</div>
-                    <div class="subtitle">Smart and analytical</div>
+                    <div class="subtitle" data-i18n="persona.tech.desc">Smart and analytical</div>
                     <button class="voice-preview-btn" onclick="testVoicePersona('tech_genius', event)">▶ TEST</button>
                 </div>
                 <div class="selection-card" data-persona="comedian" onclick="selectPersona('comedian')">
                     <div class="icon">🎭</div>
                     <div class="title" data-i18n="persona.comedian">COMEDIAN</div>
-                    <div class="subtitle">Witty and fun</div>
+                    <div class="subtitle" data-i18n="persona.comedian.desc">Witty and fun</div>
                     <button class="voice-preview-btn" onclick="testVoicePersona('comedian', event)">▶ TEST</button>
                 </div>
                 <div class="selection-card" data-persona="therapist" onclick="selectPersona('therapist')">
                     <div class="icon">💭</div>
                     <div class="title" data-i18n="persona.therapist">THERAPIST</div>
-                    <div class="subtitle">Understanding listener</div>
+                    <div class="subtitle" data-i18n="persona.therapist.desc">Understanding listener</div>
                     <button class="voice-preview-btn" onclick="testVoicePersona('therapist', event)">▶ TEST</button>
                 </div>
                 <div class="selection-card" data-persona="commander" onclick="selectPersona('commander')">
                     <div class="icon">⚔️</div>
                     <div class="title" data-i18n="persona.commander">COMMANDER</div>
-                    <div class="subtitle">Decisive leader</div>
+                    <div class="subtitle" data-i18n="persona.commander.desc">Decisive leader</div>
                     <button class="voice-preview-btn" onclick="testVoicePersona('commander', event)">▶ TEST</button>
                 </div>
             </div>
@@ -1509,10 +1541,12 @@
         
         // State
         let currentPhase = 0;
+        let isPreviewPlaying = false;
+        let currentPreviewButton = null;
         let userData = {
-            language: 'en',
-            languageName: 'English',
-            voice: 'echo',
+            language: localStorage.getItem('phoenixLanguage') || 'en',
+            languageName: 'English',  // Will be updated when language card auto-selects
+            voice: localStorage.getItem('phoenixVoice') || 'echo',
             profile: {},
             authToken: null,
             devices: [],
@@ -1525,6 +1559,7 @@
         
         // Language code mapper for TTS API
         const languageMap = {
+            // Core 11 languages (full UI + TTS support)
             'en': 'en-GB',
             'es': 'es',
             'fr': 'fr',
@@ -1535,7 +1570,34 @@
             'pl': 'pl',
             'ru': 'ru',
             'ja': 'ja',
-            'zh': 'zh'
+            'zh': 'zh',
+            // Additional 26 languages (TTS only, UI in English)
+            'ar': 'ar',
+            'cs': 'cs',
+            'da': 'da',
+            'el': 'el',
+            'fi': 'fi',
+            'he': 'he',
+            'hi': 'hi',
+            'hu': 'hu',
+            'id': 'id',
+            'ko': 'ko',
+            'ms': 'ms',
+            'no': 'no',
+            'ro': 'ro',
+            'sk': 'sk',
+            'sv': 'sv',
+            'th': 'th',
+            'tr': 'tr',
+            'uk': 'uk',
+            'vi': 'vi',
+            'ca': 'ca',
+            'hr': 'hr',
+            'en-AU': 'en-AU',
+            'en-IN': 'en-IN',
+            'en-IE': 'en-IE',
+            'en-ZA': 'en-ZA',
+            'pt-BR': 'pt-BR'
         };
 
         // Auto-detect user's system language
@@ -1617,15 +1679,40 @@
         }
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            // Auto-detect and set language FIRST
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Auto-detect and set language FIRST (before any UI is shown)
             const detectedLang = autoDetectLanguage();
-            if (window.PhoenixI18n) {
-                PhoenixI18n.setLanguage(detectedLang);
+            console.log('🌍 Setting initial language to:', detectedLang);
+
+            if (window.PhoenixI18n && window.PhoenixI18n.setLanguage) {
+                await window.PhoenixI18n.setLanguage(detectedLang);
+                console.log('✅ Phase 0 language set to:', detectedLang);
             }
 
+            // CRITICAL FIX: Restore userData from localStorage on page load
+            const savedLanguage = localStorage.getItem('phoenixLanguage');
+            if (savedLanguage) {
+                userData.language = savedLanguage;
+                console.log('✅ Restored language from localStorage:', savedLanguage);
+            }
+
+            const savedVoice = localStorage.getItem('phoenixVoice');
+            if (savedVoice) {
+                userData.voice = savedVoice;
+                console.log('✅ Restored voice from localStorage:', savedVoice);
+            }
+
+            const savedPersonality = localStorage.getItem('phoenixPersonality');
+            if (savedPersonality) {
+                userData.persona = savedPersonality;
+                console.log('✅ Restored personality from localStorage:', savedPersonality);
+            }
+
+            console.log('📦 Final userData state:', userData);
+
             setupLanguageSelection();
-            setupVoiceSelection();
+            setupOpenAIVoiceSelection();
+            setupPersonalitySelection();  // ← THIS WAS ALREADY THERE (my audit was wrong)
             setupDeviceCards();
             setupCodeInputs();
 
@@ -1718,7 +1805,16 @@
                 console.log('[TTS] Requesting:', text.substring(0, 50) + '...');
 
                 const selectedVoice = userData.voice || 'nova';
-                const cacheKey = `welcome_${userData.language}_${text}`;
+                const selectedLanguage = userData.language || 'en';
+                const mappedLanguage = languageMap[selectedLanguage] || 'en-GB';
+
+                console.log('🎙️ TTS Request Details:');
+                console.log('  - Voice:', selectedVoice);
+                console.log('  - Language (user selected):', selectedLanguage);
+                console.log('  - Language (mapped for API):', mappedLanguage);
+                console.log('  - Text:', text.substring(0, 100));
+
+                const cacheKey = `welcome_${selectedLanguage}_${text}`;
                 let audioUrl;
 
                 // Check cache first for instant playback
@@ -1737,9 +1833,15 @@
                         body: JSON.stringify({
                             text: text,
                             voice: selectedVoice,
-                            language: languageMap[userData.language] || 'en-GB',
+                            language: mappedLanguage,
                             speed: voiceSpeeds[selectedVoice] || 1.0
                         })
+                    });
+
+                    console.log('📤 Sent to TTS API:', {
+                        voice: selectedVoice,
+                        language: mappedLanguage,
+                        textLength: text.length
                     });
 
                     console.log('[TTS] Response status:', response.status);
@@ -1891,8 +1993,15 @@
                     localStorage.setItem('phoenixLanguage', langCode);
                     console.log('✅ Language saved to localStorage:', langCode);
 
-                    // Speak welcome message
-                    phoenixSpeak(welcomeMessages[langCode] || welcomeMessages['en'], 1);
+                    // Debug: Log what language is being used
+                    console.log('🌍 Language selected:', langCode);
+                    console.log('📝 userData.language:', userData.language);
+                    console.log('🗺️ Mapped to TTS language:', languageMap[userData.language] || 'en-GB');
+
+                    // Speak welcome message (use English for languages without UI translations)
+                    const welcomeMsg = welcomeMessages[langCode] || `${langName} selected. Excellent choice.`;
+                    console.log('🎤 Speaking welcome message:', welcomeMsg);
+                    phoenixSpeak(welcomeMsg, 1);
                 });
             });
             
@@ -1904,11 +2013,26 @@
                     console.log('Speech optional, continuing:', err);
                 });
             });
+
+            // Auto-select detected language card on Phase 1 load (Apple-like experience)
+            const autoDetectedLang = localStorage.getItem('phoenixLanguage');
+            if (autoDetectedLang) {
+                const autoCard = document.querySelector(`#languageGrid [data-lang="${autoDetectedLang}"]`);
+                if (autoCard) {
+                    autoCard.classList.add('selected');
+                    document.getElementById('nextPhase1').disabled = false;
+                    userData.language = autoDetectedLang;
+                    userData.languageName = autoCard.dataset.name;
+                    console.log('🌍 Auto-selected language card:', autoDetectedLang, '(' + autoCard.dataset.name + ')');
+                }
+            }
         }
 
         /**
          * Voice Selection
          */
+        // DEPRECATED: Old iOS voice selection (replaced by setupOpenAIVoiceSelection)
+        /*
         function setupVoiceSelection() {
             const continueMessages = {
                 'en': "Perfect. From now on, this is how I'll sound. Now let's create your account.",
@@ -2815,13 +2939,6 @@
 
                 updateProgress();
 
-                // Load iOS voices when entering Phase 2 (Voice Selection)
-                if (currentPhase === 2) {
-                    setTimeout(() => {
-                        loadIOSVoices();
-                    }, 500);
-                }
-
                 // Show phone verification screen when reaching Phase 4
                 if (currentPhase === 4) {
                     // Automatically show phone verification (no choice, phone is required)
@@ -2970,7 +3087,7 @@
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
                 // Draw connections first
-                ctx.strokeStyle = 'rgba(0, 255, 255, 0.15)';
+                ctx.strokeStyle = 'rgba(0, 217, 255, 0.15)';
                 ctx.lineWidth = 0.5;
 
                 for (let i = 0; i < stars.length; i++) {
@@ -2981,7 +3098,7 @@
 
                         if (distance < 150) {
                             const opacity = (1 - distance / 150) * 0.15;
-                            ctx.strokeStyle = `rgba(0, 255, 255, ${opacity})`;
+                            ctx.strokeStyle = `rgba(0, 217, 255, ${opacity})`;
                             ctx.beginPath();
                             ctx.moveTo(stars[i].x, stars[i].y);
                             ctx.lineTo(stars[j].x, stars[j].y);
@@ -2992,14 +3109,14 @@
 
                 // Draw stars
                 stars.forEach(star => {
-                    ctx.fillStyle = `rgba(0, 255, 255, ${star.alpha})`;
+                    ctx.fillStyle = `rgba(0, 217, 255, ${star.alpha})`;
                     ctx.beginPath();
                     ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
                     ctx.fill();
 
                     // Add glow effect
                     ctx.shadowBlur = 10;
-                    ctx.shadowColor = 'rgba(0, 255, 255, 0.5)';
+                    ctx.shadowColor = 'rgba(0, 217, 255, 0.5)';
                     ctx.fill();
                     ctx.shadowBlur = 0;
                 });
@@ -3077,121 +3194,139 @@
     // ========================================
     // iOS VOICE SELECTION (Phase 2)
     // ========================================
-    async function loadIOSVoices() {
-        console.log('🎤 Loading iOS voices for selected language...');
+    // ========================================
+    // OPENAI VOICE SELECTION (Phase 2)
+    // ========================================
 
-        const selectedLang = localStorage.getItem('phoenixLanguage') || 'en';
-        console.log('Selected language:', selectedLang);
-
-        // Map our language codes to iOS voice language codes (37 languages)
-        const langMap = {
-            'en': 'en-US', 'es': 'es-ES', 'fr': 'fr-FR', 'de': 'de-DE',
-            'it': 'it-IT', 'pt': 'pt-PT', 'nl': 'nl-NL', 'pl': 'pl-PL',
-            'ru': 'ru-RU', 'ja': 'ja-JP', 'zh': 'zh-CN',
-            'ar': 'ar-SA', 'cs': 'cs-CZ', 'da': 'da-DK', 'el': 'el-GR',
-            'fi': 'fi-FI', 'he': 'he-IL', 'hi': 'hi-IN', 'hu': 'hu-HU',
-            'id': 'id-ID', 'ko': 'ko-KR', 'ms': 'ms-MY', 'no': 'no-NO',
-            'ro': 'ro-RO', 'sk': 'sk-SK', 'sv': 'sv-SE', 'th': 'th-TH',
-            'tr': 'tr-TR', 'uk': 'uk-UA', 'vi': 'vi-VN',
-            'ca': 'ca-ES', 'hr': 'hr-HR',
-            'en-AU': 'en-AU', 'en-IN': 'en-IN', 'en-IE': 'en-IE', 'en-ZA': 'en-ZA',
-            'pt-BR': 'pt-BR'
+    function setupOpenAIVoiceSelection() {
+        const samples = {
+            'en': {
+                'nova': "Hello. I'm Nova, your friendly helper.",
+                'echo': "Good day. I'm Echo, your butler.",
+                'onyx': "Hello. I'm Onyx, professional assistant.",
+                'shimmer': "Hi there. I'm Shimmer, your gentle guide.",
+                'alloy': "Hello. I'm Alloy, your balanced assistant.",
+                'fable': "Greetings. I'm Fable, your storytelling companion."
+            },
+            'es': {
+                'nova': "Hola. Soy Nova, tu asistente amigable.",
+                'echo': "Buenos días. Soy Echo, tu mayordomo.",
+                'onyx': "Hola. Soy Onyx, asistente profesional.",
+                'shimmer': "Hola. Soy Shimmer, tu guía gentil.",
+                'alloy': "Hola. Soy Alloy, tu asistente equilibrado.",
+                'fable': "Saludos. Soy Fable, tu compañero narrador."
+            },
+            'fr': {
+                'nova': "Bonjour. Je suis Nova, votre assistante amicale.",
+                'echo': "Bonjour. Je suis Echo, votre majordome.",
+                'onyx': "Bonjour. Je suis Onyx, assistant professionnel.",
+                'shimmer': "Bonjour. Je suis Shimmer, votre guide douce.",
+                'alloy': "Bonjour. Je suis Alloy, votre assistant équilibré.",
+                'fable': "Salutations. Je suis Fable, votre compagnon conteur."
+            },
+            'de': {
+                'nova': "Hallo. Ich bin Nova, deine freundliche Helferin.",
+                'echo': "Guten Tag. Ich bin Echo, dein Butler.",
+                'onyx': "Hallo. Ich bin Onyx, professioneller Assistent.",
+                'shimmer': "Hallo. Ich bin Shimmer, dein sanfter Führer.",
+                'alloy': "Hallo. Ich bin Alloy, dein ausgewogener Assistent.",
+                'fable': "Grüße. Ich bin Fable, dein Geschichtenerzähler."
+            }
         };
 
-        const iosLangCode = langMap[selectedLang] || 'en-US';
+        // Add click handlers to voice cards
+        document.querySelectorAll('#voiceGrid .selection-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const voiceName = this.dataset.voice;
 
-        // Wait for voices to load
-        let voices = speechSynthesis.getVoices();
-        if (voices.length === 0) {
-            await new Promise(resolve => {
-                speechSynthesis.onvoiceschanged = resolve;
+                // Remove previous selection
+                document.querySelectorAll('#voiceGrid .selection-card').forEach(c => c.classList.remove('selected'));
+
+                // Mark this card as selected
+                this.classList.add('selected');
+
+                // Enable Continue button
+                document.getElementById('nextPhase2').disabled = false;
+
+                // Store in userData
+                userData.voice = voiceName;
+
+                // Immediately persist to localStorage
+                localStorage.setItem('phoenixVoice', voiceName);
+                console.log('✅ Voice saved to localStorage:', voiceName);
             });
-            voices = speechSynthesis.getVoices();
-        }
-
-        // Filter voices by language
-        const filteredVoices = voices.filter(voice =>
-            voice.lang.startsWith(iosLangCode.split('-')[0])
-        );
-
-        console.log(`Found ${filteredVoices.length} voices for ${iosLangCode}:`,
-                   filteredVoices.map(v => v.name));
-
-        // Hide loading, show grid
-        document.getElementById('iosVoiceLoading').style.display = 'none';
-        document.getElementById('iosVoiceGrid').style.display = 'grid';
-
-        // Populate voice grid
-        const grid = document.getElementById('iosVoiceGrid');
-        grid.innerHTML = '';
-
-        filteredVoices.forEach((voice, index) => {
-            const card = document.createElement('div');
-            card.className = 'selection-card';
-            card.setAttribute('data-voice-name', voice.name);
-            card.setAttribute('data-voice-uri', voice.voiceURI);
-            card.setAttribute('data-voice-lang', voice.lang);
-
-            const quality = voice.localService ? '⭐' : '☁️';
-
-            card.innerHTML = `
-                <div class="icon">🎤</div>
-                <div class="title">${voice.name.split(' ')[0].toUpperCase()}</div>
-                <div class="subtitle">${quality} ${voice.lang}</div>
-                <button class="voice-preview-btn" onclick="previewIOSVoice('${voice.name}', event)">▶ PREVIEW</button>
-            `;
-
-            card.onclick = function() {
-                selectIOSVoice(voice.name, voice.voiceURI, voice.lang);
-            };
-
-            grid.appendChild(card);
         });
 
-        console.log('✅ iOS voice grid populated');
-    }
-
-    function selectIOSVoice(name, uri, lang) {
-        console.log('Selected voice:', name, uri, lang);
-
-        // Remove selected class from all cards
-        document.querySelectorAll('#iosVoiceGrid .selection-card').forEach(card => {
-            card.classList.remove('selected');
+        document.getElementById('nextPhase2').addEventListener('click', () => {
+            nextPhase();
         });
-
-        // Add selected to clicked card
-        const card = document.querySelector(`[data-voice-name="${name}"]`);
-        if (card) {
-            card.classList.add('selected');
-        }
-
-        // Save to localStorage
-        localStorage.setItem('phoenixVoiceName', name);
-        localStorage.setItem('phoenixVoiceURI', uri);
-        localStorage.setItem('phoenixVoiceLang', lang);
-
-        // Enable continue button
-        const continueBtn = document.getElementById('nextPhase2');
-        if (continueBtn) {
-            continueBtn.disabled = false;
-        }
-
-        console.log('✅ Voice selected:', name);
     }
 
-    function previewIOSVoice(voiceName, event) {
+    async function previewOpenAIVoice(voiceName, event) {
         if (event) event.stopPropagation();
 
-        const utterance = new SpeechSynthesisUtterance('Hello! This is how I sound. I am your Phoenix AI assistant.');
-        const voices = speechSynthesis.getVoices();
-        const voice = voices.find(v => v.name === voiceName);
-
-        if (voice) {
-            utterance.voice = voice;
-            speechSynthesis.cancel();
-            speechSynthesis.speak(utterance);
-            console.log('🎤 Playing voice preview:', voiceName);
+        // Prevent clicking while another preview is playing
+        if (isPreviewPlaying) {
+            console.log('⏸️ Preview already playing, ignoring click');
+            return;
         }
+
+        const button = event.target;
+        const allPreviewButtons = document.querySelectorAll('#voiceGrid .voice-preview-btn');
+
+        // Set playing state
+        isPreviewPlaying = true;
+        currentPreviewButton = button;
+
+        // Disable all preview buttons
+        allPreviewButtons.forEach(btn => btn.disabled = true);
+
+        // Show loading state
+        const originalText = button.textContent;
+        button.textContent = '⏳ LOADING...';
+
+        const selectedLang = userData.language || 'en';
+        const samples = {
+            'en': { 'nova': "Hello. I'm Nova, your friendly helper.", 'echo': "Good day. I'm Echo, your butler.", 'onyx': "Hello. I'm Onyx, professional assistant.", 'shimmer': "Hi there. I'm Shimmer, your gentle guide.", 'alloy': "Hello. I'm Alloy, your balanced assistant.", 'fable': "Greetings. I'm Fable, your storytelling companion." },
+            'es': { 'nova': "Hola. Soy Nova, tu asistente amigable.", 'echo': "Buenos días. Soy Echo, tu mayordomo.", 'onyx': "Hola. Soy Onyx, asistente profesional.", 'shimmer': "Hola. Soy Shimmer, tu guía gentil.", 'alloy': "Hola. Soy Alloy, tu asistente equilibrado.", 'fable': "Saludos. Soy Fable, tu compañero narrador." },
+            'fr': { 'nova': "Bonjour. Je suis Nova, votre assistante amicale.", 'echo': "Bonjour. Je suis Echo, votre majordome.", 'onyx': "Bonjour. Je suis Onyx, assistant professionnel.", 'shimmer': "Bonjour. Je suis Shimmer, votre guide douce.", 'alloy': "Bonjour. Je suis Alloy, votre assistant équilibré.", 'fable': "Salutations. Je suis Fable, votre compagnon conteur." },
+            'de': { 'nova': "Hallo. Ich bin Nova, deine freundliche Helferin.", 'echo': "Guten Tag. Ich bin Echo, dein Butler.", 'onyx': "Hallo. Ich bin Onyx, professioneller Assistent.", 'shimmer': "Hallo. Ich bin Shimmer, dein sanfter Führer.", 'alloy': "Hallo. Ich bin Alloy, dein ausgewogener Assistent.", 'fable': "Grüße. Ich bin Fable, dein Geschichtenerzähler." }
+        };
+
+        const langSamples = samples[selectedLang] || samples['en'];
+        const sampleText = langSamples[voiceName] || `Hello. I'm ${voiceName}, your Phoenix AI assistant.`;
+
+        // Temporarily set voice for preview
+        const originalVoice = userData.voice;
+        userData.voice = voiceName;
+
+        try {
+            // Show playing state
+            button.textContent = '🔊 PLAYING...';
+
+            console.log('🎤 Previewing OpenAI voice:', voiceName);
+            await phoenixSpeak(sampleText, 2);
+
+            // Add cooldown period after audio finishes
+            await new Promise(resolve => setTimeout(resolve, 3000)); // 3 second cooldown
+
+        } catch (err) {
+            console.error('[Voice Preview] Error:', err);
+            await new Promise(resolve => setTimeout(resolve, 2000)); // 2 second cooldown on error
+        }
+
+        // Restore original voice
+        userData.voice = originalVoice;
+
+        // Reset button state
+        button.textContent = originalText;
+
+        // Re-enable all buttons
+        allPreviewButtons.forEach(btn => btn.disabled = false);
+
+        // Clear playing state
+        isPreviewPlaying = false;
+        currentPreviewButton = null;
     }
 
     // ========================================
@@ -3211,8 +3346,10 @@
             card.classList.add('selected');
         }
 
-        // Save to localStorage
+        // Save to userData AND localStorage
+        userData.persona = persona;
         localStorage.setItem('phoenixPersonality', persona);
+        console.log('💾 Saved persona to userData and localStorage:', persona);
 
         // Enable continue button
         const continueBtn = document.getElementById('nextPhase3persona');
@@ -3223,14 +3360,44 @@
         console.log('✅ Persona selected:', persona);
     }
 
+    function setupPersonalitySelection() {
+        // Add click handler to Continue button
+        const continueBtn = document.getElementById('nextPhase3persona');
+        if (continueBtn) {
+            continueBtn.addEventListener('click', () => {
+                nextPhase();
+            });
+        }
+    }
+
     async function testVoicePersona(persona, event) {
         if (event) event.stopPropagation();
 
-        const voiceName = localStorage.getItem('phoenixVoiceName');
-        if (!voiceName) {
+        // Check if voice is selected
+        if (!userData.voice) {
             alert('Please select a voice in the previous step first!');
             return;
         }
+
+        // Prevent clicking while another preview is playing
+        if (isPreviewPlaying) {
+            console.log('⏸️ Test already playing, ignoring click');
+            return;
+        }
+
+        const button = event.target;
+        const allTestButtons = document.querySelectorAll('#personaGrid .voice-preview-btn');
+
+        // Set playing state
+        isPreviewPlaying = true;
+        currentPreviewButton = button;
+
+        // Disable all test buttons
+        allTestButtons.forEach(btn => btn.disabled = true);
+
+        // Show loading state
+        const originalText = button.textContent;
+        button.textContent = '⏳ LOADING...';
 
         // Sample phrases for each persona
         const phrases = {
@@ -3250,20 +3417,30 @@
 
         const sampleText = phrases[persona] || 'Hello! This is a test.';
 
-        // Use OpenAI TTS for consistent, high-quality voice preview
-        const originalVoice = userData.voice;
-        userData.voice = voiceName;
-
         try {
-            console.log('🎤 Testing voice + persona with OpenAI TTS:', voiceName, persona);
+            // Show playing state
+            button.textContent = '🔊 TESTING...';
+
+            console.log('🎤 Testing voice + persona with OpenAI TTS:', userData.voice, persona);
             await phoenixSpeak(sampleText, 2);
+
+            // Add cooldown period after audio finishes
+            await new Promise(resolve => setTimeout(resolve, 3000)); // 3 second cooldown
+
         } catch (err) {
             console.error('[Personality Test] Error:', err);
-            alert('Unable to preview personality. Please try again.');
+            await new Promise(resolve => setTimeout(resolve, 2000)); // 2 second cooldown on error
         }
 
-        // Restore original voice
-        userData.voice = originalVoice;
+        // Reset button state
+        button.textContent = originalText;
+
+        // Re-enable all buttons
+        allTestButtons.forEach(btn => btn.disabled = false);
+
+        // Clear playing state
+        isPreviewPlaying = false;
+        currentPreviewButton = null;
     }
 
 

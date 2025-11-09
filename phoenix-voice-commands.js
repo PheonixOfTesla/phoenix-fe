@@ -342,6 +342,9 @@ class PhoenixVoiceCommands {
 
         // VIEW COMMANDS - "show me X"
         if (t.match(/show me|what.?s|tell me about|display/)) {
+            if (t.includes('insight') || t.includes('pattern') || t.includes('think') || t.includes('detect')) {
+                return { type: 'show', target: 'consciousness-insights' };
+            }
             if (t.includes('day') || t.includes('today') || t.includes('schedule')) {
                 return { type: 'show', target: 'today-schedule' };
             }
@@ -487,6 +490,15 @@ class PhoenixVoiceCommands {
     async handleShow(target) {
         // OPTIMIZATION: Instant navigation, no waiting
         switch (target) {
+            case 'consciousness-insights':
+                if (window.PhoenixConsciousness) {
+                    await window.PhoenixConsciousness.refresh();
+                    this.speak(window.PhoenixConsciousness.getInsightsSummary());
+                } else {
+                    this.speak("Consciousness system is initializing. Please try again in a moment.");
+                }
+                break;
+
             case 'today-schedule':
                 if (window.location.pathname.includes('dashboard')) {
                     window.location.href = 'earth.html';

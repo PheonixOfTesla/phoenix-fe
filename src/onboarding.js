@@ -1064,7 +1064,7 @@ class OnboardingEngine {
         } else {
             // Add
             this.selectedIntegrations.push(integration);
-            checkbox.style.background = 'rgba(0, 255, 255, 0.3)';
+            checkbox.style.background = 'rgba(0, 217, 255, 0.3)';
             checkbox.innerHTML = '✓';
         }
         

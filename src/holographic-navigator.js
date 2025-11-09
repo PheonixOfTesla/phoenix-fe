@@ -2478,7 +2478,7 @@ class HolographicNavigator {
 
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(0, 255, 255, ${p.opacity})`;
+                ctx.fillStyle = `rgba(0, 217, 255, ${p.opacity})`;
                 ctx.fill();
             });
 

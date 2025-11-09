@@ -270,7 +270,7 @@ class PhoenixOptimizationTracker {
                 name: 'PHOENIX OPTIMIZED',
                 personality: 'master',
                 voice: 'custom',
-                color: '#00ffff',
+                color: '#00d9ff',
                 description: 'Full system mastery. Phoenix knows you better than you know yourself.',
                 unlocks: ['EVERYTHING', 'Full autonomy', 'Predictive mastery', 'All voices', 'VIP features', 'Priority support']
             }

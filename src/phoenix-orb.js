@@ -603,7 +603,7 @@ class PhoenixOrb {
         // Show user's message immediately (like ChatGPT)
         const responseEl = document.getElementById('phoenixResponse');
         const responseTextEl = document.getElementById('phoenixResponseText');
-        responseTextEl.innerHTML = `<div style="color:#00ffff;margin-bottom:10px">You: ${message}</div><div style="color:#888">Phoenix is thinking...</div>`;
+        responseTextEl.innerHTML = `<div style="color:#00d9ff;margin-bottom:10px">You: ${message}</div><div style="color:#888">Phoenix is thinking...</div>`;
         responseEl.style.display = 'block';
 
         input.value = '';

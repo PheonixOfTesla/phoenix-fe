@@ -220,19 +220,19 @@ class OrganicMotion {
         switch (urgency) {
             case 'high':
                 // Strong glow, faster pulse
-                element.style.boxShadow = '0 0 30px rgba(0, 255, 255, 0.8), 0 0 60px rgba(0, 255, 255, 0.4)';
+                element.style.boxShadow = '0 0 30px rgba(0, 217, 255, 0.8), 0 0 60px rgba(0, 217, 255, 0.4)';
                 element.style.animation = 'urgency-pulse 1s ease-in-out infinite';
                 break;
 
             case 'medium':
                 // Gentle glow
-                element.style.boxShadow = '0 0 20px rgba(0, 255, 255, 0.5)';
+                element.style.boxShadow = '0 0 20px rgba(0, 217, 255, 0.5)';
                 element.style.animation = 'urgency-pulse 2s ease-in-out infinite';
                 break;
 
             case 'low':
                 // Very subtle
-                element.style.boxShadow = '0 0 10px rgba(0, 255, 255, 0.3)';
+                element.style.boxShadow = '0 0 10px rgba(0, 217, 255, 0.3)';
                 element.style.animation = 'urgency-pulse 3s ease-in-out infinite';
                 break;
 
@@ -286,10 +286,10 @@ styleSheet.textContent = `
 
     @keyframes breathe-glow {
         0%, 100% {
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+            box-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
         }
         50% {
-            box-shadow: 0 0 40px rgba(0, 255, 255, calc(0.6 * var(--breathe-intensity, 1)));
+            box-shadow: 0 0 40px rgba(0, 217, 255, calc(0.6 * var(--breathe-intensity, 1)));
         }
     }
 

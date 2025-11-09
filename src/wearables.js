@@ -830,13 +830,13 @@ class WearableConnector {
         modal.innerHTML = `
             <div style="
                 background: rgba(0, 10, 20, 0.98);
-                border: 2px solid rgba(0, 255, 255, 0.5);
+                border: 2px solid rgba(0, 217, 255, 0.5);
                 padding: 50px;
                 max-width: 900px;
                 width: 90%;
                 max-height: 90vh;
                 overflow-y: auto;
-                box-shadow: 0 0 60px rgba(0, 255, 255, 0.4);
+                box-shadow: 0 0 60px rgba(0, 217, 255, 0.4);
                 animation: slideInUp 0.5s;
             ">
                 <div style="
@@ -844,14 +844,14 @@ class WearableConnector {
                     justify-content: space-between;
                     align-items: center;
                     margin-bottom: 30px;
-                    border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+                    border-bottom: 1px solid rgba(0, 217, 255, 0.3);
                     padding-bottom: 20px;
                 ">
                     <h2 style="
-                        color: #00ffff;
+                        color: #00d9ff;
                         font-size: 28px;
                         margin: 0;
-                        text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+                        text-shadow: 0 0 10px rgba(0, 217, 255, 0.8);
                         letter-spacing: 3px;
                     ">⌚ CONNECT WEARABLE</h2>
                     <button id="close-wearable-modal" style="
@@ -868,7 +868,7 @@ class WearableConnector {
                 </div>
 
                 <p style="
-                    color: rgba(0, 255, 255, 0.7);
+                    color: rgba(0, 217, 255, 0.7);
                     font-size: 14px;
                     margin-bottom: 40px;
                     line-height: 1.6;
@@ -886,13 +886,13 @@ class WearableConnector {
 
                 <div style="
                     padding: 20px;
-                    background: rgba(0, 255, 255, 0.05);
-                    border: 1px solid rgba(0, 255, 255, 0.2);
+                    background: rgba(0, 217, 255, 0.05);
+                    border: 1px solid rgba(0, 217, 255, 0.2);
                     border-radius: 8px;
                 ">
-                    <h3 style="color: #00ffff; font-size: 16px; margin: 0 0 15px 0;">📡 Features</h3>
+                    <h3 style="color: #00d9ff; font-size: 16px; margin: 0 0 15px 0;">📡 Features</h3>
                     <ul style="
-                        color: rgba(0, 255, 255, 0.7);
+                        color: rgba(0, 217, 255, 0.7);
                         font-size: 13px;
                         margin: 0;
                         padding-left: 20px;
@@ -933,8 +933,8 @@ class WearableConnector {
         return `
             <div class="wearable-card" data-provider="${provider}" style="
                 padding: 25px;
-                background: rgba(0, 255, 255, ${isConnected ? '0.1' : '0.05'});
-                border: 2px solid rgba(0, 255, 255, ${isConnected ? '0.5' : '0.3'});
+                background: rgba(0, 217, 255, ${isConnected ? '0.1' : '0.05'});
+                border: 2px solid rgba(0, 217, 255, ${isConnected ? '0.5' : '0.3'});
                 cursor: ${isConnected ? 'default' : 'pointer'};
                 transition: all 0.3s;
                 position: relative;
@@ -943,8 +943,8 @@ class WearableConnector {
                     <div style="
                         width: 70px;
                         height: 70px;
-                        background: rgba(0, 255, 255, 0.1);
-                        border: 2px solid rgba(0, 255, 255, 0.5);
+                        background: rgba(0, 217, 255, 0.1);
+                        border: 2px solid rgba(0, 217, 255, 0.5);
                         border-radius: 50%;
                         display: flex;
                         align-items: center;
@@ -952,26 +952,26 @@ class WearableConnector {
                         font-size: 32px;
                     ">${emoji}</div>
                     <div style="flex: 1;">
-                        <h3 style="color: #00ffff; font-size: 20px; margin: 0 0 10px 0;">${name}</h3>
+                        <h3 style="color: #00d9ff; font-size: 20px; margin: 0 0 10px 0;">${name}</h3>
                         <p style="
-                            color: rgba(0, 255, 255, 0.6);
+                            color: rgba(0, 217, 255, 0.6);
                             font-size: 13px;
                             margin: 0;
                             line-height: 1.4;
                         ">${description}</p>
                         ${lastSync ? `<p style="
-                            color: rgba(0, 255, 255, 0.5);
+                            color: rgba(0, 217, 255, 0.5);
                             font-size: 11px;
                             margin: 8px 0 0 0;
                         ">Last sync: ${new Date(lastSync).toLocaleString()}</p>` : ''}
                     </div>
                     <div id="${provider}-status" style="
                         padding: 8px 15px;
-                        background: ${isConnected ? 'rgba(0, 255, 0, 0.1)' : 'rgba(0, 255, 255, 0.1)'};
-                        border: 1px solid ${isConnected ? 'rgba(0, 255, 0, 0.5)' : 'rgba(0, 255, 255, 0.3)'};
+                        background: ${isConnected ? 'rgba(0, 255, 0, 0.1)' : 'rgba(0, 217, 255, 0.1)'};
+                        border: 1px solid ${isConnected ? 'rgba(0, 255, 0, 0.5)' : 'rgba(0, 217, 255, 0.3)'};
                         border-radius: 4px;
                         font-size: 11px;
-                        color: ${isConnected ? 'rgba(0, 255, 0, 0.9)' : 'rgba(0, 255, 255, 0.7)'};
+                        color: ${isConnected ? 'rgba(0, 255, 0, 0.9)' : 'rgba(0, 217, 255, 0.7)'};
                         letter-spacing: 1px;
                     ">${isConnected ? '✓ CONNECTED' : 'NOT CONNECTED'}</div>
                 </div>
@@ -989,9 +989,9 @@ class WearableConnector {
         const statusElement = document.getElementById(`${provider}-status`);
         if (statusElement) {
             statusElement.textContent = isConnected ? '✓ CONNECTED' : 'NOT CONNECTED';
-            statusElement.style.background = isConnected ? 'rgba(0, 255, 0, 0.1)' : 'rgba(0, 255, 255, 0.1)';
-            statusElement.style.borderColor = isConnected ? 'rgba(0, 255, 0, 0.5)' : 'rgba(0, 255, 255, 0.3)';
-            statusElement.style.color = isConnected ? 'rgba(0, 255, 0, 0.9)' : 'rgba(0, 255, 255, 0.7)';
+            statusElement.style.background = isConnected ? 'rgba(0, 255, 0, 0.1)' : 'rgba(0, 217, 255, 0.1)';
+            statusElement.style.borderColor = isConnected ? 'rgba(0, 255, 0, 0.5)' : 'rgba(0, 217, 255, 0.3)';
+            statusElement.style.color = isConnected ? 'rgba(0, 255, 0, 0.9)' : 'rgba(0, 217, 255, 0.7)';
         }
     }
 
@@ -1000,7 +1000,7 @@ class WearableConnector {
             success: '#00ff00',
             error: '#ff4444',
             warning: '#ffaa00',
-            info: '#00ffff'
+            info: '#00d9ff'
         };
 
         const notification = document.createElement('div');
@@ -1095,7 +1095,7 @@ style.textContent = `
     
     .wearable-card:not([data-connected="true"]):hover {
         transform: translateY(-2px);
-        box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+        box-shadow: 0 0 30px rgba(0, 217, 255, 0.3);
     }
 `;
 document.head.appendChild(style);

@@ -9,7 +9,7 @@
     <style>
         body {
             background: linear-gradient(135deg, #000a14 0%, #001020 100%);
-            color: #00ffff;
+            color: #00d9ff;
             font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
             margin: 0;
             padding: 0;
@@ -33,12 +33,12 @@
             font-weight: bold;
             letter-spacing: 3px;
             margin-bottom: 10px;
-            text-shadow: 0 0 20px rgba(0,255,255,0.8);
+            text-shadow: 0 0 20px rgba(0, 217, 255,0.8);
         }
 
         .hub-subtitle {
             font-size: 18px;
-            color: rgba(0,255,255,0.7);
+            color: rgba(0, 217, 255,0.7);
             letter-spacing: 2px;
         }
 
@@ -61,17 +61,17 @@
 
         .score-circle-bg {
             fill: none;
-            stroke: rgba(0,255,255,0.1);
+            stroke: rgba(0, 217, 255,0.1);
             stroke-width: 20;
         }
 
         .score-circle-progress {
             fill: none;
-            stroke: #00ffff;
+            stroke: #00d9ff;
             stroke-width: 20;
             stroke-linecap: round;
             transition: stroke-dashoffset 1s ease;
-            filter: drop-shadow(0 0 10px rgba(0,255,255,0.8));
+            filter: drop-shadow(0 0 10px rgba(0, 217, 255,0.8));
         }
 
         .score-text {
@@ -85,13 +85,13 @@
         .score-percentage {
             font-size: 72px;
             font-weight: bold;
-            color: #00ffff;
-            text-shadow: 0 0 30px rgba(0,255,255,1);
+            color: #00d9ff;
+            text-shadow: 0 0 30px rgba(0, 217, 255,1);
         }
 
         .score-label {
             font-size: 14px;
-            color: rgba(0,255,255,0.7);
+            color: rgba(0, 217, 255,0.7);
             letter-spacing: 2px;
             margin-top: 10px;
         }
@@ -105,7 +105,7 @@
 
         .tier-description {
             font-size: 14px;
-            color: rgba(0,255,255,0.6);
+            color: rgba(0, 217, 255,0.6);
             max-width: 400px;
             margin: 10px auto 0;
             line-height: 1.6;
@@ -113,8 +113,8 @@
 
         /* Next Tier Progress */
         .next-tier {
-            background: rgba(0,255,255,0.05);
-            border: 2px solid rgba(0,255,255,0.3);
+            background: rgba(0, 217, 255,0.05);
+            border: 2px solid rgba(0, 217, 255,0.3);
             border-radius: 12px;
             padding: 30px;
             text-align: center;
@@ -124,14 +124,14 @@
         .next-tier-title {
             font-size: 20px;
             margin-bottom: 15px;
-            color: #00ffff;
+            color: #00d9ff;
         }
 
         .next-tier-name {
             font-size: 32px;
             font-weight: bold;
-            color: #00ffff;
-            text-shadow: 0 0 20px rgba(0,255,255,0.8);
+            color: #00d9ff;
+            text-shadow: 0 0 20px rgba(0, 217, 255,0.8);
             margin: 10px 0;
         }
 
@@ -140,7 +140,7 @@
         }
 
         .progress-bar {
-            background: rgba(0,255,255,0.1);
+            background: rgba(0, 217, 255,0.1);
             height: 40px;
             border-radius: 20px;
             overflow: hidden;
@@ -148,10 +148,10 @@
         }
 
         .progress-fill {
-            background: linear-gradient(90deg, #00ffff, #00ff88);
+            background: linear-gradient(90deg, #00d9ff, #00ff88);
             height: 100%;
             transition: width 1s ease;
-            box-shadow: 0 0 20px rgba(0,255,255,0.6);
+            box-shadow: 0 0 20px rgba(0, 217, 255,0.6);
         }
 
         .progress-text {
@@ -188,7 +188,7 @@
         /* Integration Card */
         .integration-card {
             background: linear-gradient(135deg, rgba(0,10,20,0.95), rgba(0,10,20,0.9));
-            border: 2px solid rgba(0,255,255,0.3);
+            border: 2px solid rgba(0, 217, 255,0.3);
             border-radius: 12px;
             padding: 30px;
             transition: all 0.3s ease;
@@ -197,13 +197,13 @@
 
         .integration-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,255,255,0.4);
-            border-color: rgba(0,255,255,0.6);
+            box-shadow: 0 10px 30px rgba(0, 217, 255,0.4);
+            border-color: rgba(0, 217, 255,0.6);
         }
 
         .integration-card.connected {
-            border-color: #00ffff;
-            box-shadow: 0 0 30px rgba(0,255,255,0.3);
+            border-color: #00d9ff;
+            box-shadow: 0 0 30px rgba(0, 217, 255,0.3);
         }
 
         .integration-card.connected .card-icon {
@@ -227,8 +227,8 @@
         }
 
         .card-points {
-            background: rgba(0,255,255,0.2);
-            border: 1px solid rgba(0,255,255,0.5);
+            background: rgba(0, 217, 255,0.2);
+            border: 1px solid rgba(0, 217, 255,0.5);
             border-radius: 20px;
             padding: 5px 15px;
             font-size: 14px;
@@ -247,7 +247,7 @@
         }
 
         .status-connected {
-            color: #00ffff;
+            color: #00d9ff;
         }
 
         .status-disconnected {
@@ -262,12 +262,12 @@
             font-size: 16px;
             font-weight: bold;
             margin-bottom: 10px;
-            color: rgba(0,255,255,0.8);
+            color: rgba(0, 217, 255,0.8);
         }
 
         .benefit-item {
             font-size: 13px;
-            color: rgba(0,255,255,0.6);
+            color: rgba(0, 217, 255,0.6);
             margin: 5px 0;
             padding-left: 20px;
             position: relative;
@@ -277,25 +277,25 @@
             content: '✓';
             position: absolute;
             left: 0;
-            color: #00ffff;
+            color: #00d9ff;
         }
 
         .card-example {
-            background: rgba(0,255,255,0.05);
-            border-left: 3px solid rgba(0,255,255,0.5);
+            background: rgba(0, 217, 255,0.05);
+            border-left: 3px solid rgba(0, 217, 255,0.5);
             padding: 15px;
             margin: 15px 0;
             font-size: 13px;
-            color: rgba(0,255,255,0.7);
+            color: rgba(0, 217, 255,0.7);
             font-style: italic;
         }
 
         .card-button {
             width: 100%;
             padding: 15px;
-            background: rgba(0,255,255,0.1);
-            border: 2px solid #00ffff;
-            color: #00ffff;
+            background: rgba(0, 217, 255,0.1);
+            border: 2px solid #00d9ff;
+            color: #00d9ff;
             font-family: inherit;
             font-size: 16px;
             font-weight: bold;
@@ -307,14 +307,14 @@
         }
 
         .card-button:hover {
-            background: rgba(0,255,255,0.2);
-            box-shadow: 0 0 20px rgba(0,255,255,0.5);
+            background: rgba(0, 217, 255,0.2);
+            box-shadow: 0 0 20px rgba(0, 217, 255,0.5);
             transform: translateY(-2px);
         }
 
         .card-button.connected {
-            background: rgba(0,255,255,0.2);
-            border-color: #00ffff;
+            background: rgba(0, 217, 255,0.2);
+            border-color: #00d9ff;
         }
 
         /* Quick Actions */
@@ -325,9 +325,9 @@
 
         .quick-action-button {
             padding: 20px 40px;
-            background: linear-gradient(135deg, rgba(0,255,255,0.2), rgba(0,255,136,0.2));
-            border: 2px solid #00ffff;
-            color: #00ffff;
+            background: linear-gradient(135deg, rgba(0, 217, 255,0.2), rgba(0,255,136,0.2));
+            border: 2px solid #00d9ff;
+            color: #00d9ff;
             font-family: inherit;
             font-size: 18px;
             font-weight: bold;
@@ -341,7 +341,7 @@
 
         .quick-action-button:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 40px rgba(0,255,255,0.6);
+            box-shadow: 0 10px 40px rgba(0, 217, 255,0.6);
         }
 
         /* Back to Dashboard */
@@ -350,9 +350,9 @@
             top: 20px;
             left: 20px;
             padding: 15px 30px;
-            background: rgba(0,255,255,0.1);
-            border: 2px solid rgba(0,255,255,0.5);
-            color: #00ffff;
+            background: rgba(0, 217, 255,0.1);
+            border: 2px solid rgba(0, 217, 255,0.5);
+            color: #00d9ff;
             font-family: inherit;
             font-size: 14px;
             font-weight: bold;
@@ -365,8 +365,8 @@
         }
 
         .back-button:hover {
-            background: rgba(0,255,255,0.2);
-            box-shadow: 0 0 20px rgba(0,255,255,0.5);
+            background: rgba(0, 217, 255,0.2);
+            box-shadow: 0 0 20px rgba(0, 217, 255,0.5);
         }
     </style>
 </head>
@@ -488,11 +488,11 @@
 
             // Render missing integrations
             const missingHTML = summary.missing.map(integration => createIntegrationCard(integration, false)).join('');
-            document.getElementById('missingGrid').innerHTML = missingHTML || '<p style="text-align:center;color:rgba(0,255,255,0.5);">All integrations connected! 🎉</p>';
+            document.getElementById('missingGrid').innerHTML = missingHTML || '<p style="text-align:center;color:rgba(0, 217, 255,0.5);">All integrations connected! 🎉</p>';
 
             // Render connected integrations
             const connectedHTML = summary.connected.map(integration => createIntegrationCard(integration, true)).join('');
-            document.getElementById('connectedGrid').innerHTML = connectedHTML || '<p style="text-align:center;color:rgba(0,255,255,0.5);">No integrations connected yet</p>';
+            document.getElementById('connectedGrid').innerHTML = connectedHTML || '<p style="text-align:center;color:rgba(0, 217, 255,0.5);">No integrations connected yet</p>';
         }
 
         // Create integration card HTML
@@ -577,16 +577,16 @@
                 position: fixed;
                 top: 20px;
                 right: 20px;
-                background: ${type === 'success' ? 'rgba(0,255,136,0.2)' : 'rgba(0,255,255,0.2)'};
-                border: 2px solid ${type === 'success' ? '#00ff88' : '#00ffff'};
-                color: ${type === 'success' ? '#00ff88' : '#00ffff'};
+                background: ${type === 'success' ? 'rgba(0,255,136,0.2)' : 'rgba(0, 217, 255,0.2)'};
+                border: 2px solid ${type === 'success' ? '#00ff88' : '#00d9ff'};
+                color: ${type === 'success' ? '#00ff88' : '#00d9ff'};
                 padding: 20px 30px;
                 border-radius: 8px;
                 font-family: 'SF Mono', monospace;
                 font-size: 16px;
                 font-weight: bold;
                 z-index: 10000;
-                box-shadow: 0 10px 30px rgba(0,255,255,0.4);
+                box-shadow: 0 10px 30px rgba(0, 217, 255,0.4);
                 animation: slideIn 0.3s ease;
             `;
             toast.textContent = message;

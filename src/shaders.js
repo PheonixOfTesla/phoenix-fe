@@ -275,8 +275,8 @@ class ShaderEffects {
                     0deg,
                     transparent,
                     transparent 2px,
-                    rgba(0, 255, 255, 0.03) 2px,
-                    rgba(0, 255, 255, 0.03) 4px
+                    rgba(0, 217, 255, 0.03) 2px,
+                    rgba(0, 217, 255, 0.03) 4px
                 );
             animation: scanlineMove 8s linear infinite;
             mix-blend-mode: screen;

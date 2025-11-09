@@ -45,7 +45,7 @@ body[data-mode="voice"] #mode-toggle-container {
 
 /* Voice mode - emphasize orb glow */
 body[data-mode="voice"] #phoenix-core-container {
-    filter: drop-shadow(0 0 60px rgba(0, 255, 255, 0.8)) !important;
+    filter: drop-shadow(0 0 60px rgba(0, 217, 255, 0.8)) !important;
 }
 
 /* ============================================
@@ -76,27 +76,27 @@ body[data-mode="manual"] #phoenix-core-container {
    ============================================ */
 /* Voice mode button active state */
 body[data-mode="voice"] #voice-mode-btn {
-    background: rgba(0, 255, 255, 0.3) !important;
-    color: #00ffff !important;
-    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5), inset 0 0 15px rgba(0, 255, 255, 0.3) !important;
+    background: rgba(0, 217, 255, 0.3) !important;
+    color: #00d9ff !important;
+    box-shadow: 0 0 20px rgba(0, 217, 255, 0.5), inset 0 0 15px rgba(0, 217, 255, 0.3) !important;
 }
 
 body[data-mode="voice"] #manual-mode-btn {
     background: transparent !important;
-    color: rgba(0, 255, 255, 0.5) !important;
+    color: rgba(0, 217, 255, 0.5) !important;
     box-shadow: none !important;
 }
 
 /* Manual mode button active state */
 body[data-mode="manual"] #manual-mode-btn {
-    background: rgba(0, 255, 255, 0.3) !important;
-    color: #00ffff !important;
-    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5), inset 0 0 15px rgba(0, 255, 255, 0.3) !important;
+    background: rgba(0, 217, 255, 0.3) !important;
+    color: #00d9ff !important;
+    box-shadow: 0 0 20px rgba(0, 217, 255, 0.5), inset 0 0 15px rgba(0, 217, 255, 0.3) !important;
 }
 
 body[data-mode="manual"] #voice-mode-btn {
     background: transparent !important;
-    color: rgba(0, 255, 255, 0.5) !important;
+    color: rgba(0, 217, 255, 0.5) !important;
     box-shadow: none !important;
 }
 
@@ -135,7 +135,7 @@ body[data-mode="manual"] #voice-mode-btn {
     left: 50%;
     transform: translateX(-50%);
     font-size: 9px;
-    color: rgba(0, 255, 255, 0.4);
+    color: rgba(0, 217, 255, 0.4);
     letter-spacing: 0.5px;
     white-space: nowrap;
     opacity: 0;

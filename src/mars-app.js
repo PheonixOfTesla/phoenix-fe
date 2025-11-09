@@ -783,7 +783,7 @@ class MarsApp {
                             <div>
                                 <div style="font-size: 16px; font-weight: 600; color: #00ffaa; margin-bottom: 5px;">${name}</div>
                                 <div style="font-size: 12px; color: rgba(255,255,255,0.6);">${category} • ${frequency}</div>
-                                <div style="font-size: 12px; color: #00ffff; margin-top: 5px;">Current Streak: 0 days</div>
+                                <div style="font-size: 12px; color: #00d9ff; margin-top: 5px;">Current Streak: 0 days</div>
                             </div>
                             <button onclick="marsApp.logHabit('${newHabit._id}')" class="btn-primary" style="padding: 8px 16px; font-size: 14px;">
                                 Complete

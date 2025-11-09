@@ -1196,29 +1196,29 @@ class ButlerService {
             top: 120px;
             right: 30px;
             background: rgba(0,10,20,0.95);
-            border: 2px solid #00ffff;
+            border: 2px solid #00d9ff;
             padding: 25px;
             max-width: 400px;
             z-index: 10001;
             border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,255,255,0.3);
+            box-shadow: 0 10px 40px rgba(0, 217, 255,0.3);
         `;
 
         notification.innerHTML = `
-            <div style="font-size: 16px; font-weight: bold; color: #00ffff; margin-bottom: 10px;">
+            <div style="font-size: 16px; font-weight: bold; color: #00d9ff; margin-bottom: 10px;">
                 💰 Budget Suggestion
             </div>
-            <div style="font-size: 13px; color: rgba(0,255,255,0.8); margin-bottom: 15px;">
+            <div style="font-size: 13px; color: rgba(0, 217, 255,0.8); margin-bottom: 15px;">
                 You don't have a <strong>${category}</strong> budget. Based on this ${actionDescription},
                 I suggest <strong>$${suggestedAmount}/month</strong>.
             </div>
             <div style="display: flex; gap: 10px;">
                 <button onclick="butlerService.createBudgetFromSuggestion('${category}', ${suggestedAmount}); this.closest('div').parentElement.remove();"
-                        style="flex: 1; padding: 10px; background: #00ffff; color: #000; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                        style="flex: 1; padding: 10px; background: #00d9ff; color: #000; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
                     Create Budget
                 </button>
                 <button onclick="this.closest('div').parentElement.remove();"
-                        style="flex: 1; padding: 10px; background: transparent; color: rgba(0,255,255,0.6); border: 1px solid rgba(0,255,255,0.3); border-radius: 6px; cursor: pointer;">
+                        style="flex: 1; padding: 10px; background: transparent; color: rgba(0, 217, 255,0.6); border: 1px solid rgba(0, 217, 255,0.3); border-radius: 6px; cursor: pointer;">
                     Dismiss
                 </button>
             </div>
@@ -1280,7 +1280,7 @@ class ButlerService {
 
     showNotification(title, message, type = 'info') {
         const colors = {
-            info: '#00ffff',
+            info: '#00d9ff',
             success: '#00ff88',
             warning: '#ffc800',
             error: '#ff4444'

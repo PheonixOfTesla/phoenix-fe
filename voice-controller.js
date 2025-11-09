@@ -173,11 +173,11 @@
                 transform: translateX(-50%) translateY(-20px);
                 z-index: 10002;
                 background: rgba(0, 10, 20, 0.95);
-                border: 2px solid rgba(0, 255, 255, 0.4);
+                border: 2px solid rgba(0, 217, 255, 0.4);
                 border-radius: 12px;
                 padding: 15px 25px;
                 backdrop-filter: blur(15px);
-                box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+                box-shadow: 0 0 30px rgba(0, 217, 255, 0.3);
                 pointer-events: none;
                 opacity: 0;
                 transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
@@ -186,10 +186,10 @@
         }
 
         notification.innerHTML = `
-            <div style="font-size: 14px; color: #00ffff; font-weight: bold; margin-bottom: 4px; text-align: center;">
+            <div style="font-size: 14px; color: #00d9ff; font-weight: bold; margin-bottom: 4px; text-align: center;">
                 ${title}
             </div>
-            <div style="font-size: 10px; color: rgba(0, 255, 255, 0.6); text-align: center;">
+            <div style="font-size: 10px; color: rgba(0, 217, 255, 0.6); text-align: center;">
                 ${subtitle}
             </div>
         `;

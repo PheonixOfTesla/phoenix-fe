@@ -21,11 +21,11 @@
 /* Base Widget Styles */
 .phoenix-widget {
     background: rgba(0, 10, 20, 0.95);
-    border: 2px solid rgba(0, 255, 255, 0.4);
+    border: 2px solid rgba(0, 217, 255, 0.4);
     border-radius: 12px;
     padding: 20px;
     backdrop-filter: blur(15px);
-    box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+    box-shadow: 0 0 30px rgba(0, 217, 255, 0.2);
     pointer-events: auto;
     opacity: 0;
     transform: translateY(20px);
@@ -75,7 +75,7 @@
 }
 
 /* Color Themes */
-.widget-health { color: #00ffff; }
+.widget-health { color: #00d9ff; }
 .widget-health .widget-value { color: #00ff88; }
 
 .widget-finance { color: #ffaa00; }
@@ -88,7 +88,7 @@
 
 /* Recovery Score Colors */
 .recovery-excellent { color: #00ff88 !important; }
-.recovery-good { color: #00ffff !important; }
+.recovery-good { color: #00d9ff !important; }
 .recovery-poor { color: #ff6b35 !important; }
 
 /* List Styles */
@@ -100,7 +100,7 @@
 
 .widget-list-item {
     padding: 10px;
-    background: rgba(0, 255, 255, 0.05);
+    background: rgba(0, 217, 255, 0.05);
     border-radius: 6px;
     display: flex;
     justify-content: space-between;
@@ -181,10 +181,10 @@
 
 @keyframes highlight-pulse {
     0%, 100% {
-        box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        box-shadow: 0 0 10px rgba(0, 217, 255, 0.3);
     }
     50% {
-        box-shadow: 0 0 30px rgba(0, 255, 255, 0.8), 0 0 60px rgba(0, 255, 255, 0.4);
+        box-shadow: 0 0 30px rgba(0, 217, 255, 0.8), 0 0 60px rgba(0, 217, 255, 0.4);
     }
 }
 
@@ -230,18 +230,18 @@
 
 /* Urgency Indicators */
 .phoenix-widget.urgency-high {
-    border-color: rgba(0, 255, 255, 0.8);
-    box-shadow: 0 0 40px rgba(0, 255, 255, 0.4);
+    border-color: rgba(0, 217, 255, 0.8);
+    box-shadow: 0 0 40px rgba(0, 217, 255, 0.4);
 }
 
 .phoenix-widget.urgency-medium {
-    border-color: rgba(0, 255, 255, 0.5);
-    box-shadow: 0 0 25px rgba(0, 255, 255, 0.25);
+    border-color: rgba(0, 217, 255, 0.5);
+    box-shadow: 0 0 25px rgba(0, 217, 255, 0.25);
 }
 
 .phoenix-widget.urgency-low {
-    border-color: rgba(0, 255, 255, 0.3);
-    box-shadow: 0 0 15px rgba(0, 255, 255, 0.15);
+    border-color: rgba(0, 217, 255, 0.3);
+    box-shadow: 0 0 15px rgba(0, 217, 255, 0.15);
 }
 
 /* Dimmed Widgets (low priority) */
