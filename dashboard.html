@@ -1768,24 +1768,46 @@
         };
 
         /**
-         * ✅ JWT TOKEN EXPIRATION HELPER
+         * ✅ JWT TOKEN VALIDATION HELPER
          * Decodes JWT and checks if it's expired
+         * Returns true if expired or invalid, false if valid
          */
         function isTokenExpired(token) {
             if (!token) return true;
 
             try {
                 // JWT format: header.payload.signature
-                const payload = JSON.parse(atob(token.split('.')[1]));
+                const parts = token.split('.');
+                if (parts.length !== 3) {
+                    console.error('❌ Invalid token format');
+                    return true;
+                }
+
+                const payload = JSON.parse(atob(parts[1]));
+
+                if (!payload.exp) {
+                    console.error('❌ Token missing expiration');
+                    return true;
+                }
+
                 const exp = payload.exp * 1000; // Convert to milliseconds
                 const now = Date.now();
 
-                // Consider expired if less than 5 minutes remaining
-                const bufferTime = 5 * 60 * 1000; // 5 minutes
-                return exp - now < bufferTime;
+                // Token is expired if expiration time has passed
+                const isExpired = exp < now;
+
+                if (isExpired) {
+                    console.log('⚠️  Token expired:', new Date(exp));
+                } else {
+                    const hoursLeft = Math.floor((exp - now) / (1000 * 60 * 60));
+                    console.log('✅ Token valid for', hoursLeft, 'more hours');
+                }
+
+                return isExpired;
             } catch (error) {
                 console.error('❌ Token decode error:', error);
-                return true; // If can't decode, consider expired
+                // Don't assume expired - let the backend decide
+                return false;
             }
         }
 
@@ -1798,39 +1820,13 @@
         async function apiRequest(endpoint, options = {}) {
             let token = localStorage.getItem('phoenixToken');
 
-            // ✅ CHECK TOKEN EXPIRATION BEFORE REQUEST
+            // ✅ CHECK TOKEN EXPIRATION - If truly expired, redirect to login
             if (token && isTokenExpired(token)) {
-                console.log('⚠️  Token expired, attempting auto-refresh...');
-
-                // Try to refresh token silently
-                try {
-                    const refreshResponse = await fetch(`${API_BASE}/auth/refresh`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
-
-                    if (refreshResponse.ok) {
-                        const refreshData = await refreshResponse.json();
-                        if (refreshData.token) {
-                            localStorage.setItem('phoenixToken', refreshData.token);
-                            token = refreshData.token;
-                            console.log('✅ Token auto-refreshed successfully');
-                        }
-                    } else {
-                        // Refresh failed - redirect to login
-                        console.log('❌ Token refresh failed - redirecting to login');
-                        localStorage.removeItem('phoenixToken');
-                        sessionStorage.removeItem('phoenix_greeted');
-                        window.location.href = 'index.html';
-                        return;
-                    }
-                } catch (refreshError) {
-                    console.error('❌ Token refresh error:', refreshError);
-                    // If refresh fails, continue with expired token (will likely get 401)
-                }
+                console.log('⚠️  Token expired - redirecting to login');
+                localStorage.removeItem('phoenixToken');
+                sessionStorage.removeItem('phoenix_greeted');
+                window.location.href = 'index.html';
+                return;
             }
 
             const url = endpoint.startsWith('http') ? endpoint : `${API_BASE}${endpoint}`;
