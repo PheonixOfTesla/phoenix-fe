@@ -657,11 +657,17 @@ class PhoenixVoiceCommands {
         try {
             const token = localStorage.getItem('phoenixToken');
             if (!token) {
-                this.speak('Please log in to use Phoenix');
+                console.error('❌ No authentication token found');
+                this.speak('Please log in to use voice features');
+                this.setOrbState('idle');
                 return;
             }
 
-            const response = await fetch(`${window.PhoenixConfig.API_BASE_URL}/phoenixVoice/chat`, {
+            const baseUrl = (window.PhoenixConfig && window.PhoenixConfig.API_BASE_URL)
+                ? window.PhoenixConfig.API_BASE_URL
+                : 'https://pal-backend-production.up.railway.app/api';
+
+            const response = await fetch(`${baseUrl}/phoenixVoice/chat`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -778,14 +784,14 @@ class PhoenixVoiceCommands {
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0, 10, 20, 0.95);
-            border: 2px solid rgba(0, 255, 255, 0.4);
+            border: 2px solid rgba(0, 217, 255, 0.4);
             border-radius: 12px;
             padding: 15px 25px;
-            color: #00ffff;
+            color: #00d9ff;
             font-size: 14px;
             z-index: 10000;
             backdrop-filter: blur(15px);
-            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+            box-shadow: 0 0 30px rgba(0, 217, 255, 0.3);
             animation: slideUp 0.3s ease-out;
         `;
         notification.textContent = message;
@@ -811,7 +817,11 @@ class PhoenixVoiceCommands {
                 return;
             }
 
-            const response = await fetch(`${window.PhoenixConfig.API_BASE_URL}/phoenixVoice/chat`, {
+            const baseUrl = (window.PhoenixConfig && window.PhoenixConfig.API_BASE_URL)
+                ? window.PhoenixConfig.API_BASE_URL
+                : 'https://pal-backend-production.up.railway.app/api';
+
+            const response = await fetch(`${baseUrl}/phoenixVoice/chat`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -851,7 +861,11 @@ class PhoenixVoiceCommands {
 
         try {
             // Use backend TTS endpoint for natural OpenAI voice
-            const response = await fetch(`${window.PhoenixConfig.API_BASE_URL}/api/tts/generate`, {
+            const baseUrl = (window.PhoenixConfig && window.PhoenixConfig.API_BASE_URL)
+                ? window.PhoenixConfig.API_BASE_URL
+                : 'https://pal-backend-production.up.railway.app/api';
+
+            const response = await fetch(`${baseUrl}/tts/generate`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
