@@ -4121,7 +4121,7 @@
          * Toggle Planet Selection Panel
          * Slides the planet panel in/out from the left edge
          */
-        function togglePlanetPanel() {
+        window.togglePlanetPanel = function() {
             const panel = document.getElementById('planet-selection-panel');
             const tab = document.getElementById('planet-nav-tab');
 
@@ -4130,7 +4130,12 @@
                 return;
             }
 
-            const isOpen = panel.style.left === '0px';
+            // Use getComputedStyle to get the actual left position
+            const computedStyle = window.getComputedStyle(panel);
+            const currentLeft = computedStyle.left;
+            const isOpen = currentLeft === '0px';
+
+            console.log('🌍 Toggle planet panel - Current left:', currentLeft, 'Is open:', isOpen);
 
             if (isOpen) {
                 // Close panel
@@ -4143,7 +4148,7 @@
                 tab.style.transform = 'translateY(-50%) translateX(400px)';
                 console.log('🌍 Planet panel opened');
             }
-        }
+        };
 
         /**
          * Open Planet Holographic Analysis View
@@ -4426,6 +4431,75 @@
 
     <!-- Phoenix Voice Command System -->
     <script src="phoenix-voice-commands.js?v=1761926307"></script>
+
+    <!-- Planet Navigation Functions -->
+    <script>
+        window.togglePlanetPanel = function() {
+            const panel = document.getElementById('planet-selection-panel');
+            const tab = document.getElementById('planet-nav-tab');
+
+            if (!panel || !tab) {
+                console.error('❌ Planet panel or tab not found');
+                return;
+            }
+
+            const computedStyle = window.getComputedStyle(panel);
+            const currentLeft = computedStyle.left;
+            const isOpen = currentLeft === '0px';
+
+            console.log('🌍 Toggle planet panel - Current left:', currentLeft, 'Is open:', isOpen);
+
+            if (isOpen) {
+                panel.style.left = '-400px';
+                tab.style.transform = 'translateY(-50%)';
+                console.log('🔒 Planet panel closed');
+            } else {
+                panel.style.left = '0px';
+                tab.style.transform = 'translateY(-50%) translateX(400px)';
+                console.log('🌍 Planet panel opened');
+            }
+        };
+
+        window.openPlanetHologram = function(planetName) {
+            console.log(`🪐 Opening ${planetName.toUpperCase()} dashboard...`);
+
+            // Navigate to dedicated planet page
+            const planetPages = {
+                'mercury': 'mercury.html',
+                'mars': 'mars.html',
+                'venus': 'venus.html',
+                'jupiter': 'jupiter.html',
+                'saturn': 'saturn.html',
+                'earth': 'earth.html',
+                'uranus': 'uranus.html'
+            };
+
+            if (planetPages[planetName]) {
+                window.location.href = planetPages[planetName];
+                return;
+            }
+
+            // If no dedicated page, show in-dashboard hologram
+            const panel = document.getElementById('planet-selection-panel');
+            const tab = document.getElementById('planet-nav-tab');
+            if (panel) panel.style.left = '-400px';
+            if (tab) tab.style.transform = 'translateY(-50%)';
+
+            console.log(`ℹ️ No dedicated page for ${planetName}, staying on dashboard`);
+        };
+
+        window.closePlanetHologram = function() {
+            const overlay = document.getElementById('planet-hologram-overlay');
+            if (overlay) {
+                overlay.style.animation = 'fadeOut 0.3s ease-out';
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.remove(), 300);
+                console.log('🔒 Planet hologram closed');
+            }
+        };
+
+        console.log('✅ Planet navigation functions loaded');
+    </script>
 
 </body>
 </html>
