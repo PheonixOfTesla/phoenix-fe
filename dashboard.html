@@ -1773,20 +1773,24 @@
          * Returns true if expired or invalid, false if valid
          */
         function isTokenExpired(token) {
-            if (!token) return true;
+            if (!token) {
+                console.log('❌ isTokenExpired: No token provided');
+                return true;
+            }
 
             try {
                 // JWT format: header.payload.signature
                 const parts = token.split('.');
                 if (parts.length !== 3) {
-                    console.error('❌ Invalid token format');
+                    console.error('❌ isTokenExpired: Invalid token format - expected 3 parts, got', parts.length);
                     return true;
                 }
 
                 const payload = JSON.parse(atob(parts[1]));
+                console.log('🔍 Token payload decoded:', payload);
 
                 if (!payload.exp) {
-                    console.error('❌ Token missing expiration');
+                    console.error('❌ isTokenExpired: Token missing expiration field');
                     return true;
                 }
 
@@ -1797,16 +1801,18 @@
                 const isExpired = exp < now;
 
                 if (isExpired) {
-                    console.log('⚠️  Token expired:', new Date(exp));
+                    console.log('❌ Token EXPIRED:', new Date(exp), '(expired', Math.floor((now - exp) / (1000 * 60)), 'minutes ago)');
                 } else {
                     const hoursLeft = Math.floor((exp - now) / (1000 * 60 * 60));
-                    console.log('✅ Token valid for', hoursLeft, 'more hours');
+                    const daysLeft = Math.floor(hoursLeft / 24);
+                    console.log('✅ Token VALID for', daysLeft, 'days', hoursLeft % 24, 'hours');
                 }
 
                 return isExpired;
             } catch (error) {
-                console.error('❌ Token decode error:', error);
-                // Don't assume expired - let the backend decide
+                console.error('❌ isTokenExpired: Decode error -', error.message);
+                console.error('Token string:', token.substring(0, 50) + '...');
+                // Don't assume expired - let backend decide with 401
                 return false;
             }
         }
