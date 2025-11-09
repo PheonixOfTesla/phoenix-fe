@@ -596,14 +596,25 @@ return true; // Token is valid if this succeeds
     }
 
     async useGuestMode() {
+        // CRITICAL: Check localStorage first - NEVER overwrite existing JWT token
+        const existingToken = localStorage.getItem('phoenixToken');
+        if (existingToken && existingToken.startsWith('eyJ')) {
+            console.log('✅ JWT token found in localStorage - using authenticated mode instead of guest');
+            this.state.session.authToken = existingToken;
+            this.state.authenticated = true;
+            this.state.health.auth = 'valid';
+            return;
+        }
+
         console.log('Entering guest mode (limited features)...');
-        
-        // Generate temporary guest credentials
+
+        // Generate temporary guest credentials - but DON'T save to localStorage
+        // This prevents overwriting real tokens
         this.state.session.authToken = 'guest_' + this.generateSessionId();
         this.state.session.userId = 'guest_' + Date.now();
         this.state.authenticated = false;
         this.state.health.auth = 'guest';
-        
+
         // Guest users have limited access
         console.log('Guest mode - sign up for full features');
     }
