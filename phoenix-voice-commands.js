@@ -17,6 +17,9 @@ class PhoenixVoiceCommands {
         this.recognition = null;
         this.currentTranscript = '';
         this.orbElement = null;
+        this.requestInProgress = false; // PREVENT DOUBLE-CLICK DUPLICATE RESPONSES
+        this.audioElement = null; // Track current audio playback
+        this.userInteracted = false; // Track if user has interacted (for autoplay policy)
 
         // Platform detection
         this.isAppleDevice = this.detectAppleDevice();
@@ -186,20 +189,46 @@ class PhoenixVoiceCommands {
         // Add new state
         this.orbElement.classList.add(state);
 
-        console.log(`Orb state: ${state}`);
+        // VISUAL FEEDBACK: Clear console messages for user
+        const stateMessages = {
+            'listening': '🎤 Listening...',
+            'thinking': '💭 Thinking...',
+            'speaking': '🗣️ Speaking...',
+            'idle': '⚪ Ready'
+        };
+
+        const message = stateMessages[state] || `Orb state: ${state}`;
+        console.log(`%c${message}`, 'font-size: 14px; font-weight: bold;');
     }
 
     /* ============================================
        VOICE CONTROL
        ============================================ */
     startListening() {
-        if (!this.recognition || this.isListening) return;
+        // PREVENT DOUBLE-CLICK: Check if request already in progress
+        if (!this.recognition || this.isListening || this.requestInProgress) {
+            if (this.requestInProgress) {
+                console.log('⚠️ Request already in progress - ignoring click');
+            }
+            return;
+        }
+
+        // Mark user interaction (for autoplay policy)
+        this.userInteracted = true;
+
+        // Stop any current audio playback
+        if (this.audioElement) {
+            this.audioElement.pause();
+            this.audioElement = null;
+        }
 
         try {
+            this.requestInProgress = true; // Lock to prevent double-click
             this.recognition.start();
             this.setOrbState('listening');
         } catch (error) {
             console.error('Could not start recognition:', error);
+            this.requestInProgress = false; // Release lock on error
         }
     }
 
@@ -214,20 +243,28 @@ class PhoenixVoiceCommands {
        COMMAND PROCESSING
        ============================================ */
     async processCommand(transcript) {
-        console.log('Processing command:', transcript);
+        console.log('💭 Processing command:', transcript);
 
+        // VISUAL FEEDBACK: Show "Thinking..." state
         this.setOrbState('thinking');
         this.isProcessing = true;
 
-        // NEW STRATEGY: Route ALL commands through AI first
-        // Let Claude/Gemini intelligence determine intent and actions
-        // AI backend will return both message AND UI actions
-        await this.sendToAIIntelligent(transcript);
+        try {
+            // NEW STRATEGY: Route ALL commands through AI first
+            // Let Claude/Gemini intelligence determine intent and actions
+            // AI backend will return both message AND UI actions
+            await this.sendToAIIntelligent(transcript);
+        } catch (error) {
+            console.error('❌ Error processing command:', error);
+            this.speak('Sorry, I encountered an error processing that.');
+        } finally {
+            // Release lock when done processing
+            this.isProcessing = false;
+            this.requestInProgress = false; // Allow new requests now
 
-        this.isProcessing = false;
-
-        if (!this.isSpeaking) {
-            this.setOrbState('idle');
+            if (!this.isSpeaking) {
+                this.setOrbState('idle');
+            }
         }
     }
 
@@ -863,7 +900,13 @@ class PhoenixVoiceCommands {
        TEXT-TO-SPEECH (Backend OpenAI TTS - Natural Voice)
        ============================================ */
     async speak(text, skipStateChange = false) {
-        console.log('Speaking:', text);
+        console.log('🗣️ Speaking:', text);
+
+        // Stop any current audio
+        if (this.audioElement) {
+            this.audioElement.pause();
+            this.audioElement = null;
+        }
 
         // OPTIMIZATION: Skip state change if action is already executing
         if (!skipStateChange) {
@@ -901,10 +944,13 @@ class PhoenixVoiceCommands {
             // Create audio URL and play
             const audioUrl = URL.createObjectURL(audioBlob);
             const audio = new Audio(audioUrl);
+            this.audioElement = audio; // Track current audio
 
             audio.onended = () => {
                 URL.revokeObjectURL(audioUrl); // Clean up
                 this.isSpeaking = false;
+                this.audioElement = null;
+                console.log('✅ Audio playback complete');
                 if (!this.isListening && !this.isProcessing) {
                     this.setOrbState('idle');
                 }
@@ -913,11 +959,23 @@ class PhoenixVoiceCommands {
             audio.onerror = () => {
                 URL.revokeObjectURL(audioUrl);
                 this.isSpeaking = false;
+                this.audioElement = null;
                 this.setOrbState('idle');
-                console.error('Audio playback error');
+                console.error('❌ Audio playback error');
             };
 
-            await audio.play();
+            // FIX AUTOPLAY: Catch autoplay errors and use fallback
+            try {
+                await audio.play();
+                console.log('✅ Audio playing via OpenAI TTS');
+            } catch (playError) {
+                if (playError.name === 'NotAllowedError') {
+                    console.warn('⚠️ Autoplay blocked by browser - using fallback speech synthesis');
+                    // User hasn't interacted yet, fallback to Web Speech API
+                    throw playError; // Let outer catch handle fallback
+                }
+                throw playError;
+            }
 
         } catch (error) {
             console.error('TTS Error:', error);
