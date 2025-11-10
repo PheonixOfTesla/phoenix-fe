@@ -908,6 +908,11 @@ class PhoenixVoiceCommands {
             this.audioElement = null;
         }
 
+        // CRITICAL FIX: Create Audio element IMMEDIATELY (during user gesture)
+        // This must happen synchronously, before any await, to preserve the user gesture
+        const audio = new Audio();
+        this.audioElement = audio;
+
         // OPTIMIZATION: Skip state change if action is already executing
         if (!skipStateChange) {
             this.setOrbState('speaking');
@@ -941,10 +946,9 @@ class PhoenixVoiceCommands {
             // Get audio blob
             const audioBlob = await response.blob();
 
-            // Create audio URL and play
+            // Load audio data into the pre-created element
             const audioUrl = URL.createObjectURL(audioBlob);
-            const audio = new Audio(audioUrl);
-            this.audioElement = audio; // Track current audio
+            audio.src = audioUrl;
 
             audio.onended = () => {
                 URL.revokeObjectURL(audioUrl); // Clean up
@@ -964,7 +968,7 @@ class PhoenixVoiceCommands {
                 console.error('❌ Audio playback error');
             };
 
-            // FIX AUTOPLAY: Catch autoplay errors and use fallback
+            // FIX AUTOPLAY: Now play() is called on element created during user gesture
             try {
                 await audio.play();
                 console.log('✅ Audio playing via OpenAI TTS');
