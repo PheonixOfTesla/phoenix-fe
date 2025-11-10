@@ -16,6 +16,7 @@ class WidgetManager {
     constructor() {
         this.activeWidgets = new Map();
         this.widgetPool = new Map(); // Pooled widgets for reuse
+        this.widgetActions = new Map(); // Store widget actions for custom widgets
         this.widgetContainer = null;
         this.currentOrchestration = null;
         this.init();
@@ -118,6 +119,9 @@ class WidgetManager {
         // Store in active widgets
         this.activeWidgets.set(id, widget);
 
+        // Bind actions for custom widgets
+        this.bindWidgetActions(id, widget);
+
         // Use organic motion for entrance
         if (window.organicMotion) {
             window.organicMotion.enterWidget(widget, priority === 0 ? 'high' : priority < 3 ? 'medium' : 'low');
@@ -215,9 +219,127 @@ class WidgetManager {
     }
 
     /* ============================================
+       CUSTOM WIDGET ACTIONS
+       ============================================ */
+    storeWidgetActions(widgetId, actions) {
+        this.widgetActions.set(widgetId, actions);
+        console.log(`[WidgetManager] Stored actions for ${widgetId}:`, actions);
+    }
+
+    bindWidgetActions(widgetId, widgetElement) {
+        const actions = this.widgetActions.get(widgetId);
+        if (!actions) return; // No custom actions to bind
+
+        // Find all buttons with data-action attribute
+        const actionButtons = widgetElement.querySelectorAll('[data-action]');
+
+        actionButtons.forEach(button => {
+            const actionName = button.getAttribute('data-action');
+            const endpoint = actions[actionName];
+
+            if (!endpoint) {
+                console.warn(`[WidgetManager] No endpoint found for action: ${actionName}`);
+                return;
+            }
+
+            // Bind click handler
+            button.addEventListener('click', async (e) => {
+                e.preventDefault();
+                await this.executeWidgetAction(widgetId, actionName, endpoint, button);
+            });
+        });
+
+        console.log(`[WidgetManager] Bound ${actionButtons.length} actions for widget ${widgetId}`);
+    }
+
+    async executeWidgetAction(widgetId, actionName, endpoint, buttonElement) {
+        console.log(`[WidgetManager] Executing action: ${actionName} for widget ${widgetId}`);
+
+        // Show loading state
+        const originalText = buttonElement.textContent;
+        buttonElement.disabled = true;
+        buttonElement.textContent = 'Loading...';
+
+        try {
+            // Call the API endpoint
+            const token = localStorage.getItem('phoenixToken');
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    widgetId,
+                    actionName,
+                    timestamp: new Date().toISOString()
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                console.log(`[WidgetManager] Action ${actionName} succeeded:`, result);
+
+                // Update widget with new data if provided
+                if (result.data) {
+                    this.updateWidgetData(widgetId, result.data);
+                }
+
+                // Show success feedback
+                buttonElement.textContent = '✓';
+                setTimeout(() => {
+                    buttonElement.textContent = originalText;
+                    buttonElement.disabled = false;
+                }, 1500);
+            } else {
+                throw new Error(result.message || 'Action failed');
+            }
+
+        } catch (error) {
+            console.error(`[WidgetManager] Action ${actionName} failed:`, error);
+
+            // Show error feedback
+            buttonElement.textContent = '✗ Error';
+            setTimeout(() => {
+                buttonElement.textContent = originalText;
+                buttonElement.disabled = false;
+            }, 2000);
+        }
+    }
+
+    updateWidgetData(widgetId, newData) {
+        const widget = this.activeWidgets.get(widgetId);
+        if (!widget) return;
+
+        // Find elements to update by ID or class
+        Object.keys(newData).forEach(key => {
+            const element = widget.querySelector(`#${key}`) ||
+                           widget.querySelector(`.${key}`);
+
+            if (element) {
+                element.textContent = newData[key];
+            }
+        });
+    }
+
+    /* ============================================
        RENDER WIDGET CONTENT (CSS CLASSES)
        ============================================ */
     renderWidgetContent(widgetId, data) {
+        // DYNAMIC WIDGET: If AI generated custom HTML, use it
+        if (data && data.html) {
+            console.log(`[WidgetManager] Rendering custom AI-generated widget: ${widgetId}`);
+
+            // Store actions and tracking fields for later binding
+            if (data.actions) {
+                this.storeWidgetActions(widgetId, data.actions);
+            }
+
+            return data.html; // Return AI-generated HTML directly
+        }
+
+        // STANDARD TEMPLATES: Use hardcoded templates for known widgets
         const templates = {
             'health-recovery': () => this.renderHealthRecovery(data),
             'health-hrv': () => this.renderHealthHRV(data),
