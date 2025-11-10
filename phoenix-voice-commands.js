@@ -968,9 +968,16 @@ class PhoenixVoiceCommands {
                 console.error('❌ Audio playback error');
             };
 
+            // CRITICAL: Call load() to prepare the audio, then play
+            // Safari requires this to maintain the user gesture context
+            audio.load();
+
             // FIX AUTOPLAY: Now play() is called on element created during user gesture
             try {
-                await audio.play();
+                const playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    await playPromise;
+                }
                 console.log('✅ Audio playing via OpenAI TTS');
             } catch (playError) {
                 if (playError.name === 'NotAllowedError') {
