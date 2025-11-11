@@ -20,6 +20,7 @@ class PhoenixVoiceCommands {
         this.requestInProgress = false; // PREVENT DOUBLE-CLICK DUPLICATE RESPONSES
         this.audioElement = null; // Track current audio playback
         this.userInteracted = false; // Track if user has interacted (for autoplay policy)
+        this.audioUnlocked = false; // Track if audio context has been unlocked
 
         // Platform detection
         this.isAppleDevice = this.detectAppleDevice();
@@ -66,6 +67,42 @@ class PhoenixVoiceCommands {
             console.log('✅ Using native Apple Whisper + AVSpeechSynthesizer for optimal speed');
         } else {
             console.log('✅ Using Web Speech API (fallback)');
+        }
+    }
+
+    /* ============================================
+       AUDIO CONTEXT UNLOCK (CRITICAL FOR TTS AUTOPLAY)
+       ============================================ */
+    async unlockAudioContext() {
+        // Only unlock once
+        if (this.audioUnlocked) {
+            return true;
+        }
+
+        try {
+            // BULLETPROOF FIX: Play silent audio to unlock browser audio permissions
+            // This MUST happen during a user gesture (click/tap) to work
+            console.log('🔓 Unlocking audio context for TTS autoplay...');
+
+            const silentAudio = new Audio();
+            // Silent WAV file (base64 encoded - smallest possible valid audio)
+            silentAudio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
+            silentAudio.volume = 0.01; // Nearly silent
+
+            // Play the silent audio
+            const playPromise = silentAudio.play();
+            if (playPromise !== undefined) {
+                await playPromise;
+            }
+
+            this.audioUnlocked = true;
+            console.log('✅ Audio context unlocked - TTS autoplay ready');
+            return true;
+
+        } catch (error) {
+            console.warn('⚠️ Could not unlock audio context:', error.message);
+            // Don't throw - TTS might still work on some browsers
+            return false;
         }
     }
 
@@ -204,7 +241,7 @@ class PhoenixVoiceCommands {
     /* ============================================
        VOICE CONTROL
        ============================================ */
-    startListening() {
+    async startListening() {
         // PREVENT DOUBLE-CLICK: Check if request already in progress
         if (!this.recognition || this.isListening || this.requestInProgress) {
             if (this.requestInProgress) {
@@ -215,6 +252,12 @@ class PhoenixVoiceCommands {
 
         // Mark user interaction (for autoplay policy)
         this.userInteracted = true;
+
+        // CRITICAL FIX: Unlock audio context on first user interaction
+        // This ensures TTS autoplay will work
+        if (!this.audioUnlocked) {
+            await this.unlockAudioContext();
+        }
 
         // Stop any current audio playback
         if (this.audioElement) {
