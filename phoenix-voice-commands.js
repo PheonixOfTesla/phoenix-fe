@@ -53,6 +53,9 @@ class PhoenixVoiceCommands {
         // Get the center orb element
         this.orbElement = document.getElementById('phoenix-core-container');
 
+        // Request microphone permissions on page load
+        this.requestMicrophonePermission();
+
         // Initialize speech recognition (optimized for platform)
         this.initSpeechRecognition();
 
@@ -67,6 +70,23 @@ class PhoenixVoiceCommands {
             console.log('✅ Using native Apple Whisper + AVSpeechSynthesizer for optimal speed');
         } else {
             console.log('✅ Using Web Speech API (fallback)');
+        }
+    }
+
+    /* ============================================
+       MICROPHONE PERMISSION REQUEST
+       ============================================ */
+    async requestMicrophonePermission() {
+        try {
+            console.log('🎤 Requesting microphone permission...');
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            // Got permission - stop the stream immediately (we don't need it yet)
+            stream.getTracks().forEach(track => track.stop());
+            console.log('✅ Microphone permission granted');
+            this.microphonePermissionGranted = true;
+        } catch (error) {
+            console.warn('⚠️ Microphone permission denied:', error.message);
+            this.microphonePermissionGranted = false;
         }
     }
 
