@@ -154,16 +154,18 @@ class PhoenixOrb {
             this.showWakeWordDetected();
         });
 
-        // Handle sleep word detection
-        this.wakeWordDetector.onSleepWord((detection) => {
-            console.log(`💤 Sleep word detected: "${detection.transcript}"`);
+        // Handle sleep word detection (if method exists)
+        if (typeof this.wakeWordDetector.onSleepWord === 'function') {
+            this.wakeWordDetector.onSleepWord((detection) => {
+                console.log(`💤 Sleep word detected: "${detection.transcript}"`);
 
-            // Show sleep notification
-            this.showSleepNotification();
+                // Show sleep notification
+                this.showSleepNotification();
 
-            // Stop wake word detection
-            this.wakeWordDetector.stop();
-        });
+                // Stop wake word detection
+                this.wakeWordDetector.stop();
+            });
+        }
 
         // Start wake word detection
         this.wakeWordDetector.start();
