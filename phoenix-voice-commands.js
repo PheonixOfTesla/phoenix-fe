@@ -22,11 +22,27 @@ class PhoenixVoiceCommands {
         this.userInteracted = false; // Track if user has interacted (for autoplay policy)
         this.audioUnlocked = false; // Track if audio context has been unlocked
 
+        // Load user voice preferences from localStorage
+        this.voice = localStorage.getItem('phoenixVoice') || 'echo';
+        this.language = localStorage.getItem('phoenixLanguage') || 'en';
+        this.personality = localStorage.getItem('phoenixPersonality') || 'friendly_helpful';
+        console.log('🎙️ Voice preferences loaded:', { voice: this.voice, language: this.language });
+
         // Platform detection
         this.isAppleDevice = this.detectAppleDevice();
         this.useNativeAPIs = this.isAppleDevice && this.supportsNativeAPIs();
 
         this.init();
+    }
+
+    /**
+     * Update user preferences (called when profile is fetched)
+     */
+    updatePreferences(voice, language, personality) {
+        this.voice = voice || this.voice;
+        this.language = language || this.language;
+        this.personality = personality || this.personality;
+        console.log('🎙️ Voice preferences updated:', { voice: this.voice, language: this.language });
     }
 
     /* ============================================
@@ -1013,9 +1029,9 @@ class PhoenixVoiceCommands {
                 },
                 body: JSON.stringify({
                     text: text,
-                    voice: 'echo',  // British butler - most natural
-                    speed: 1.4,     // Fast for natural conversation
-                    language: 'en-GB',
+                    voice: this.voice,      // Use user's voice preference
+                    speed: 1.4,             // Fast for natural conversation
+                    language: this.language, // Use user's language preference
                     model: 'tts-1'
                 })
             });

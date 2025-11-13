@@ -2077,6 +2077,12 @@
                         localStorage.setItem('phoenixName', this.userName);
                         localStorage.setItem('phoenixLanguage', this.language);
                         localStorage.setItem('phoenixVoice', this.voice);
+                        localStorage.setItem('phoenixPersonality', this.personality);
+
+                        // Update phoenixVoiceCommands with user preferences
+                        if (window.phoenixVoiceCommands) {
+                            window.phoenixVoiceCommands.updatePreferences(this.voice, this.language, this.personality);
+                        }
 
                         // Update greeting with user's name
                         this.updateGreeting();
