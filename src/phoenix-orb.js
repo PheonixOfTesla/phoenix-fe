@@ -131,6 +131,7 @@ class PhoenixOrb {
 
         this.wakeWordDetector = new WakeWordDetector({
             wakeWords: ['phoenix', 'hey phoenix', 'ok phoenix'],
+            sleepWords: ['sleep phoenix', 'stop listening', 'go to sleep', 'goodnight phoenix'],
             confidenceThreshold: 0.6
         });
 
@@ -153,10 +154,22 @@ class PhoenixOrb {
             this.showWakeWordDetected();
         });
 
+        // Handle sleep word detection
+        this.wakeWordDetector.onSleepWord((detection) => {
+            console.log(`💤 Sleep word detected: "${detection.transcript}"`);
+
+            // Show sleep notification
+            this.showSleepNotification();
+
+            // Stop wake word detection
+            this.wakeWordDetector.stop();
+        });
+
         // Start wake word detection
         this.wakeWordDetector.start();
 
         console.log('🎤 Wake word detection started');
+        console.log('💬 Say "Hey Phoenix" to activate or "Sleep Phoenix" to stop listening');
     }
 
     /**
@@ -175,6 +188,22 @@ class PhoenixOrb {
     }
 
     /**
+     * Show sleep notification
+     */
+    showSleepNotification() {
+        const orb = document.querySelector('.phoenix-orb');
+        if (orb) {
+            orb.classList.add('sleeping');
+            setTimeout(() => {
+                orb.classList.remove('sleeping');
+            }, 2000);
+        }
+
+        // Show toast notification
+        this.speak("Going to sleep. Click me or say 'Hey Phoenix' to wake me up.");
+    }
+
+    /**
      * Start listening for voice command after wake word
      */
     startVoiceCommand() {
@@ -189,6 +218,15 @@ class PhoenixOrb {
         console.log('🎤 Orb clicked - starting voice interaction');
 
         const orb = document.querySelector('.phoenix-orb');
+
+        // Check if system is sleeping - wake it up
+        if (this.wakeWordDetector && this.wakeWordDetector.isSleeping) {
+            console.log('⏰ Waking Phoenix from sleep...');
+            orb.classList.remove('sleeping');
+            this.wakeWordDetector.wake();
+            this.speak("I'm awake! How can I help?");
+            return;
+        }
 
         // Add immediate visual feedback (animate like Siri)
         orb.classList.add('listening');
@@ -267,10 +305,10 @@ class PhoenixOrb {
                 </div>
 
                 <div class="phoenix-input-tabs">
-                    <button class="phoenix-tab active" onclick="phoenixOrb.switchTab('voice')">
+                    <button class="phoenix-tab active" onclick="phoenixOrb.switchTab('voice', event)">
                         🎤 Voice
                     </button>
-                    <button class="phoenix-tab" onclick="phoenixOrb.switchTab('text')">
+                    <button class="phoenix-tab" onclick="phoenixOrb.switchTab('text', event)">
                         💬 Text
                     </button>
                 </div>
@@ -543,14 +581,28 @@ class PhoenixOrb {
     /**
      * Switch Input Tab
      */
-    switchTab(tab) {
+    switchTab(tab, event = null) {
         // Update tabs
         document.querySelectorAll('.phoenix-tab').forEach(t => t.classList.remove('active'));
-        event.target.classList.add('active');
+
+        // If called from onclick, use event.target, otherwise find the tab by tab name
+        if (event && event.target) {
+            event.target.classList.add('active');
+        } else {
+            // Find and activate the correct tab based on tab parameter
+            const tabs = document.querySelectorAll('.phoenix-tab');
+            tabs.forEach(t => {
+                const isVoiceTab = t.textContent.includes('Voice');
+                const isTextTab = t.textContent.includes('Text');
+                if ((tab === 'voice' && isVoiceTab) || (tab === 'text' && isTextTab)) {
+                    t.classList.add('active');
+                }
+            });
+        }
 
         // Update inputs
-        document.querySelector('.phoenix-voice-input').classList.toggle('active', tab === 'voice');
-        document.querySelector('.phoenix-text-input').classList.toggle('active', tab === 'text');
+        document.querySelector('.phoenix-voice-input')?.classList.toggle('active', tab === 'voice');
+        document.querySelector('.phoenix-text-input')?.classList.toggle('active', tab === 'text');
 
         this.logActivity('tab_switched', { tab, planet: this.currentPlanet });
     }
