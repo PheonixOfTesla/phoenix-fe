@@ -688,11 +688,11 @@ class PhoenixOrb {
                 return;
             }
 
-            // Send to Universal NL endpoint with 10-second timeout
+            // Send to Phoenix Companion Chat endpoint with 30-second timeout
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10-second timeout
+            const timeoutId = setTimeout(() => controller.abort(), 30000); // 30-second timeout
 
-            const response = await fetch(`${window.PhoenixConfig.API_BASE_URL}/phoenix/universal`, {
+            const response = await fetch(`${window.PhoenixConfig.API_BASE_URL}/phoenix/companion/chat`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -700,6 +700,8 @@ class PhoenixOrb {
                 },
                 body: JSON.stringify({
                     message,
+                    requestedTier: 'auto',
+                    responseFormat: 'json',
                     conversationHistory: this.conversationHistory.slice(-5),
                     context: {
                         currentPlanet: this.currentPlanet,
@@ -719,15 +721,22 @@ class PhoenixOrb {
             }
 
             const result = await response.json();
-            console.log('🌟 Universal NL Response:', result);
+            console.log('🌟 Phoenix Companion Response:', result);
+
+            // Extract message from companion chat format
+            const aiMessage = result.data?.message || result.message || 'Sorry, I didn\'t get a response';
+            const confidence = result.data?.confidence || 0;
+
+            console.log(`📊 Confidence: ${confidence}%`);
+            console.log(`💬 Response: ${aiMessage}`);
 
             // Show response
-            this.showResponse(result.intent, result.response, result.data);
+            this.showResponse('chat', aiMessage, result.data);
 
             // Add to conversation history
             this.conversationHistory.push(
                 { role: 'user', content: message },
-                { role: 'assistant', content: result.response }
+                { role: 'assistant', content: aiMessage }
             );
 
             // Keep only last 10 messages
@@ -738,12 +747,15 @@ class PhoenixOrb {
             // Log successful command
             this.logActivity('command_success', {
                 message,
-                intent: result.intent,
+                confidence,
+                source: result.data?.source,
                 planet: this.currentPlanet
             });
 
-            // Auto-navigate if needed
-            this.handleAutoNavigation(result);
+            // Auto-navigate if needed (if UI manipulation is provided)
+            if (result.data?.uiManipulation) {
+                this.handleAutoNavigation(result.data.uiManipulation);
+            }
 
         } catch (error) {
             console.error('❌ Command processing error:', error);
