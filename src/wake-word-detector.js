@@ -13,9 +13,11 @@
 class WakeWordDetector {
     constructor(options = {}) {
         this.wakeWords = options.wakeWords || ['phoenix', 'hey phoenix', 'ok phoenix'];
+        this.sleepWords = options.sleepWords || ['sleep phoenix', 'stop listening', 'go to sleep', 'goodnight phoenix'];
         this.isListening = false;
         this.recognition = null;
         this.onWakeWordCallback = null;
+        this.onSleepWordCallback = null;
         this.onErrorCallback = null;
 
         // Performance settings
@@ -25,6 +27,7 @@ class WakeWordDetector {
 
         // State
         this.isActive = false;
+        this.isSleeping = false;
         this.lastDetection = null;
         this.detectionCount = 0;
 
@@ -64,6 +67,7 @@ class WakeWordDetector {
 
         console.log('✅ Wake Word Detector initialized');
         console.log('🎯 Wake words:', this.wakeWords.join(', '));
+        console.log('💤 Sleep words:', this.sleepWords.join(', '));
     }
 
     /**
@@ -83,30 +87,58 @@ class WakeWordDetector {
                 const transcript = alternative.transcript.toLowerCase().trim();
                 const confidence = alternative.confidence;
 
-                // Check if any wake word is detected
-                const wakeWordDetected = this.wakeWords.some(word => {
+                // Check if any sleep word is detected
+                const sleepWordDetected = this.sleepWords.some(word => {
                     return transcript.includes(word);
                 });
 
-                if (wakeWordDetected && confidence >= this.confidenceThreshold) {
-                    // Wake word detected!
-                    console.log(`🔥 WAKE WORD DETECTED: "${transcript}" (${Math.round(confidence * 100)}%)`);
+                if (sleepWordDetected && confidence >= this.confidenceThreshold) {
+                    // Sleep word detected!
+                    console.log(`💤 SLEEP WORD DETECTED: "${transcript}" (${Math.round(confidence * 100)}%)`);
 
+                    this.isSleeping = true;
                     this.lastDetection = Date.now();
-                    this.detectionCount++;
 
-                    // Trigger callback
-                    if (this.onWakeWordCallback) {
-                        this.onWakeWordCallback({
+                    // Trigger sleep callback
+                    if (this.onSleepWordCallback) {
+                        this.onSleepWordCallback({
                             transcript,
                             confidence,
                             timestamp: this.lastDetection
                         });
                     }
 
-                    // Pause detection briefly to avoid re-triggering
-                    this.pauseDetection(1000);
+                    // Stop detection
+                    this.stop();
                     return;
+                }
+
+                // Check if any wake word is detected (only if not sleeping)
+                if (!this.isSleeping) {
+                    const wakeWordDetected = this.wakeWords.some(word => {
+                        return transcript.includes(word);
+                    });
+
+                    if (wakeWordDetected && confidence >= this.confidenceThreshold) {
+                        // Wake word detected!
+                        console.log(`🔥 WAKE WORD DETECTED: "${transcript}" (${Math.round(confidence * 100)}%)`);
+
+                        this.lastDetection = Date.now();
+                        this.detectionCount++;
+
+                        // Trigger callback
+                        if (this.onWakeWordCallback) {
+                            this.onWakeWordCallback({
+                                transcript,
+                                confidence,
+                                timestamp: this.lastDetection
+                            });
+                        }
+
+                        // Pause detection briefly to avoid re-triggering
+                        this.pauseDetection(1000);
+                        return;
+                    }
                 }
             }
         }
@@ -224,6 +256,22 @@ class WakeWordDetector {
      */
     onWakeWord(callback) {
         this.onWakeWordCallback = callback;
+    }
+
+    /**
+     * Register sleep word callback
+     */
+    onSleepWord(callback) {
+        this.onSleepWordCallback = callback;
+    }
+
+    /**
+     * Wake from sleep mode
+     */
+    wake() {
+        console.log('⏰ Waking from sleep mode...');
+        this.isSleeping = false;
+        this.start();
     }
 
     /**

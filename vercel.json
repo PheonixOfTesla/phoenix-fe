@@ -8,6 +8,46 @@
     {
       "source": "/",
       "destination": "/index.html"
+    },
+    {
+      "source": "/dashboard",
+      "destination": "/dashboard.html"
+    },
+    {
+      "source": "/onboarding",
+      "destination": "/onboarding.html"
+    },
+    {
+      "source": "/mercury",
+      "destination": "/mercury.html"
+    },
+    {
+      "source": "/venus",
+      "destination": "/venus.html"
+    },
+    {
+      "source": "/earth",
+      "destination": "/earth.html"
+    },
+    {
+      "source": "/mars",
+      "destination": "/mars.html"
+    },
+    {
+      "source": "/jupiter",
+      "destination": "/jupiter.html"
+    },
+    {
+      "source": "/saturn",
+      "destination": "/saturn.html"
+    },
+    {
+      "source": "/uranus",
+      "destination": "/uranus.html"
+    },
+    {
+      "source": "/neptune",
+      "destination": "/neptune.html"
     }
   ],
   "headers": [
