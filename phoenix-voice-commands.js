@@ -779,7 +779,7 @@ class PhoenixVoiceCommands {
                 ? window.PhoenixConfig.API_BASE_URL
                 : 'https://pal-backend-production.up.railway.app/api';
 
-            const response = await fetch(`${baseUrl}/phoenixVoice/chat`, {
+            const response = await fetch(`${baseUrl}/phoenix/companion/chat`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -789,7 +789,9 @@ class PhoenixVoiceCommands {
                     message: transcript,
                     conversationHistory: [],
                     personality: 'friendly_helpful',
-                    voice: 'echo'
+                    voice: 'echo',
+                    requestedTier: 'auto',  // Let backend detect ACTION/WISDOM_CASUAL/WISDOM_DEEP
+                    responseFormat: 'json'   // Ensure consistent response format
                 })
             });
 
@@ -798,6 +800,18 @@ class PhoenixVoiceCommands {
 
                 // Handle AI response
                 const aiResponse = data.data || data;
+
+                // Extract and log 3-tier classification
+                const classificationTier = aiResponse.tier || aiResponse.classification || 'UNKNOWN';
+                console.log(`📊 Phoenix Classification: ${classificationTier}`);
+
+                // Adjust response timing based on classification tier
+                const tierTimings = {
+                    'ACTION': 0,           // Immediate response for commands
+                    'WISDOM_CASUAL': 500,  // Brief pause for casual wisdom
+                    'WISDOM_DEEP': 1000    // Longer pause for deep wisdom
+                };
+                const responseDelay = tierTimings[classificationTier] || 0;
 
                 // CONSCIOUSNESS INTEGRATION: Request orchestration with voice query
                 if (window.consciousnessClient) {
@@ -821,9 +835,11 @@ class PhoenixVoiceCommands {
                     await this.executeUIActions(aiResponse.uiActions);
                 }
 
-                // Speak the response
+                // Speak the response with tier-based timing
                 if (aiResponse.message || aiResponse.response) {
-                    this.speak(aiResponse.message || aiResponse.response);
+                    setTimeout(() => {
+                        this.speak(aiResponse.message || aiResponse.response);
+                    }, responseDelay);
                 }
 
                 // Check for follow-up questions (conversational logging)
@@ -933,7 +949,7 @@ class PhoenixVoiceCommands {
                 ? window.PhoenixConfig.API_BASE_URL
                 : 'https://pal-backend-production.up.railway.app/api';
 
-            const response = await fetch(`${baseUrl}/phoenixVoice/chat`, {
+            const response = await fetch(`${baseUrl}/phoenix/companion/chat`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -943,7 +959,9 @@ class PhoenixVoiceCommands {
                     message: transcript,
                     conversationHistory: [],
                     personality: 'friendly_helpful',
-                    voice: 'echo'
+                    voice: 'echo',
+                    requestedTier: 'auto',  // Let backend detect ACTION/WISDOM_CASUAL/WISDOM_DEEP
+                    responseFormat: 'json'   // Ensure consistent response format
                 })
             });
 
@@ -1083,12 +1101,19 @@ class PhoenixVoiceCommands {
 // Initialize on page load
 let phoenixVoiceCommands;
 
-document.addEventListener('DOMContentLoaded', () => {
+function initPhoenixVoiceCommands() {
     phoenixVoiceCommands = new PhoenixVoiceCommands();
     window.phoenixVoiceCommands = phoenixVoiceCommands;
+    console.log('✅ Phoenix Voice Commands loaded and initialized');
+}
 
-    console.log('Phoenix Voice Commands loaded');
-});
+// Check if DOM is already loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPhoenixVoiceCommands);
+} else {
+    // DOM already loaded, initialize immediately
+    initPhoenixVoiceCommands();
+}
 
 // Global function to start voice command from anywhere
 window.startPhoenixVoiceCommand = function() {
