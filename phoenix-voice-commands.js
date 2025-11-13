@@ -291,8 +291,9 @@ class PhoenixVoiceCommands {
 
         // CRITICAL FIX: Unlock audio context on first user interaction
         // This ensures TTS autoplay will work
+        // DON'T await - must stay synchronous for speech recognition to work!
         if (!this.audioUnlocked) {
-            await this.unlockAudioContext();
+            this.unlockAudioContext(); // Fire and forget - don't await!
         }
 
         // Stop any current audio playback
@@ -414,14 +415,9 @@ class PhoenixVoiceCommands {
        QUICK SPEECH (non-blocking)
        ============================================ */
     speakQuick(text) {
-        // Ultra-fast speech for acknowledgments
-        if ('speechSynthesis' in window) {
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 1.5; // Even faster for short phrases
-            utterance.pitch = 1.0;
-            utterance.volume = 0.8; // Slightly quieter for quick acks
-            window.speechSynthesis.speak(utterance);
-        }
+        // Use same OpenAI TTS as speak() for consistency
+        // Just call speak() with higher speed
+        this.speak(text, true); // skipStateChange = true for quick responses
     }
 
     /* ============================================
@@ -795,25 +791,60 @@ class PhoenixVoiceCommands {
                 ? window.PhoenixConfig.API_BASE_URL
                 : 'https://pal-backend-production.up.railway.app/api';
 
-            const response = await fetch(`${baseUrl}/phoenix/companion/chat`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    message: transcript,
-                    conversationHistory: [],
-                    personality: 'friendly_helpful',
-                    voice: 'echo',
-                    requestedTier: 'auto',  // Let backend detect ACTION/WISDOM_CASUAL/WISDOM_DEEP
-                    responseFormat: 'json'   // Ensure consistent response format
-                })
-            });
+            // OPTIMIZATION: Start timing for performance monitoring
+            console.time('⚡ Total Response Time');
+            console.time('🤖 AI Response');
 
-            if (response.ok) {
-                const data = await response.json();
+            // OPTIMIZATION: Check if this is just a simple wake word
+            const isSimpleWakeWord = transcript.toLowerCase().trim() === 'phoenix' ||
+                                    transcript.toLowerCase().trim() === 'hey phoenix';
 
+            // OPTIMIZATION: Run AI call and consciousness orchestration in PARALLEL
+            // This saves 2-3 seconds compared to sequential execution
+            const promises = [
+                fetch(`${baseUrl}/phoenix/companion/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: transcript,
+                        conversationHistory: [],
+                        personality: 'friendly_helpful',
+                        voice: 'echo',
+                        requestedTier: 'auto',
+                        responseFormat: 'json'
+                    })
+                }).then(r => r.json())
+            ];
+
+            // Skip consciousness orchestration for simple wake words (saves 2-3s)
+            if (!isSimpleWakeWord && window.consciousnessClient) {
+                console.time('🧠 Consciousness');
+                promises.push(
+                    window.consciousnessClient.orchestrate(
+                        {
+                            location: 'unknown',
+                            activity: 'voice_command',
+                            voiceQuery: transcript
+                        },
+                        transcript
+                    )
+                );
+            }
+
+            // Wait for both to complete in parallel
+            const results = await Promise.all(promises);
+            const data = results[0];
+            const orchestration = results[1]; // undefined for simple wake words
+
+            console.timeEnd('🤖 AI Response');
+            if (!isSimpleWakeWord && orchestration) {
+                console.timeEnd('🧠 Consciousness');
+            }
+
+            if (data) {
                 // Handle AI response
                 const aiResponse = data.data || data;
 
@@ -821,29 +852,9 @@ class PhoenixVoiceCommands {
                 const classificationTier = aiResponse.tier || aiResponse.classification || 'UNKNOWN';
                 console.log(`📊 Phoenix Classification: ${classificationTier}`);
 
-                // Adjust response timing based on classification tier
-                const tierTimings = {
-                    'ACTION': 0,           // Immediate response for commands
-                    'WISDOM_CASUAL': 500,  // Brief pause for casual wisdom
-                    'WISDOM_DEEP': 1000    // Longer pause for deep wisdom
-                };
-                const responseDelay = tierTimings[classificationTier] || 0;
-
-                // CONSCIOUSNESS INTEGRATION: Request orchestration with voice query
-                if (window.consciousnessClient) {
-                    const orchestration = await window.consciousnessClient.orchestrate(
-                        {
-                            location: 'unknown',
-                            activity: 'voice_command',
-                            voiceQuery: transcript
-                        },
-                        transcript
-                    );
-
-                    // Apply orchestration to display
-                    if (orchestration && window.widgetManager) {
-                        await window.widgetManager.displayFromOrchestration(orchestration);
-                    }
+                // Apply orchestration to display (if we fetched it)
+                if (orchestration && window.widgetManager) {
+                    await window.widgetManager.displayFromOrchestration(orchestration);
                 }
 
                 // Execute UI actions if AI provided them
@@ -853,9 +864,10 @@ class PhoenixVoiceCommands {
 
                 // Speak the response with tier-based timing
                 if (aiResponse.message || aiResponse.response) {
-                    setTimeout(() => {
-                        this.speak(aiResponse.message || aiResponse.response);
-                    }, responseDelay);
+                    // CRITICAL: Call speak() immediately to preserve user gesture for autoplay
+                    // Don't use setTimeout as it breaks the gesture chain
+                    this.speak(aiResponse.message || aiResponse.response);
+                    console.timeEnd('⚡ Total Response Time');
                 }
 
                 // Check for follow-up questions (conversational logging)
@@ -1086,23 +1098,13 @@ class PhoenixVoiceCommands {
             }
 
         } catch (error) {
-            console.error('TTS Error:', error);
+            console.error('❌ TTS Error:', error);
+            console.error('   Error details:', error.message);
             this.isSpeaking = false;
             this.setOrbState('idle');
 
-            // Fallback to Web Speech API if backend fails
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.rate = this.useNativeAPIs ? 1.4 : 1.3;
-                utterance.onend = () => {
-                    this.isSpeaking = false;
-                    if (!this.isListening && !this.isProcessing) {
-                        this.setOrbState('idle');
-                    }
-                };
-                window.speechSynthesis.speak(utterance);
-            }
+            // No fallback - OpenAI TTS only
+            // If TTS fails, user will see error in console
         }
     }
 
