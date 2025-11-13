@@ -226,8 +226,10 @@ class JARVISEngine {
             });
             if (response.ok) {
                 const data = await response.json();
-                this.personality = data.personality;
-                console.log('Personality:', this.personality.style);
+                if (data.personality && data.personality.style) {
+                    this.personality = data.personality;
+                    console.log('Personality:', this.personality.style);
+                }
             }
         } catch (error) {
             console.warn('Personality load error:', error);
@@ -778,7 +780,8 @@ class JARVISEngine {
         };
         
         setTimeout(() => {
-            this.addMessageToUI(messages[this.personality.style] || 'Hello!', 'assistant');
+            const personalityStyle = this.personality?.style || 'JARVIS';
+            this.addMessageToUI(messages[personalityStyle] || 'Hello!', 'assistant');
         }, 500);
     }
 
