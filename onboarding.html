@@ -444,6 +444,94 @@
                 font-size: 24px;
             }
         }
+
+        /* Mock Widget Styles */
+        .mock-widget {
+            position: absolute;
+            background: rgba(0, 217, 255, 0.05);
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: #00d9ff;
+            font-size: 12px;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 217, 255, 0.2);
+        }
+
+        .mock-widget.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .widget-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(0, 217, 255, 0.6);
+            margin-bottom: 8px;
+        }
+
+        .widget-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00d9ff;
+            text-shadow: 0 0 10px rgba(0, 217, 255, 0.5);
+        }
+
+        /* Heartbeat animation */
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.1); }
+            50% { transform: scale(1); }
+        }
+
+        .heartbeat {
+            animation: heartbeat 1.2s ease-in-out infinite;
+        }
+
+        /* Progress bar fill */
+        @keyframes fillProgress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(0, 217, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d9ff, #00ffaa);
+            animation: fillProgress 2s ease-out forwards;
+        }
+
+        /* Pulse animation */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* Float up animation */
+        @keyframes floatUp {
+            0% { transform: translateY(20px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        .float-up {
+            animation: floatUp 0.6s ease-out forwards;
+        }
     </style>
 </head>
 <body>
@@ -593,6 +681,9 @@
             <div class="planet-grid" id="planetGrid">
                 <!-- Planets will be dynamically generated -->
             </div>
+
+            <!-- Mock Widget Container -->
+            <div id="mockWidgetContainer" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:100;"></div>
 
             <button class="btn-primary" id="startTourBtn" onclick="startPlanetTour()" style="display: block;">
                 SHOW ME
@@ -1110,6 +1201,83 @@
             `).join('');
         }
 
+        // ============================================
+        // MOCK WIDGET GENERATORS
+        // ============================================
+        function createMockWidgets(planetName) {
+            const container = document.getElementById('mockWidgetContainer');
+            container.innerHTML = ''; // Clear previous widgets
+
+            const widgets = {
+                'Mercury': [
+                    { top: '15%', left: '10%', html: '<div class="widget-title">Heart Rate</div><div class="widget-value heartbeat">72 <span style="font-size:14px;">BPM</span></div>' },
+                    { top: '15%', right: '10%', html: '<div class="widget-title">Recovery Score</div><div class="widget-value pulse">87%</div>' },
+                    { top: '60%', left: '15%', html: '<div class="widget-title">Sleep Quality</div><div class="progress-bar"><div class="progress-fill"></div></div><div style="margin-top:4px;">8.2 hrs</div>' }
+                ],
+                'Venus': [
+                    { top: '20%', left: '12%', html: '<div class="widget-title float-up">Workout Logged</div><div class="widget-value">🏋️ Strength Training</div><div style="font-size:10px;margin-top:4px;">45 min</div>' },
+                    { top: '20%', right: '12%', html: '<div class="widget-title">Calories</div><div class="widget-value pulse">1,847</div>' },
+                    { top: '65%', left: '20%', html: '<div class="widget-title">Body Comp</div><div class="progress-bar"><div class="progress-fill"></div></div><div style="margin-top:4px;">17.2% BF</div>' }
+                ],
+                'Earth': [
+                    { top: '18%', left: '15%', html: '<div class="widget-title float-up">Next Event</div><div style="font-size:14px;">📅 Team Meeting</div><div style="font-size:10px;margin-top:4px;">2:00 PM</div>' },
+                    { top: '18%', right: '15%', html: '<div class="widget-title">Energy Level</div><div class="progress-bar"><div class="progress-fill"></div></div><div style="margin-top:4px;">High</div>' }
+                ],
+                'Mars': [
+                    { top: '20%', left: '10%', html: '<div class="widget-title">Goal Progress</div><div class="widget-value">42%</div><div class="progress-bar"><div class="progress-fill" style="animation-delay:0.3s;"></div></div>' },
+                    { top: '20%', right: '10%', html: '<div class="widget-title">Streak</div><div class="widget-value heartbeat">🔥 14</div><div style="font-size:10px;margin-top:4px;">days</div>' }
+                ],
+                'Jupiter': [
+                    { top: '22%', left: '12%', html: '<div class="widget-title">Budget</div><div class="widget-value pulse">$2,341</div><div style="font-size:10px;margin-top:4px;">remaining</div>' },
+                    { top: '22%', right: '12%', html: '<div class="widget-title">Spending</div><div class="progress-bar"><div class="progress-fill"></div></div><div style="margin-top:4px;">67% used</div>' }
+                ],
+                'Saturn': [
+                    { top: '25%', left: '15%', html: '<div class="widget-title float-up">Q1 2025</div><div style="font-size:14px;">✓ Launch Phoenix</div><div style="font-size:10px;margin-top:4px;">Milestone achieved</div>' },
+                    { top: '60%', right: '15%', html: '<div class="widget-title">Vision</div><div style="font-size:12px;">🎯 Build AI empire</div>' }
+                ],
+                'Uranus': [
+                    { top: '20%', left: '10%', html: '<div class="widget-title float-up">New Idea</div><div style="font-size:14px;">💡 AI Voice Coach</div><div style="font-size:10px;margin-top:4px;">2 hours ago</div>' },
+                    { top: '60%', right: '10%', html: '<div class="widget-title">Projects</div><div class="widget-value pulse">7</div><div style="font-size:10px;margin-top:4px;">active</div>' }
+                ],
+                'Neptune': [
+                    { top: '18%', left: '12%', html: '<div class="widget-title float-up">Dream Journal</div><div style="font-size:12px;">✨ Flying over ocean</div><div style="font-size:10px;margin-top:4px;">Last night</div>' },
+                    { top: '18%', right: '12%', html: '<div class="widget-title">Pattern</div><div style="font-size:12px;">🌊 Water symbols</div><div style="font-size:10px;margin-top:4px;">5x this week</div>' }
+                ]
+            };
+
+            const planetWidgets = widgets[planetName] || [];
+
+            planetWidgets.forEach((widget, index) => {
+                const div = document.createElement('div');
+                div.className = 'mock-widget';
+                div.innerHTML = widget.html;
+
+                // Position
+                div.style.top = widget.top || 'auto';
+                div.style.bottom = widget.bottom || 'auto';
+                div.style.left = widget.left || 'auto';
+                div.style.right = widget.right || 'auto';
+
+                container.appendChild(div);
+
+                // Animate in with stagger
+                setTimeout(() => {
+                    div.classList.add('show');
+                }, index * 200);
+            });
+        }
+
+        function clearMockWidgets() {
+            const container = document.getElementById('mockWidgetContainer');
+            const widgets = container.querySelectorAll('.mock-widget');
+            widgets.forEach(widget => {
+                widget.classList.remove('show');
+            });
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 500);
+        }
+
         let tourStarted = false;
 
         async function startPlanetTour() {
@@ -1135,13 +1303,22 @@
                 const planet = planets[i];
                 const planetEl = document.getElementById(`planet-${i}`);
 
+                // Clear previous widgets
+                if (i > 0) {
+                    clearMockWidgets();
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                }
+
                 // Activate planet
                 planetEl.classList.add('active');
 
                 // Update status
                 document.getElementById('tourStatus').textContent = `[ ${planet.name.toUpperCase()} ]`;
 
-                // Speak description
+                // Show mock widgets for this planet
+                createMockWidgets(planet.name);
+
+                // Speak description (smooth paragraph, no animation)
                 await phoenixSpeak(planet.description, 'avatar-2');
 
                 // Wait before next planet
@@ -1149,6 +1326,9 @@
                     planetTourTimer = setTimeout(resolve, 1500);
                 });
             }
+
+            // Clear widgets after tour
+            clearMockWidgets();
 
             // Tour complete
             console.log('✅ Planet tour complete');
