@@ -489,40 +489,11 @@ class PhoenixOrb {
      * Send Activity Batch to Backend
      */
     async sendActivityBatch(force = false) {
-        if (this.activityBatchQueue.length === 0 && !force) return;
-
-        const batch = [...this.activityBatchQueue];
-        this.activityBatchQueue = [];
-
-        try {
-            const token = localStorage.getItem('phoenixToken');
-            if (!token) return; // Skip if not authenticated
-
-            // Send to behavior tracking endpoint
-            await fetch(`${window.PhoenixConfig.API_BASE_URL}/phoenix/behavior/track`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    behaviorType: 'user_activity',
-                    context: {
-                        planet: this.currentPlanet,
-                        activities: batch
-                    },
-                    metadata: {
-                        userAgent: navigator.userAgent,
-                        timestamp: new Date().toISOString()
-                    }
-                })
-            });
-
-            console.log(`📤 Sent ${batch.length} activities to backend`);
-        } catch (error) {
-            console.error('Failed to send activity batch:', error);
-            // Re-queue on failure
-            this.activityBatchQueue.unshift(...batch);
+        // Disabled: backend endpoint doesn't exist yet
+        // Activities are logged locally for now
+        if (this.activityBatchQueue.length > 0) {
+            console.log(`📊 Logged ${this.activityBatchQueue.length} activities (local only)`);
+            this.activityBatchQueue = []; // Clear queue
         }
     }
 
