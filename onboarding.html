@@ -1303,12 +1303,6 @@
                 const planet = planets[i];
                 const planetEl = document.getElementById(`planet-${i}`);
 
-                // Clear previous widgets
-                if (i > 0) {
-                    clearMockWidgets();
-                    await new Promise(resolve => setTimeout(resolve, 300));
-                }
-
                 // Activate planet
                 planetEl.classList.add('active');
 
@@ -1321,10 +1315,18 @@
                 // Speak description (smooth paragraph, no animation)
                 await phoenixSpeak(planet.description, 'avatar-2');
 
-                // Wait before next planet
+                // Wait a bit while widgets are still visible
                 await new Promise(resolve => {
                     planetTourTimer = setTimeout(resolve, 1500);
                 });
+
+                // Clear widgets before moving to next planet
+                clearMockWidgets();
+
+                // Brief pause for smooth transition
+                if (i < planets.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
             }
 
             // Clear widgets after tour
