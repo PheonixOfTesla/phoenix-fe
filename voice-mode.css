@@ -19,10 +19,16 @@ body[data-mode="voice"] #planet-nav-tab,
 body[data-mode="voice"] #planet-selection-panel,
 body[data-mode="voice"] .hud-frame,
 body[data-mode="voice"] .corner-bracket,
-body[data-mode="voice"] #greeting {
+body[data-mode="voice"] #greeting,
+body[data-mode="voice"] #holographic-hub,
+body[data-mode="voice"] #holo-nav-container,
+body[data-mode="voice"] #holo-core,
+body[data-mode="voice"] #holo-nav-ring,
+body[data-mode="voice"] #phoenix-widget-container {
     opacity: 0 !important;
     pointer-events: none !important;
     transition: opacity 0.5s ease-out;
+    display: none !important;
 }
 
 /* Keep center Phoenix orb visible and prominent in voice mode */
