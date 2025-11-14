@@ -197,29 +197,10 @@ class PhoenixVoiceCommands {
                 return;
             }
 
-            // Non-Apple devices: Use silence detection for faster response
-            this.lastSpeechTime = Date.now();
-
-            // Clear existing silence timer
-            if (this.silenceTimer) {
-                clearTimeout(this.silenceTimer);
-            }
-
-            // OPTIMIZATION: Process interim results after short silence
-            if (interimTranscript && !finalTranscript) {
-                this.silenceTimer = setTimeout(() => {
-                    if (Date.now() - this.lastSpeechTime >= this.silenceThreshold) {
-                        // User stopped talking, process command now
-                        this.recognition.stop();
-                        this.processCommand(interimTranscript.trim().toLowerCase());
-                    }
-                }, this.silenceThreshold);
-            }
-
+            // CRITICAL FIX: Only process final transcripts to prevent duplicates
+            // Interim transcripts cause multiple AI calls with slightly different text,
+            // resulting in overlapping audio responses
             if (finalTranscript) {
-                if (this.silenceTimer) {
-                    clearTimeout(this.silenceTimer);
-                }
                 this.processCommand(finalTranscript.trim().toLowerCase());
             }
         };

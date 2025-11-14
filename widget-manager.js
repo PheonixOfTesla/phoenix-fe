@@ -100,9 +100,12 @@ class WidgetManager {
             widget.dataset.widgetType = id;
         }
 
-        // Update widget content
+        // Update widget content with close button
         const content = this.renderWidgetContent(id, widgetConfig.data || {});
-        widget.innerHTML = content;
+        widget.innerHTML = `
+            <button class="widget-close-btn" onclick="window.widgetManager.removeWidget('${id}')" aria-label="Close widget">×</button>
+            ${content}
+        `;
 
         // Apply priority-based classes
         widget.dataset.priority = priority;
@@ -179,9 +182,12 @@ class WidgetManager {
             widget.dataset.widgetType = widgetId;
         }
 
-        // Update widget content
+        // Update widget content with close button
         const content = this.renderWidgetContent(widgetId, data);
-        widget.innerHTML = content;
+        widget.innerHTML = `
+            <button class="widget-close-btn" onclick="window.widgetManager.removeWidget('${widgetId}')" aria-label="Close widget">×</button>
+            ${content}
+        `;
 
         // Add widget to container if not already there
         if (!widget.parentElement) {
