@@ -323,6 +323,12 @@ class PhoenixVoiceCommands {
        COMMAND PROCESSING
        ============================================ */
     async processCommand(transcript) {
+        // CRITICAL: Prevent duplicate processing from interim + final transcripts
+        if (this.isProcessing) {
+            console.log('⚠️ Already processing a command - ignoring duplicate transcript');
+            return;
+        }
+
         console.log('💭 Processing command:', transcript);
 
         // VISUAL FEEDBACK: Show "Thinking..." state
