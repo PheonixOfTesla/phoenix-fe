@@ -877,11 +877,8 @@ class WearableConnector {
                 </p>
 
                 <div style="display: grid; gap: 20px; margin-bottom: 30px;">
-                    ${this.createDeviceCard('oura', '💍', 'Oura Ring', 'Sleep, HRV, recovery, readiness, body temperature')}
-                    ${this.createDeviceCard('whoop', '💪', 'WHOOP', 'Strain, recovery, sleep, HRV, respiratory rate')}
-                    ${this.createDeviceCard('fitbit', '🏃', 'Fitbit', 'Heart rate, sleep stages, activity, stress management')}
-                    ${this.createDeviceCard('garmin', '⌚', 'Garmin', 'Training status, VO2 max, performance metrics')}
-                    ${this.createDeviceCard('polar', '❤️', 'Polar', 'Advanced HRV, training load, orthostatic test')}
+                    ${this.createDeviceCard('fitbit', '⌚', 'Fitbit', 'Heart rate, sleep stages, activity, stress management')}
+                    <!-- Other wearables temporarily disabled - only Fitbit active -->
                 </div>
 
                 <div style="
