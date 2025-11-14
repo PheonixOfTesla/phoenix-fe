@@ -22,6 +22,10 @@ class PhoenixVoiceCommands {
         this.userInteracted = false; // Track if user has interacted (for autoplay policy)
         this.audioUnlocked = false; // Track if audio context has been unlocked
 
+        // Conversation memory for ChatGPT-level contextual awareness
+        this.conversationHistory = [];
+        this.maxHistoryLength = 10; // Keep last 10 messages for context
+
         // Load user voice preferences from localStorage
         this.voice = localStorage.getItem('phoenixVoice') || 'echo';
         this.language = localStorage.getItem('phoenixLanguage') || 'en';
@@ -760,6 +764,32 @@ class PhoenixVoiceCommands {
     }
 
     /* ============================================
+       CONVERSATION MEMORY MANAGEMENT
+       ============================================ */
+    addToConversationHistory(userMessage, aiResponse) {
+        // Add user message
+        this.conversationHistory.push({
+            role: 'user',
+            content: userMessage,
+            timestamp: new Date().toISOString()
+        });
+
+        // Add AI response
+        this.conversationHistory.push({
+            role: 'assistant',
+            content: aiResponse,
+            timestamp: new Date().toISOString()
+        });
+
+        // Keep only last 10 messages (5 user + 5 AI = 10 total)
+        if (this.conversationHistory.length > this.maxHistoryLength) {
+            this.conversationHistory = this.conversationHistory.slice(-this.maxHistoryLength);
+        }
+
+        console.log(`💬 Conversation history: ${this.conversationHistory.length} messages`);
+    }
+
+    /* ============================================
        INTELLIGENT AI PROCESSING (Claude/Gemini)
        ============================================ */
     async sendToAIIntelligent(transcript) {
@@ -797,9 +827,9 @@ class PhoenixVoiceCommands {
                     },
                     body: JSON.stringify({
                         message: transcript,
-                        conversationHistory: [],
-                        personality: 'friendly_helpful',
-                        voice: 'echo',
+                        conversationHistory: this.conversationHistory,
+                        personality: this.personality,
+                        voice: this.voice,
                         requestedTier: 'auto',
                         responseFormat: 'json'
                     })
@@ -851,9 +881,14 @@ class PhoenixVoiceCommands {
 
                 // Speak the response with tier-based timing
                 if (aiResponse.message || aiResponse.response) {
+                    const responseText = aiResponse.message || aiResponse.response;
+
+                    // Save to conversation history for ChatGPT-level context awareness
+                    this.addToConversationHistory(transcript, responseText);
+
                     // CRITICAL: Call speak() immediately to preserve user gesture for autoplay
                     // Don't use setTimeout as it breaks the gesture chain
-                    this.speak(aiResponse.message || aiResponse.response);
+                    this.speak(responseText);
                     console.timeEnd('⚡ Total Response Time');
                 }
 
@@ -1029,7 +1064,7 @@ class PhoenixVoiceCommands {
                 body: JSON.stringify({
                     text: text,
                     voice: this.voice,      // Use user's voice preference
-                    speed: 1.4,             // Fast for natural conversation
+                    speed: 1.0,             // Natural conversation pace (user feedback: 1.4 was too fast)
                     language: this.language, // Use user's language preference
                     model: 'tts-1'
                 })
