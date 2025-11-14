@@ -1140,10 +1140,5 @@ window.startPhoenixVoiceCommand = function() {
     }
 };
 
-// Click center orb to activate
-document.addEventListener('click', (e) => {
-    const orb = document.getElementById('phoenix-core-container');
-    if (orb && orb.contains(e.target)) {
-        window.startPhoenixVoiceCommand();
-    }
-});
+// NOTE: Orb click handler is in dashboard.html onclick attribute
+// DO NOT add another click listener here or it will trigger twice!
