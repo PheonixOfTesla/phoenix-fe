@@ -321,10 +321,18 @@ class PhoenixVoiceCommands {
         this.isProcessing = true;
 
         try {
-            // NEW STRATEGY: Route ALL commands through AI first
-            // Let Claude/Gemini intelligence determine intent and actions
-            // AI backend will return both message AND UI actions
-            await this.sendToAIIntelligent(transcript);
+            // STEP 1: Classify intent (ACTION vs WISDOM)
+            const classification = await this.classifyCommand(transcript);
+
+            if (classification && classification.category === 'butler_action') {
+                // BUTLER ACTION: Execute real-world action
+                console.log('🎯 Butler action detected:', classification.actionType);
+                await this.executeButlerAction(classification);
+            } else {
+                // WISDOM: Route to AI for conversation
+                console.log('💬 Wisdom query detected, routing to AI');
+                await this.sendToAIIntelligent(transcript);
+            }
         } catch (error) {
             console.error('❌ Error processing command:', error);
             this.speak('Sorry, I encountered an error processing that.');
@@ -337,6 +345,153 @@ class PhoenixVoiceCommands {
                 this.setOrbState('idle');
             }
         }
+    }
+
+    /* ============================================
+       BUTLER ACTION CLASSIFICATION
+       ============================================ */
+    async classifyCommand(transcript) {
+        try {
+            const token = localStorage.getItem('phoenixToken');
+            if (!token) {
+                console.warn('No token for classification, routing to AI');
+                return null;
+            }
+
+            const baseUrl = (window.PhoenixConfig && window.PhoenixConfig.API_BASE_URL)
+                ? window.PhoenixConfig.API_BASE_URL
+                : 'https://pal-backend-production.up.railway.app/api';
+
+            const response = await fetch(`${baseUrl}/butler/router/classify`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    command: transcript,
+                    context: {
+                        currentLocation: 'Unknown' // TODO: Get user's actual location
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                console.warn('Classification failed, routing to AI');
+                return null;
+            }
+
+            const data = await response.json();
+            console.log('📊 Classification result:', data.classification);
+            return data.classification;
+
+        } catch (error) {
+            console.error('Classification error:', error);
+            return null; // Fall back to AI
+        }
+    }
+
+    /* ============================================
+       BUTLER ACTION EXECUTION
+       ============================================ */
+    async executeButlerAction(classification) {
+        try {
+            // STEP 1: Get confirmation with price
+            const confirmed = await this.confirmButlerAction(classification);
+            if (!confirmed) {
+                this.speak('Okay, cancelled.');
+                this.setOrbState('idle');
+                return;
+            }
+
+            // STEP 2: Execute action
+            this.speak('Executing...');
+            this.setOrbState('working');
+
+            const token = localStorage.getItem('phoenixToken');
+            const baseUrl = (window.PhoenixConfig && window.PhoenixConfig.API_BASE_URL)
+                ? window.PhoenixConfig.API_BASE_URL
+                : 'https://pal-backend-production.up.railway.app/api';
+
+            const response = await fetch(`${baseUrl}/butler/router/execute`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    actionType: classification.actionType,
+                    method: classification.method,
+                    parameters: classification.parameters,
+                    confirmed: true
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Success feedback
+                console.log('✅ Butler action completed:', data.result);
+                this.speak(data.confirmationMessage || 'Done!');
+                this.setOrbState('success');
+            } else {
+                // Error feedback
+                console.error('❌ Butler action failed:', data.error);
+                this.speak(data.userMessage || 'Sorry, that action failed.');
+                this.setOrbState('error');
+            }
+
+        } catch (error) {
+            console.error('Butler execution error:', error);
+            this.speak('Sorry, I had trouble completing that action.');
+            this.setOrbState('error');
+        }
+    }
+
+    /* ============================================
+       BUTLER ACTION CONFIRMATION
+       ============================================ */
+    async confirmButlerAction(classification) {
+        return new Promise((resolve) => {
+            // Speak confirmation message
+            const confirmMessage = classification.confirmationMessage || 'Should I proceed?';
+            this.speak(confirmMessage);
+
+            // Wait for voice response
+            setTimeout(() => {
+                this.startListening();
+
+                // Listen for "yes" or "no"
+                const confirmHandler = (transcript) => {
+                    const response = transcript.toLowerCase();
+
+                    if (response.includes('yes') || response.includes('yeah') ||
+                        response.includes('sure') || response.includes('do it') ||
+                        response.includes('go ahead') || response.includes('proceed')) {
+                        this.recognition.removeEventListener('result', confirmHandler);
+                        this.stopListening();
+                        resolve(true);
+                    } else if (response.includes('no') || response.includes('cancel') ||
+                               response.includes('stop') || response.includes('nevermind')) {
+                        this.recognition.removeEventListener('result', confirmHandler);
+                        this.stopListening();
+                        resolve(false);
+                    }
+                };
+
+                // Attach temporary listener for confirmation
+                if (this.recognition) {
+                    this.recognition.addEventListener('result', confirmHandler);
+                }
+
+                // Timeout after 10 seconds
+                setTimeout(() => {
+                    this.stopListening();
+                    resolve(false);
+                }, 10000);
+
+            }, 2000); // Wait 2s after confirmation message
+        });
     }
 
     /* ============================================
