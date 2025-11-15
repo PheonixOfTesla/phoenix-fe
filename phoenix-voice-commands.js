@@ -242,7 +242,7 @@ class PhoenixVoiceCommands {
         if (!this.orbElement) return;
 
         // Remove all state classes
-        this.orbElement.classList.remove('idle', 'listening', 'thinking', 'speaking', 'user-speaking');
+        this.orbElement.classList.remove('idle', 'listening', 'thinking', 'speaking', 'generating-voice', 'user-speaking', 'processing');
 
         // Add new state
         this.orbElement.classList.add(state);
@@ -252,6 +252,8 @@ class PhoenixVoiceCommands {
             'listening': '🎤 Listening...',
             'thinking': '💭 Thinking...',
             'speaking': '🗣️ Speaking...',
+            'generating-voice': '🎵 Generating voice...',
+            'processing': '⚙️ Processing...',
             'idle': '⚪ Ready'
         };
 
@@ -1041,9 +1043,13 @@ class PhoenixVoiceCommands {
                     // Save to conversation history for ChatGPT-level context awareness
                     this.addToConversationHistory(transcript, responseText);
 
+                    // ⭐ NEW: Show text bubble immediately for instant feedback
+                    this.showTextBubble(responseText);
+
+                    // ⭐ NEW: Generate audio in parallel (non-blocking)
                     // CRITICAL: Call speak() immediately to preserve user gesture for autoplay
                     // Don't use setTimeout as it breaks the gesture chain
-                    this.speak(responseText);
+                    this.speakAsync(responseText);
                     console.timeEnd('⚡ Total Response Time');
                 }
 
@@ -1282,6 +1288,204 @@ class PhoenixVoiceCommands {
 
             // No fallback - OpenAI TTS only
             // If TTS fails, user will see error in console
+        }
+    }
+
+    /* ============================================
+       ASYNC SPEAK - NON-BLOCKING TTS WITH STATUS
+       ============================================ */
+    async speakAsync(text, skipStateChange = false) {
+        console.log('🗣️ Speaking async:', text);
+
+        // Show "Generating voice..." indicator
+        this.showStatusMessage('Generating voice...');
+
+        // Stop any current audio
+        if (this.audioElement) {
+            this.audioElement.pause();
+            this.audioElement = null;
+        }
+
+        // CRITICAL FIX: Create Audio element IMMEDIATELY (during user gesture)
+        const audio = new Audio();
+        this.audioElement = audio;
+
+        // Set generating state
+        this.setOrbState('generating-voice');
+
+        try {
+            const baseUrl = (window.PhoenixConfig && window.PhoenixConfig.API_BASE_URL)
+                ? window.PhoenixConfig.API_BASE_URL
+                : 'https://pal-backend-production.up.railway.app/api';
+
+            const response = await fetch(`${baseUrl}/tts/generate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    text: text,
+                    voice: this.voice,
+                    speed: 1.0,
+                    language: this.language,
+                    model: 'tts-1'
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('TTS generation failed');
+            }
+
+            const audioBlob = await response.blob();
+
+            // Clear "Generating voice..." status
+            this.clearStatusMessage();
+
+            // Load and play audio
+            const audioUrl = URL.createObjectURL(audioBlob);
+            audio.src = audioUrl;
+
+            // Set speaking state
+            this.setOrbState('speaking');
+            this.isSpeaking = true;
+
+            audio.onended = () => {
+                URL.revokeObjectURL(audioUrl);
+                this.isSpeaking = false;
+                this.audioElement = null;
+                if (!this.isListening && !this.isProcessing) {
+                    this.setOrbState('idle');
+                }
+            };
+
+            audio.onerror = () => {
+                URL.revokeObjectURL(audioUrl);
+                this.isSpeaking = false;
+                this.audioElement = null;
+                this.setOrbState('idle');
+            };
+
+            audio.load();
+
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+                await playPromise;
+            }
+
+        } catch (error) {
+            console.error('❌ Async TTS Error:', error);
+            this.clearStatusMessage();
+            this.isSpeaking = false;
+            this.setOrbState('idle');
+        }
+    }
+
+    /* ============================================
+       TEXT BUBBLE DISPLAY
+       ============================================ */
+    showTextBubble(text, sender = 'phoenix') {
+        let conversationEl = document.getElementById('phoenix-conversation');
+
+        if (!conversationEl) {
+            conversationEl = document.createElement('div');
+            conversationEl.id = 'phoenix-conversation';
+            conversationEl.style.cssText = `
+                position: fixed;
+                bottom: 100px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 90%;
+                max-width: 600px;
+                max-height: 400px;
+                overflow-y: auto;
+                z-index: 9999;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                pointer-events: none;
+            `;
+            document.body.appendChild(conversationEl);
+        }
+
+        const bubble = document.createElement('div');
+        bubble.className = `phoenix-bubble phoenix-bubble-${sender}`;
+        bubble.style.cssText = `
+            background: ${sender === 'phoenix' ? 'rgba(0, 217, 255, 0.1)' : 'rgba(255, 255, 255, 0.1)'};
+            border: 2px solid ${sender === 'phoenix' ? 'rgba(0, 217, 255, 0.5)' : 'rgba(255, 255, 255, 0.3)'};
+            border-radius: 20px;
+            padding: 15px 20px;
+            color: ${sender === 'phoenix' ? '#00d9ff' : '#fff'};
+            font-size: 16px;
+            line-height: 1.5;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px ${sender === 'phoenix' ? 'rgba(0, 217, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'};
+            animation: bubbleSlideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            align-self: ${sender === 'phoenix' ? 'flex-start' : 'flex-end'};
+            max-width: 80%;
+        `;
+        bubble.textContent = text;
+
+        conversationEl.appendChild(bubble);
+        conversationEl.scrollTop = conversationEl.scrollHeight;
+
+        // Remove old bubbles (keep last 5)
+        const bubbles = conversationEl.querySelectorAll('.phoenix-bubble');
+        if (bubbles.length > 5) {
+            bubbles[0].style.animation = 'bubbleFadeOut 0.5s ease-out';
+            setTimeout(() => bubbles[0].remove(), 500);
+        }
+
+        // Auto-remove after 30 seconds
+        setTimeout(() => {
+            if (bubble.parentNode) {
+                bubble.style.animation = 'bubbleFadeOut 0.5s ease-out';
+                setTimeout(() => bubble.remove(), 500);
+            }
+        }, 30000);
+    }
+
+    /* ============================================
+       STATUS MESSAGE OVERLAY
+       ============================================ */
+    showStatusMessage(message) {
+        let statusEl = document.getElementById('phoenix-status-message');
+
+        if (!statusEl) {
+            statusEl = document.createElement('div');
+            statusEl.id = 'phoenix-status-message';
+            statusEl.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 10, 20, 0.95);
+                border: 2px solid rgba(0, 217, 255, 0.6);
+                border-radius: 20px;
+                padding: 20px 40px;
+                color: #00d9ff;
+                font-size: 18px;
+                font-weight: 600;
+                letter-spacing: 1px;
+                z-index: 10000;
+                backdrop-filter: blur(15px);
+                box-shadow: 0 0 40px rgba(0, 217, 255, 0.4);
+                animation: statusFadeIn 0.3s ease-out;
+                pointer-events: none;
+            `;
+            document.body.appendChild(statusEl);
+        }
+
+        statusEl.textContent = message;
+        statusEl.style.display = 'block';
+    }
+
+    clearStatusMessage() {
+        const statusEl = document.getElementById('phoenix-status-message');
+        if (statusEl) {
+            statusEl.style.animation = 'statusFadeOut 0.3s ease-out';
+            setTimeout(() => {
+                statusEl.style.display = 'none';
+            }, 300);
         }
     }
 

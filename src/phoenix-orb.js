@@ -70,6 +70,9 @@ class PhoenixOrb {
 
         console.log('✅ Phoenix Orb ready');
 
+        // ⭐ NEW: Cache common responses in background
+        setTimeout(() => this.cacheCommonResponses(), 2000);
+
         // Check for post-navigation greeting
         this.checkPostNavigationGreeting();
     }
@@ -111,13 +114,19 @@ class PhoenixOrb {
             return;
         }
 
+        if (typeof window.API === 'undefined') {
+            console.error('❌ Phoenix API not loaded - TTS disabled');
+            return;
+        }
+
         this.tts = new VoiceTTS({
-            rate: 1.1, // Slightly faster for responsiveness
-            pitch: 1.0,
+            phoenixAPI: window.API,
+            voice: 'nova', // OpenAI nova voice
+            rate: 1.4, // Slightly faster for responsiveness (1.0-2.0)
             volume: 0.8
         });
 
-        console.log('🔊 TTS initialized');
+        console.log('🔊 TTS initialized with OpenAI nova voice');
     }
 
     /**
@@ -226,12 +235,14 @@ class PhoenixOrb {
             console.log('⏰ Waking Phoenix from sleep...');
             orb.classList.remove('sleeping');
             this.wakeWordDetector.wake();
-            this.speak("I'm awake! How can I help?");
+            // Use cached audio for instant response
+            this.speakAsync("I'm awake! How can I help?");
             return;
         }
 
         // Add immediate visual feedback (animate like Siri)
         orb.classList.add('listening');
+        this.showStatusMessage('Listening...');
 
         // Start voice recognition
         if (!this.isListening) {
@@ -387,8 +398,14 @@ class PhoenixOrb {
 
             document.getElementById('phoenixTranscript').textContent = transcript;
 
+            // Update status to show transcription
+            if (!event.results[event.results.length - 1].isFinal) {
+                this.showStatusMessage(`"${transcript}"`);
+            }
+
             // Process final results
             if (event.results[event.results.length - 1].isFinal) {
+                this.clearStatusMessage();
                 this.processCommand(transcript, 'voice');
             }
         };
@@ -645,6 +662,9 @@ class PhoenixOrb {
         const orb = document.querySelector('.phoenix-orb');
         orb.classList.add('processing');
 
+        // Show "Thinking..." status
+        this.showStatusMessage('Thinking...');
+
         // Hide response
         document.getElementById('phoenixResponse').style.display = 'none';
 
@@ -656,6 +676,7 @@ class PhoenixOrb {
 
             if (!token) {
                 this.showResponse('error', 'Not authenticated', 'Please log in to use Phoenix AI');
+                this.clearStatusMessage();
                 return;
             }
 
@@ -698,11 +719,15 @@ class PhoenixOrb {
             const aiMessage = result.data?.message || result.message || 'Sorry, I didn\'t get a response';
             const confidence = result.data?.confidence || 0;
 
-            console.log(`📊 Confidence: ${confidence}%`);
+            console.log(`📊 Confidence: ${confidence}%);
             console.log(`💬 Response: ${aiMessage}`);
 
-            // Show response
-            this.showResponse('chat', aiMessage, result.data);
+            // ⭐ NEW: Show text IMMEDIATELY in conversation bubble
+            this.showTextBubble(aiMessage, 'phoenix');
+            this.clearStatusMessage();
+
+            // ⭐ NEW: Generate audio IN PARALLEL (non-blocking)
+            this.speakAsync(aiMessage);
 
             // Add to conversation history
             this.conversationHistory.push(
@@ -731,6 +756,7 @@ class PhoenixOrb {
         } catch (error) {
             console.error('❌ Command processing error:', error);
             orb.classList.remove('processing');
+            this.clearStatusMessage();
 
             // Handle timeout specifically
             if (error.name === 'AbortError') {
@@ -745,6 +771,257 @@ class PhoenixOrb {
                 planet: this.currentPlanet
             });
         }
+    }
+
+    /**
+     * Show status message overlay
+     */
+    showStatusMessage(message) {
+        let statusEl = document.getElementById('phoenix-status-message');
+
+        if (!statusEl) {
+            statusEl = document.createElement('div');
+            statusEl.id = 'phoenix-status-message';
+            statusEl.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 10, 20, 0.95);
+                border: 2px solid rgba(0, 217, 255, 0.6);
+                border-radius: 20px;
+                padding: 20px 40px;
+                color: #00d9ff;
+                font-size: 18px;
+                font-weight: 600;
+                letter-spacing: 1px;
+                z-index: 10000;
+                backdrop-filter: blur(15px);
+                box-shadow: 0 0 40px rgba(0, 217, 255, 0.4);
+                animation: statusFadeIn 0.3s ease-out;
+                pointer-events: none;
+            `;
+            document.body.appendChild(statusEl);
+        }
+
+        statusEl.textContent = message;
+        statusEl.style.display = 'block';
+    }
+
+    /**
+     * Clear status message
+     */
+    clearStatusMessage() {
+        const statusEl = document.getElementById('phoenix-status-message');
+        if (statusEl) {
+            statusEl.style.animation = 'statusFadeOut 0.3s ease-out';
+            setTimeout(() => {
+                statusEl.style.display = 'none';
+            }, 300);
+        }
+    }
+
+    /**
+     * Show text bubble in conversation UI
+     */
+    showTextBubble(text, sender = 'phoenix') {
+        let conversationEl = document.getElementById('phoenix-conversation');
+
+        if (!conversationEl) {
+            conversationEl = document.createElement('div');
+            conversationEl.id = 'phoenix-conversation';
+            conversationEl.style.cssText = `
+                position: fixed;
+                bottom: 100px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 90%;
+                max-width: 600px;
+                max-height: 400px;
+                overflow-y: auto;
+                z-index: 9999;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                pointer-events: none;
+            `;
+            document.body.appendChild(conversationEl);
+        }
+
+        const bubble = document.createElement('div');
+        bubble.className = `phoenix-bubble phoenix-bubble-${sender}`;
+        bubble.style.cssText = `
+            background: ${sender === 'phoenix' ? 'rgba(0, 217, 255, 0.1)' : 'rgba(255, 255, 255, 0.1)'};
+            border: 2px solid ${sender === 'phoenix' ? 'rgba(0, 217, 255, 0.5)' : 'rgba(255, 255, 255, 0.3)'};
+            border-radius: 20px;
+            padding: 15px 20px;
+            color: ${sender === 'phoenix' ? '#00d9ff' : '#fff'};
+            font-size: 16px;
+            line-height: 1.5;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px ${sender === 'phoenix' ? 'rgba(0, 217, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'};
+            animation: bubbleSlideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            align-self: ${sender === 'phoenix' ? 'flex-start' : 'flex-end'};
+            max-width: 80%;
+        `;
+        bubble.textContent = text;
+
+        conversationEl.appendChild(bubble);
+
+        // Auto-scroll to bottom
+        conversationEl.scrollTop = conversationEl.scrollHeight;
+
+        // Fade out old messages (keep last 5)
+        const bubbles = conversationEl.querySelectorAll('.phoenix-bubble');
+        if (bubbles.length > 5) {
+            const oldestBubble = bubbles[0];
+            oldestBubble.style.animation = 'bubbleFadeOut 0.5s ease-out';
+            setTimeout(() => oldestBubble.remove(), 500);
+        }
+
+        // Auto-remove after 30 seconds
+        setTimeout(() => {
+            if (bubble.parentNode) {
+                bubble.style.animation = 'bubbleFadeOut 0.5s ease-out';
+                setTimeout(() => bubble.remove(), 500);
+            }
+        }, 30000);
+    }
+
+    /**
+     * Speak text asynchronously (non-blocking) with loading indicator
+     */
+    async speakAsync(text, options = {}) {
+        if (!this.tts) {
+            console.log('🔇 TTS not available');
+            return;
+        }
+
+        // Check cache first
+        const cachedAudio = this.getCachedAudio(text);
+        if (cachedAudio) {
+            console.log('🎵 Playing cached audio');
+            this.playAudioBlob(cachedAudio);
+            return;
+        }
+
+        try {
+            const orb = document.querySelector('.phoenix-orb');
+
+            // Show "Generating voice..." status
+            this.showStatusMessage('Generating voice...');
+            orb.classList.add('generating-voice');
+
+            // Generate TTS audio (non-blocking)
+            await this.tts.speak(text, options);
+
+            // Clear status and show speaking animation
+            this.clearStatusMessage();
+            orb.classList.remove('generating-voice');
+
+        } catch (error) {
+            console.error('TTS error:', error);
+            this.clearStatusMessage();
+            document.querySelector('.phoenix-orb')?.classList.remove('generating-voice');
+        }
+    }
+
+    /**
+     * Get cached audio for common responses
+     */
+    getCachedAudio(text) {
+        const cacheKey = `phoenix_tts_${text.toLowerCase().trim()}`;
+        const cached = localStorage.getItem(cacheKey);
+
+        if (cached) {
+            try {
+                // Convert base64 back to blob
+                const byteString = atob(cached);
+                const ab = new ArrayBuffer(byteString.length);
+                const ia = new Uint8Array(ab);
+                for (let i = 0; i < byteString.length; i++) {
+                    ia[i] = byteString.charCodeAt(i);
+                }
+                return new Blob([ab], { type: 'audio/mpeg' });
+            } catch (error) {
+                console.error('Cache read error:', error);
+                return null;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Cache audio for common responses
+     */
+    async cacheCommonResponses() {
+        const commonPhrases = [
+            "I'm awake! How can I help?",
+            "What can I do for you?",
+            "I'm here to help.",
+            "Let me help you with that.",
+            "Anything else I can help with?"
+        ];
+
+        console.log('🎵 Caching common responses...');
+
+        for (const phrase of commonPhrases) {
+            const cacheKey = `phoenix_tts_${phrase.toLowerCase().trim()}`;
+
+            // Skip if already cached
+            if (localStorage.getItem(cacheKey)) {
+                continue;
+            }
+
+            try {
+                if (this.tts && this.tts.phoenixAPI) {
+                    const audioBlob = await this.tts.phoenixAPI.textToSpeech(phrase, 'nova', 1.4);
+
+                    // Convert blob to base64 for storage
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        const base64 = reader.result.split(',')[1];
+                        localStorage.setItem(cacheKey, base64);
+                        console.log(`✅ Cached: "${phrase}"`);
+                    };
+                    reader.readAsDataURL(audioBlob);
+                }
+            } catch (error) {
+                console.error(`Failed to cache "${phrase}":`, error);
+            }
+
+            // Small delay between requests
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
+
+        console.log('✅ Common responses cached');
+    }
+
+    /**
+     * Play audio blob directly
+     */
+    playAudioBlob(blob) {
+        const orb = document.querySelector('.phoenix-orb');
+        orb.classList.add('speaking');
+
+        const audioUrl = URL.createObjectURL(blob);
+        const audio = new Audio(audioUrl);
+
+        audio.onended = () => {
+            orb.classList.remove('speaking');
+            URL.revokeObjectURL(audioUrl);
+        };
+
+        audio.onerror = () => {
+            orb.classList.remove('speaking');
+            URL.revokeObjectURL(audioUrl);
+        };
+
+        audio.play().catch(error => {
+            console.error('Audio playback error:', error);
+            orb.classList.remove('speaking');
+        });
     }
 
     /**
