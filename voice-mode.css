@@ -178,3 +178,26 @@ body[data-mode="manual"] #voice-mode-btn {
 #loading ~ #mode-toggle-container {
     z-index: 10002 !important;
 }
+
+/* ============================================
+   REMOVE HORIZONTAL BAR & JARVIS MODE TEXT
+   ============================================ */
+#hud-tr {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+#mode-toggle-container {
+    max-width: fit-content !important;
+}
+
+#mode-toggle-container::before,
+#mode-toggle-container::after {
+    display: none !important;
+}
+
+body::before,
+body::after {
+    display: none !important;
+}

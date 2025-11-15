@@ -6,16 +6,14 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="description" content="Phoenix - The Most Sophisticated AI Life Companion">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
+    <meta http-equiv=1763196205"Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv=1763196205"Pragma" content="no-cache">
+    <meta http-equiv=1763196205"Expires" content="0">
     <title>Phoenix - AI Life Operating System</title>
-    <link rel="stylesheet" href="styles.css?v=1761926307">
-    <link rel="stylesheet" href="phoenix-voice.css?v=1761926307">
-    <link rel="stylesheet" href="voice-mode.css?v=1761926307">
-    <link rel="stylesheet" href="phoenix-orb-states.css?v=1761926307">
-    <link rel="stylesheet" href="src/phoenix-orb.css">
-    <link rel="stylesheet" href="widget-styles.css?v=1761926307">
+    <link rel="stylesheet" href="styles.css?v=1763196205">
+    <link rel="stylesheet" href="phoenix-voice.css?v=1763196205">
+    <link rel="stylesheet" href="voice-mode.css?v=1763196205">
+    <link rel="stylesheet" href="widget-styles.css?v=1763196205">
 </head>
 <body data-mode="voice">
     <!-- ============================================ -->
@@ -64,14 +62,8 @@
     </div>
 
     <!-- ============================================ -->
-    <!-- HUD FRAME & CORNER BRACKETS -->
+    <!-- HUD FRAME & CORNER BRACKETS - REMOVED -->
     <!-- ============================================ -->
-    <div class="hud-frame">
-        <div class="corner-bracket top-left"></div>
-        <div class="corner-bracket top-right"></div>
-        <div class="corner-bracket bottom-left"></div>
-        <div class="corner-bracket bottom-right"></div>
-    </div>
 
     <!-- ============================================ -->
     <!-- VISUAL EFFECTS LAYERS -->
@@ -131,25 +123,10 @@
     </div>
 
     <!-- ============================================ -->
-    <!-- JARVIS FLOATING ORB (iPhone-style bubble) -->
+    <!-- JARVIS FLOATING ORB (Hidden - Functions remain active) -->
     <!-- ============================================ -->
-    <!-- JARVIS Orb -->
-    <div id="jarvis-orb" onclick="toggleJarvisMenu()" title="Click to talk to Phoenix (Siri-style)" style="position:fixed;top:30px;right:30px;z-index:9999;pointer-events:auto;width:60px;height:60px;background:radial-gradient(circle, rgba(0, 217, 255,0.3), rgba(0,10,20,0.95));border:2px solid rgba(0, 217, 255,0.6);border-radius:50%;backdrop-filter:blur(15px);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s;box-shadow:0 0 30px rgba(0, 217, 255,0.5),inset 0 0 20px rgba(0, 217, 255,0.2);animation:jarvisPulse 2s infinite" onmouseover="this.style.transform='scale(1.1)';this.style.boxShadow='0 0 40px rgba(0, 217, 255,0.8),inset 0 0 25px rgba(0, 217, 255,0.3)';document.getElementById('orb-hint').style.opacity='1'" onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 0 30px rgba(0, 217, 255,0.5),inset 0 0 20px rgba(0, 217, 255,0.2)';document.getElementById('orb-hint').style.opacity='0'">
-        <!-- Arc Reactor Icon -->
-        <svg width="32" height="32" viewBox="0 0 32 32" style="filter:drop-shadow(0 0 5px rgba(0, 217, 255,0.8))">
-            <circle cx="16" cy="16" r="12" fill="none" stroke="#00d9ff" stroke-width="2" opacity="0.8"/>
-            <circle cx="16" cy="16" r="8" fill="none" stroke="#00d9ff" stroke-width="1.5" opacity="0.6"/>
-            <circle cx="16" cy="16" r="4" fill="#00d9ff" opacity="0.9"/>
-            <line x1="16" y1="4" x2="16" y2="12" stroke="#00d9ff" stroke-width="1.5" opacity="0.7"/>
-            <line x1="16" y1="20" x2="16" y2="28" stroke="#00d9ff" stroke-width="1.5" opacity="0.7"/>
-            <line x1="4" y1="16" x2="12" y2="16" stroke="#00d9ff" stroke-width="1.5" opacity="0.7"/>
-            <line x1="20" y1="16" x2="28" y2="16" stroke="#00d9ff" stroke-width="1.5" opacity="0.7"/>
-        </svg>
-    </div>
-
-    <!-- Orb Hint Text -->
-    <div id="orb-hint" style="position:fixed;top:38px;right:100px;z-index:9998;background:rgba(0,10,20,0.95);border:1px solid rgba(0, 217, 255,0.5);padding:8px 16px;border-radius:20px;color:#00d9ff;font-size:12px;font-weight:600;letter-spacing:1px;pointer-events:none;opacity:0;transition:opacity 0.3s;white-space:nowrap;backdrop-filter:blur(10px);box-shadow:0 0 20px rgba(0, 217, 255,0.3)">
-        🎤 CLICK TO TALK
+    <div id="jarvis-orb" onclick="toggleJarvisMenu()" style="display:none;"></div>
+    <div id="orb-hint" style="display:none;"></div>
     </div>
 
     <!-- SIRI-LIKE LISTENING INDICATOR (appears when voice is active) -->
@@ -227,8 +204,8 @@
         </svg>
     </div>
 
-    <!-- JARVIS Quick Menu (appears on click) -->
-    <div id="jarvis-quick-menu" style="position:fixed;top:100px;right:30px;z-index:9998;pointer-events:auto;display:none;flex-direction:column;gap:12px;animation:slideInRight 0.3s ease-out">
+    <!-- JARVIS Quick Menu (appears on click) - HIDDEN -->
+    <div id="jarvis-quick-menu" style="display:none !important;">
         <div onclick="openJarvisHub('recovery')" style="cursor:pointer;padding:12px 18px;background:rgba(0,10,20,0.95);border:2px solid rgba(0, 217, 255,0.5);border-radius:30px;backdrop-filter:blur(15px);transition:all 0.3s;box-shadow:0 0 20px rgba(0, 217, 255,0.3);display:flex;align-items:center;gap:12px;min-width:160px" onmouseover="this.style.borderColor='rgba(0, 217, 255,0.9)';this.style.boxShadow='0 0 30px rgba(0, 217, 255,0.6)';this.style.transform='translateX(-5px)'" onmouseout="this.style.borderColor='rgba(0, 217, 255,0.5)';this.style.boxShadow='0 0 20px rgba(0, 217, 255,0.3)';this.style.transform='translateX(0)'">
             <svg width="24" height="24" viewBox="0 0 24 24" style="flex-shrink:0">
                 <path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z" fill="none" stroke="#00d9ff" stroke-width="1.5"/>
@@ -247,7 +224,7 @@
                 <path d="M12 8 L12 16" stroke="#00d9ff" stroke-width="2"/>
             </svg>
             <div>
-                <div style="font-size:10px;color:rgba(0, 217, 255,0.6);letter-spacing:1px">OPTIMIZE</div>
+                <div style="font-size:10px;color:rgba(0, 217, 255,0.6);letter-spacing:1px"></div>
                 <div id="opt-score-text" style="font-size:14px;color:#00d9ff;font-weight:bold">0%</div>
             </div>
         </div>
@@ -601,17 +578,6 @@
                 <span>NEXT TIER</span>
                 <span id="opt-points-needed">+34%</span>
             </div>
-            <div style="width:100%;height:6px;background:rgba(0, 217, 255,0.1);border-radius:3px;overflow:hidden">
-                <div id="opt-next-tier-bar" style="width:0%;height:100%;background:linear-gradient(90deg, #00d9ff, #00ff88);transition:width 1s ease;box-shadow:0 0 10px rgba(0, 217, 255,0.6)"></div>
-            </div>
-            <div id="opt-next-tier-name" style="font-size:10px;color:rgba(0, 217, 255,0.6);margin-top:4px;text-align:center">→ JARVIS MODE</div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div style="display:flex;gap:8px;margin-top:15px">
-            <button onclick="openJarvisHub('optimization')" style="flex:1;padding:10px;background:linear-gradient(135deg, rgba(0, 217, 255,0.2), rgba(0,255,136,0.2));border:2px solid #00d9ff;color:#00d9ff;font-family:inherit;font-size:10px;cursor:pointer;border-radius:6px;letter-spacing:1px;font-weight:bold;box-shadow:0 0 15px rgba(0, 217, 255,0.3);transition:all 0.3s">
-                🚀 OPTIMIZE
-            </button>
         </div>
     </div>
 
@@ -1024,7 +990,7 @@
     <!-- PHOENIX CORE - CENTER SPHERE -->
     <!-- ============================================ -->
     <div style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:500;perspective:2000px;perspective-origin:center center;pointer-events:none">
-        <div id="phoenix-core-container" onclick="if(window.phoenixOrb){phoenixOrb.togglePanel();phoenixOrb.switchTab('text')}" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:200px;height:200px;pointer-events:auto;cursor:pointer;transform-style:preserve-3d">
+        <div id="phoenix-core-container" onclick="if(window.startPhoenixVoiceCommand){window.startPhoenixVoiceCommand()}" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:200px;height:200px;pointer-events:auto;cursor:pointer;transform-style:preserve-3d">
         <!-- Orbital Rings -->
         <div style="position:absolute;top:0;left:0;width:100%;height:100%">
             <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:100%;height:100%;border:1px solid rgba(0, 217, 255,0.4);border-radius:50%;animation:coreRotate 20s linear infinite"></div>
@@ -3754,17 +3720,17 @@
     <!-- ============================================ -->
     <!-- MODULE LOADING -->
     <!-- ============================================ -->
-    <script src="src/orchestrator.js?v=1761926307"></script>
-    <script type="module" src="./src/api.js?v=1761926307"></script>
+    <script src="src/orchestrator.js?v=1763196205"></script>
+    <script type="module" src="./src/api.js?v=1763196205"></script>
     <!-- PLANETS.JS REMOVED - Heavy 3D planetary system -->
-    <script type="module" src="./src/jarvis.js?v=1761926307"></script>
+    <script type="module" src="./src/jarvis.js?v=1763196205"></script>
     <!-- REACTOR.JS REMOVED - Arc reactor animation -->
     <!-- SHADERS.JS REMOVED - WebGL shaders -->
-    <script type="module" src="./src/wearables.js?v=1761926307"></script>
+    <script type="module" src="./src/wearables.js?v=1763196205"></script>
     <!-- Capacitor Platform Detection for Speech Recognition -->
-    <script src="src/capacitor-platform.js?v=1761926307"></script>
+    <script src="src/capacitor-platform.js?v=1763196205"></script>
     <!-- Consciousness Display System - Makes Phoenix feel alive -->
-    <script src="src/consciousness-display.js?v=1761926307"></script>
+    <script src="src/consciousness-display.js?v=1763196205"></script>
 
     <!-- CONSTELLATION ANIMATION REMOVED FOR CPU EFFICIENCY -->
     <!-- Static CSS background uses 0% CPU vs 25%+ for animated canvas -->
@@ -4622,31 +4588,25 @@
     <script src="src/smooth-scroll.js"></script>
 
     <!-- Voice/Manual Mode Controller -->
-    <script src="voice-controller.js?v=1761926307"></script>
+    <script src="voice-controller.js?v=1763196205"></script>
 
     <!-- Advanced Voice System (150+ voices, 37+ languages) -->
     <!-- capacitor-platform.js already loaded above -->
-    <script src="src/voice-tts.js"></script>
-    <script src="src/voice-enumerator.js"></script>
-
-    <!-- Phoenix Orb - Universal AI Assistant with Wake Word & TTS -->
-    <script src="src/wake-word-detector.js"></script>
-    <script src="src/phoenix-orb.js"></script>
 
     <!-- Consciousness Client - Backend bridge -->
-    <script src="consciousness-client.js?v=1761926307"></script>
+    <script src="consciousness-client.js?v=1763196205"></script>
 
     <!-- Organic Motion - Breathing animations -->
-    <script src="organic-motion.js?v=1761926307"></script>
+    <script src="organic-motion.js?v=1763196205"></script>
 
     <!-- Widget Manager -->
-    <script src="widget-manager.js?v=1761926307"></script>
+    <script src="widget-manager.js?v=1763196205"></script>
 
     <!-- i18n Translation System -->
-    <script src="src/i18n.js?v=1761926307"></script>
+    <script src="src/i18n.js?v=1763196205"></script>
 
     <!-- Phoenix Voice Command System -->
-    <script src="phoenix-voice-commands.js?v=1761926307"></script>
+    <script src="phoenix-voice-commands.js?v=1763196205"></script>
 
     <!-- Planet Navigation Functions -->
     <script>
@@ -4717,7 +4677,38 @@
         console.log('✅ Planet navigation functions loaded');
     </script>
 
+    <!-- Hide optimize bar -->
+    <script>
+        // Function to hide any optimize banners/bars that appear
+        function hideOptimizeBars() {
+            // Find all elements and check if they contain OPTIMIZE text and are positioned at top
+            document.querySelectorAll('div').forEach(el => {
+                if (el.textContent.includes('OPTIMIZE') || el.textContent.includes('🚀')) {
+                    const style = window.getComputedStyle(el);
+                    const top = style.getPropertyValue('top');
+                    const position = style.getPropertyValue('position');
+
+                    // If it's fixed/absolute positioned near the top and contains optimize text
+                    if ((position === 'fixed' || position === 'absolute') &&
+                        top && (parseInt(top) < 150 && parseInt(top) >= 0)) {
+                        // Check if it's not the optimization circle (bottom right)
+                        const bottom = style.getPropertyValue('bottom');
+                        const right = style.getPropertyValue('right');
+                        if (!(bottom && right)) {
+                            el.style.display = 'none';
+                            console.log('Hidden optimize bar:', el);
+                        }
+                    }
+                }
+            });
+        }
+
+        // Run on load
+        window.addEventListener('load', hideOptimizeBars);
+        // Run periodically to catch dynamically created elements
+        setInterval(hideOptimizeBars, 1000);
+    </script>
+
 </body>
 </html>
-<!-- Cache bust 1761875705 -->
-<!-- Cache bust: 1761920325 -->
+<!-- Cache bust 1763196073 -->
