@@ -209,34 +209,8 @@ class PhoenixConsciousnessDisplay {
             });
         }
 
-        // Pattern-based insights (simulated)
-        const patterns = [
-            {
-                type: 'pattern',
-                priority: 'high',
-                message: 'Your HRV correlates strongly with 7+ hours of sleep. Detected over 14 nights.',
-                planet: 'mercury',
-                timestamp: new Date()
-            },
-            {
-                type: 'correlation',
-                priority: 'medium',
-                message: 'Workout completion increases 34% when scheduled before 10 AM.',
-                planet: 'venus',
-                timestamp: new Date()
-            },
-            {
-                type: 'prediction',
-                priority: 'low',
-                message: 'Based on your energy patterns, peak focus window: 10 AM - 12 PM.',
-                planet: 'earth',
-                timestamp: new Date()
-            }
-        ];
-
-        // Randomly select 1-2 pattern insights
-        const selectedPatterns = patterns.sort(() => Math.random() - 0.5).slice(0, 2);
-        demoInsights.push(...selectedPatterns);
+        // Pattern-based insights - DISABLED (use real backend data only)
+        // Mock data removed - patterns should come from /api/phoenix/patterns endpoint
 
         this.updateInsights(demoInsights);
 
@@ -377,8 +351,8 @@ class PhoenixConsciousnessDisplay {
             }
         }, 5000);
 
-        // PROACTIVE INTELLIGENCE: Phoenix speaks insights autonomously
-        this.enableProactiveInsights();
+        // PROACTIVE INTELLIGENCE: DISABLED - too frequent and not context-aware yet
+        // this.enableProactiveInsights();
     }
 
     /**

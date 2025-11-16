@@ -1384,6 +1384,8 @@ class PhoenixVoiceCommands {
        TEXT BUBBLE DISPLAY
        ============================================ */
     showTextBubble(text, sender = 'phoenix') {
+        console.log(`💬 Showing text bubble: "${text.substring(0, 50)}..."`);
+
         let conversationEl = document.getElementById('phoenix-conversation');
 
         if (!conversationEl) {
@@ -1398,13 +1400,14 @@ class PhoenixVoiceCommands {
                 max-width: 600px;
                 max-height: 400px;
                 overflow-y: auto;
-                z-index: 9999;
+                z-index: 99999;
                 display: flex;
                 flex-direction: column;
                 gap: 12px;
                 pointer-events: none;
             `;
             document.body.appendChild(conversationEl);
+            console.log('✅ Conversation container created');
         }
 
         const bubble = document.createElement('div');
