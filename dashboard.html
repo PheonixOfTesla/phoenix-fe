@@ -3715,6 +3715,62 @@
             console.log('💪 6 Planetary Systems: ✅ Operational');
             console.log('⚡ Optimization Tracker: ✅ Active');
             console.log('✨ The Most Sophisticated AI Companion on Earth');
+
+            // ============================================
+            // BACKGROUND WARMUP - Eliminate cold start delay
+            // ============================================
+            setTimeout(async () => {
+                try {
+                    const token = localStorage.getItem('phoenixToken');
+                    if (!token) return;
+
+                    const baseUrl = window.PhoenixConfig?.API_BASE_URL || 'https://pal-backend-production.up.railway.app/api';
+
+                    console.log('🔥 Warming up AI backend...');
+
+                    // Visual indicator: Show "Syncing..." on orb
+                    if (window.phoenixOrb) {
+                        window.phoenixOrb.showStatusMessage('Syncing...');
+                    }
+
+                    // Send a silent warmup query to wake up Gemini and Railway
+                    const warmupStart = Date.now();
+                    const warmupPromise = fetch(`${baseUrl}/phoenix/companion/chat`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message: 'ping',
+                            personality: 'PHOENIX',
+                            responseFormat: 'json'
+                        })
+                    });
+
+                    // Don't wait for response, just fire and forget
+                    warmupPromise.then(() => {
+                        const warmupTime = Date.now() - warmupStart;
+                        console.log(`✅ AI backend warmed up in ${warmupTime}ms - ready for instant responses`);
+
+                        // Clear "Syncing..." message after warmup
+                        if (window.phoenixOrb) {
+                            setTimeout(() => {
+                                window.phoenixOrb.clearStatusMessage();
+                            }, 500);
+                        }
+                    }).catch(err => {
+                        console.log('⚠️ Warmup failed (non-critical):', err.message);
+                        // Clear message even on failure
+                        if (window.phoenixOrb) {
+                            window.phoenixOrb.clearStatusMessage();
+                        }
+                    });
+
+                } catch (error) {
+                    console.log('⚠️ Background warmup error (non-critical):', error);
+                }
+            }, 2000); // Wait 2s after dashboard loads to avoid blocking initialization
         });
     </script>
 
