@@ -160,8 +160,11 @@ class PhoenixVoiceCommands {
 
         this.recognition.continuous = false;
         this.recognition.interimResults = true;
-        this.recognition.lang = 'en-US';
-        this.recognition.maxAlternatives = 1;
+        // Use generic 'en' instead of 'en-US' for better accent support across all English variants
+        // This handles US, UK, Australian, Indian, and other English accents better
+        this.recognition.lang = 'en';
+        // Get top 3 alternatives to handle slang, accents, and ambiguous speech better
+        this.recognition.maxAlternatives = 3;
 
         // OPTIMIZATION: Silence detection (only on non-Apple devices)
         // Apple devices use native Whisper which handles this automatically
@@ -182,7 +185,16 @@ class PhoenixVoiceCommands {
             let finalTranscript = '';
 
             for (let i = event.resultIndex; i < event.results.length; i++) {
+                // Get the best transcript (alternative 0)
                 const transcript = event.results[i][0].transcript;
+
+                // Log alternatives for debugging (helps understand accent/slang issues)
+                if (event.results[i].isFinal && event.results[i].length > 1) {
+                    console.log('🎤 Alternatives:', Array.from(event.results[i]).map((alt, idx) =>
+                        `${idx + 1}: "${alt.transcript}" (${Math.round(alt.confidence * 100)}%)`
+                    ).join(', '));
+                }
+
                 if (event.results[i].isFinal) {
                     finalTranscript += transcript;
                 } else {
@@ -464,7 +476,11 @@ class PhoenixVoiceCommands {
                 this.startListening();
 
                 // Listen for "yes" or "no"
-                const confirmHandler = (transcript) => {
+                const confirmHandler = (event) => {
+                    // Extract transcript from speech recognition event
+                    if (!event.results || !event.results[0]) return;
+
+                    const transcript = event.results[0][0].transcript;
                     const response = transcript.toLowerCase();
 
                     if (response.includes('yes') || response.includes('yeah') ||
