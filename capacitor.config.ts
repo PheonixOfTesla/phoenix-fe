@@ -29,7 +29,7 @@ const config: CapacitorConfig = {
     },
     SpeechRecognition: {
       // Plugin configuration for @capacitor-community/speech-recognition
-      language: 'en-US',
+      language: 'en', // Generic 'en' for better accent support
       matches: 5,
       prompt: 'Say something',
       partialResults: true,
@@ -48,6 +48,24 @@ const config: CapacitorConfig = {
         'Phoenix, check my recovery',
         'Phoenix, help me out'
       ]
+    },
+    PushNotifications: {
+      presentationOptions: ['badge', 'sound', 'alert']
+    },
+    LocalNotifications: {
+      smallIcon: 'ic_stat_icon_config_sample',
+      iconColor: '#488AFF',
+      sound: 'beep.wav'
+    },
+    Geolocation: {
+      // Background location tracking configuration
+      // Will request "Always" permission if needed
+    },
+    PrivacyScreen: {
+      enable: true,
+      imageName: 'Splashscreen', // Show splash when app is backgrounded
+      contentMode: 'scaleAspectFill',
+      preventScreenshots: false // Allow screenshots for now
     }
   }
 };

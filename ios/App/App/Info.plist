@@ -45,5 +45,87 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+
+	<!-- ==================================================
+	     PHOENIX AI - iOS PERMISSIONS
+	     All native features require explicit permissions
+	     ================================================== -->
+
+	<!-- MICROPHONE - Voice commands and AI conversations -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Phoenix needs microphone access for voice commands and AI conversations</string>
+
+	<!-- SPEECH RECOGNITION - Native iOS Whisper -->
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Phoenix uses speech recognition to understand your voice commands with better accent and language support</string>
+
+	<!-- SIRI - "Hey Siri" integration -->
+	<key>NSSiriUsageDescription</key>
+	<string>Phoenix integrates with Siri for "Hey Siri, Phoenix..." voice shortcuts</string>
+
+	<!-- CAMERA - Photo capture for meal logging, nutrition tracking -->
+	<key>NSCameraUsageDescription</key>
+	<string>Phoenix needs camera access to log meals, track nutrition, and capture visual data</string>
+
+	<!-- PHOTO LIBRARY - Save and retrieve images -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Phoenix needs photo library access to save and retrieve images for meal tracking</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Phoenix needs permission to save photos to your library</string>
+
+	<!-- FACE ID / TOUCH ID - Biometric authentication -->
+	<key>NSFaceIDUsageDescription</key>
+	<string>Phoenix uses Face ID to securely authenticate and protect your personal health and financial data</string>
+
+	<!-- LOCATION - GPS for ride booking, location services -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Phoenix needs your location to book rides, find nearby services, and provide location-based recommendations</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Phoenix needs background location access to track workouts, commute time, and provide location-based reminders</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Phoenix needs always-on location access for workout tracking and geofencing features</string>
+
+	<!-- HEALTHKIT - Apple Watch, heart rate, sleep, recovery -->
+	<key>NSHealthShareUsageDescription</key>
+	<string>Phoenix reads your HealthKit data to track recovery, sleep quality, workouts, and provide personalized health insights</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Phoenix writes workout and health data to HealthKit to keep all your health apps in sync</string>
+
+	<!-- CALENDAR - Schedule management, event creation -->
+	<key>NSCalendarsUsageDescription</key>
+	<string>Phoenix needs calendar access to schedule meetings, create reminders, and manage your day</string>
+	<key>NSRemindersUsageDescription</key>
+	<string>Phoenix needs reminders access to create and manage your to-do list</string>
+
+	<!-- CONTACTS - Call/text integration -->
+	<key>NSContactsUsageDescription</key>
+	<string>Phoenix needs contacts access to call, text, and interact with your contacts via voice commands</string>
+
+	<!-- MOTION - Accelerometer for shake to activate -->
+	<key>NSMotionUsageDescription</key>
+	<string>Phoenix uses motion detection for shake-to-activate and gesture controls</string>
+
+	<!-- BACKGROUND MODES - Push notifications, location tracking -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+		<string>location</string>
+		<string>audio</string>
+		<string>fetch</string>
+	</array>
+
+	<!-- APP TRANSPORT SECURITY - Allow HTTP for development -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
+
+	<!-- SUPPORTED EXTERNAL ACCESSORY PROTOCOLS - Apple Pay -->
+	<key>com.apple.developer.nfc.readersession.felica.systemcodes</key>
+	<array/>
+	<key>com.apple.developer.nfc.readersession.iso7816.select-identifiers</key>
+	<array/>
+
 </dict>
 </plist>
