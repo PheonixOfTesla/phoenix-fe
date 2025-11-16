@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Phoenix Chat UI Test</title>
+    <style>
+        body { background: #000; color: #00d9ff; font-family: monospace; padding: 20px; }
+        #conversation-container { max-height: 400px; overflow-y: auto; border: 1px solid #00d9ff; padding: 15px; margin-bottom: 20px; }
+        input { padding: 10px; background: #111; color: #00d9ff; border: 1px solid #00d9ff; width: 300px; }
+        button { padding: 10px 20px; background: #00d9ff; color: #000; border: none; cursor: pointer; margin-left: 10px; }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <h1>🔥 Phoenix Chat UI Test</h1>
+    <p>Testing: Message sending + Typewriter effect + Typing indicator</p>
+
+    <div id="conversation-container"></div>
+
+    <div>
+        <input type="text" id="test-input" placeholder="Type a message..." />
+        <button onclick="testSendMessage()">SEND</button>
+    </div>
+
+    <div style="margin-top:20px">
+        <button onclick="testTyping()">Test Typing Indicator</button>
+        <button onclick="testTypewriter()">Test Typewriter Effect</button>
+    </div>
+
+    <script>
+        const API_BASE = 'https://pal-backend-production.up.railway.app/api';
+
+        function testTyping() {
+            const container = document.getElementById('conversation-container');
+            container.innerHTML += `
+                <div style="margin-bottom:12px">
+                    <div style="background:rgba(0,10,20,0.8);border:1px solid rgba(0, 217, 255,0.2);padding:12px 16px;border-radius:18px;color:rgba(0, 217, 255,0.6);font-size:13px;display:inline-flex;align-items:center;gap:8px">
+                        <span>Phoenix is thinking</span>
+                        <span style="display:flex;gap:2px">
+                            <span style="animation: typingDot 1.4s infinite">.</span>
+                            <span style="animation: typingDot 1.4s infinite; animation-delay: 0.2s">.</span>
+                            <span style="animation: typingDot 1.4s infinite; animation-delay: 0.4s">.</span>
+                        </span>
+                    </div>
+                </div>
+            `;
+
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes typingDot {
+                    0%, 100% { opacity: 0.3; transform: translateY(0); }
+                    50% { opacity: 1; transform: translateY(-3px); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        async function testTypewriter() {
+            const container = document.getElementById('conversation-container');
+            const message = "I can help you track your health metrics, log workouts, and analyze your progress. What would you like to know?";
+
+            const msgDiv = document.createElement('div');
+            msgDiv.style.cssText = 'margin-bottom:12px;animation:slideIn 0.3s ease-out';
+
+            const bubble = document.createElement('div');
+            bubble.style.cssText = 'background:rgba(0,10,20,0.8);color:#fff;border:1px solid rgba(0, 217, 255,0.2);padding:12px 16px;border-radius:18px;font-size:13px;display:inline-block';
+
+            msgDiv.appendChild(bubble);
+            container.appendChild(msgDiv);
+
+            // Typewriter effect
+            const words = message.split(' ');
+            for (let i = 0; i < words.length; i++) {
+                bubble.textContent = words.slice(0, i + 1).join(' ');
+                container.scrollTop = container.scrollHeight;
+                await new Promise(resolve => setTimeout(resolve, 30));
+            }
+        }
+
+        async function testSendMessage() {
+            const input = document.getElementById('test-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            const container = document.getElementById('conversation-container');
+
+            // User message
+            container.innerHTML += `
+                <div style="display:flex;justify-content:flex-end;margin-bottom:12px;animation:slideIn 0.3s ease-out">
+                    <div style="background:linear-gradient(135deg,rgba(0, 217, 255,0.2),rgba(0, 217, 255,0.1));color:#00d9ff;border:1px solid rgba(0, 217, 255,0.3);padding:12px 16px;border-radius:18px;font-size:13px;max-width:80%">
+                        ${message}
+                    </div>
+                </div>
+            `;
+
+            input.value = '';
+
+            // Show typing
+            testTyping();
+
+            // Simulate response
+            setTimeout(async () => {
+                // Remove typing indicator
+                container.lastChild.remove();
+
+                // Stream response
+                const response = "That's a great question! Phoenix uses advanced AI to analyze your health metrics across all 8 planetary systems. Would you like me to show you your current stats?";
+                await streamResponse(response);
+            }, 2000);
+
+            container.scrollTop = container.scrollHeight;
+        }
+
+        async function streamResponse(message) {
+            const container = document.getElementById('conversation-container');
+            const msgDiv = document.createElement('div');
+            msgDiv.style.cssText = 'margin-bottom:12px;animation:slideIn 0.3s ease-out';
+
+            const bubble = document.createElement('div');
+            bubble.style.cssText = 'background:rgba(0,10,20,0.8);color:#fff;border:1px solid rgba(0, 217, 255,0.2);padding:12px 16px;border-radius:18px;font-size:13px;display:inline-block;max-width:80%';
+
+            msgDiv.appendChild(bubble);
+            container.appendChild(msgDiv);
+
+            const words = message.split(' ');
+            for (let i = 0; i < words.length; i++) {
+                bubble.textContent = words.slice(0, i + 1).join(' ');
+                container.scrollTop = container.scrollHeight;
+                await new Promise(resolve => setTimeout(resolve, 30));
+            }
+        }
+
+        // Enter key to send
+        document.getElementById('test-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') testSendMessage();
+        });
+    </script>
+</body>
+</html>

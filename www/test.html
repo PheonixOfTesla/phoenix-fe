@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phoenix Quick Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #000;
+            color: #00d9ff;
+            font-family: 'SF Mono', monospace;
+        }
+        .status {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        button {
+            background: #00d9ff;
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            background: #00cccc;
+        }
+        .log {
+            background: #111;
+            padding: 20px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔥 Phoenix Quick Test</h1>
+    <div class="status" id="status">Ready to test...</div>
+
+    <button onclick="testBackend()">Test Backend Connection</button>
+    <button onclick="testNova()">Test Nova Voice</button>
+    <button onclick="window.location.href='index.html'">Go to Dashboard</button>
+    <button onclick="window.location.href='index.html'">Go to Index</button>
+
+    <div class="log" id="log"></div>
+
+    <script>
+        function log(msg) {
+            const logDiv = document.getElementById('log');
+            const time = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `[${time}] ${msg}<br>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(msg);
+        }
+
+        async function testBackend() {
+            log('Testing backend connection...');
+            document.getElementById('status').textContent = 'Testing...';
+
+            try {
+                const response = await fetch('https://pal-backend-production.up.railway.app/api/health', {
+                    method: 'GET',
+                    timeout: 5000
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    log('✅ Backend is UP!');
+                    log(`Response: ${JSON.stringify(data)}`);
+                    document.getElementById('status').textContent = '✅ Backend Connected';
+                } else {
+                    log(`❌ Backend returned: ${response.status}`);
+                    document.getElementById('status').textContent = '❌ Backend Error';
+                }
+            } catch (error) {
+                log(`❌ Backend Error: ${error.message}`);
+                document.getElementById('status').textContent = '❌ Backend Offline';
+            }
+        }
+
+        async function testNova() {
+            log('Testing Nova TTS...');
+            document.getElementById('status').textContent = 'Nova speaking...';
+
+            try {
+                const response = await fetch('https://pal-backend-production.up.railway.app/api/tts/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        text: "Hello! I'm Nova, your Phoenix AI assistant.",
+                        voice: 'nova',
+                        language: 'en-US'
+                    })
+                });
+
+                if (response.ok) {
+                    log('✅ TTS API responded');
+                    const audioBlob = await response.blob();
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    const audio = new Audio(audioUrl);
+
+                    audio.onended = () => {
+                        URL.revokeObjectURL(audioUrl);
+                        log('✅ Nova finished speaking');
+                        document.getElementById('status').textContent = '✅ Nova Voice Works!';
+                    };
+
+                    await audio.play();
+                    log('🔊 Nova is speaking...');
+                } else {
+                    log(`❌ TTS Error: ${response.status}`);
+                    document.getElementById('status').textContent = '❌ TTS Error';
+                }
+            } catch (error) {
+                log(`❌ TTS Error: ${error.message}`);
+                document.getElementById('status').textContent = '❌ TTS Failed';
+            }
+        }
+
+        // Auto-test on load
+        log('Phoenix Quick Test loaded');
+        log('Click buttons above to test');
+    </script>
+</body>
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phoenix Companion Response Time Test</title>
+    <style>
+        body {
+            background: #000;
+            color: #00d9ff;
+            font-family: 'Courier New', monospace;
+            padding: 40px;
+            margin: 0;
+        }
+        h1 {
+            text-align: center;
+            font-size: 32px;
+            text-shadow: 0 0 20px rgba(0, 217, 255, 1);
+            margin-bottom: 30px;
+        }
+        .info {
+            background: rgba(0, 10, 20, 0.9);
+            border: 2px solid rgba(0, 217, 255, 0.4);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 20px auto;
+            max-width: 1200px;
+            backdrop-filter: blur(15px);
+        }
+        .button {
+            display: inline-block;
+            padding: 15px 40px;
+            background: rgba(0, 217, 255, 0.2);
+            border: 2px solid #00d9ff;
+            color: #00d9ff;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 8px;
+            letter-spacing: 2px;
+            text-decoration: none;
+            margin: 10px;
+            transition: all 0.3s;
+        }
+        .button:hover {
+            background: rgba(0, 217, 255, 0.3);
+            box-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
+            transform: scale(1.05);
+        }
+        .center {
+            text-align: center;
+        }
+        pre {
+            background: rgba(0, 217, 255, 0.05);
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            border-radius: 6px;
+            padding: 15px;
+            overflow-x: auto;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+        .question-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .question-item {
+            background: rgba(0, 217, 255, 0.05);
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 13px;
+        }
+        #console-output {
+            background: #000;
+            border: 2px solid rgba(0, 217, 255, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 400px;
+            max-height: 600px;
+            overflow-y: auto;
+            font-size: 12px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            color: #00ff88;
+            display: none;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status.success {
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+        }
+        .status.pending {
+            background: rgba(0, 217, 255, 0.2);
+            border: 1px solid #00d9ff;
+            color: #00d9ff;
+        }
+    </style>
+</head>
+<body>
+    <h1>Phoenix Companion Response Time Test</h1>
+
+    <div class="info">
+        <h2>Test Overview</h2>
+        <p>This test measures response times for natural companion questions across health, lifestyle, and optimization domains.</p>
+
+        <h3>What We're Testing:</h3>
+        <div class="question-list">
+            <div class="question-item">"Should I drink alcohol"</div>
+            <div class="question-item">"I want food what should I get"</div>
+            <div class="question-item">"Im tired but I want to watch netflix any recommendations"</div>
+            <div class="question-item">"How am I doing today"</div>
+            <div class="question-item">"What should I focus on"</div>
+            <div class="question-item">"Am I on track with my goals"</div>
+            <div class="question-item">"I ran 3 miles"</div>
+            <div class="question-item">"Just ate a burger"</div>
+            <div class="question-item">"Feeling stressed"</div>
+            <div class="question-item">"Show my health"</div>
+            <div class="question-item">"Whats my recovery score"</div>
+            <div class="question-item">"How much did I spend this week"</div>
+            <div class="question-item">"Should I workout or rest today"</div>
+            <div class="question-item">"When should I schedule my meetings"</div>
+            <div class="question-item">"What time should I go to bed"</div>
+            <div class="question-item">"Is my spending too high"</div>
+        </div>
+
+        <h3>Metrics Measured:</h3>
+        <ul>
+            <li>Silence detection time (300ms)</li>
+            <li>AI processing time (backend)</li>
+            <li>Total response time</li>
+            <li>AI source (cache / Gemini / Claude)</li>
+            <li>Success/failure rate</li>
+        </ul>
+
+        <h3>Performance Targets:</h3>
+        <pre>🟢 INSTANT (<1s):    95% cache hits, feels immediate
+🟡 FAST (1-2s):      Gemini live processing, very responsive
+🟠 OK (2-3s):        Mixed responses, acceptable
+🔴 SLOW (>3s):       Claude deep analysis, needs optimization</pre>
+    </div>
+
+    <div class="info center">
+        <h2>Run Test</h2>
+        <p><span class="status pending">READY</span> Make sure you're logged into Phoenix</p>
+        <button class="button" onclick="runTest()">START TEST</button>
+        <button class="button" onclick="clearConsole()">CLEAR CONSOLE</button>
+    </div>
+
+    <div class="info">
+        <h2>Live Console Output</h2>
+        <div id="console-output"></div>
+    </div>
+
+    <div class="info">
+        <h2>Expected Results</h2>
+        <p>With your current setup (Gemini/Claude + PhoenixCache):</p>
+        <ul>
+            <li><strong>95% of queries:</strong> Cache hit → <500ms → Instant response</li>
+            <li><strong>3% of queries:</strong> Gemini live → 1-2s → Fast response</li>
+            <li><strong>2% of queries:</strong> Claude deep → 3-4s → Slower but intelligent</li>
+        </ul>
+        <p><strong>Average Expected:</strong> ~1-1.5s total response time</p>
+    </div>
+
+    <script src="src/config.js"></script>
+    <script src="test-companion-response-time.js"></script>
+    <script>
+        const consoleOutput = document.getElementById('console-output');
+        const originalLog = console.log;
+        const originalError = console.error;
+
+        // Intercept console.log
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            const message = args.join(' ');
+            consoleOutput.textContent += message + '\n';
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        };
+
+        // Intercept console.error
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            const message = '❌ ERROR: ' + args.join(' ');
+            consoleOutput.textContent += message + '\n';
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        };
+
+        async function runTest() {
+            consoleOutput.style.display = 'block';
+            consoleOutput.textContent = 'Starting test...\n\n';
+
+            // Check authentication
+            const token = localStorage.getItem('phoenixToken');
+            if (!token) {
+                console.error('No authentication token found. Please log in to Phoenix first.');
+                alert('Please log in to Phoenix first, then return to this page.');
+                return;
+            }
+
+            console.log('✓ Authentication token found');
+            console.log('✓ Starting response time tests...\n');
+
+            await testCompanionResponseTime();
+        }
+
+        function clearConsole() {
+            consoleOutput.textContent = '';
+            consoleOutput.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

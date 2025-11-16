@@ -3,8 +3,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
   appId: 'com.phoenix.ai',
   appName: 'Phoenix AI',
-  webDir: '.',
-  bundledWebRuntime: false,
+  webDir: 'www',
   server: {
     // For development: allow localhost connections
     // Remove or comment out in production

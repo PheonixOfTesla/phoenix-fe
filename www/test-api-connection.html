@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Phoenix API Connection Test</title>
+    <script src="./src/config.js"></script>
+    <script src="./src/api.js"></script>
+    <style>
+        body { font-family: monospace; background: #000; color: #0ff; padding: 20px; }
+        .status { padding: 10px; margin: 10px 0; border: 1px solid #0ff; }
+        .success { border-color: #0f0; color: #0f0; }
+        .error { border-color: #f00; color: #f00; }
+        pre { background: #111; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔥 PHOENIX API CONNECTION TEST</h1>
+    <div id="results"></div>
+    
+    <script>
+        const results = document.getElementById('results');
+        
+        // Test 1: Config Check
+        results.innerHTML += `
+            <div class="status success">
+                <h2>✅ Config Loaded</h2>
+                <pre>${JSON.stringify(PhoenixConfig, null, 2)}</pre>
+            </div>
+        `;
+        
+        // Test 2: API Instance
+        const api = new PhoenixAPI();
+        results.innerHTML += `
+            <div class="status success">
+                <h2>✅ API Client Initialized</h2>
+                <pre>Base URL: ${api.baseURL}</pre>
+            </div>
+        `;
+        
+        // Test 3: Backend Health Check
+        fetch(api.baseURL.replace('/api', '/api/health'))
+            .then(r => r.json())
+            .then(data => {
+                results.innerHTML += `
+                    <div class="status ${data.success ? 'success' : 'error'}">
+                        <h2>${data.success ? '✅' : '❌'} Backend Health Check</h2>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+            })
+            .catch(err => {
+                results.innerHTML += `
+                    <div class="status error">
+                        <h2>❌ Backend Connection Failed</h2>
+                        <pre>${err.message}</pre>
+                    </div>
+                `;
+            });
+    </script>
+</body>
+</html>

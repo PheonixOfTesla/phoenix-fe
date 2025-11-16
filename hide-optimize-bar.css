@@ -1,0 +1,8 @@
+/* Hide the optimize banner/bar at the top */
+[style*="top"][style*="OPTIMIZE"],
+div:has-text("OPTIMIZE")[style*="position: fixed"],
+div:has-text("🚀 OPTIMIZE")[style*="position"],
+#optimization-banner,
+.optimization-bar {
+    display: none !important;
+}
