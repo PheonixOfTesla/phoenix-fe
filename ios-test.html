@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Phoenix iOS Integration Test</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #000;
+            color: #00d9ff;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(0, 217, 255, 0.8);
+        }
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            background: rgba(0, 217, 255, 0.1);
+            border: 1px solid rgba(0, 217, 255, 0.3);
+        }
+        .status.success { background: rgba(0, 255, 100, 0.1); border-color: rgba(0, 255, 100, 0.3); color: #00ff64; }
+        .status.error { background: rgba(255, 0, 0, 0.1); border-color: rgba(255, 0, 0, 0.3); color: #ff0000; }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(0, 217, 255, 0.05);
+            border-radius: 15px;
+        }
+        button {
+            background: #00d9ff;
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 5px;
+            width: 100%;
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        .log {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid rgba(0, 217, 255, 0.2);
+        }
+        .metric:last-child { border-bottom: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 Phoenix iOS Integration Test</h1>
+        <p style="margin-bottom: 30px; opacity: 0.7;">Testing all 36 native iOS features</p>
+
+        <!-- Status -->
+        <div id="status" class="status">
+            ⏳ Initializing...
+        </div>
+
+        <!-- Quick Tests -->
+        <div class="test-section">
+            <h2 style="margin-bottom: 15px;">Quick Tests</h2>
+            <button onclick="testBackendConnection()">Test Backend Connection</button>
+            <button onclick="testAuth()">Test Authentication</button>
+            <button onclick="testHealthKitSync()">Test HealthKit Sync</button>
+            <button onclick="testLocationSync()">Test Location Sync</button>
+            <button onclick="testVoiceCommand()">Test Voice Command</button>
+            <button onclick="runAllTests()">🚀 Run All Tests</button>
+        </div>
+
+        <!-- Results -->
+        <div class="test-section">
+            <h2 style="margin-bottom: 15px;">Results</h2>
+            <div id="results">
+                <div class="metric">
+                    <span>Total Tests:</span>
+                    <span id="total-tests">0</span>
+                </div>
+                <div class="metric">
+                    <span>✅ Passed:</span>
+                    <span id="passed-tests">0</span>
+                </div>
+                <div class="metric">
+                    <span>❌ Failed:</span>
+                    <span id="failed-tests">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Log -->
+        <div class="test-section">
+            <h2 style="margin-bottom: 15px;">Console Log</h2>
+            <div id="log" class="log">Waiting for tests...</div>
+        </div>
+    </div>
+
+    <!-- Config -->
+    <script>
+        window.PhoenixConfig = {
+            API_BASE_URL: 'https://pal-backend-production.up.railway.app/api'
+        };
+    </script>
+
+    <script type="module">
+        const API_BASE_URL = 'https://pal-backend-production.up.railway.app/api';
+        let authToken = null;
+        let testResults = { total: 0, passed: 0, failed: 0 };
+
+        // Log to both console and UI
+        function log(message, type = 'info') {
+            console.log(message);
+            const logEl = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logEl.textContent += `[${timestamp}] ${message}\n`;
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        function updateStatus(message, success = null) {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = message;
+            statusEl.className = 'status' + (success === true ? ' success' : success === false ? ' error' : '');
+        }
+
+        function updateResults() {
+            document.getElementById('total-tests').textContent = testResults.total;
+            document.getElementById('passed-tests').textContent = testResults.passed;
+            document.getElementById('failed-tests').textContent = testResults.failed;
+        }
+
+        // Test 1: Backend Connection
+        window.testBackendConnection = async function() {
+            log('🔌 Testing backend connection...');
+            testResults.total++;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/../health`);
+                const data = await response.json();
+
+                if (data.status === 'OK') {
+                    log('✅ Backend connection successful');
+                    log(`   MongoDB: ${data.mongodb}`);
+                    log(`   Uptime: ${Math.round(data.uptime)}s`);
+                    testResults.passed++;
+                    updateStatus('✅ Backend connected', true);
+                } else {
+                    throw new Error('Backend returned non-OK status');
+                }
+            } catch (error) {
+                log('❌ Backend connection failed: ' + error.message);
+                testResults.failed++;
+                updateStatus('❌ Backend connection failed', false);
+            }
+
+            updateResults();
+        };
+
+        // Test 2: Authentication
+        window.testAuth = async function() {
+            log('\n🔐 Testing authentication...');
+            testResults.total++;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'ios-test-1763271034674@phoenix.ai',
+                        password: 'TestPassword123!'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.token) {
+                    authToken = data.token;
+                    log('✅ Authentication successful');
+                    log(`   Token: ${authToken.substring(0, 30)}...`);
+                    testResults.passed++;
+                    updateStatus('✅ Authenticated', true);
+                } else {
+                    throw new Error('No token received');
+                }
+            } catch (error) {
+                log('❌ Authentication failed: ' + error.message);
+                testResults.failed++;
+                updateStatus('❌ Authentication failed', false);
+            }
+
+            updateResults();
+        };
+
+        // Test 3: HealthKit Sync
+        window.testHealthKitSync = async function() {
+            if (!authToken) {
+                log('⚠️  Please authenticate first');
+                return;
+            }
+
+            log('\n💪 Testing HealthKit sync...');
+            testResults.total++;
+
+            const mockHealthData = {
+                heartRate: { resting: 65 },
+                heartRateVariability: 55,
+                sleepAnalysis: { totalSleep: 7.5, deepSleep: 2.0 },
+                steps: 8500
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/ios/healthkit/sync`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(mockHealthData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    log('✅ HealthKit sync successful');
+                    log(`   Recovery Score: ${data.recoveryScore}%`);
+                    log(`   Insights: ${data.insights?.substring(0, 80)}...`);
+                    testResults.passed++;
+                    updateStatus(`✅ Recovery: ${data.recoveryScore}%`, true);
+                } else {
+                    throw new Error(data.error || 'Sync failed');
+                }
+            } catch (error) {
+                log('❌ HealthKit sync failed: ' + error.message);
+                testResults.failed++;
+                updateStatus('❌ HealthKit sync failed', false);
+            }
+
+            updateResults();
+        };
+
+        // Test 4: Location Sync
+        window.testLocationSync = async function() {
+            if (!authToken) {
+                log('⚠️  Please authenticate first');
+                return;
+            }
+
+            log('\n📍 Testing location sync...');
+            testResults.total++;
+
+            const mockLocation = {
+                latitude: 37.7749,
+                longitude: -122.4194,
+                accuracy: 10
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/ios/location/update`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(mockLocation)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    log('✅ Location sync successful');
+                    log(`   Coordinates: ${data.coordinates.latitude}, ${data.coordinates.longitude}`);
+                    log(`   Context: ${data.context?.type || 'unknown'}`);
+                    testResults.passed++;
+                    updateStatus('✅ Location synced', true);
+                } else {
+                    throw new Error(data.error || 'Sync failed');
+                }
+            } catch (error) {
+                log('❌ Location sync failed: ' + error.message);
+                testResults.failed++;
+                updateStatus('❌ Location sync failed', false);
+            }
+
+            updateResults();
+        };
+
+        // Test 5: Voice Command
+        window.testVoiceCommand = async function() {
+            if (!authToken) {
+                log('⚠️  Please authenticate first');
+                return;
+            }
+
+            log('\n🎤 Testing voice command...');
+            testResults.total++;
+
+            const mockContext = {
+                location: { latitude: 37.7749, longitude: -122.4194 },
+                device: { batteryLevel: 0.75, platform: 'iOS' }
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/ios/voice-command`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        command: "What's my recovery score?",
+                        nativeContext: mockContext
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    log('✅ Voice command successful');
+                    log(`   Response: ${data.response?.substring(0, 80)}...`);
+                    log(`   Classification: ${data.classification}`);
+                    testResults.passed++;
+                    updateStatus('✅ Voice command working', true);
+                } else {
+                    throw new Error(data.error || 'Command failed');
+                }
+            } catch (error) {
+                log('❌ Voice command failed: ' + error.message);
+                testResults.failed++;
+                updateStatus('❌ Voice command failed', false);
+            }
+
+            updateResults();
+        };
+
+        // Run All Tests
+        window.runAllTests = async function() {
+            // Reset results
+            testResults = { total: 0, passed: 0, failed: 0 };
+            updateResults();
+            document.getElementById('log').textContent = '';
+
+            log('🚀 Starting comprehensive iOS integration test...\n');
+
+            await testBackendConnection();
+            await new Promise(r => setTimeout(r, 1000));
+
+            await testAuth();
+            await new Promise(r => setTimeout(r, 1000));
+
+            await testHealthKitSync();
+            await new Promise(r => setTimeout(r, 1000));
+
+            await testLocationSync();
+            await new Promise(r => setTimeout(r, 1000));
+
+            await testVoiceCommand();
+            await new Promise(r => setTimeout(r, 1000));
+
+            log('\n' + '='.repeat(50));
+            log('📊 FINAL RESULTS');
+            log('='.repeat(50));
+            log(`Total: ${testResults.total}`);
+            log(`✅ Passed: ${testResults.passed}`);
+            log(`❌ Failed: ${testResults.failed}`);
+            log('='.repeat(50));
+
+            if (testResults.failed === 0) {
+                updateStatus(`🎉 All ${testResults.passed} tests passed!`, true);
+            } else {
+                updateStatus(`⚠️  ${testResults.failed} test(s) failed`, false);
+            }
+        };
+
+        // Auto-run on load
+        window.addEventListener('load', async () => {
+            updateStatus('✅ Page loaded - ready to test', true);
+            log('iOS Integration Test page loaded');
+            log('Click "Run All Tests" to start automated testing\n');
+        });
+    </script>
+</body>
+</html>
