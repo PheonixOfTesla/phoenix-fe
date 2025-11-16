@@ -996,15 +996,18 @@ class PhoenixVoiceCommands {
             // Skip consciousness orchestration for simple wake words (saves 2-3s)
             if (!isSimpleWakeWord && window.consciousnessClient) {
                 console.time('🧠 Consciousness');
+
+                // Gather real-time context from dashboard
+                const context = {
+                    location: window.PhoenixEngine?.location?.city || 'unknown',
+                    activity: 'voice_command',
+                    voiceQuery: transcript,
+                    weather: window.PhoenixEngine?.weather || null,
+                    userName: window.PhoenixEngine?.userName || null
+                };
+
                 promises.push(
-                    window.consciousnessClient.orchestrate(
-                        {
-                            location: 'unknown',
-                            activity: 'voice_command',
-                            voiceQuery: transcript
-                        },
-                        transcript
-                    )
+                    window.consciousnessClient.orchestrate(context, transcript)
                 );
             }
 
