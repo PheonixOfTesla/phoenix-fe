@@ -3,11 +3,15 @@
    Full dashboard control via natural language voice commands
    Navigation, data manipulation, logging, tracking
 
-   OPTIMIZED FOR NATIVE APPLE APIS:
-   - iOS/macOS: Native Whisper (SFSpeechRecognizer) + AVSpeechSynthesizer
-   - Other: Web Speech API fallback
+   NATIVE iOS SPEECH RECOGNITION:
+   - Uses Capacitor SpeechRecognition plugin
+   - Native iOS Whisper (SFSpeechRecognizer)
+   - Better accent, slang, and multi-language support
    - Target: <2s total response time
    ============================================ */
+
+// Import Capacitor Speech Recognition plugin
+import { SpeechRecognition } from '@capacitor-community/speech-recognition';
 
 class PhoenixVoiceCommands {
     constructor() {
@@ -147,93 +151,49 @@ class PhoenixVoiceCommands {
     }
 
     /* ============================================
-       SPEECH RECOGNITION SETUP
+       SPEECH RECOGNITION SETUP - NATIVE iOS
        ============================================ */
-    initSpeechRecognition() {
-        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-            console.warn('Speech recognition not supported');
+    async initSpeechRecognition() {
+        // Check if speech recognition is available
+        const { available } = await SpeechRecognition.available();
+        if (!available) {
+            console.error('❌ Speech recognition not available on this device');
             return;
         }
 
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        this.recognition = new SpeechRecognition();
-
-        this.recognition.continuous = false;
-        this.recognition.interimResults = true;
-        // Use generic 'en' instead of 'en-US' for better accent support across all English variants
-        // This handles US, UK, Australian, Indian, and other English accents better
-        this.recognition.lang = 'en';
-        // Get top 3 alternatives to handle slang, accents, and ambiguous speech better
-        this.recognition.maxAlternatives = 3;
-
-        // OPTIMIZATION: Silence detection (only on non-Apple devices)
-        // Apple devices use native Whisper which handles this automatically
-        if (!this.useNativeAPIs) {
-            this.lastSpeechTime = 0;
-            this.silenceThreshold = 300; // ms - ultra-fast response
-            this.silenceTimer = null;
+        // Request permissions
+        const permStatus = await SpeechRecognition.requestPermissions();
+        if (permStatus.speechRecognition !== 'granted') {
+            console.error('❌ Speech recognition permission denied');
+            // Track permission error for optimization
+            this.trackError('permission_denied', { permission: 'speech' });
+            return;
         }
 
-        this.recognition.onstart = () => {
-            console.log('Voice recognition started');
-            this.isListening = true;
-            this.setOrbState('listening');
-        };
+        console.log('✅ Native iOS speech recognition initialized');
 
-        this.recognition.onresult = (event) => {
-            let interimTranscript = '';
-            let finalTranscript = '';
+        // Set up partial results listener for real-time feedback
+        await SpeechRecognition.addListener('partialResults', (data) => {
+            if (data.matches && data.matches.length > 0) {
+                this.currentTranscript = data.matches[0];
+                console.log('🎤 Partial:', this.currentTranscript);
+            }
+        });
 
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-                // Get the best transcript (alternative 0)
-                const transcript = event.results[i][0].transcript;
-
-                // Log alternatives for debugging (helps understand accent/slang issues)
-                if (event.results[i].isFinal && event.results[i].length > 1) {
-                    console.log('🎤 Alternatives:', Array.from(event.results[i]).map((alt, idx) =>
-                        `${idx + 1}: "${alt.transcript}" (${Math.round(alt.confidence * 100)}%)`
-                    ).join(', '));
-                }
-
-                if (event.results[i].isFinal) {
-                    finalTranscript += transcript;
-                } else {
-                    interimTranscript += transcript;
+        // Set up listening state listener
+        await SpeechRecognition.addListener('listeningState', (data) => {
+            if (data.status === 'started') {
+                console.log('✅ Voice recognition started');
+                this.isListening = true;
+                this.setOrbState('listening');
+            } else if (data.status === 'stopped') {
+                console.log('⏹️ Voice recognition stopped');
+                this.isListening = false;
+                if (!this.isProcessing && !this.isSpeaking) {
+                    this.setOrbState('idle');
                 }
             }
-
-            this.currentTranscript = finalTranscript || interimTranscript;
-            console.log('Transcript:', this.currentTranscript);
-
-            // Apple devices: Process immediately (native Whisper is faster)
-            if (this.useNativeAPIs) {
-                if (finalTranscript) {
-                    this.processCommand(finalTranscript.trim().toLowerCase());
-                }
-                return;
-            }
-
-            // CRITICAL FIX: Only process final transcripts to prevent duplicates
-            // Interim transcripts cause multiple AI calls with slightly different text,
-            // resulting in overlapping audio responses
-            if (finalTranscript) {
-                this.processCommand(finalTranscript.trim().toLowerCase());
-            }
-        };
-
-        this.recognition.onerror = (event) => {
-            console.error('Speech recognition error:', event.error);
-            this.setOrbState('idle');
-            this.isListening = false;
-        };
-
-        this.recognition.onend = () => {
-            console.log('Voice recognition ended');
-            this.isListening = false;
-            if (!this.isProcessing && !this.isSpeaking) {
-                this.setOrbState('idle');
-            }
-        };
+        });
     }
 
     /* ============================================
@@ -278,7 +238,7 @@ class PhoenixVoiceCommands {
        ============================================ */
     async startListening() {
         // PREVENT DOUBLE-CLICK: Check if request already in progress
-        if (!this.recognition || this.isListening || this.requestInProgress) {
+        if (this.isListening || this.requestInProgress) {
             if (this.requestInProgress) {
                 console.log('⚠️ Request already in progress - ignoring click');
             }
@@ -290,7 +250,6 @@ class PhoenixVoiceCommands {
 
         // CRITICAL FIX: Unlock audio context on first user interaction
         // This ensures TTS autoplay will work
-        // DON'T await - must stay synchronous for speech recognition to work!
         if (!this.audioUnlocked) {
             this.unlockAudioContext(); // Fire and forget - don't await!
         }
@@ -303,19 +262,49 @@ class PhoenixVoiceCommands {
 
         try {
             this.requestInProgress = true; // Lock to prevent double-click
-            this.recognition.start();
             this.setOrbState('listening');
+
+            // Start native iOS speech recognition with partial results
+            const result = await SpeechRecognition.start({
+                language: 'en', // Generic 'en' for better accent support (US, UK, AU, IN, etc.)
+                maxResults: 3,  // Get top 3 alternatives for slang/accent handling
+                partialResults: true,  // Real-time interim transcripts
+                popup: false    // No Android popup (iOS only)
+            });
+
+            // Process final result when recognition completes
+            if (result.matches && result.matches.length > 0) {
+                const finalTranscript = result.matches[0];
+                console.log('🎤 Final transcript:', finalTranscript);
+
+                // Log alternatives for debugging accent/slang issues
+                if (result.matches.length > 1) {
+                    console.log('🎤 Alternatives:', result.matches.slice(1).map((alt, idx) =>
+                        `${idx + 2}: "${alt}"`
+                    ).join(', '));
+                }
+
+                // Process the command
+                await this.processCommand(finalTranscript.trim().toLowerCase());
+            }
         } catch (error) {
-            console.error('Could not start recognition:', error);
+            console.error('❌ Speech recognition error:', error);
+            this.trackError('recognition_failed', { error: error.message });
+            this.setOrbState('idle');
             this.requestInProgress = false; // Release lock on error
         }
     }
 
-    stopListening() {
-        if (!this.recognition || !this.isListening) return;
+    async stopListening() {
+        if (!this.isListening) return;
 
-        this.recognition.stop();
-        this.isListening = false;
+        try {
+            await SpeechRecognition.stop();
+            this.isListening = false;
+        } catch (error) {
+            console.error('❌ Error stopping recognition:', error);
+            this.trackError('stop_failed', { error: error.message });
+        }
     }
 
     /* ============================================
@@ -1508,6 +1497,44 @@ class PhoenixVoiceCommands {
             setTimeout(() => {
                 statusEl.style.display = 'none';
             }, 300);
+        }
+    }
+
+    /* ============================================
+       ERROR TRACKING FOR OPTIMIZATION
+       ============================================ */
+    async trackError(errorType, metadata = {}) {
+        try {
+            const token = localStorage.getItem('phoenixToken');
+            if (!token) {
+                console.warn('⚠️ Cannot track error - no auth token');
+                return;
+            }
+
+            const baseUrl = (window.PhoenixConfig && window.PhoenixConfig.API_BASE_URL)
+                ? window.PhoenixConfig.API_BASE_URL
+                : 'https://pal-backend-production.up.railway.app/api';
+
+            // Send error to backend analytics endpoint
+            await fetch(`${baseUrl}/analytics/speech-errors`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    errorType,
+                    metadata,
+                    timestamp: new Date().toISOString(),
+                    platform: 'iOS',
+                    userAgent: navigator.userAgent
+                })
+            });
+
+            console.log('📊 Error tracked:', errorType, metadata);
+        } catch (error) {
+            // Silently fail - don't interrupt user experience for tracking errors
+            console.error('Failed to track error:', error);
         }
     }
 
