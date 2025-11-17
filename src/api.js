@@ -1716,6 +1716,246 @@ class PhoenixAPI {
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
+    // iOS LIVE ACTIVITIES (7 endpoints)
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    async startWorkoutActivity(data) {
+        return this.request('/ios/live-activities/workout/start', 'POST', data);
+    }
+
+    async updateWorkoutActivity(data) {
+        return this.request('/ios/live-activities/workout/update', 'POST', data);
+    }
+
+    async endActivity(activityId) {
+        return this.request('/ios/live-activities/end', 'POST', { activityId });
+    }
+
+    async startInterventionActivity(data) {
+        return this.request('/ios/live-activities/intervention', 'POST', data);
+    }
+
+    async startRecoveryActivity(data) {
+        return this.request('/ios/live-activities/recovery', 'POST', data);
+    }
+
+    async startMeditationActivity(data) {
+        return this.request('/ios/live-activities/meditation', 'POST', data);
+    }
+
+    async getActiveActivities() {
+        return this.request('/ios/live-activities', 'GET', null, { cache: true });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // iOS ENHANCED VOICE INTERFACE (4 endpoints)
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    async startVoiceSession(context = {}) {
+        return this.request('/ios/voice/session/start', 'POST', { context });
+    }
+
+    async processVoiceCommand(sessionId, command, context = {}) {
+        return this.request('/ios/voice/command', 'POST', { sessionId, command, context });
+    }
+
+    async executeVoiceAction(sessionId, action) {
+        return this.request('/ios/voice/action/execute', 'POST', { sessionId, action });
+    }
+
+    async endVoiceSession(sessionId) {
+        return this.request('/ios/voice/session/end', 'POST', { sessionId });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // iOS CAMERA / VISION API (2 endpoints)
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    async checkWorkoutForm(imageData, exercise) {
+        return this.request('/ios/camera/form-check', 'POST', { image: imageData, exercise });
+    }
+
+    async analyzeNutritionPhoto(imageData) {
+        return this.request('/ios/camera/nutrition-analysis', 'POST', { image: imageData });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // iOS SYSTEM INTEGRATION (10 endpoints)
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    async triggerHaptic(type = 'impact', intensity = 'medium') {
+        return this.request('/ios/haptics/trigger', 'POST', { type, intensity });
+    }
+
+    async syncDeviceInfo(deviceData) {
+        return this.request('/ios/device/info', 'POST', deviceData);
+    }
+
+    async syncMotionData(motionData) {
+        return this.request('/ios/motion/update', 'POST', motionData);
+    }
+
+    async verifyBiometric() {
+        return this.request('/ios/biometric/verify', 'POST');
+    }
+
+    async getSiriShortcuts() {
+        return this.request('/ios/shortcuts', 'GET', null, { cache: true });
+    }
+
+    async executeSiriShortcut(shortcutId) {
+        return this.request('/ios/shortcuts/execute', 'POST', { shortcutId });
+    }
+
+    async syncHomeKit(homeData) {
+        return this.request('/ios/homekit/sync', 'POST', homeData);
+    }
+
+    async syncAppleWatch(watchData) {
+        return this.request('/ios/watch/sync', 'POST', watchData);
+    }
+
+    async updateWeatherContext(weatherData) {
+        return this.request('/ios/weather/update', 'POST', weatherData);
+    }
+
+    async getCurrentContext() {
+        return this.request('/ios/context/current', 'GET', null, { cache: true, cacheTTL: 60000 });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // WIDGET MANAGEMENT (17 endpoints)
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    async createWidget(widgetData) {
+        return this.request('/widgets', 'POST', widgetData);
+    }
+
+    async generateWidget(prompt) {
+        return this.request('/widgets/generate', 'POST', { prompt });
+    }
+
+    async getWidgetTemplates() {
+        return this.request('/widgets/templates', 'GET', null, { cache: true });
+    }
+
+    async searchWidgetTemplates(query) {
+        return this.request('/widgets/templates/search', 'GET', null, { cache: true });
+    }
+
+    async getWidgetsByCategory(category) {
+        return this.request(`/widgets/templates/category/${category}`, 'GET', null, { cache: true });
+    }
+
+    async createFromTemplate(templateId) {
+        return this.request(`/widgets/from-template/${templateId}`, 'POST');
+    }
+
+    async getWidgets() {
+        return this.request('/widgets', 'GET', null, { cache: true });
+    }
+
+    async getWidgetStats() {
+        return this.request('/widgets/stats', 'GET', null, { cache: true });
+    }
+
+    async getEnabledWidgets() {
+        return this.request('/widgets/enabled', 'GET', null, { cache: true });
+    }
+
+    async getInactiveWidgets() {
+        return this.request('/widgets/inactive', 'GET', null, { cache: true });
+    }
+
+    async getWidget(widgetId) {
+        return this.request(`/widgets/${widgetId}`, 'GET', null, { cache: true });
+    }
+
+    async updateWidget(widgetId, data) {
+        return this.request(`/widgets/${widgetId}`, 'PUT', data);
+    }
+
+    async deleteWidget(widgetId) {
+        return this.request(`/widgets/${widgetId}`, 'DELETE');
+    }
+
+    async toggleWidget(widgetId) {
+        return this.request(`/widgets/${widgetId}/toggle`, 'POST');
+    }
+
+    async pinWidget(widgetId) {
+        return this.request(`/widgets/${widgetId}/pin`, 'POST');
+    }
+
+    async archiveWidget(widgetId) {
+        return this.request(`/widgets/${widgetId}/archive`, 'POST');
+    }
+
+    async restoreWidget(widgetId) {
+        return this.request(`/widgets/${widgetId}/restore`, 'POST');
+    }
+
+    async recordWidgetUse(widgetId) {
+        return this.request(`/widgets/${widgetId}/use`, 'POST');
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // CUSTOM TRACKER (6 endpoints)
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    async logCustomTracker(widgetId, data) {
+        return this.request(`/custom-tracker/${widgetId}/log`, 'POST', data);
+    }
+
+    async executeCustomAction(widgetId, actionName, data = {}) {
+        return this.request(`/custom-tracker/${widgetId}/${actionName}`, 'POST', data);
+    }
+
+    async getTrackerHistory(widgetId) {
+        return this.request(`/custom-tracker/${widgetId}/history`, 'GET', null, { cache: true });
+    }
+
+    async getTrackerStats(widgetId) {
+        return this.request(`/custom-tracker/${widgetId}/stats`, 'GET', null, { cache: true });
+    }
+
+    async deleteTrackerEntry(widgetId, entryId) {
+        return this.request(`/custom-tracker/${widgetId}/entry/${entryId}`, 'DELETE');
+    }
+
+    async getAllCustomTrackers() {
+        return this.request('/custom-tracker/user/all', 'GET', null, { cache: true });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // INTERFACE ORCHESTRATION (6 endpoints)
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    async orchestrateInterface(context) {
+        return this.request('/interface/orchestrate', 'POST', context);
+    }
+
+    async logInteraction(interaction) {
+        return this.request('/interface/interaction', 'POST', interaction);
+    }
+
+    async getInterfacePreferences() {
+        return this.request('/interface/preferences', 'GET', null, { cache: true });
+    }
+
+    async updateInterfacePreferences(prefs) {
+        return this.request('/interface/preferences', 'PUT', prefs);
+    }
+
+    async updateDayPriorities(day, priorities) {
+        return this.request(`/interface/priorities/${day}`, 'PUT', { priorities });
+    }
+
+    async getInterfaceAnalytics() {
+        return this.request('/interface/analytics', 'GET', null, { cache: true });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
     // UTILITY METHODS
     // ═══════════════════════════════════════════════════════════════════════════
 
@@ -1778,7 +2018,7 @@ const API = new PhoenixAPI();
     console.log(`📡 Base URL: ${API.baseURL}`);
     console.log(`🔐 Authenticated: ${!!API.token}`);
     console.log(`👤 User ID: ${API.userId || 'Not logged in'}`);
-    console.log('257 backend endpoints loaded (perfect 1:1 mirror)');
+    console.log('308 backend endpoints loaded (perfect 1:1 mirror with all iOS features)');
 })();
 
 // Export for use in other modules

@@ -83,6 +83,9 @@ class JARVISEngine {
             // Setup UI immediately
             this.setupChatInterface();
 
+            // Setup voice session cleanup handler
+            this.setupVoiceSessionCleanup();
+
             // OPTIMIZATION: Delay real-time monitoring to avoid blocking
             setTimeout(() => this.startRealtimeMonitoring(), 2000);
 
@@ -787,13 +790,13 @@ class JARVISEngine {
 
     showNotification(title, message, type = 'info') {
         console.log(`📢 ${type.toUpperCase()} - ${title}: ${message}`);
-        
+
         const colors = {
             info: '#00d9ff',
             warning: '#ffc800',
             error: '#ff4444'
         };
-        
+
         const notification = document.createElement('div');
         notification.style.cssText = `
             position: fixed; top: 100px; right: 30px;
@@ -802,7 +805,7 @@ class JARVISEngine {
             padding: 20px; max-width: 350px; z-index: 10000;
             border-radius: 4px;
         `;
-        
+
         notification.innerHTML = `
             <div style="font-size: 14px; font-weight: bold; color: ${colors[type]}; margin-bottom: 10px;">${title}</div>
             <div style="font-size: 12px; color: ${colors[type]}; opacity: 0.8;">${message}</div>
@@ -810,6 +813,158 @@ class JARVISEngine {
 
         document.body.appendChild(notification);
         setTimeout(() => notification.remove(), 5000);
+    }
+
+    // ============================================
+    // ENHANCED VOICE SESSION MANAGEMENT
+    // Uses new iOS voice endpoints for context-aware voice interactions
+    // ============================================
+
+    async startVoiceSession(context = {}) {
+        try {
+            console.log('🎤 [Voice] Starting enhanced voice session...');
+
+            // Gather current context from dashboard
+            const sessionContext = {
+                ...context,
+                currentView: window.location.pathname,
+                timestamp: Date.now(),
+                userState: {
+                    activeTasks: this.activePredictions?.length || 0,
+                    pendingInterventions: this.activeInterventions?.length || 0
+                }
+            };
+
+            const response = await api.startVoiceSession(sessionContext);
+
+            if (response.sessionId) {
+                this.activeVoiceSession = {
+                    sessionId: response.sessionId,
+                    startTime: Date.now(),
+                    context: sessionContext
+                };
+
+                console.log('✅ [Voice] Session started:', response.sessionId);
+                this.showNotification('Voice Session', 'Voice session started', 'info');
+
+                return response;
+            } else {
+                throw new Error('No session ID received');
+            }
+        } catch (error) {
+            console.error('❌ [Voice] Failed to start voice session:', error);
+            this.showNotification('Voice Error', 'Failed to start voice session', 'error');
+            throw error;
+        }
+    }
+
+    async processVoiceCommand(command, additionalContext = {}) {
+        try {
+            if (!this.activeVoiceSession) {
+                console.warn('⚠️ [Voice] No active session, starting new one...');
+                await this.startVoiceSession(additionalContext);
+            }
+
+            console.log('🎤 [Voice] Processing command:', command);
+
+            const context = {
+                ...this.activeVoiceSession?.context,
+                ...additionalContext,
+                timestamp: Date.now()
+            };
+
+            const response = await api.processVoiceCommand(
+                this.activeVoiceSession.sessionId,
+                command,
+                context
+            );
+
+            console.log('✅ [Voice] Command processed:', response);
+
+            // If backend suggests an action, execute it
+            if (response.suggestedAction) {
+                await this.executeVoiceAction(response.suggestedAction);
+            }
+
+            return response;
+        } catch (error) {
+            console.error('❌ [Voice] Failed to process command:', error);
+            this.showNotification('Voice Error', 'Failed to process voice command', 'error');
+            throw error;
+        }
+    }
+
+    async executeVoiceAction(action) {
+        try {
+            if (!this.activeVoiceSession) {
+                throw new Error('No active voice session');
+            }
+
+            console.log('🎤 [Voice] Executing action:', action);
+
+            const response = await api.executeVoiceAction(
+                this.activeVoiceSession.sessionId,
+                action
+            );
+
+            console.log('✅ [Voice] Action executed:', response);
+
+            // Handle different action types
+            if (action.type === 'navigate' && action.target) {
+                window.location.href = action.target;
+            } else if (action.type === 'notification' && action.message) {
+                this.showNotification('Voice Action', action.message, 'info');
+            } else if (action.type === 'chat' && action.message) {
+                await this.sendMessage(action.message);
+            }
+
+            return response;
+        } catch (error) {
+            console.error('❌ [Voice] Failed to execute action:', error);
+            this.showNotification('Voice Error', 'Failed to execute voice action', 'error');
+            throw error;
+        }
+    }
+
+    async endVoiceSession() {
+        try {
+            if (!this.activeVoiceSession) {
+                console.warn('⚠️ [Voice] No active session to end');
+                return;
+            }
+
+            console.log('🎤 [Voice] Ending voice session...');
+
+            const response = await api.endVoiceSession(this.activeVoiceSession.sessionId);
+
+            const duration = Math.floor((Date.now() - this.activeVoiceSession.startTime) / 1000);
+            console.log(`✅ [Voice] Session ended. Duration: ${duration}s`);
+
+            this.activeVoiceSession = null;
+            this.showNotification('Voice Session', 'Voice session ended', 'info');
+
+            return response;
+        } catch (error) {
+            console.error('❌ [Voice] Failed to end voice session:', error);
+            this.showNotification('Voice Error', 'Failed to end voice session', 'error');
+            throw error;
+        }
+    }
+
+    // Auto-cleanup voice session on page unload
+    setupVoiceSessionCleanup() {
+        window.addEventListener('beforeunload', () => {
+            if (this.activeVoiceSession) {
+                // Use sendBeacon for guaranteed delivery even when page is closing
+                const payload = JSON.stringify({
+                    sessionId: this.activeVoiceSession.sessionId
+                });
+                navigator.sendBeacon(
+                    `${this.baseURL}/ios/voice/session/end`,
+                    new Blob([payload], { type: 'application/json' })
+                );
+            }
+        });
     }
 }
 
