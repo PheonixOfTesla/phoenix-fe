@@ -77,8 +77,8 @@ class PhoenixVoiceCommands {
         // Get the center orb element
         this.orbElement = document.getElementById('phoenix-core-container');
 
-        // Request microphone permissions on page load
-        this.requestMicrophonePermission();
+        // Request microphone permissions on first user interaction
+        this.setupFirstInteractionMicRequest();
 
         // Initialize speech recognition (optimized for platform)
         this.initSpeechRecognition();
@@ -112,6 +112,136 @@ class PhoenixVoiceCommands {
             console.warn('⚠️ Microphone permission denied:', error.message);
             this.microphonePermissionGranted = false;
         }
+    }
+
+    /* ============================================
+       FIRST INTERACTION MIC REQUEST
+       Request mic permission on ANY user interaction (browser-compliant)
+       ============================================ */
+    setupFirstInteractionMicRequest() {
+        // Check if we've already requested permission
+        const micPermissionRequested = localStorage.getItem('phoenixMicRequested');
+
+        if (micPermissionRequested === 'true') {
+            console.log('🎤 Mic permission already requested previously');
+            return;
+        }
+
+        // Create one-time handler for ANY user interaction
+        const firstInteractionHandler = async (event) => {
+            console.log('🎤 First user interaction detected - requesting mic permission');
+
+            // Remove listeners immediately to prevent multiple requests
+            document.removeEventListener('click', firstInteractionHandler, true);
+            document.removeEventListener('touchstart', firstInteractionHandler, true);
+            document.removeEventListener('keydown', firstInteractionHandler, true);
+
+            // Mark as requested so we don't ask again
+            localStorage.setItem('phoenixMicRequested', 'true');
+
+            // Hide the prompt if visible
+            const prompt = document.getElementById('mic-permission-onboarding');
+            if (prompt) {
+                prompt.style.transition = 'opacity 0.3s ease-out';
+                prompt.style.opacity = '0';
+                setTimeout(() => {
+                    if (prompt.parentNode) {
+                        prompt.parentNode.removeChild(prompt);
+                    }
+                }, 300);
+            }
+
+            // Request mic permission
+            await this.requestMicrophonePermission();
+        };
+
+        // Add listeners for click, touch, and keyboard (captures first interaction)
+        // Use capture phase (true) to catch events before they bubble
+        document.addEventListener('click', firstInteractionHandler, true);
+        document.addEventListener('touchstart', firstInteractionHandler, true);
+        document.addEventListener('keydown', firstInteractionHandler, true);
+
+        console.log('🎤 Waiting for first user interaction to request mic permission');
+
+        // Show visual prompt after 2 seconds if user hasn't interacted
+        setTimeout(() => {
+            this.showMicPermissionPrompt();
+        }, 2000);
+    }
+
+    /* ============================================
+       VISUAL MIC PERMISSION PROMPT
+       Friendly onboarding prompt to guide users
+       ============================================ */
+    showMicPermissionPrompt() {
+        // Check if already dismissed or requested
+        if (localStorage.getItem('phoenixMicRequested') === 'true') {
+            return;
+        }
+
+        // Check if prompt already exists
+        if (document.getElementById('mic-permission-onboarding')) {
+            return;
+        }
+
+        // Create overlay prompt
+        const prompt = document.createElement('div');
+        prompt.id = 'mic-permission-onboarding';
+        prompt.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 10, 20, 0.98);
+            border: 2px solid rgba(0, 217, 255, 0.6);
+            border-radius: 20px;
+            padding: 30px 40px;
+            color: #00d9ff;
+            font-size: 18px;
+            text-align: center;
+            z-index: 10001;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 0 60px rgba(0, 217, 255, 0.4);
+            animation: pulseGlow 2s ease-in-out infinite;
+            max-width: 90%;
+            width: 400px;
+            opacity: 0;
+            transition: opacity 0.5s ease-in;
+        `;
+
+        prompt.innerHTML = `
+            <div style="font-size: 48px; margin-bottom: 15px;">🎤</div>
+            <div style="font-size: 20px; font-weight: bold; margin-bottom: 10px; letter-spacing: 1px;">
+                Enable Voice Commands
+            </div>
+            <div style="font-size: 14px; color: rgba(0, 217, 255, 0.8); margin-bottom: 20px; line-height: 1.5;">
+                Tap anywhere to activate voice control.<br>
+                You can then click the orb or say "Hey Phoenix" to speak.
+            </div>
+            <div style="font-size: 12px; color: rgba(0, 217, 255, 0.5);">
+                This prompt will disappear after your first interaction
+            </div>
+        `;
+
+        document.body.appendChild(prompt);
+
+        // Add pulsing animation if not already present
+        if (!document.getElementById('mic-prompt-animation-style')) {
+            const style = document.createElement('style');
+            style.id = 'mic-prompt-animation-style';
+            style.textContent = `
+                @keyframes pulseGlow {
+                    0%, 100% { box-shadow: 0 0 60px rgba(0, 217, 255, 0.4); }
+                    50% { box-shadow: 0 0 80px rgba(0, 217, 255, 0.6); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Fade in the prompt
+        requestAnimationFrame(() => {
+            prompt.style.opacity = '1';
+        });
     }
 
     /* ============================================

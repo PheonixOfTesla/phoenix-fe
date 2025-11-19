@@ -96,3 +96,6 @@ check/
 # Don't commit coverage reports
 *-COVERAGE.md
 .vercel
+
+# Do not push folder
+do not push/
