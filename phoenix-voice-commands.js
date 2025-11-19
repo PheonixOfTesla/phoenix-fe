@@ -69,6 +69,11 @@ class PhoenixVoiceCommands {
         );
     }
 
+    isCapacitorEnvironment() {
+        // Check if running in Capacitor native app
+        return window.Capacitor !== undefined;
+    }
+
     init() {
         console.log('Initializing Phoenix Voice Command System...');
         console.log(`Platform: ${this.isAppleDevice ? 'Apple' : 'Other'}`);
@@ -103,11 +108,26 @@ class PhoenixVoiceCommands {
     async requestMicrophonePermission() {
         try {
             console.log('🎤 Requesting microphone permission...');
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            // Got permission - stop the stream immediately (we don't need it yet)
-            stream.getTracks().forEach(track => track.stop());
-            console.log('✅ Microphone permission granted');
-            this.microphonePermissionGranted = true;
+
+            if (this.isCapacitorEnvironment()) {
+                // Use Capacitor SpeechRecognition permission request
+                const { speechRecognition } = await SpeechRecognition.requestPermissions();
+
+                if (speechRecognition === 'granted') {
+                    console.log('✅ Capacitor: Microphone permission granted');
+                    this.microphonePermissionGranted = true;
+                } else {
+                    console.warn(`⚠️ Capacitor: Microphone permission ${speechRecognition}`);
+                    this.microphonePermissionGranted = false;
+                }
+            } else {
+                // Use Web browser getUserMedia
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                // Got permission - stop the stream immediately (we don't need it yet)
+                stream.getTracks().forEach(track => track.stop());
+                console.log('✅ Web: Microphone permission granted');
+                this.microphonePermissionGranted = true;
+            }
         } catch (error) {
             console.warn('⚠️ Microphone permission denied:', error.message);
             this.microphonePermissionGranted = false;
@@ -119,19 +139,33 @@ class PhoenixVoiceCommands {
        Request mic permission on ANY user interaction (browser-compliant)
        ============================================ */
     async setupFirstInteractionMicRequest() {
-        // Check ACTUAL browser mic permission status using Permissions API
+        // Check ACTUAL mic permission status (Capacitor or Web)
         try {
-            const permissionStatus = await navigator.permissions.query({ name: 'microphone' });
+            if (this.isCapacitorEnvironment()) {
+                // Use Capacitor SpeechRecognition permission APIs
+                const { speechRecognition } = await SpeechRecognition.checkPermissions();
 
-            if (permissionStatus.state === 'granted') {
-                console.log('✅ Mic permission already granted - ready to use');
-                this.microphonePermissionGranted = true;
-                return; // Don't show prompt, already have access
+                if (speechRecognition === 'granted') {
+                    console.log('✅ Capacitor: Mic permission already granted - ready to use');
+                    this.microphonePermissionGranted = true;
+                    return; // Don't show prompt, already have access
+                }
+
+                console.log(`⚠️ Capacitor: Mic permission status: ${speechRecognition} - will request on interaction`);
+            } else {
+                // Use Web browser Permissions API
+                const permissionStatus = await navigator.permissions.query({ name: 'microphone' });
+
+                if (permissionStatus.state === 'granted') {
+                    console.log('✅ Web: Mic permission already granted - ready to use');
+                    this.microphonePermissionGranted = true;
+                    return; // Don't show prompt, already have access
+                }
+
+                console.log(`⚠️ Web: Mic permission status: ${permissionStatus.state} - will request on interaction`);
             }
-
-            console.log(`⚠️ Mic permission status: ${permissionStatus.state} - will request on interaction`);
         } catch (err) {
-            console.warn('⚠️ Permissions API not supported, will request on interaction:', err.message);
+            console.warn('⚠️ Permission check failed, will request on interaction:', err.message);
         }
 
         // If not granted, set up listener for first user interaction
