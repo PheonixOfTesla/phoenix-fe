@@ -118,16 +118,23 @@ class PhoenixVoiceCommands {
        FIRST INTERACTION MIC REQUEST
        Request mic permission on ANY user interaction (browser-compliant)
        ============================================ */
-    setupFirstInteractionMicRequest() {
-        // Check if we've already requested permission
-        const micPermissionRequested = localStorage.getItem('phoenixMicRequested');
+    async setupFirstInteractionMicRequest() {
+        // Check ACTUAL browser mic permission status using Permissions API
+        try {
+            const permissionStatus = await navigator.permissions.query({ name: 'microphone' });
 
-        if (micPermissionRequested === 'true') {
-            console.log('🎤 Mic permission already requested previously');
-            return;
+            if (permissionStatus.state === 'granted') {
+                console.log('✅ Mic permission already granted - ready to use');
+                this.microphonePermissionGranted = true;
+                return; // Don't show prompt, already have access
+            }
+
+            console.log(`⚠️ Mic permission status: ${permissionStatus.state} - will request on interaction`);
+        } catch (err) {
+            console.warn('⚠️ Permissions API not supported, will request on interaction:', err.message);
         }
 
-        // Create one-time handler for ANY user interaction
+        // If not granted, set up listener for first user interaction
         const firstInteractionHandler = async (event) => {
             console.log('🎤 First user interaction detected - requesting mic permission');
 
@@ -135,9 +142,6 @@ class PhoenixVoiceCommands {
             document.removeEventListener('click', firstInteractionHandler, true);
             document.removeEventListener('touchstart', firstInteractionHandler, true);
             document.removeEventListener('keydown', firstInteractionHandler, true);
-
-            // Mark as requested so we don't ask again
-            localStorage.setItem('phoenixMicRequested', 'true');
 
             // Hide the prompt if visible
             const prompt = document.getElementById('mic-permission-onboarding');
@@ -163,7 +167,7 @@ class PhoenixVoiceCommands {
 
         console.log('🎤 Waiting for first user interaction to request mic permission');
 
-        // Show visual prompt immediately (after page loads)
+        // Show visual prompt immediately (only if permission not granted)
         setTimeout(() => {
             this.showMicPermissionPrompt();
         }, 100);
@@ -174,11 +178,6 @@ class PhoenixVoiceCommands {
        Friendly onboarding prompt to guide users
        ============================================ */
     showMicPermissionPrompt() {
-        // Check if already dismissed or requested
-        if (localStorage.getItem('phoenixMicRequested') === 'true') {
-            return;
-        }
-
         // Check if prompt already exists
         if (document.getElementById('mic-permission-onboarding')) {
             return;
