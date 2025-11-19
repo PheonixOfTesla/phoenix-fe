@@ -163,10 +163,10 @@ class PhoenixVoiceCommands {
 
         console.log('🎤 Waiting for first user interaction to request mic permission');
 
-        // Show visual prompt after 2 seconds if user hasn't interacted
+        // Show visual prompt immediately (after page loads)
         setTimeout(() => {
             this.showMicPermissionPrompt();
-        }, 2000);
+        }, 100);
     }
 
     /* ============================================
