@@ -10,8 +10,8 @@
    - Target: <2s total response time
    ============================================ */
 
-// Import Capacitor Speech Recognition plugin
-import { SpeechRecognition } from '@capacitor-community/speech-recognition';
+// Capacitor SpeechRecognition will be available globally if running in native app
+// No import needed - Capacitor plugins are loaded via script tags
 
 class PhoenixVoiceCommands {
     constructor() {
@@ -155,18 +155,18 @@ class PhoenixVoiceCommands {
         // Check if running in Capacitor native app
         const isCapacitor = window.Capacitor !== undefined;
 
-        if (isCapacitor) {
+        if (isCapacitor && window.SpeechRecognition) {
             // NATIVE iOS MODE - Use Capacitor plugin
             console.log('🎤 Initializing NATIVE iOS speech recognition...');
 
-            const { available } = await SpeechRecognition.available();
+            const { available } = await window.SpeechRecognition.available();
             if (!available) {
                 console.error('❌ Speech recognition not available on this device');
                 return;
             }
 
             // Request permissions
-            const permStatus = await SpeechRecognition.requestPermissions();
+            const permStatus = await window.SpeechRecognition.requestPermissions();
             if (permStatus.speechRecognition !== 'granted') {
                 console.error('❌ Speech recognition permission denied');
                 this.trackError('permission_denied', { permission: 'speech' });
@@ -176,14 +176,14 @@ class PhoenixVoiceCommands {
             console.log('✅ Native iOS speech recognition initialized');
 
             // Set up listeners
-            await SpeechRecognition.addListener('partialResults', (data) => {
+            await window.SpeechRecognition.addListener('partialResults', (data) => {
                 if (data.matches && data.matches.length > 0) {
                     this.currentTranscript = data.matches[0];
                     console.log('🎤 Partial:', this.currentTranscript);
                 }
             });
 
-            await SpeechRecognition.addListener('listeningState', (data) => {
+            await window.SpeechRecognition.addListener('listeningState', (data) => {
                 if (data.status === 'started') {
                     console.log('✅ Voice recognition started');
                     this.isListening = true;
@@ -312,9 +312,9 @@ class PhoenixVoiceCommands {
 
             const isCapacitor = window.Capacitor !== undefined;
 
-            if (isCapacitor) {
+            if (isCapacitor && window.SpeechRecognition) {
                 // NATIVE iOS MODE - Use Capacitor plugin
-                const result = await SpeechRecognition.start({
+                const result = await window.SpeechRecognition.start({
                     language: 'en',
                     maxResults: 3,
                     partialResults: true,
@@ -379,7 +379,11 @@ class PhoenixVoiceCommands {
         if (!this.isListening) return;
 
         try {
-            await SpeechRecognition.stop();
+            if (window.SpeechRecognition && window.Capacitor) {
+                await window.SpeechRecognition.stop();
+            } else if (this.recognition) {
+                this.recognition.stop();
+            }
             this.isListening = false;
         } catch (error) {
             console.error('❌ Error stopping recognition:', error);
