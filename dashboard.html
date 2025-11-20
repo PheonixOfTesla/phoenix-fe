@@ -67,16 +67,31 @@
     </div>
 
     <script>
-        // Consciousness loading sequence
+        // Consciousness loading sequence with VOICE
         (function() {
             const statuses = [
-                { main: 'ACTIVATING PHOENIX CONSCIOUSNESS ...', sub: 'OPTIMIZING NEURAL PATHWAYS ...', progress: 10 },
-                { main: 'ACTIVATING PHOENIX CONSCIOUSNESS ...', sub: 'SYNCHRONIZING LIFE SYSTEMS ...', progress: 30 },
-                { main: 'LOADING PLANETARY MODULES ...', sub: 'MERCURY • VENUS • EARTH • MARS • JUPITER • SATURN', progress: 50 },
-                { main: 'ESTABLISHING AI CONNECTIONS ...', sub: 'GEMINI CONSCIOUS MIND ACTIVE', progress: 70 },
-                { main: 'CALIBRATING VOICE INTERFACE ...', sub: 'SPEECH RECOGNITION READY', progress: 85 },
-                { main: 'CONSCIOUSNESS ONLINE', sub: 'READY TO ENTER', progress: 100 }
+                { main: 'ACTIVATING PHOENIX CONSCIOUSNESS ...', sub: 'OPTIMIZING NEURAL PATHWAYS ...', progress: 10, speak: 'Activating Phoenix consciousness' },
+                { main: 'ACTIVATING PHOENIX CONSCIOUSNESS ...', sub: 'SYNCHRONIZING LIFE SYSTEMS ...', progress: 30, speak: 'Synchronizing life systems' },
+                { main: 'LOADING PLANETARY MODULES ...', sub: 'MERCURY • VENUS • EARTH • MARS • JUPITER • SATURN', progress: 50, speak: 'Loading planetary modules' },
+                { main: 'ESTABLISHING AI CONNECTIONS ...', sub: 'GEMINI CONSCIOUS MIND ACTIVE', progress: 70, speak: 'Establishing AI connections' },
+                { main: 'CALIBRATING VOICE INTERFACE ...', sub: 'SPEECH RECOGNITION READY', progress: 85, speak: 'Calibrating voice interface' },
+                { main: 'CONSCIOUSNESS ONLINE', sub: 'READY TO ENTER', progress: 100, speak: 'Consciousness online. Ready to enter.' }
             ];
+
+            // Initialize speech synthesis
+            const synth = window.speechSynthesis;
+
+            // Speak function
+            function speak(text) {
+                if (synth && synth.speaking) {
+                    synth.cancel(); // Cancel any ongoing speech
+                }
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.9; // Slightly slower for dramatic effect
+                utterance.pitch = 1.0;
+                utterance.volume = 0.8;
+                synth.speak(utterance);
+            }
 
             let currentStatus = 0;
             const statusInterval = setInterval(() => {
@@ -85,6 +100,11 @@
                     document.getElementById('consciousness-status').textContent = status.main;
                     document.getElementById('consciousness-substatus').textContent = status.sub;
                     document.getElementById('consciousness-progress').style.width = status.progress + '%';
+
+                    // SPEAK the status
+                    if (status.speak) {
+                        speak(status.speak);
+                    }
 
                     if (currentStatus === statuses.length - 1) {
                         // Show enter button
@@ -98,7 +118,7 @@
                 } else {
                     clearInterval(statusInterval);
                 }
-            }, 600); // Change status every 600ms
+            }, 2000); // Change status every 2 seconds (slower for voice to complete)
 
             window.enterDashboard = function() {
                 const loading = document.getElementById('loading');
