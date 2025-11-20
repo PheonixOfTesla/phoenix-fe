@@ -5,7 +5,7 @@
 
    NATIVE iOS SPEECH RECOGNITION:
    - Uses Capacitor SpeechRecognition plugin
-   - Native iOS Whisper (SFSpeechRecognizer)
+   - Native iOS SFSpeechRecognizer (Apple's on-device API)
    - Better accent, slang, and multi-language support
    - Target: <2s total response time
    ============================================ */
@@ -69,11 +69,6 @@ class PhoenixVoiceCommands {
         );
     }
 
-    isCapacitorEnvironment() {
-        // Check if running in Capacitor native app
-        return window.Capacitor !== undefined;
-    }
-
     init() {
         console.log('Initializing Phoenix Voice Command System...');
         console.log(`Platform: ${this.isAppleDevice ? 'Apple' : 'Other'}`);
@@ -81,9 +76,6 @@ class PhoenixVoiceCommands {
 
         // Get the center orb element
         this.orbElement = document.getElementById('phoenix-core-container');
-
-        // Request microphone permissions on first user interaction
-        this.setupFirstInteractionMicRequest();
 
         // Initialize speech recognition (optimized for platform)
         this.initSpeechRecognition();
@@ -96,185 +88,10 @@ class PhoenixVoiceCommands {
 
         console.log('Phoenix Voice Commands ready');
         if (this.useNativeAPIs) {
-            console.log('✅ Using native Apple Whisper + AVSpeechSynthesizer for optimal speed');
+            console.log('✅ Using native SFSpeechRecognizer + AVSpeechSynthesizer for optimal speed');
         } else {
             console.log('✅ Using Web Speech API (fallback)');
         }
-    }
-
-    /* ============================================
-       MICROPHONE PERMISSION REQUEST
-       ============================================ */
-    async requestMicrophonePermission() {
-        try {
-            console.log('🎤 Requesting microphone permission...');
-
-            if (this.isCapacitorEnvironment()) {
-                // Use Capacitor SpeechRecognition permission request
-                const { speechRecognition } = await SpeechRecognition.requestPermissions();
-
-                if (speechRecognition === 'granted') {
-                    console.log('✅ Capacitor: Microphone permission granted');
-                    this.microphonePermissionGranted = true;
-                } else {
-                    console.warn(`⚠️ Capacitor: Microphone permission ${speechRecognition}`);
-                    this.microphonePermissionGranted = false;
-                }
-            } else {
-                // Use Web browser getUserMedia
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                // Got permission - stop the stream immediately (we don't need it yet)
-                stream.getTracks().forEach(track => track.stop());
-                console.log('✅ Web: Microphone permission granted');
-                this.microphonePermissionGranted = true;
-            }
-        } catch (error) {
-            console.warn('⚠️ Microphone permission denied:', error.message);
-            this.microphonePermissionGranted = false;
-        }
-    }
-
-    /* ============================================
-       FIRST INTERACTION MIC REQUEST
-       Request mic permission on ANY user interaction (browser-compliant)
-       ============================================ */
-    async setupFirstInteractionMicRequest() {
-        // Check ACTUAL mic permission status (Capacitor or Web)
-        try {
-            if (this.isCapacitorEnvironment()) {
-                // Use Capacitor SpeechRecognition permission APIs
-                const { speechRecognition } = await SpeechRecognition.checkPermissions();
-
-                if (speechRecognition === 'granted') {
-                    console.log('✅ Capacitor: Mic permission already granted - ready to use');
-                    this.microphonePermissionGranted = true;
-                    return; // Don't show prompt, already have access
-                }
-
-                console.log(`⚠️ Capacitor: Mic permission status: ${speechRecognition} - will request on interaction`);
-            } else {
-                // Use Web browser Permissions API
-                const permissionStatus = await navigator.permissions.query({ name: 'microphone' });
-
-                if (permissionStatus.state === 'granted') {
-                    console.log('✅ Web: Mic permission already granted - ready to use');
-                    this.microphonePermissionGranted = true;
-                    return; // Don't show prompt, already have access
-                }
-
-                console.log(`⚠️ Web: Mic permission status: ${permissionStatus.state} - will request on interaction`);
-            }
-        } catch (err) {
-            console.warn('⚠️ Permission check failed, will request on interaction:', err.message);
-        }
-
-        // If not granted, set up listener for first user interaction
-        const firstInteractionHandler = async (event) => {
-            console.log('🎤 First user interaction detected - requesting mic permission');
-
-            // Remove listeners immediately to prevent multiple requests
-            document.removeEventListener('click', firstInteractionHandler, true);
-            document.removeEventListener('touchstart', firstInteractionHandler, true);
-            document.removeEventListener('keydown', firstInteractionHandler, true);
-
-            // Hide the prompt if visible
-            const prompt = document.getElementById('mic-permission-onboarding');
-            if (prompt) {
-                prompt.style.transition = 'opacity 0.3s ease-out';
-                prompt.style.opacity = '0';
-                setTimeout(() => {
-                    if (prompt.parentNode) {
-                        prompt.parentNode.removeChild(prompt);
-                    }
-                }, 300);
-            }
-
-            // Request mic permission
-            await this.requestMicrophonePermission();
-        };
-
-        // Add listeners for click, touch, and keyboard (captures first interaction)
-        // Use capture phase (true) to catch events before they bubble
-        document.addEventListener('click', firstInteractionHandler, true);
-        document.addEventListener('touchstart', firstInteractionHandler, true);
-        document.addEventListener('keydown', firstInteractionHandler, true);
-
-        console.log('🎤 Waiting for first user interaction to request mic permission');
-
-        // Show visual prompt immediately (only if permission not granted)
-        setTimeout(() => {
-            this.showMicPermissionPrompt();
-        }, 100);
-    }
-
-    /* ============================================
-       VISUAL MIC PERMISSION PROMPT
-       Friendly onboarding prompt to guide users
-       ============================================ */
-    showMicPermissionPrompt() {
-        // Check if prompt already exists
-        if (document.getElementById('mic-permission-onboarding')) {
-            return;
-        }
-
-        // Create overlay prompt
-        const prompt = document.createElement('div');
-        prompt.id = 'mic-permission-onboarding';
-        prompt.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 10, 20, 0.98);
-            border: 2px solid rgba(0, 217, 255, 0.6);
-            border-radius: 20px;
-            padding: 30px 40px;
-            color: #00d9ff;
-            font-size: 18px;
-            text-align: center;
-            z-index: 10001;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 0 60px rgba(0, 217, 255, 0.4);
-            animation: pulseGlow 2s ease-in-out infinite;
-            max-width: 90%;
-            width: 400px;
-            opacity: 0;
-            transition: opacity 0.5s ease-in;
-        `;
-
-        prompt.innerHTML = `
-            <div style="font-size: 48px; margin-bottom: 15px;">🎤</div>
-            <div style="font-size: 20px; font-weight: bold; margin-bottom: 10px; letter-spacing: 1px;">
-                Enable Voice Commands
-            </div>
-            <div style="font-size: 14px; color: rgba(0, 217, 255, 0.8); margin-bottom: 20px; line-height: 1.5;">
-                Tap anywhere to activate voice control.<br>
-                You can then click the orb or say "Hey Phoenix" to speak.
-            </div>
-            <div style="font-size: 12px; color: rgba(0, 217, 255, 0.5);">
-                This prompt will disappear after your first interaction
-            </div>
-        `;
-
-        document.body.appendChild(prompt);
-
-        // Add pulsing animation if not already present
-        if (!document.getElementById('mic-prompt-animation-style')) {
-            const style = document.createElement('style');
-            style.id = 'mic-prompt-animation-style';
-            style.textContent = `
-                @keyframes pulseGlow {
-                    0%, 100% { box-shadow: 0 0 60px rgba(0, 217, 255, 0.4); }
-                    50% { box-shadow: 0 0 80px rgba(0, 217, 255, 0.6); }
-                }
-            `;
-            document.head.appendChild(style);
-        }
-
-        // Fade in the prompt
-        requestAnimationFrame(() => {
-            prompt.style.opacity = '1';
-        });
     }
 
     /* ============================================
