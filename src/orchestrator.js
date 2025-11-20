@@ -1275,17 +1275,31 @@ return true; // Token is valid if this succeeds
             } else {
                 throw new Error('ButlerService not found');
             }
-            
-            // ENDPOINT 1: GET /api/phoenix/butler/automations
-            const automations = await this.components.api.getButlerAutomations();
-            this.performanceMetrics.endpointsCalled++;
-            console.log(`✅ Butler Automations: ${automations.automations?.length || 0} active`);
-            
-            // ENDPOINT 2: GET /api/phoenix/companion/history
-            const history = await this.components.api.getCompanionHistory();
-            this.performanceMetrics.endpointsCalled++;
-            console.log(`✅ Butler History: ${history.history?.length || 0} past tasks`);
-            
+
+            // Try to load butler data (optional - gracefully handle missing endpoints)
+            let automations = { automations: [] };
+            let history = { history: [] };
+
+            try {
+                if (this.components.api && this.components.api.getButlerAutomations) {
+                    automations = await this.components.api.getButlerAutomations();
+                    this.performanceMetrics.endpointsCalled++;
+                    console.log(`✅ Butler Automations: ${automations.automations?.length || 0} active`);
+                }
+            } catch (err) {
+                console.log('ℹ️ Butler automations endpoint not implemented yet');
+            }
+
+            try {
+                if (this.components.api && this.components.api.getCompanionHistory) {
+                    history = await this.components.api.getCompanionHistory();
+                    this.performanceMetrics.endpointsCalled++;
+                    console.log(`✅ Butler History: ${history.history?.length || 0} past tasks`);
+                }
+            } catch (err) {
+                console.log('ℹ️ Butler history endpoint not implemented yet');
+            }
+
             // Initialize butler with data
             if (this.components.butler.initialize) {
                 await this.components.butler.initialize({
@@ -1293,11 +1307,11 @@ return true; // Token is valid if this succeeds
                     history
                 });
             }
-            
+
             this.state.systemsReady.butler = true;
             this.state.health.butler = 'healthy';
             this.performanceMetrics.componentsLoaded++;
-            
+
         } catch (error) {
             console.error('❌ Butler initialization failed:', error);
             this.logError('Butler initialization failed', error);
@@ -1345,36 +1359,43 @@ return true; // Token is valid if this succeeds
                 this.state.health.voice = 'unavailable';
                 return;
             }
-            
+
             this.components.voice = window.voiceInterface;
-            
-            // ENDPOINT: POST /api/phoenix/voice/session
-            // Real-world: "Create a voice session for this user"
-            const voiceSession = await this.components.api.createVoiceSession();
-            this.performanceMetrics.endpointsCalled++;
-            console.log(`✅ Voice Session: ${voiceSession.sessionId}`);
-            
+
+            // Try to create voice session (optional - gracefully handle missing endpoint)
+            let voiceSession = null;
+            try {
+                if (this.components.api && this.components.api.createVoiceSession) {
+                    voiceSession = await this.components.api.createVoiceSession();
+                    this.performanceMetrics.endpointsCalled++;
+                    console.log(`✅ Voice Session: ${voiceSession.sessionId}`);
+                }
+            } catch (err) {
+                console.log('ℹ️ Voice session endpoint not implemented yet - using local session');
+                voiceSession = { sessionId: `local_${Date.now()}` };
+            }
+
             // Configure voice with session
-            if (this.components.voice.setSession) {
+            if (this.components.voice.setSession && voiceSession) {
                 this.components.voice.setSession(voiceSession);
             }
-            
+
             // Set orchestrator reference
             if (this.components.voice.setOrchestrator) {
                 this.components.voice.setOrchestrator(this);
             }
-            
+
             // Prevent voice restart on interaction
             if (this.components.voice.preventRestart) {
                 this.components.voice.preventRestart = true;
             }
-            
+
             this.state.systemsReady.voice = true;
             this.state.health.voice = 'healthy';
             this.performanceMetrics.componentsLoaded++;
-            
+
             console.log('Voice interface ready - say "Hey Phoenix"');
-            
+
         } catch (error) {
             console.error('❌ Voice setup failed:', error);
             this.logError('Voice setup failed', error);

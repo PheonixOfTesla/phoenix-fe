@@ -9,16 +9,23 @@
 class ButlerService {
     constructor(orchestrator) {
         this.orchestrator = orchestrator;
+        this.automations = [];
+        this.history = [];
         console.log('🤵 ButlerService initialized');
     }
 
-    async initialize() {
-        // Butler automations ready
-        return { automations: 0, ready: true };
+    async initialize(data) {
+        // Handle initialization data gracefully
+        if (data) {
+            this.automations = data.automations?.automations || [];
+            this.history = data.history?.history || [];
+        }
+        console.log(`✅ Butler ready: ${this.automations.length} automations`);
+        return { automations: this.automations.length, ready: true };
     }
 
     async getAutomations() {
-        return { automations: [] };
+        return { automations: this.automations };
     }
 }
 
