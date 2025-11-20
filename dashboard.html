@@ -32,7 +32,7 @@
     <!-- ============================================ -->
     <!-- QUANTUM ENTANGLEMENT ACTIVATION -->
     <!-- ============================================ -->
-    <div id="quantum-link" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10001;cursor:pointer;background-image:radial-gradient(circle at 50% 50%, rgba(0,255,100,0.05) 0%, transparent 50%)">
+    <div id="quantum-link" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10001;background-image:radial-gradient(circle at 50% 50%, rgba(0,255,100,0.05) 0%, transparent 50%);transition:opacity 1s">
         <!-- Quantum Orbs Container -->
         <div style="position:relative;width:300px;height:150px;margin-bottom:50px">
             <!-- Left Orb -->
@@ -70,11 +70,23 @@
 
         <!-- Text -->
         <div style="font-size:24px;color:#00ff64;letter-spacing:6px;font-family:monospace;font-weight:bold;text-shadow:0 0 20px rgba(0,255,100,0.8);margin-bottom:15px">
-            QUANTUM LINK READY
+            INITIALIZING SYSTEMS
         </div>
         <div style="font-size:14px;color:rgba(0,255,100,0.7);letter-spacing:3px;font-family:monospace">
-            ESTABLISH CONNECTION
+            LOADING PHOENIX CORE ...
         </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ACTIVATE BUTTON SCREEN (shown after quantum fades) -->
+    <!-- ============================================ -->
+    <div id="activate-screen" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:10001;background-image:radial-gradient(circle at 50% 50%, rgba(0,255,100,0.05) 0%, transparent 50%);opacity:0;transition:opacity 1s">
+        <div style="font-size:28px;color:#00ff64;letter-spacing:6px;font-family:monospace;font-weight:bold;text-shadow:0 0 20px rgba(0,255,100,0.8);margin-bottom:40px">
+            PHOENIX READY
+        </div>
+        <button id="activate-btn" style="padding:20px 60px;background:transparent;border:2px solid #00ff64;color:#00ff64;font-family:monospace;font-size:16px;letter-spacing:4px;cursor:pointer;border-radius:4px;transition:all 0.3s;box-shadow:0 0 20px rgba(0,255,100,0.3);font-weight:bold">
+            ACTIVATE CONSCIOUSNESS
+        </button>
     </div>
 
     <!-- ============================================ -->
@@ -184,20 +196,33 @@
                 }
             }
 
-            // Quantum Link Click Handler
-            document.getElementById('quantum-link').addEventListener('click', async function() {
+            // Auto-fade quantum link after 3 seconds
+            setTimeout(() => {
+                const quantum = document.getElementById('quantum-link');
+                quantum.style.opacity = '0';
+                setTimeout(() => {
+                    quantum.style.display = 'none';
+
+                    // Show activate button screen
+                    const activateScreen = document.getElementById('activate-screen');
+                    activateScreen.style.display = 'flex';
+                    setTimeout(() => activateScreen.style.opacity = '1', 100);
+                }, 1000);
+            }, 3000);
+
+            // Activate button click handler
+            document.getElementById('activate-btn').addEventListener('click', async function() {
                 // Prevent spam clicks
+                this.disabled = true;
                 this.style.pointerEvents = 'none';
-                console.log('⚛️ Quantum link activated');
+                console.log('⚡ Activating Phoenix consciousness');
 
-                // Play TTS: "Quantum link established"
-                await speak('Quantum link established');
+                // Fade out activate screen
+                const activateScreen = document.getElementById('activate-screen');
+                activateScreen.style.opacity = '0';
+                setTimeout(() => activateScreen.style.display = 'none', 1000);
 
-                // Fade out quantum widget
-                this.style.opacity = '0';
-                setTimeout(() => this.style.display = 'none', 1000);
-
-                // Show and start loading screen
+                // Show and start loading screen with TTS
                 const loading = document.getElementById('loading');
                 loading.style.display = 'flex';
                 setTimeout(() => {
