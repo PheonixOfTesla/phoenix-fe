@@ -109,10 +109,8 @@
 
         <!-- Loading Text -->
         <div id="consciousness-status" style="text-align:center;letter-spacing:3px;font-size:16px;color:rgba(0,255,100,0.9);margin-bottom:15px;text-shadow:0 0 10px rgba(0,255,100,0.8);font-family:monospace">
-            ACTIVATING PHOENIX CONSCIOUSNESS ...
         </div>
         <div id="consciousness-substatus" style="text-align:center;letter-spacing:2px;font-size:13px;color:rgba(0,255,100,0.6);margin-bottom:30px;font-family:monospace;height:20px">
-            OPTIMIZING NEURAL PATHWAYS ...
         </div>
 
         <!-- Progress indicator -->
@@ -146,9 +144,16 @@
                         const blob = await response.blob();
                         const url = URL.createObjectURL(blob);
                         const audio = new Audio(url);
-                        await audio.play();
-                        audio.onended = () => URL.revokeObjectURL(url);
-                        console.log('✅ Audio played successfully');
+
+                        // Wait for audio to finish playing before continuing
+                        await new Promise((resolve) => {
+                            audio.onended = () => {
+                                URL.revokeObjectURL(url);
+                                console.log('✅ Audio finished playing');
+                                resolve();
+                            };
+                            audio.play();
+                        });
                     }
                 } catch (err) {
                     console.error('❌ TTS error:', err);
@@ -233,9 +238,25 @@
 
             // Enter function - speak welcome message with user's name
             window.enterDashboard = function() {
-                // Get user's name from localStorage or API
-                const userData = JSON.parse(localStorage.getItem('user') || '{}');
-                const userName = userData.name || userData.email?.split('@')[0] || 'User';
+                // Get user's name from localStorage (check multiple possible keys)
+                let userName = localStorage.getItem('phoenixName') ||
+                               localStorage.getItem('userName');
+
+                // If not found, try parsing user objects
+                if (!userName) {
+                    try {
+                        const phoenixUser = JSON.parse(localStorage.getItem('phoenixUser') || '{}');
+                        const user = JSON.parse(localStorage.getItem('user') || '{}');
+                        userName = phoenixUser.name || user.name ||
+                                   phoenixUser.email?.split('@')[0] ||
+                                   user.email?.split('@')[0];
+                    } catch (e) {
+                        console.log('Could not parse user data from localStorage');
+                    }
+                }
+
+                // Fallback to 'User' if still not found
+                userName = userName || 'User';
 
                 // Speak welcome message
                 speak(`Welcome ${userName}`);
