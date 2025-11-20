@@ -154,40 +154,34 @@
 
             // Start loading sequence (called after quantum link click)
             async function startLoadingSequence() {
-                let currentStatus = 0;
-                const statusInterval = setInterval(async () => {
-                    if (currentStatus < statuses.length) {
-                        const status = statuses[currentStatus];
-                        document.getElementById('consciousness-status').textContent = status.main;
-                        document.getElementById('consciousness-substatus').textContent = status.sub;
-                        document.getElementById('consciousness-progress').style.width = status.progress + '%';
+                for (let i = 0; i < statuses.length; i++) {
+                    const status = statuses[i];
 
-                        // Speak the substatus text with TTS
-                        speak(status.sub);
+                    // Update UI
+                    document.getElementById('consciousness-status').textContent = status.main;
+                    document.getElementById('consciousness-substatus').textContent = status.sub;
+                    document.getElementById('consciousness-progress').style.width = status.progress + '%';
 
-                        // Request microphone permissions on voice calibration step
-                        if (currentStatus === 4) { // CALIBRATING VOICE INTERFACE step
-                            try {
-                                await navigator.mediaDevices.getUserMedia({ audio: true });
-                                console.log('🎤 Microphone access granted');
-                            } catch (err) {
-                                console.log('🎤 Microphone access denied:', err);
-                            }
+                    // Speak the substatus text with TTS (wait for it to finish)
+                    await speak(status.sub);
+
+                    // Request microphone permissions on voice calibration step
+                    if (i === 4) { // CALIBRATING VOICE INTERFACE step
+                        try {
+                            await navigator.mediaDevices.getUserMedia({ audio: true });
+                            console.log('🎤 Microphone access granted');
+                        } catch (err) {
+                            console.log('🎤 Microphone access denied:', err);
                         }
-
-                        if (currentStatus === statuses.length - 1) {
-                            // Auto-advance to dashboard after 2 seconds
-                            setTimeout(() => {
-                                console.log('✅ Auto-advancing to dashboard');
-                                enterDashboard();
-                            }, 2000);
-                            clearInterval(statusInterval);
-                        }
-                        currentStatus++;
-                    } else {
-                        clearInterval(statusInterval);
                     }
-                }, 500); // Fast sequence - 500ms per step = ~3 seconds total
+
+                    // On final status, auto-advance after brief pause
+                    if (i === statuses.length - 1) {
+                        await new Promise(resolve => setTimeout(resolve, 1500));
+                        console.log('✅ Auto-advancing to dashboard');
+                        enterDashboard();
+                    }
+                }
             }
 
             // Quantum Link Click Handler
