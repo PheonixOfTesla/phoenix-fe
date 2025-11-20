@@ -112,11 +112,6 @@
                     document.getElementById('consciousness-substatus').textContent = status.sub;
                     document.getElementById('consciousness-progress').style.width = status.progress + '%';
 
-                    // SPEAK with OpenAI TTS (only on first and last status)
-                    if (status.speak) {
-                        speakOpenAI(status.speak);
-                    }
-
                     if (currentStatus === statuses.length - 1) {
                         // Show enter button
                         setTimeout(() => {
@@ -131,42 +126,19 @@
                 }
             }, 1200); // Change status every 1.2 seconds
 
-            // Track when orchestrator is ready
-            let orchestratorReady = false;
-            const MIN_DISPLAY_TIME = 8000; // Always show for at least 8 seconds
-            const loadStartTime = Date.now();
-
+            // Simplified enter function with hardcoded welcome message
             window.enterDashboard = function() {
                 const loading = document.getElementById('loading');
 
-                // Play "Consciousness online" audio before hiding
-                speakOpenAI('Consciousness online. Ready to enter.').then(() => {
-                    // Hide after audio plays
+                // Hardcoded welcome audio plays on button click (nova voice)
+                speakOpenAI('Welcome to Phoenix. Consciousness online.').then(() => {
+                    // Hide loading screen after audio
                     loading.style.opacity = '0';
                     setTimeout(() => {
                         loading.style.display = 'none';
                     }, 1000);
                 });
             };
-
-            // Auto-enter only after BOTH conditions met:
-            // 1. Orchestrator is ready
-            // 2. Minimum display time elapsed (8 seconds)
-            window.addEventListener('phoenix:orchestrator:ready', () => {
-                orchestratorReady = true;
-                const elapsed = Date.now() - loadStartTime;
-                const remaining = Math.max(0, MIN_DISPLAY_TIME - elapsed);
-
-                console.log(`Orchestrator ready after ${elapsed}ms, waiting ${remaining}ms more...`);
-
-                // Wait for remaining time, then auto-show enter button
-                setTimeout(() => {
-                    if (document.getElementById('loading').style.display !== 'none') {
-                        // Don't auto-enter, let user click button
-                        console.log('Loading complete - user can click ENTER button');
-                    }
-                }, remaining);
-            });
         })();
     </script>
 
