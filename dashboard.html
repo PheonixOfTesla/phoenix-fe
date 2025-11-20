@@ -30,9 +30,57 @@
     </div>
 
     <!-- ============================================ -->
+    <!-- QUANTUM ENTANGLEMENT ACTIVATION -->
+    <!-- ============================================ -->
+    <div id="quantum-link" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10001;cursor:pointer;background-image:radial-gradient(circle at 50% 50%, rgba(0,255,100,0.05) 0%, transparent 50%)">
+        <!-- Quantum Orbs Container -->
+        <div style="position:relative;width:300px;height:150px;margin-bottom:50px">
+            <!-- Left Orb -->
+            <div style="position:absolute;left:0;top:50%;transform:translateY(-50%);width:80px;height:80px;background:radial-gradient(circle, rgba(0,255,100,0.8) 0%, rgba(0,255,100,0.3) 50%, transparent 100%);border-radius:50%;animation:quantumPulse 2s ease-in-out infinite;box-shadow:0 0 40px rgba(0,255,100,0.6), 0 0 80px rgba(0,255,100,0.3)">
+                <div style="width:100%;height:100%;border-radius:50%;background:radial-gradient(circle, rgba(255,255,255,0.6) 0%, transparent 40%)"></div>
+            </div>
+
+            <!-- Connection Line with Particles -->
+            <svg style="position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);width:100%;height:100%;pointer-events:none" viewBox="0 0 300 150">
+                <!-- Arc path -->
+                <path d="M 40 75 Q 150 25, 260 75" stroke="rgba(0,255,100,0.4)" stroke-width="2" fill="none" stroke-dasharray="5,5">
+                    <animate attributeName="stroke-dashoffset" from="0" to="10" dur="1s" repeatCount="indefinite"/>
+                </path>
+                <!-- Flowing particles -->
+                <circle r="4" fill="#00ff64">
+                    <animateMotion dur="3s" repeatCount="indefinite">
+                        <mpath href="#orbPath"/>
+                    </animateMotion>
+                    <animate attributeName="opacity" values="0;1;1;0" dur="3s" repeatCount="indefinite"/>
+                </circle>
+                <circle r="3" fill="rgba(0,255,100,0.6)">
+                    <animateMotion dur="3s" repeatCount="indefinite" begin="1s">
+                        <mpath href="#orbPath"/>
+                    </animateMotion>
+                    <animate attributeName="opacity" values="0;1;1;0" dur="3s" repeatCount="indefinite" begin="1s"/>
+                </circle>
+                <path id="orbPath" d="M 40 75 Q 150 25, 260 75" fill="none"/>
+            </svg>
+
+            <!-- Right Orb -->
+            <div style="position:absolute;right:0;top:50%;transform:translateY(-50%);width:80px;height:80px;background:radial-gradient(circle, rgba(0,255,100,0.8) 0%, rgba(0,255,100,0.3) 50%, transparent 100%);border-radius:50%;animation:quantumPulse 2s ease-in-out infinite;box-shadow:0 0 40px rgba(0,255,100,0.6), 0 0 80px rgba(0,255,100,0.3)">
+                <div style="width:100%;height:100%;border-radius:50%;background:radial-gradient(circle, rgba(255,255,255,0.6) 0%, transparent 40%)"></div>
+            </div>
+        </div>
+
+        <!-- Text -->
+        <div style="font-size:24px;color:#00ff64;letter-spacing:6px;font-family:monospace;font-weight:bold;text-shadow:0 0 20px rgba(0,255,100,0.8);margin-bottom:15px">
+            QUANTUM LINK READY
+        </div>
+        <div style="font-size:14px;color:rgba(0,255,100,0.7);letter-spacing:3px;font-family:monospace">
+            ESTABLISH CONNECTION
+        </div>
+    </div>
+
+    <!-- ============================================ -->
     <!-- CONSCIOUSNESS LOADING SCREEN (Matrix Style) -->
     <!-- ============================================ -->
-    <div id="loading" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10000;transition:opacity 1s;background-image:radial-gradient(circle at 50% 50%, rgba(0,255,100,0.05) 0%, transparent 50%);overflow:hidden">
+    <div id="loading" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:10000;transition:opacity 1s;background-image:radial-gradient(circle at 50% 50%, rgba(0,255,100,0.05) 0%, transparent 50%);overflow:hidden;opacity:0">
         <!-- Matrix Grid Lines -->
         <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(0,255,100,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,100,0.1) 1px, transparent 1px);background-size:50px 50px;opacity:0.3;pointer-events:none"></div>
 
@@ -104,33 +152,55 @@
                 { main: 'CONSCIOUSNESS ONLINE', sub: 'READY TO ENTER', progress: 100, audio: audio2 }
             ];
 
-            // Start loading sequence immediately
-            let currentStatus = 0;
-            const statusInterval = setInterval(() => {
-                if (currentStatus < statuses.length) {
-                    const status = statuses[currentStatus];
-                    document.getElementById('consciousness-status').textContent = status.main;
-                    document.getElementById('consciousness-substatus').textContent = status.sub;
-                    document.getElementById('consciousness-progress').style.width = status.progress + '%';
+            // Start loading sequence (called after quantum link click)
+            function startLoadingSequence() {
+                let currentStatus = 0;
+                const statusInterval = setInterval(() => {
+                    if (currentStatus < statuses.length) {
+                        const status = statuses[currentStatus];
+                        document.getElementById('consciousness-status').textContent = status.main;
+                        document.getElementById('consciousness-substatus').textContent = status.sub;
+                        document.getElementById('consciousness-progress').style.width = status.progress + '%';
 
-                    // Play audio clip if this status has one
-                    if (status.audio) {
-                        status.audio.play().catch(err => console.log('Audio autoplay blocked (expected):', err));
-                    }
+                        // Play audio clip if this status has one
+                        if (status.audio) {
+                            status.audio.play().catch(err => console.log('Audio autoplay blocked (expected):', err));
+                        }
 
-                    if (currentStatus === statuses.length - 1) {
-                        // Show enter button
-                        setTimeout(() => {
-                            document.getElementById('enter-domain-btn').style.display = 'block';
-                            document.getElementById('enter-domain-btn').style.animation = 'fadeIn 0.5s forwards';
-                        }, 500);
+                        if (currentStatus === statuses.length - 1) {
+                            // Show enter button
+                            setTimeout(() => {
+                                document.getElementById('enter-domain-btn').style.display = 'block';
+                                document.getElementById('enter-domain-btn').style.animation = 'fadeIn 0.5s forwards';
+                            }, 500);
+                            clearInterval(statusInterval);
+                        }
+                        currentStatus++;
+                    } else {
                         clearInterval(statusInterval);
                     }
-                    currentStatus++;
-                } else {
-                    clearInterval(statusInterval);
-                }
-            }, 1200); // Change status every 1.2 seconds
+                }, 1200); // Change status every 1.2 seconds
+            }
+
+            // Quantum Link Click Handler
+            document.getElementById('quantum-link').addEventListener('click', async function() {
+                console.log('⚛️ Quantum link activated');
+
+                // Play TTS: "Quantum link established"
+                await speak('Quantum link established');
+
+                // Fade out quantum widget
+                this.style.opacity = '0';
+                setTimeout(() => this.style.display = 'none', 1000);
+
+                // Show and start loading screen
+                const loading = document.getElementById('loading');
+                loading.style.display = 'flex';
+                setTimeout(() => {
+                    loading.style.opacity = '1';
+                    startLoadingSequence();
+                }, 100);
+            });
 
             // Enter function - speak welcome message with user's name
             window.enterDashboard = function() {
@@ -290,6 +360,17 @@
             100% {
                 transform: scale(1.3);
                 opacity: 0;
+            }
+        }
+
+        @keyframes quantumPulse {
+            0%, 100% {
+                transform: translateY(-50%) scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(-50%) scale(1.1);
+                opacity: 0.7;
             }
         }
     </style>
