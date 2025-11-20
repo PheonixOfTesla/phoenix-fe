@@ -131,49 +131,116 @@ class PhoenixVoiceCommands {
     }
 
     /* ============================================
-       SPEECH RECOGNITION SETUP - NATIVE iOS
+       MICROPHONE PERMISSION REQUEST (BROWSER)
+       ============================================ */
+    async requestMicrophonePermission() {
+        try {
+            console.log('🎤 Requesting microphone permission (browser)...');
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            // Got permission - stop the stream immediately
+            stream.getTracks().forEach(track => track.stop());
+            console.log('✅ Browser microphone permission granted');
+            this.microphonePermissionGranted = true;
+        } catch (error) {
+            console.warn('⚠️ Browser microphone permission denied:', error.message);
+            this.microphonePermissionGranted = false;
+        }
+    }
+
+    /* ============================================
+       SPEECH RECOGNITION SETUP - DUAL MODE
+       Native iOS (Capacitor) + Browser fallback
        ============================================ */
     async initSpeechRecognition() {
-        // Check if speech recognition is available
-        const { available } = await SpeechRecognition.available();
-        if (!available) {
-            console.error('❌ Speech recognition not available on this device');
-            return;
-        }
+        // Check if running in Capacitor native app
+        const isCapacitor = window.Capacitor !== undefined;
 
-        // Request permissions
-        const permStatus = await SpeechRecognition.requestPermissions();
-        if (permStatus.speechRecognition !== 'granted') {
-            console.error('❌ Speech recognition permission denied');
-            // Track permission error for optimization
-            this.trackError('permission_denied', { permission: 'speech' });
-            return;
-        }
+        if (isCapacitor) {
+            // NATIVE iOS MODE - Use Capacitor plugin
+            console.log('🎤 Initializing NATIVE iOS speech recognition...');
 
-        console.log('✅ Native iOS speech recognition initialized');
-
-        // Set up partial results listener for real-time feedback
-        await SpeechRecognition.addListener('partialResults', (data) => {
-            if (data.matches && data.matches.length > 0) {
-                this.currentTranscript = data.matches[0];
-                console.log('🎤 Partial:', this.currentTranscript);
+            const { available } = await SpeechRecognition.available();
+            if (!available) {
+                console.error('❌ Speech recognition not available on this device');
+                return;
             }
-        });
 
-        // Set up listening state listener
-        await SpeechRecognition.addListener('listeningState', (data) => {
-            if (data.status === 'started') {
-                console.log('✅ Voice recognition started');
-                this.isListening = true;
-                this.setOrbState('listening');
-            } else if (data.status === 'stopped') {
-                console.log('⏹️ Voice recognition stopped');
-                this.isListening = false;
-                if (!this.isProcessing && !this.isSpeaking) {
-                    this.setOrbState('idle');
+            // Request permissions
+            const permStatus = await SpeechRecognition.requestPermissions();
+            if (permStatus.speechRecognition !== 'granted') {
+                console.error('❌ Speech recognition permission denied');
+                this.trackError('permission_denied', { permission: 'speech' });
+                return;
+            }
+
+            console.log('✅ Native iOS speech recognition initialized');
+
+            // Set up listeners
+            await SpeechRecognition.addListener('partialResults', (data) => {
+                if (data.matches && data.matches.length > 0) {
+                    this.currentTranscript = data.matches[0];
+                    console.log('🎤 Partial:', this.currentTranscript);
                 }
+            });
+
+            await SpeechRecognition.addListener('listeningState', (data) => {
+                if (data.status === 'started') {
+                    console.log('✅ Voice recognition started');
+                    this.isListening = true;
+                    this.setOrbState('listening');
+                } else if (data.status === 'stopped') {
+                    console.log('⏹️ Voice recognition stopped');
+                    this.isListening = false;
+                    if (!this.isProcessing && !this.isSpeaking) {
+                        this.setOrbState('idle');
+                    }
+                }
+            });
+
+        } else {
+            // BROWSER MODE - Wait for overlay button click
+            console.log('🎤 Browser mode - waiting for user to enable mic via overlay...');
+        }
+    }
+
+    /* ============================================
+       WEB SPEECH API INITIALIZATION (BROWSER ONLY)
+       Called after user grants permission via overlay button
+       ============================================ */
+    async initWebSpeechAPI() {
+        console.log('🎤 Initializing Web Speech API...');
+
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            console.error('❌ Web Speech API not supported');
+            return;
+        }
+
+        const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+        this.recognition = new SpeechRecognitionAPI();
+        this.recognition.continuous = false;
+        this.recognition.interimResults = true;
+        this.recognition.lang = 'en';
+        this.recognition.maxAlternatives = 3;
+
+        this.recognition.onstart = () => {
+            console.log('✅ Web Speech API listening started');
+            this.isListening = true;
+            this.setOrbState('listening');
+        };
+
+        this.recognition.onend = () => {
+            console.log('⏹️ Web Speech API listening stopped');
+            this.isListening = false;
+            if (!this.isProcessing && !this.isSpeaking) {
+                this.setOrbState('idle');
             }
-        });
+        };
+
+        this.recognition.onerror = (event) => {
+            console.error('❌ Web Speech API error:', event.error);
+        };
+
+        console.log('✅ Web Speech API initialized and ready');
     }
 
     /* ============================================
@@ -229,7 +296,6 @@ class PhoenixVoiceCommands {
         this.userInteracted = true;
 
         // CRITICAL FIX: Unlock audio context on first user interaction
-        // This ensures TTS autoplay will work
         if (!this.audioUnlocked) {
             this.unlockAudioContext(); // Fire and forget - don't await!
         }
@@ -244,28 +310,62 @@ class PhoenixVoiceCommands {
             this.requestInProgress = true; // Lock to prevent double-click
             this.setOrbState('listening');
 
-            // Start native iOS speech recognition with partial results
-            const result = await SpeechRecognition.start({
-                language: 'en', // Generic 'en' for better accent support (US, UK, AU, IN, etc.)
-                maxResults: 3,  // Get top 3 alternatives for slang/accent handling
-                partialResults: true,  // Real-time interim transcripts
-                popup: false    // No Android popup (iOS only)
-            });
+            const isCapacitor = window.Capacitor !== undefined;
 
-            // Process final result when recognition completes
-            if (result.matches && result.matches.length > 0) {
-                const finalTranscript = result.matches[0];
-                console.log('🎤 Final transcript:', finalTranscript);
+            if (isCapacitor) {
+                // NATIVE iOS MODE - Use Capacitor plugin
+                const result = await SpeechRecognition.start({
+                    language: 'en',
+                    maxResults: 3,
+                    partialResults: true,
+                    popup: false
+                });
 
-                // Log alternatives for debugging accent/slang issues
-                if (result.matches.length > 1) {
-                    console.log('🎤 Alternatives:', result.matches.slice(1).map((alt, idx) =>
-                        `${idx + 2}: "${alt}"`
-                    ).join(', '));
+                if (result.matches && result.matches.length > 0) {
+                    const finalTranscript = result.matches[0];
+                    console.log('🎤 Final transcript:', finalTranscript);
+
+                    if (result.matches.length > 1) {
+                        console.log('🎤 Alternatives:', result.matches.slice(1).map((alt, idx) =>
+                            `${idx + 2}: "${alt}"`
+                        ).join(', '));
+                    }
+
+                    await this.processCommand(finalTranscript.trim().toLowerCase());
+                }
+            } else {
+                // BROWSER MODE - Use Web Speech API
+                if (!this.recognition) {
+                    console.error('❌ Speech recognition not initialized');
+                    return;
                 }
 
-                // Process the command
-                await this.processCommand(finalTranscript.trim().toLowerCase());
+                // Set up result handler for browser
+                this.recognition.onresult = async (event) => {
+                    const result = event.results[event.results.length - 1];
+                    if (result.isFinal) {
+                        const transcript = result[0].transcript;
+                        console.log('🎤 Final transcript:', transcript);
+
+                        // Log alternatives
+                        if (result.length > 1) {
+                            console.log('🎤 Alternatives:', Array.from(result).slice(1).map((alt, idx) =>
+                                `${idx + 2}: "${alt.transcript}"`
+                            ).join(', '));
+                        }
+
+                        await this.processCommand(transcript.trim().toLowerCase());
+                    }
+                };
+
+                this.recognition.onerror = (error) => {
+                    console.error('❌ Browser speech recognition error:', error);
+                    this.setOrbState('idle');
+                    this.requestInProgress = false;
+                };
+
+                // Start recognition
+                this.recognition.start();
             }
         } catch (error) {
             console.error('❌ Speech recognition error:', error);
@@ -1535,12 +1635,94 @@ function initPhoenixVoiceCommands() {
     console.log('✅ Phoenix Voice Commands loaded and initialized');
 }
 
+/* ============================================
+   MIC PERMISSION OVERLAY (BROWSER)
+   Blocking overlay that forces mic enable on first tap
+   ============================================ */
+function showMicEnableOverlay() {
+    // Check if running in Capacitor (native app)
+    const isCapacitor = window.Capacitor !== undefined;
+
+    // Only show overlay in browsers (not in native app)
+    if (isCapacitor) {
+        console.log('Running in Capacitor - skipping browser overlay');
+        return;
+    }
+
+    console.log('🎤 Showing mic enable overlay...');
+
+    const overlay = document.createElement('div');
+    overlay.id = 'mic-enable-overlay';
+    overlay.innerHTML = `
+        <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                    background: rgba(0, 10, 20, 0.98); z-index: 99999;
+                    display: flex; align-items: center; justify-content: center;
+                    backdrop-filter: blur(20px);">
+            <div style="text-align: center; color: #00d9ff; max-width: 400px; padding: 40px;">
+                <div style="font-size: 80px; margin-bottom: 20px;">🎤</div>
+                <h1 style="font-size: 32px; font-weight: bold; margin-bottom: 15px; letter-spacing: 2px;">
+                    Enable Voice Commands
+                </h1>
+                <p style="font-size: 16px; color: rgba(0, 217, 255, 0.8); margin-bottom: 30px; line-height: 1.6;">
+                    Phoenix needs microphone access to listen to your voice commands
+                </p>
+                <button id="enableMicBtn" style="padding: 20px 50px; font-size: 20px; font-weight: bold;
+                        background: linear-gradient(135deg, #00d9ff 0%, #0099cc 100%);
+                        color: #000; border: none; border-radius: 50px;
+                        cursor: pointer; box-shadow: 0 0 30px rgba(0, 217, 255, 0.5);
+                        transition: all 0.3s ease; letter-spacing: 1px;">
+                    TAP TO ENABLE
+                </button>
+                <p style="font-size: 12px; color: rgba(0, 217, 255, 0.5); margin-top: 20px;">
+                    You'll be asked to allow microphone access
+                </p>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    // Handle button click
+    document.getElementById('enableMicBtn').onclick = async () => {
+        try {
+            console.log('🎤 User tapped ENABLE - requesting mic permission...');
+
+            // Request mic permission (MUST be in click handler for browser security)
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            stream.getTracks().forEach(track => track.stop());
+
+            console.log('✅ Mic permission granted');
+
+            // Initialize Web Speech API for browsers
+            if (window.phoenixVoiceCommands) {
+                await window.phoenixVoiceCommands.initWebSpeechAPI();
+            }
+
+            // Remove overlay with fade out
+            overlay.style.transition = 'opacity 0.5s ease-out';
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.remove();
+                console.log('✅ Overlay removed - dashboard ready');
+            }, 500);
+
+        } catch (error) {
+            console.error('❌ Mic permission denied:', error);
+            alert('Microphone permission denied.\n\nPlease enable in:\nSettings → Safari → Microphone → Allow');
+        }
+    };
+}
+
 // Check if DOM is already loaded
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initPhoenixVoiceCommands);
+    document.addEventListener('DOMContentLoaded', () => {
+        initPhoenixVoiceCommands();
+        showMicEnableOverlay(); // Show blocking overlay on load
+    });
 } else {
     // DOM already loaded, initialize immediately
     initPhoenixVoiceCommands();
+    showMicEnableOverlay(); // Show blocking overlay on load
 }
 
 // Global function to start voice command from anywhere
