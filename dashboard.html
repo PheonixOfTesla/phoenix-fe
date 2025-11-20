@@ -3859,13 +3859,14 @@
     <!-- ============================================ -->
     <!-- MODULE LOADING -->
     <!-- ============================================ -->
+    <!-- Load system components BEFORE orchestrator -->
+    <script type="module" src="./src/jarvis.js?v=1763196205"></script>
+    <script type="module" src="./src/wearables.js?v=1763196205"></script>
+    <script type="module" src="./src/system-components.js?v=1763196205"></script>
+
+    <!-- Main Orchestrator -->
     <script src="src/orchestrator.js?v=1763196205"></script>
     <script type="module" src="./src/api.js?v=1763196205"></script>
-    <!-- PLANETS.JS REMOVED - Heavy 3D planetary system -->
-    <script type="module" src="./src/jarvis.js?v=1763196205"></script>
-    <!-- REACTOR.JS REMOVED - Arc reactor animation -->
-    <!-- SHADERS.JS REMOVED - WebGL shaders -->
-    <script type="module" src="./src/wearables.js?v=1763196205"></script>
     <!-- Capacitor Platform Detection for Speech Recognition -->
     <script src="src/capacitor-platform.js?v=1763196205"></script>
     <!-- Consciousness Display System - Makes Phoenix feel alive -->

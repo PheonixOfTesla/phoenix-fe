@@ -1100,4 +1100,17 @@ document.head.appendChild(style);
 console.log('Wearable Connector loaded - 100% BLUEPRINT COMPLIANT');
 console.log('Devices: 5 | Endpoints: 40 | Auto-sync: 30min');
 
+// Expose to window for orchestrator
+window.wearableConnector = wearableConnector;
+window.WearablesHub = class WearablesHub {
+    constructor(orchestrator) {
+        this.orchestrator = orchestrator;
+        this.connector = wearableConnector;
+    }
+    async initialize() {
+        // Already initialized above
+        return this.connector;
+    }
+};
+
 export default wearableConnector;

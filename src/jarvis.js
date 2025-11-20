@@ -971,6 +971,7 @@ class JARVISEngine {
 // INIT
 const jarvisEngine = new JARVISEngine();
 window.jarvisEngine = jarvisEngine;
+window.JARVIS = jarvisEngine; // Orchestrator compatibility
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => jarvisEngine.init());
