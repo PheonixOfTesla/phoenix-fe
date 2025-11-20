@@ -30,23 +30,9 @@
     </div>
 
     <!-- ============================================ -->
-    <!-- CLICK TO START OVERLAY (Audio Unlock) -->
-    <!-- ============================================ -->
-    <div id="click-to-start" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10001;cursor:pointer;background-image:radial-gradient(circle at 50% 50%, rgba(0,255,100,0.05) 0%, transparent 50%)">
-        <div style="text-align:center">
-            <div style="font-size:24px;color:#00ff64;letter-spacing:4px;margin-bottom:20px;text-shadow:0 0 20px rgba(0,255,100,0.8);font-family:monospace;animation:pulse 2s infinite">
-                CLICK TO START
-            </div>
-            <div style="font-size:12px;color:rgba(0,255,100,0.5);letter-spacing:2px;font-family:monospace">
-                Enable sound and activate Phoenix consciousness
-            </div>
-        </div>
-    </div>
-
-    <!-- ============================================ -->
     <!-- CONSCIOUSNESS LOADING SCREEN (Matrix Style) -->
     <!-- ============================================ -->
-    <div id="loading" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10000;transition:opacity 1s;background-image:radial-gradient(circle at 50% 50%, rgba(0,255,100,0.05) 0%, transparent 50%);overflow:hidden;opacity:0;pointer-events:none">
+    <div id="loading" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10000;transition:opacity 1s;background-image:radial-gradient(circle at 50% 50%, rgba(0,255,100,0.05) 0%, transparent 50%);overflow:hidden">
         <!-- Matrix Grid Lines -->
         <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(0,255,100,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,100,0.1) 1px, transparent 1px);background-size:50px 50px;opacity:0.3;pointer-events:none"></div>
 
@@ -114,55 +100,44 @@
                 { main: 'CONSCIOUSNESS ONLINE', sub: 'READY TO ENTER', progress: 100, speak: 'Phoenix consciousness ready to enter' }
             ];
 
-            // Start loading sequence (called after user clicks)
-            function startLoadingSequence() {
-                let currentStatus = 0;
-                const statusInterval = setInterval(() => {
-                    if (currentStatus < statuses.length) {
-                        const status = statuses[currentStatus];
-                        document.getElementById('consciousness-status').textContent = status.main;
-                        document.getElementById('consciousness-substatus').textContent = status.sub;
-                        document.getElementById('consciousness-progress').style.width = status.progress + '%';
+            // Start loading sequence immediately
+            let currentStatus = 0;
+            const statusInterval = setInterval(() => {
+                if (currentStatus < statuses.length) {
+                    const status = statuses[currentStatus];
+                    document.getElementById('consciousness-status').textContent = status.main;
+                    document.getElementById('consciousness-substatus').textContent = status.sub;
+                    document.getElementById('consciousness-progress').style.width = status.progress + '%';
 
-                        // Speak if this status has text
-                        if (status.speak) {
-                            speak(status.speak);
-                        }
+                    // Speak if this status has text
+                    if (status.speak) {
+                        speak(status.speak);
+                    }
 
-                        if (currentStatus === statuses.length - 1) {
-                            // Show enter button
-                            setTimeout(() => {
-                                document.getElementById('enter-domain-btn').style.display = 'block';
-                                document.getElementById('enter-domain-btn').style.animation = 'fadeIn 0.5s forwards';
-                            }, 500);
-                            clearInterval(statusInterval);
-                        }
-                        currentStatus++;
-                    } else {
+                    if (currentStatus === statuses.length - 1) {
+                        // Show enter button
+                        setTimeout(() => {
+                            document.getElementById('enter-domain-btn').style.display = 'block';
+                            document.getElementById('enter-domain-btn').style.animation = 'fadeIn 0.5s forwards';
+                        }, 500);
                         clearInterval(statusInterval);
                     }
-                }, 1200); // Change status every 1.2 seconds
-            }
+                    currentStatus++;
+                } else {
+                    clearInterval(statusInterval);
+                }
+            }, 1200); // Change status every 1.2 seconds
 
-            // Click to start - begin sequence with audio unlocked
-            document.getElementById('click-to-start').addEventListener('click', function() {
-                console.log('🚀 User clicked - starting loading sequence');
-
-                // Hide click overlay
-                this.style.opacity = '0';
-                setTimeout(() => this.style.display = 'none', 500);
-
-                // Show and start loading screen
-                const loading = document.getElementById('loading');
-                loading.style.opacity = '1';
-                loading.style.pointerEvents = 'auto';
-
-                // Start the loading sequence
-                setTimeout(startLoadingSequence, 500);
-            });
-
-            // Simple enter function - just hide loading screen
+            // Enter function - speak welcome message with user's name
             window.enterDashboard = function() {
+                // Get user's name from localStorage or API
+                const userData = JSON.parse(localStorage.getItem('user') || '{}');
+                const userName = userData.name || userData.email?.split('@')[0] || 'User';
+
+                // Speak welcome message
+                speak(`Welcome ${userName}`);
+
+                // Hide loading screen
                 const loading = document.getElementById('loading');
                 loading.style.opacity = '0';
                 setTimeout(() => {
