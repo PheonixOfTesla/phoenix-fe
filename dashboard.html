@@ -131,22 +131,41 @@
                 }
             }, 1200); // Change status every 1.2 seconds
 
+            // Track when orchestrator is ready
+            let orchestratorReady = false;
+            const MIN_DISPLAY_TIME = 8000; // Always show for at least 8 seconds
+            const loadStartTime = Date.now();
+
             window.enterDashboard = function() {
                 const loading = document.getElementById('loading');
-                loading.style.opacity = '0';
-                setTimeout(() => {
-                    loading.style.display = 'none';
-                }, 1000);
+
+                // Play "Consciousness online" audio before hiding
+                speakOpenAI('Consciousness online. Ready to enter.').then(() => {
+                    // Hide after audio plays
+                    loading.style.opacity = '0';
+                    setTimeout(() => {
+                        loading.style.display = 'none';
+                    }, 1000);
+                });
             };
 
-            // Auto-enter after orchestrator is ready
+            // Auto-enter only after BOTH conditions met:
+            // 1. Orchestrator is ready
+            // 2. Minimum display time elapsed (8 seconds)
             window.addEventListener('phoenix:orchestrator:ready', () => {
-                // Let user see the final state for 1 second before auto-entering
+                orchestratorReady = true;
+                const elapsed = Date.now() - loadStartTime;
+                const remaining = Math.max(0, MIN_DISPLAY_TIME - elapsed);
+
+                console.log(`Orchestrator ready after ${elapsed}ms, waiting ${remaining}ms more...`);
+
+                // Wait for remaining time, then auto-show enter button
                 setTimeout(() => {
                     if (document.getElementById('loading').style.display !== 'none') {
-                        enterDashboard();
+                        // Don't auto-enter, let user click button
+                        console.log('Loading complete - user can click ENTER button');
                     }
-                }, 1000);
+                }, remaining);
             });
         })();
     </script>
