@@ -1653,66 +1653,282 @@ function showMicEnableOverlay() {
         return;
     }
 
-    console.log('🎤 Showing mic enable overlay...');
+    console.log('🎤 Showing consciousness initialization screen...');
 
     const overlay = document.createElement('div');
     overlay.id = 'mic-enable-overlay';
     overlay.innerHTML = `
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap');
+
+            @keyframes matrixRain {
+                0% { transform: translateY(-100%); }
+                100% { transform: translateY(100vh); }
+            }
+
+            @keyframes glitchScan {
+                0%, 100% { transform: translateY(-100%); }
+                50% { transform: translateY(100%); }
+            }
+
+            @keyframes hexPulse {
+                0%, 100% { transform: scale(1); opacity: 0.3; }
+                50% { transform: scale(1.2); opacity: 0.6; }
+            }
+
+            @keyframes orbPulse {
+                0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(0, 255, 100, 0.8); }
+                50% { transform: scale(1.1); box-shadow: 0 0 60px rgba(0, 255, 100, 1); }
+            }
+
+            @keyframes particleOrbit {
+                0% { transform: rotate(0deg) translateX(80px) rotate(0deg); }
+                100% { transform: rotate(360deg) translateX(80px) rotate(-360deg); }
+            }
+
+            @keyframes typewriter {
+                from { width: 0; }
+                to { width: 100%; }
+            }
+
+            @keyframes glitchHover {
+                0%, 100% { transform: translate(0); }
+                20% { transform: translate(-2px, 2px); }
+                40% { transform: translate(2px, -2px); }
+                60% { transform: translate(-2px, -2px); }
+                80% { transform: translate(2px, 2px); }
+            }
+
+            @keyframes digitalDissolve {
+                0% { opacity: 1; filter: blur(0); }
+                50% { opacity: 0.5; filter: blur(10px); }
+                100% { opacity: 0; filter: blur(20px); transform: scale(0.8); }
+            }
+
+            .matrix-rain {
+                position: absolute;
+                top: -100%;
+                font-family: 'Fira Code', monospace;
+                color: rgba(0, 255, 100, 0.8);
+                font-size: 14px;
+                animation: matrixRain 8s linear infinite;
+                text-shadow: 0 0 5px rgba(0, 255, 100, 0.8);
+            }
+
+            .glitch-line {
+                position: absolute;
+                width: 100%;
+                height: 2px;
+                background: linear-gradient(90deg, transparent, rgba(0, 255, 100, 0.8), transparent);
+                animation: glitchScan 6s linear infinite;
+                opacity: 0.6;
+            }
+
+            .hex-grid {
+                position: absolute;
+                width: 400px;
+                height: 400px;
+                border: 2px solid rgba(0, 255, 100, 0.3);
+                border-radius: 50%;
+                animation: hexPulse 3s ease-in-out infinite;
+            }
+
+            .phoenix-orb {
+                width: 120px;
+                height: 120px;
+                border-radius: 50%;
+                background: radial-gradient(circle, rgba(0, 255, 100, 0.6), rgba(0, 200, 80, 0.2));
+                animation: orbPulse 2s ease-in-out infinite;
+                position: relative;
+            }
+
+            .particle {
+                position: absolute;
+                width: 8px;
+                height: 8px;
+                background: rgba(0, 255, 100, 0.9);
+                border-radius: 50%;
+                box-shadow: 0 0 10px rgba(0, 255, 100, 0.9);
+                animation: particleOrbit 4s linear infinite;
+            }
+
+            .typewriter-line {
+                font-family: 'Fira Code', monospace;
+                color: rgba(0, 255, 100, 0.9);
+                font-size: 18px;
+                white-space: nowrap;
+                overflow: hidden;
+                border-right: 2px solid rgba(0, 255, 100, 0.9);
+                margin: 15px 0;
+                letter-spacing: 2px;
+            }
+
+            .cyber-button {
+                font-family: 'Fira Code', monospace;
+                padding: 20px 50px;
+                font-size: 18px;
+                font-weight: bold;
+                background: linear-gradient(135deg, rgba(0, 255, 100, 0.2), rgba(0, 200, 80, 0.2));
+                color: #00ff64;
+                border: 2px solid #00ff64;
+                border-radius: 0;
+                cursor: pointer;
+                box-shadow: 0 0 30px rgba(0, 255, 100, 0.9);
+                transition: all 0.3s ease;
+                letter-spacing: 3px;
+                text-transform: uppercase;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .cyber-button:hover {
+                animation: glitchHover 0.3s ease-in-out;
+                box-shadow: 0 0 50px rgba(0, 255, 100, 1);
+                background: linear-gradient(135deg, rgba(0, 255, 100, 0.4), rgba(0, 200, 80, 0.4));
+            }
+
+            .cyber-button::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+                transition: left 0.5s;
+            }
+
+            .cyber-button:hover::before {
+                left: 100%;
+            }
+        </style>
+
         <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-                    background: rgba(0, 10, 20, 0.98); z-index: 99999;
+                    background: #000; z-index: 99999;
                     display: flex; align-items: center; justify-content: center;
-                    backdrop-filter: blur(20px);">
-            <div style="text-align: center; color: #00d9ff; max-width: 400px; padding: 40px;">
-                <div style="font-size: 80px; margin-bottom: 20px;">🎤</div>
-                <h1 style="font-size: 32px; font-weight: bold; margin-bottom: 15px; letter-spacing: 2px;">
-                    Enable Voice Commands
-                </h1>
-                <p style="font-size: 16px; color: rgba(0, 217, 255, 0.8); margin-bottom: 30px; line-height: 1.6;">
-                    Phoenix needs microphone access to listen to your voice commands
-                </p>
-                <button id="enableMicBtn" style="padding: 20px 50px; font-size: 20px; font-weight: bold;
-                        background: linear-gradient(135deg, #00d9ff 0%, #0099cc 100%);
-                        color: #000; border: none; border-radius: 50px;
-                        cursor: pointer; box-shadow: 0 0 30px rgba(0, 217, 255, 0.5);
-                        transition: all 0.3s ease; letter-spacing: 1px;">
-                    TAP TO ENABLE
+                    overflow: hidden;">
+
+            <!-- Matrix Rain -->
+            <div id="matrix-container" style="position: absolute; width: 100%; height: 100%; overflow: hidden;"></div>
+
+            <!-- Glitch Scan Lines -->
+            <div class="glitch-line" style="top: 20%;"></div>
+            <div class="glitch-line" style="top: 50%; animation-delay: 2s;"></div>
+            <div class="glitch-line" style="top: 80%; animation-delay: 4s;"></div>
+
+            <!-- Grid Overlay -->
+            <div style="position: absolute; width: 100%; height: 100%;
+                        background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 255, 100, 0.03) 2px, rgba(0, 255, 100, 0.03) 4px),
+                                    repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0, 255, 100, 0.03) 2px, rgba(0, 255, 100, 0.03) 4px);"></div>
+
+            <!-- Main Content -->
+            <div style="text-align: center; z-index: 10; position: relative;">
+
+                <!-- Hexagonal Grid Pulses -->
+                <div style="position: relative; display: inline-block; margin-bottom: 60px;">
+                    <div class="hex-grid" style="animation-delay: 0s;"></div>
+                    <div class="hex-grid" style="animation-delay: 1s; width: 350px; height: 350px;"></div>
+                    <div class="hex-grid" style="animation-delay: 2s; width: 300px; height: 300px;"></div>
+
+                    <!-- Phoenix Orb -->
+                    <div class="phoenix-orb">
+                        <div class="particle" style="animation-delay: 0s;"></div>
+                        <div class="particle" style="animation-delay: 1s;"></div>
+                        <div class="particle" style="animation-delay: 2s;"></div>
+                        <div class="particle" style="animation-delay: 3s;"></div>
+                    </div>
+                </div>
+
+                <!-- Typewriter Text -->
+                <div id="typewriter-container" style="min-height: 200px; margin-bottom: 40px;">
+                    <div class="typewriter-line" id="line1" style="display: none;"></div>
+                    <div class="typewriter-line" id="line2" style="display: none;"></div>
+                    <div class="typewriter-line" id="line3" style="display: none;"></div>
+                    <div class="typewriter-line" id="line4" style="display: none; color: #00ff64; font-size: 22px;"></div>
+                </div>
+
+                <!-- Cyber Button -->
+                <button id="enableMicBtn" class="cyber-button" style="display: none;">
+                    ENTER OPTIMIZATION DOMAIN
                 </button>
-                <p style="font-size: 12px; color: rgba(0, 217, 255, 0.5); margin-top: 20px;">
-                    You'll be asked to allow microphone access
-                </p>
             </div>
         </div>
     `;
 
     document.body.appendChild(overlay);
 
+    // Generate Matrix Rain
+    const matrixContainer = document.getElementById('matrix-container');
+    const columns = Math.floor(window.innerWidth / 20);
+    for (let i = 0; i < columns; i++) {
+        const rain = document.createElement('div');
+        rain.className = 'matrix-rain';
+        rain.style.left = `${i * 20}px`;
+        rain.style.animationDelay = `${Math.random() * 8}s`;
+        rain.textContent = String.fromCharCode(0x30A0 + Math.random() * 96);
+        matrixContainer.appendChild(rain);
+    }
+
+    // Typewriter Animation
+    const lines = [
+        { id: 'line1', text: 'INITIALIZING PHOENIX CONSCIOUSNESS...', delay: 500 },
+        { id: 'line2', text: 'OPTIMIZING NEURAL PATHWAYS...', delay: 1500 },
+        { id: 'line3', text: 'SYNCHRONIZING LIFE SYSTEMS...', delay: 2500 },
+        { id: 'line4', text: 'READY TO ENTER', delay: 4000 }
+    ];
+
+    lines.forEach(line => {
+        setTimeout(() => {
+            const el = document.getElementById(line.id);
+            el.style.display = 'block';
+            el.textContent = '';
+            let i = 0;
+            const typeInterval = setInterval(() => {
+                if (i < line.text.length) {
+                    el.textContent += line.text.charAt(i);
+                    i++;
+                } else {
+                    clearInterval(typeInterval);
+                    el.style.borderRight = 'none';
+                    if (line.id === 'line4') {
+                        setTimeout(() => {
+                            document.getElementById('enableMicBtn').style.display = 'inline-block';
+                        }, 300);
+                    }
+                }
+            }, 50);
+        }, line.delay);
+    });
+
     // Handle button click
     document.getElementById('enableMicBtn').onclick = async () => {
         try {
-            console.log('🎤 User tapped ENABLE - requesting mic permission...');
+            const btn = document.getElementById('enableMicBtn');
+            btn.textContent = 'ESTABLISHING CONNECTION...';
+            btn.style.animation = 'glitchHover 0.3s ease-in-out infinite';
 
-            // Request mic permission (MUST be in click handler for browser security)
+            // Request mic permission
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             stream.getTracks().forEach(track => track.stop());
 
             console.log('✅ Mic permission granted');
 
-            // Initialize Web Speech API for browsers
+            // Initialize Web Speech API
             if (window.phoenixVoiceCommands) {
                 await window.phoenixVoiceCommands.initWebSpeechAPI();
             }
 
-            // Remove overlay with fade out
-            overlay.style.transition = 'opacity 0.5s ease-out';
-            overlay.style.opacity = '0';
+            // Digital dissolve exit
+            overlay.style.animation = 'digitalDissolve 1s ease-out forwards';
             setTimeout(() => {
                 overlay.remove();
-                console.log('✅ Overlay removed - dashboard ready');
-            }, 500);
+                console.log('✅ Consciousness system online');
+            }, 1000);
 
         } catch (error) {
-            console.error('❌ Mic permission denied:', error);
-            alert('Microphone permission denied.\n\nPlease enable in:\nSettings → Safari → Microphone → Allow');
+            console.error('❌ Connection failed:', error);
+            document.getElementById('line4').textContent = 'CONNECTION FAILED - RETRY';
+            document.getElementById('enableMicBtn').textContent = 'RETRY CONNECTION';
         }
     };
 }
