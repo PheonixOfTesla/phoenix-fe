@@ -67,9 +67,13 @@
     </div>
 
     <script>
-        // Consciousness loading sequence with TTS
+        // Consciousness loading sequence with pre-generated audio clips
         (function() {
-            // TTS function that plays immediately (called after user interaction)
+            // Pre-load audio clips (nova voice, pre-generated)
+            const audio1 = new Audio('public/audio/sync-systems.mp3');
+            const audio2 = new Audio('public/audio/ready-enter.mp3');
+
+            // TTS function for welcome message (called on button click)
             async function speak(text) {
                 try {
                     console.log('🗣️ Speaking:', text);
@@ -93,11 +97,11 @@
 
             const statuses = [
                 { main: 'ACTIVATING PHOENIX CONSCIOUSNESS ...', sub: 'OPTIMIZING NEURAL PATHWAYS ...', progress: 10 },
-                { main: 'ACTIVATING PHOENIX CONSCIOUSNESS ...', sub: 'SYNCHRONIZING LIFE SYSTEMS ...', progress: 30, speak: 'Synchronizing life systems' },
+                { main: 'ACTIVATING PHOENIX CONSCIOUSNESS ...', sub: 'SYNCHRONIZING LIFE SYSTEMS ...', progress: 30, audio: audio1 },
                 { main: 'LOADING PLANETARY MODULES ...', sub: 'MERCURY • VENUS • EARTH • MARS • JUPITER • SATURN', progress: 50 },
                 { main: 'ESTABLISHING AI CONNECTIONS ...', sub: 'GEMINI CONSCIOUS MIND ACTIVE', progress: 70 },
                 { main: 'CALIBRATING VOICE INTERFACE ...', sub: 'SPEECH RECOGNITION READY', progress: 85 },
-                { main: 'CONSCIOUSNESS ONLINE', sub: 'READY TO ENTER', progress: 100, speak: 'Phoenix consciousness ready to enter' }
+                { main: 'CONSCIOUSNESS ONLINE', sub: 'READY TO ENTER', progress: 100, audio: audio2 }
             ];
 
             // Start loading sequence immediately
@@ -109,9 +113,9 @@
                     document.getElementById('consciousness-substatus').textContent = status.sub;
                     document.getElementById('consciousness-progress').style.width = status.progress + '%';
 
-                    // Speak if this status has text
-                    if (status.speak) {
-                        speak(status.speak);
+                    // Play audio clip if this status has one
+                    if (status.audio) {
+                        status.audio.play().catch(err => console.log('Audio autoplay blocked (expected):', err));
                     }
 
                     if (currentStatus === statuses.length - 1) {
