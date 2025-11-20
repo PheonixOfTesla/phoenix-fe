@@ -153,37 +153,47 @@
             ];
 
             // Start loading sequence (called after quantum link click)
-            function startLoadingSequence() {
+            async function startLoadingSequence() {
                 let currentStatus = 0;
-                const statusInterval = setInterval(() => {
+                const statusInterval = setInterval(async () => {
                     if (currentStatus < statuses.length) {
                         const status = statuses[currentStatus];
                         document.getElementById('consciousness-status').textContent = status.main;
                         document.getElementById('consciousness-substatus').textContent = status.sub;
                         document.getElementById('consciousness-progress').style.width = status.progress + '%';
 
-                        // Play audio clip if this status has one
-                        if (status.audio) {
-                            status.audio.play().catch(err => console.log('Audio autoplay blocked (expected):', err));
+                        // Speak the substatus text with TTS
+                        speak(status.sub);
+
+                        // Request microphone permissions on voice calibration step
+                        if (currentStatus === 4) { // CALIBRATING VOICE INTERFACE step
+                            try {
+                                await navigator.mediaDevices.getUserMedia({ audio: true });
+                                console.log('🎤 Microphone access granted');
+                            } catch (err) {
+                                console.log('🎤 Microphone access denied:', err);
+                            }
                         }
 
                         if (currentStatus === statuses.length - 1) {
-                            // Show enter button
+                            // Auto-advance to dashboard after 2 seconds
                             setTimeout(() => {
-                                document.getElementById('enter-domain-btn').style.display = 'block';
-                                document.getElementById('enter-domain-btn').style.animation = 'fadeIn 0.5s forwards';
-                            }, 500);
+                                console.log('✅ Auto-advancing to dashboard');
+                                enterDashboard();
+                            }, 2000);
                             clearInterval(statusInterval);
                         }
                         currentStatus++;
                     } else {
                         clearInterval(statusInterval);
                     }
-                }, 1200); // Change status every 1.2 seconds
+                }, 500); // Fast sequence - 500ms per step = ~3 seconds total
             }
 
             // Quantum Link Click Handler
             document.getElementById('quantum-link').addEventListener('click', async function() {
+                // Prevent spam clicks
+                this.style.pointerEvents = 'none';
                 console.log('⚛️ Quantum link activated');
 
                 // Play TTS: "Quantum link established"
