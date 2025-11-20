@@ -67,42 +67,20 @@
     </div>
 
     <script>
-        // Consciousness loading sequence with OpenAI TTS
+        // Consciousness loading sequence with pre-generated audio
         (function() {
+            // Pre-load audio files (nova voice, pre-generated)
+            const audio1 = new Audio('/public/audio/sync-systems.mp3');
+            const audio2 = new Audio('/public/audio/ready-enter.mp3');
+
             const statuses = [
-                { main: 'ACTIVATING PHOENIX CONSCIOUSNESS ...', sub: 'OPTIMIZING NEURAL PATHWAYS ...', progress: 10, speak: 'Synchronizing life systems' },
-                { main: 'ACTIVATING PHOENIX CONSCIOUSNESS ...', sub: 'SYNCHRONIZING LIFE SYSTEMS ...', progress: 30 },
+                { main: 'ACTIVATING PHOENIX CONSCIOUSNESS ...', sub: 'OPTIMIZING NEURAL PATHWAYS ...', progress: 10 },
+                { main: 'ACTIVATING PHOENIX CONSCIOUSNESS ...', sub: 'SYNCHRONIZING LIFE SYSTEMS ...', progress: 30, audio: audio1 },
                 { main: 'LOADING PLANETARY MODULES ...', sub: 'MERCURY • VENUS • EARTH • MARS • JUPITER • SATURN', progress: 50 },
                 { main: 'ESTABLISHING AI CONNECTIONS ...', sub: 'GEMINI CONSCIOUS MIND ACTIVE', progress: 70 },
                 { main: 'CALIBRATING VOICE INTERFACE ...', sub: 'SPEECH RECOGNITION READY', progress: 85 },
-                { main: 'CONSCIOUSNESS ONLINE', sub: 'READY TO ENTER', progress: 100, speak: 'Consciousness online. Ready to enter.' }
+                { main: 'CONSCIOUSNESS ONLINE', sub: 'READY TO ENTER', progress: 100, audio: audio2 }
             ];
-
-            // OpenAI TTS function
-            async function speakOpenAI(text) {
-                try {
-                    const baseUrl = 'https://pal-backend-production.up.railway.app/api';
-                    const response = await fetch(`${baseUrl}/tts/generate`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            text: text,
-                            voice: 'nova',
-                            model: 'tts-1'
-                        })
-                    });
-
-                    if (response.ok) {
-                        const audioBlob = await response.blob();
-                        const audioUrl = URL.createObjectURL(audioBlob);
-                        const audio = new Audio(audioUrl);
-                        audio.play();
-                        audio.onended = () => URL.revokeObjectURL(audioUrl);
-                    }
-                } catch (error) {
-                    console.log('TTS unavailable:', error);
-                }
-            }
 
             let currentStatus = 0;
             const statusInterval = setInterval(() => {
@@ -111,6 +89,11 @@
                     document.getElementById('consciousness-status').textContent = status.main;
                     document.getElementById('consciousness-substatus').textContent = status.sub;
                     document.getElementById('consciousness-progress').style.width = status.progress + '%';
+
+                    // Play audio if this status has one
+                    if (status.audio) {
+                        status.audio.play().catch(err => console.log('Audio autoplay blocked:', err));
+                    }
 
                     if (currentStatus === statuses.length - 1) {
                         // Show enter button
@@ -126,18 +109,13 @@
                 }
             }, 1200); // Change status every 1.2 seconds
 
-            // Simplified enter function with hardcoded welcome message
+            // Simple enter function - just hide loading screen
             window.enterDashboard = function() {
                 const loading = document.getElementById('loading');
-
-                // Hardcoded welcome audio plays on button click (nova voice)
-                speakOpenAI('Welcome to Phoenix. Consciousness online.').then(() => {
-                    // Hide loading screen after audio
-                    loading.style.opacity = '0';
-                    setTimeout(() => {
-                        loading.style.display = 'none';
-                    }, 1000);
-                });
+                loading.style.opacity = '0';
+                setTimeout(() => {
+                    loading.style.display = 'none';
+                }, 1000);
             };
         })();
     </script>
