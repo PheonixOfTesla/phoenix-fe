@@ -195,6 +195,14 @@
 
             // Start loading sequence (called after quantum link click)
             async function startLoadingSequence() {
+                // Get user's name for greeting
+                let userName = localStorage.getItem('phoenixName') ||
+                               localStorage.getItem('userName') ||
+                               'friend';
+
+                // Opening greeting
+                await speak(`Welcome to Phoenix, ${userName}. Let's begin.`);
+
                 for (let i = 0; i < statuses.length; i++) {
                     const status = statuses[i];
 
