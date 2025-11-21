@@ -169,6 +169,42 @@
                 { main: 'CONSCIOUSNESS ONLINE', sub: 'READY TO ENTER', progress: 100, audio: audio2 }
             ];
 
+            // Wait for all background systems to be ready
+            async function waitForSystemsReady() {
+                const maxWait = 30000; // Maximum 30 seconds
+                const checkInterval = 100; // Check every 100ms
+                const startTime = Date.now();
+
+                return new Promise((resolve) => {
+                    const checkReady = () => {
+                        const elapsed = Date.now() - startTime;
+
+                        // Check if Phoenix orchestrator is initialized
+                        const phoenixReady = window.phoenix && window.phoenix.initialized === true;
+
+                        // Check if consciousness system is online
+                        const consciousnessReady = window.phoenixVoiceCommands && window.phoenixVoiceCommands.ready === true;
+
+                        if (phoenixReady && consciousnessReady) {
+                            console.log(`✅ Systems ready in ${elapsed}ms`);
+                            console.log('   • Phoenix Orchestrator: ✅');
+                            console.log('   • Consciousness System: ✅');
+                            resolve();
+                        } else if (elapsed >= maxWait) {
+                            console.warn('⚠️ System initialization timeout after 30s - proceeding anyway');
+                            console.log(`   • Phoenix Orchestrator: ${phoenixReady ? '✅' : '❌'}`);
+                            console.log(`   • Consciousness System: ${consciousnessReady ? '✅' : '❌'}`);
+                            resolve();
+                        } else {
+                            // Keep checking
+                            setTimeout(checkReady, checkInterval);
+                        }
+                    };
+
+                    checkReady();
+                });
+            }
+
             // Start loading sequence (called after quantum link click)
             async function startLoadingSequence() {
                 for (let i = 0; i < statuses.length; i++) {
@@ -192,10 +228,14 @@
                         }
                     }
 
-                    // On final status, auto-advance after brief pause
+                    // On final status, wait for systems to be ready
                     if (i === statuses.length - 1) {
-                        await new Promise(resolve => setTimeout(resolve, 1500));
-                        console.log('✅ Auto-advancing to dashboard');
+                        console.log('🔄 Waiting for all systems to initialize...');
+
+                        // Wait for Phoenix orchestrator and consciousness to be ready
+                        await waitForSystemsReady();
+
+                        console.log('✅ All systems online - advancing to dashboard');
                         enterDashboard();
                     }
                 }
