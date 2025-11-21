@@ -127,6 +127,21 @@
     <script>
         // Consciousness loading sequence with pre-generated audio clips
         (function() {
+            // Check if user has already completed initialization
+            const isInitialized = localStorage.getItem('phoenixDashboardInitialized') === 'true';
+
+            if (isInitialized) {
+                // Skip intro sequence - hide quantum, activate, and loading screens
+                console.log('✅ User already initialized - skipping intro sequence');
+                document.getElementById('quantum-link').style.display = 'none';
+                document.getElementById('activate-screen').style.display = 'none';
+                document.getElementById('loading').style.display = 'none';
+                // Dashboard content is visible by default
+                return; // Exit early - no need to set up intro sequence
+            }
+
+            console.log('👋 First time visitor - showing full initialization sequence');
+
             // Pre-load audio clips (nova voice, pre-generated)
             const audio1 = new Audio('public/audio/sync-systems.mp3');
             const audio2 = new Audio('public/audio/ready-enter.mp3');
@@ -260,6 +275,10 @@
 
                 // Speak welcome message
                 speak(`Welcome ${userName}`);
+
+                // Mark initialization as complete (skip intro on next visit)
+                localStorage.setItem('phoenixDashboardInitialized', 'true');
+                console.log('✅ Initialization complete - will skip intro on next visit');
 
                 // Hide loading screen
                 const loading = document.getElementById('loading');
