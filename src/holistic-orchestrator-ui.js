@@ -232,7 +232,7 @@ class HolisticOrchestratorUI {
             const token = localStorage.getItem('token') ||
                          localStorage.getItem('phoenixToken') ||
                          localStorage.getItem('authToken');
-            const response = await fetch(`${API_BASE_URL}/api/orchestrator/plans`, {
+            const response = await fetch(`${API_BASE_URL}/orchestrator/plans`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
@@ -322,7 +322,7 @@ class HolisticOrchestratorUI {
                 return;
             }
 
-            const response = await fetch(`${API_BASE_URL}/api/orchestrator/plans?status=active`, {
+            const response = await fetch(`${API_BASE_URL}/orchestrator/plans?status=active`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -373,7 +373,7 @@ class HolisticOrchestratorUI {
             // Show creating UI
             this.showCreatingPlanUI(goal);
 
-            const response = await fetch(`${API_BASE_URL}/api/orchestrator/optimize`, {
+            const response = await fetch(`${API_BASE_URL}/orchestrator/optimize`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -422,7 +422,7 @@ class HolisticOrchestratorUI {
                          localStorage.getItem('phoenixToken') ||
                          localStorage.getItem('authToken');
 
-            const response = await fetch(`${API_BASE_URL}/api/orchestrator/plans/${planId}/execute-next`, {
+            const response = await fetch(`${API_BASE_URL}/orchestrator/plans/${planId}/execute-next`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -457,7 +457,7 @@ class HolisticOrchestratorUI {
                          localStorage.getItem('phoenixToken') ||
                          localStorage.getItem('authToken');
 
-            const response = await fetch(`${API_BASE_URL}/api/orchestrator/plans/${planId}/pause`, {
+            const response = await fetch(`${API_BASE_URL}/orchestrator/plans/${planId}/pause`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -484,7 +484,7 @@ class HolisticOrchestratorUI {
                          localStorage.getItem('phoenixToken') ||
                          localStorage.getItem('authToken');
 
-            const response = await fetch(`${API_BASE_URL}/api/orchestrator/plans/${planId}/resume`, {
+            const response = await fetch(`${API_BASE_URL}/orchestrator/plans/${planId}/resume`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`

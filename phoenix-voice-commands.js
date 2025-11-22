@@ -843,7 +843,7 @@ class PhoenixVoiceCommands {
                     padding: 30px;
                     box-shadow: 0 10px 50px rgba(0, 217, 255, 0.3);
                     backdrop-filter: blur(20px);
-                    animation: widgetFadeIn 0.5s ease-out;
+                    animation: widgetFadeIn 0.5s ease-out, holisticPulse 3s ease-in-out infinite, holisticBreathe 4s ease-in-out infinite;
                 `;
                 document.body.appendChild(planContainer);
             }
@@ -1071,13 +1071,8 @@ class PhoenixVoiceCommands {
 
             console.log('[Holistic Display] ✅ Plan widgets rendered successfully');
 
-            // Auto-hide after 30 seconds (optional)
-            setTimeout(() => {
-                if (planContainer && planContainer.parentElement) {
-                    planContainer.style.animation = 'fadeOut 0.5s ease-out';
-                    setTimeout(() => planContainer.remove(), 500);
-                }
-            }, 30000);
+            // Widgets persist until user manually closes them
+            // Auto-hide removed per user request for persistent, animated widgets
 
         } catch (error) {
             console.error('[Holistic Display] ❌ Error rendering plan:', error);
