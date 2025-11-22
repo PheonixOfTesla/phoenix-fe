@@ -25,6 +25,7 @@ class PhoenixVoiceCommands {
         this.audioElement = null; // Track current audio playback
         this.userInteracted = false; // Track if user has interacted (for autoplay policy)
         this.audioUnlocked = false; // Track if audio context has been unlocked
+        this.ready = false; // Track if voice system is fully initialized
 
         // Conversation memory for ChatGPT-level contextual awareness
         this.conversationHistory = [];
@@ -463,6 +464,14 @@ class PhoenixVoiceCommands {
         };
 
         console.log('✅ Web Speech API initialized and ready');
+
+        // Mark voice system as ready for dashboard initialization check
+        this.ready = true;
+
+        // Hide syncing indicator if dashboard is waiting
+        if (window.hideSyncingIndicator) {
+            window.hideSyncingIndicator();
+        }
     }
 
     /* ============================================

@@ -151,6 +151,25 @@
                 { main: 'SYSTEM READY', sub: 'All systems operational', progress: 100 }
             ];
 
+            // Hide syncing indicator on orb
+            function hideSyncingIndicator() {
+                const syncOverlay = document.getElementById('phoenix-syncing-overlay');
+                if (syncOverlay) {
+                    syncOverlay.style.transition = 'opacity 0.5s ease-out';
+                    syncOverlay.style.opacity = '0';
+                    setTimeout(() => {
+                        syncOverlay.style.display = 'none';
+                        console.log('✅ Syncing indicator hidden - orb ready');
+                    }, 500);
+                }
+
+                // Restore full orb opacity
+                const phoenixSphere = document.getElementById('phoenix-sphere');
+                if (phoenixSphere) {
+                    phoenixSphere.style.opacity = '1';
+                }
+            }
+
             // Wait for all background systems to be ready
             async function waitForSystemsReady() {
                 const maxWait = 30000; // Maximum 30 seconds
@@ -171,11 +190,13 @@
                             console.log(`✅ Systems ready in ${elapsed}ms`);
                             console.log('   • Phoenix Orchestrator: ✅');
                             console.log('   • Consciousness System: ✅');
+                            hideSyncingIndicator();
                             resolve();
                         } else if (elapsed >= maxWait) {
                             console.warn('⚠️ System initialization timeout after 30s - proceeding anyway');
                             console.log(`   • Phoenix Orchestrator: ${phoenixReady ? '✅' : '❌'}`);
                             console.log(`   • Consciousness System: ${consciousnessReady ? '✅' : '❌'}`);
+                            hideSyncingIndicator();
                             resolve();
                         } else {
                             // Keep checking
@@ -186,6 +207,9 @@
                     checkReady();
                 });
             }
+
+            // Make hideSyncingIndicator globally accessible
+            window.hideSyncingIndicator = hideSyncingIndicator;
 
             // Start loading sequence (called after quantum link click)
             async function startLoadingSequence() {
@@ -1254,6 +1278,36 @@
         
         <!-- Particle Canvas -->
         <canvas id="phoenix-particles" width="200" height="200" style="position:absolute;top:0;left:0;pointer-events:none;will-change:transform;transform:translateZ(0)"></canvas>
+
+        <!-- SYNCING INDICATOR OVERLAY -->
+        <div id="phoenix-syncing-overlay" style="
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            pointer-events: none;
+            z-index: 10;
+        ">
+            <div style="
+                font-size: 14px;
+                color: rgba(0, 217, 255, 0.9);
+                font-weight: 600;
+                letter-spacing: 2px;
+                text-align: center;
+                text-shadow: 0 0 10px rgba(0, 217, 255, 0.8);
+                animation: syncPulse 2s ease-in-out infinite;
+                margin-top: 120px;
+            ">
+                SYNCING<br>SYSTEMS...
+            </div>
+        </div>
+
         </div>
     </div>
 
@@ -1698,13 +1752,24 @@
         }
 
         @keyframes corePulse {
-            0%, 100% { 
+            0%, 100% {
                 transform: translate(-50%, -50%) scale(1);
                 box-shadow: 0 0 50px rgba(0, 255, 100,0.8);
             }
-            50% { 
+            50% {
                 transform: translate(-50%, -50%) scale(1.08);
                 box-shadow: 0 0 70px rgba(0, 255, 100,1);
+            }
+        }
+
+        @keyframes syncPulse {
+            0%, 100% {
+                opacity: 0.6;
+                text-shadow: 0 0 10px rgba(0, 217, 255, 0.6);
+            }
+            50% {
+                opacity: 1;
+                text-shadow: 0 0 20px rgba(0, 217, 255, 1), 0 0 30px rgba(0, 217, 255, 0.8);
             }
         }
 
