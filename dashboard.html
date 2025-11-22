@@ -145,12 +145,10 @@
             }
 
             const statuses = [
-                { main: 'ACTIVATING PHOENIX CONSCIOUSNESS ...', sub: 'OPTIMIZING NEURAL PATHWAYS ...', progress: 10 },
-                { main: 'ACTIVATING PHOENIX CONSCIOUSNESS ...', sub: 'SYNCHRONIZING LIFE SYSTEMS ...', progress: 30, audio: audio1 },
-                { main: 'LOADING PLANETARY MODULES ...', sub: 'MERCURY • VENUS • EARTH • MARS • JUPITER • SATURN', progress: 50 },
-                { main: 'ESTABLISHING AI CONNECTIONS ...', sub: 'GEMINI CONSCIOUS MIND ACTIVE', progress: 70 },
-                { main: 'CALIBRATING VOICE INTERFACE ...', sub: 'SPEECH RECOGNITION READY', progress: 85 },
-                { main: 'CONSCIOUSNESS ONLINE', sub: 'READY TO ENTER', progress: 100, audio: audio2 }
+                { main: 'LOADING DATA SYSTEMS', sub: 'Initializing core modules...', progress: 20 },
+                { main: 'LOADING DATA SYSTEMS', sub: 'Connecting to Phoenix AI...', progress: 50 },
+                { main: 'LOADING DATA SYSTEMS', sub: 'Synchronizing user data...', progress: 80 },
+                { main: 'SYSTEM READY', sub: 'All systems operational', progress: 100 }
             ];
 
             // Wait for all background systems to be ready
@@ -191,14 +189,15 @@
 
             // Start loading sequence (called after quantum link click)
             async function startLoadingSequence() {
-                // Get user's name for greeting
-                let userName = localStorage.getItem('phoenixName') ||
-                               localStorage.getItem('userName') ||
-                               'friend';
+                // Request microphone permissions early
+                try {
+                    await navigator.mediaDevices.getUserMedia({ audio: true });
+                    console.log('🎤 Microphone access granted');
+                } catch (err) {
+                    console.log('🎤 Microphone access denied:', err);
+                }
 
-                // Opening greeting
-                await speak(`Welcome to Phoenix, ${userName}. Let's begin.`);
-
+                // Show loading steps quickly without TTS
                 for (let i = 0; i < statuses.length; i++) {
                     const status = statuses[i];
 
@@ -207,18 +206,8 @@
                     document.getElementById('consciousness-substatus').textContent = status.sub;
                     document.getElementById('consciousness-progress').style.width = status.progress + '%';
 
-                    // Speak the substatus text with TTS (wait for it to finish)
-                    await speak(status.sub);
-
-                    // Request microphone permissions on voice calibration step
-                    if (i === 4) { // CALIBRATING VOICE INTERFACE step
-                        try {
-                            await navigator.mediaDevices.getUserMedia({ audio: true });
-                            console.log('🎤 Microphone access granted');
-                        } catch (err) {
-                            console.log('🎤 Microphone access denied:', err);
-                        }
-                    }
+                    // Short delay between steps (faster loading)
+                    await new Promise(resolve => setTimeout(resolve, 400));
 
                     // On final status, wait for systems to be ready
                     if (i === statuses.length - 1) {
@@ -233,7 +222,7 @@
                 }
             }
 
-            // Auto-fade quantum link after 3 seconds, then start loading sequence
+            // Auto-fade quantum link after 2 seconds, then start loading sequence (faster)
             setTimeout(() => {
                 const quantum = document.getElementById('quantum-link');
                 quantum.style.opacity = '0';
@@ -242,15 +231,15 @@
 
                     console.log('⚡ Activating Phoenix consciousness');
 
-                    // Show and start loading screen with TTS
+                    // Show and start loading screen (no TTS during loading)
                     const loading = document.getElementById('loading');
                     loading.style.display = 'flex';
                     setTimeout(() => {
                         loading.style.opacity = '1';
                         startLoadingSequence();
                     }, 100);
-                }, 1000);
-            }, 3000);
+                }, 800);
+            }, 1500);
 
             // Enter function - speak welcome message with user's name
             window.enterDashboard = function() {

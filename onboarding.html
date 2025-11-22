@@ -675,7 +675,7 @@
 
             <div class="phoenix-message">
                 Welcome to your Phoenix interface.<br>
-                <span id="tourPrompt">Would you like me to show you what I can do?</span>
+                <span id="tourPrompt">Imagine accessing parts of your consciousness you never knew existed.</span>
             </div>
 
             <div class="planet-grid" id="planetGrid">
@@ -1296,7 +1296,7 @@
 
             setTimeout(() => {
                 btn.style.display = 'none';
-                document.getElementById('tourPrompt').textContent = 'Let me show you around...';
+                document.getElementById('tourPrompt').textContent = 'Let me show you what I see...';
             }, 300);
 
             for (let i = 0; i < planets.length; i++) {
@@ -1437,7 +1437,7 @@
 
                     // Speak welcome and wait for audio
                     setTimeout(async () => {
-                        await phoenixSpeak(`Welcome to your Phoenix interface. Would you like me to show you what I can do?`, 'avatar-2');
+                        await phoenixSpeak(`Welcome to your Phoenix interface. Imagine accessing parts of your consciousness you never knew existed.`, 'avatar-2');
                     }, 500);
                 }
             }

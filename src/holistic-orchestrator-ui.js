@@ -1,8 +1,8 @@
 /**
  * HOLISTIC ORCHESTRATOR UI
- * Production-ready interface for Claude-powered cross-domain optimization
+ * Production-ready interface for Phoenix-powered cross-domain optimization
  * Displays plans, executes actions, shows real-time progress
- * Version: 1.0.0 - PRODUCTION READY
+ * Version: 1.0.1 - PRODUCTION READY
  */
 
 class HolisticOrchestratorUI {
@@ -11,16 +11,35 @@ class HolisticOrchestratorUI {
         this.allPlans = [];
         this.isLoading = false;
         this.autoRefresh = null;
+        this.initRetryCount = 0;
+        this.maxInitRetries = 20;
 
         console.log('[Holistic Orchestrator UI] Initializing...');
     }
 
     /**
      * Initialize the UI - called on dashboard load
+     * Waits for authentication before loading
      */
     async initialize() {
         try {
-            console.log('[Holistic Orchestrator UI] Loading active plans...');
+            // Wait for auth token to be available
+            const token = localStorage.getItem('token');
+            if (!token) {
+                this.initRetryCount++;
+
+                if (this.initRetryCount <= this.maxInitRetries) {
+                    console.log(`[Holistic Orchestrator UI] Waiting for auth... (${this.initRetryCount}/${this.maxInitRetries})`);
+                    setTimeout(() => this.initialize(), 500);
+                    return;
+                } else {
+                    console.log('[Holistic Orchestrator UI] Auth timeout - rendering button only');
+                    this.renderNavigationButton();
+                    return;
+                }
+            }
+
+            console.log('[Holistic Orchestrator UI] Auth detected, loading active plans...');
 
             // Fetch active plans
             await this.loadActivePlans();
@@ -105,7 +124,7 @@ class HolisticOrchestratorUI {
                 <div class="modal-header">
                     <div>
                         <h1>Create Holistic Plan</h1>
-                        <p>Claude will analyze your life and create a comprehensive optimization plan</p>
+                        <p>Phoenix will analyze your life and create a comprehensive optimization plan</p>
                     </div>
                     <button class="modal-close" onclick="window.holisticOrchestrator.closeCreatePlanUI()">✕</button>
                 </div>
@@ -121,7 +140,7 @@ class HolisticOrchestratorUI {
                                 rows="3"
                                 required
                             ></textarea>
-                            <small>Be specific - Claude will create a detailed plan across all life domains</small>
+                            <small>Be specific - Phoenix will create a detailed plan across all life domains</small>
                         </div>
 
                         <div class="form-group">
@@ -148,7 +167,7 @@ class HolisticOrchestratorUI {
                                 Cancel
                             </button>
                             <button type="submit" class="btn-primary">
-                                Create Plan with Claude 🧠
+                                Create Plan with Phoenix 🔥
                             </button>
                         </div>
                     </form>
@@ -798,8 +817,8 @@ class HolisticOrchestratorUI {
         overlay.className = 'creating-plan-overlay';
         overlay.innerHTML = `
             <div class="creating-plan-content">
-                <div class="creating-icon">🧠</div>
-                <div class="creating-title">Claude is analyzing...</div>
+                <div class="creating-icon">🔥</div>
+                <div class="creating-title">Phoenix is analyzing...</div>
                 <div class="creating-description">Creating holistic optimization plan for:<br>"${goal}"</div>
                 <div class="creating-loader"></div>
                 <div class="creating-hint">This may take 3-5 seconds</div>
