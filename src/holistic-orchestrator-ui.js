@@ -23,8 +23,11 @@ class HolisticOrchestratorUI {
      */
     async initialize() {
         try {
-            // Wait for auth token to be available
-            const token = localStorage.getItem('token');
+            // Wait for auth token to be available (check multiple possible keys)
+            const token = localStorage.getItem('token') ||
+                         localStorage.getItem('phoenixToken') ||
+                         localStorage.getItem('authToken');
+
             if (!token) {
                 this.initRetryCount++;
 
@@ -226,7 +229,9 @@ class HolisticOrchestratorUI {
 
         try {
             // Load all plans (not just active)
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('token') ||
+                         localStorage.getItem('phoenixToken') ||
+                         localStorage.getItem('authToken');
             const response = await fetch(`${API_BASE_URL}/api/orchestrator/plans`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -308,7 +313,10 @@ class HolisticOrchestratorUI {
      */
     async loadActivePlans() {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('token') ||
+                         localStorage.getItem('phoenixToken') ||
+                         localStorage.getItem('authToken');
+
             if (!token) {
                 console.log('[Holistic Orchestrator UI] No auth token');
                 return;
@@ -354,7 +362,10 @@ class HolisticOrchestratorUI {
             this.isLoading = true;
             console.log(`[Holistic Orchestrator UI] Creating plan: "${goal}"`);
 
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('token') ||
+                         localStorage.getItem('phoenixToken') ||
+                         localStorage.getItem('authToken');
+
             if (!token) {
                 throw new Error('Not authenticated');
             }
@@ -407,7 +418,9 @@ class HolisticOrchestratorUI {
      */
     async executeNextAction(planId) {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('token') ||
+                         localStorage.getItem('phoenixToken') ||
+                         localStorage.getItem('authToken');
 
             const response = await fetch(`${API_BASE_URL}/api/orchestrator/plans/${planId}/execute-next`, {
                 method: 'POST',
@@ -440,7 +453,9 @@ class HolisticOrchestratorUI {
      */
     async pausePlan(planId) {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('token') ||
+                         localStorage.getItem('phoenixToken') ||
+                         localStorage.getItem('authToken');
 
             const response = await fetch(`${API_BASE_URL}/api/orchestrator/plans/${planId}/pause`, {
                 method: 'POST',
@@ -465,7 +480,9 @@ class HolisticOrchestratorUI {
      */
     async resumePlan(planId) {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('token') ||
+                         localStorage.getItem('phoenixToken') ||
+                         localStorage.getItem('authToken');
 
             const response = await fetch(`${API_BASE_URL}/api/orchestrator/plans/${planId}/resume`, {
                 method: 'POST',
