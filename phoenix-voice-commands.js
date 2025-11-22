@@ -30,6 +30,83 @@ class PhoenixVoiceCommands {
         this.conversationHistory = [];
         this.maxHistoryLength = 10; // Keep last 10 messages for context
 
+        // ============================================
+        // CONSCIOUS INTERFACE: Domain & Mode Tracking
+        // ============================================
+        this.conversationMode = 'companion'; // 'companion' or 'phoenix'
+        this.currentDomains = []; // Active domains in conversation
+        this.pendingConfirmation = false; // Waiting for user to confirm action
+        this.lastDomainDetection = null; // Cache last detection
+        this.conversationContext = {}; // Track ongoing conversation thread
+
+        // Domain detection mapping: 9 life categories → 8 planetary domains
+        this.domainMap = {
+            mercury: {
+                name: 'Mercury',
+                categories: ['health', 'mental health', 'sleep'],
+                keywords: ['health', 'hrv', 'recovery', 'biometric', 'sleep', 'tired', 'rest', 'wellness', 'mental', 'anxiety', 'stress', 'meditation', 'breathing'],
+                reaction: '💚',
+                description: 'Health & Recovery'
+            },
+            venus: {
+                name: 'Venus',
+                categories: ['fitness'],
+                keywords: ['fitness', 'workout', 'exercise', 'nutrition', 'meal', 'food', 'diet', 'weight', 'lose weight', 'gain muscle', 'body', 'calories', 'protein', 'gym'],
+                reaction: '💪',
+                description: 'Fitness & Body'
+            },
+            earth: {
+                name: 'Earth',
+                categories: ['work'],
+                keywords: ['calendar', 'schedule', 'meeting', 'time', 'appointment', 'work', 'job', 'task', 'deadline', 'plan', 'organize', 'productivity'],
+                reaction: '📅',
+                description: 'Time & Work'
+            },
+            mars: {
+                name: 'Mars',
+                categories: ['lifestyle'],
+                keywords: ['goal', 'habit', 'progress', 'achieve', 'milestone', 'track', 'improve', 'build', 'routine', 'discipline', 'focus', 'motivation'],
+                reaction: '🎯',
+                description: 'Goals & Habits'
+            },
+            jupiter: {
+                name: 'Jupiter',
+                categories: ['financial'],
+                keywords: ['money', 'finance', 'budget', 'spending', 'expense', 'income', 'save', 'invest', 'broke', 'rich', 'wealth', 'financial', 'debt', 'pay'],
+                reaction: '💰',
+                description: 'Finance & Wealth'
+            },
+            saturn: {
+                name: 'Saturn',
+                categories: ['relationship', 'social'],
+                keywords: ['relationship', 'girlfriend', 'boyfriend', 'dating', 'love', 'partner', 'social', 'friends', 'people', 'family', 'connection', 'lonely', 'romance'],
+                reaction: '❤️',
+                description: 'Relationships & Social'
+            },
+            uranus: {
+                name: 'Uranus',
+                categories: [],
+                keywords: ['idea', 'creative', 'innovation', 'invent', 'project', 'startup', 'business', 'vision', 'brainstorm', 'design', 'build'],
+                reaction: '💡',
+                description: 'Innovation & Ideas'
+            },
+            neptune: {
+                name: 'Neptune',
+                categories: [],
+                keywords: ['dream', 'aspire', 'intuition', 'spiritual', 'purpose', 'meaning', 'vision', 'future', 'manifest', 'believe'],
+                reaction: '✨',
+                description: 'Dreams & Intuition'
+            }
+        };
+
+        // Mode switching trigger phrases
+        this.triggerPhrases = {
+            toPhoenix: ['help me', 'create a plan', 'show me', 'track this', 'optimize', 'analyze', 'i\'m serious', 'take me to', 'phoenixing'],
+            toCompanion: ['just talking', 'nevermind', 'never mind', 'i\'m good', 'not now', 'cancel', 'just chat'],
+            confirmYes: ['yes', 'yeah', 'sure', 'do it', 'go ahead', 'proceed', 'let\'s go', 'help', 'now we\'re talking'],
+            confirmNo: ['no', 'nah', 'not really', 'just wanna talk', 'just want to talk', 'not yet']
+        };
+
         // Load user voice preferences from localStorage
         this.voice = localStorage.getItem('phoenixVoice') || 'echo';
         this.language = localStorage.getItem('phoenixLanguage') || 'en';
@@ -92,6 +169,151 @@ class PhoenixVoiceCommands {
         } else {
             console.log('✅ Using Web Speech API (fallback)');
         }
+    }
+
+    /* ============================================
+       CONSCIOUS INTERFACE: DOMAIN DETECTION
+       Analyzes conversation to detect life domains
+       ============================================ */
+    detectDomain(transcript) {
+        const lowerTranscript = transcript.toLowerCase();
+        const detectedDomains = [];
+
+        // Check each domain for keyword matches
+        for (const [domainKey, domain] of Object.entries(this.domainMap)) {
+            let matchCount = 0;
+            const matchedKeywords = [];
+
+            // Count keyword matches
+            for (const keyword of domain.keywords) {
+                if (lowerTranscript.includes(keyword)) {
+                    matchCount++;
+                    matchedKeywords.push(keyword);
+                }
+            }
+
+            // If we found matches, add domain with confidence score
+            if (matchCount > 0) {
+                const confidence = Math.min(matchCount / 3, 1); // 3+ matches = 100% confidence
+                detectedDomains.push({
+                    domain: domainKey,
+                    name: domain.name,
+                    confidence,
+                    matchCount,
+                    matchedKeywords,
+                    reaction: domain.reaction,
+                    description: domain.description
+                });
+            }
+        }
+
+        // Sort by confidence (highest first)
+        detectedDomains.sort((a, b) => b.confidence - a.confidence);
+
+        console.log(`🔍 Domain Detection:`, detectedDomains.map(d =>
+            `${d.name} (${Math.round(d.confidence * 100)}%)`
+        ).join(', ') || 'none');
+
+        return detectedDomains;
+    }
+
+    /* ============================================
+       CONSCIOUS INTERFACE: TRIGGER PHRASE DETECTION
+       Detects mode switching intentions
+       ============================================ */
+    detectTriggerPhrase(transcript) {
+        const lowerTranscript = transcript.toLowerCase();
+
+        // Check for Phoenix mode triggers (user wants help/action)
+        for (const phrase of this.triggerPhrases.toPhoenix) {
+            if (lowerTranscript.includes(phrase)) {
+                return { mode: 'phoenix', trigger: phrase };
+            }
+        }
+
+        // Check for Companion mode triggers (user wants to just talk)
+        for (const phrase of this.triggerPhrases.toCompanion) {
+            if (lowerTranscript.includes(phrase)) {
+                return { mode: 'companion', trigger: phrase };
+            }
+        }
+
+        // Check for confirmation (when pendingConfirmation is true)
+        if (this.pendingConfirmation) {
+            for (const phrase of this.triggerPhrases.confirmYes) {
+                if (lowerTranscript.includes(phrase)) {
+                    return { mode: 'confirm-yes', trigger: phrase };
+                }
+            }
+
+            for (const phrase of this.triggerPhrases.confirmNo) {
+                if (lowerTranscript.includes(phrase)) {
+                    return { mode: 'confirm-no', trigger: phrase };
+                }
+            }
+        }
+
+        return null; // No trigger detected
+    }
+
+    /* ============================================
+       CONSCIOUS INTERFACE: CONTEXTUAL WIDGET REACTION
+       Shows small animated reaction based on domain
+       ============================================ */
+    showContextualReaction(domains) {
+        if (!domains || domains.length === 0) return;
+
+        // Show reaction for highest confidence domain
+        const primaryDomain = domains[0];
+
+        console.log(`${primaryDomain.reaction} Contextual reaction: ${primaryDomain.description}`);
+
+        // Create floating reaction widget
+        const reaction = document.createElement('div');
+        reaction.className = 'phoenix-domain-reaction';
+        reaction.innerHTML = `
+            <div class="reaction-emoji">${primaryDomain.reaction}</div>
+            <div class="reaction-text">${primaryDomain.description}</div>
+        `;
+        reaction.style.cssText = `
+            position: fixed;
+            top: 20%;
+            right: 30px;
+            background: rgba(0, 217, 255, 0.1);
+            border: 2px solid rgba(0, 217, 255, 0.5);
+            border-radius: 20px;
+            padding: 15px 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 217, 255, 0.3);
+            animation: reactionSlideIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        `;
+
+        // Style the emoji
+        const emojiStyle = `
+            font-size: 32px;
+            animation: reactionPulse 1s ease-in-out infinite;
+        `;
+        reaction.querySelector('.reaction-emoji').style.cssText = emojiStyle;
+
+        // Style the text
+        const textStyle = `
+            color: #00d9ff;
+            font-size: 14px;
+            font-weight: 600;
+        `;
+        reaction.querySelector('.reaction-text').style.cssText = textStyle;
+
+        document.body.appendChild(reaction);
+
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            reaction.style.animation = 'reactionSlideOut 0.5s ease-out';
+            setTimeout(() => reaction.remove(), 500);
+        }, 5000);
     }
 
     /* ============================================
@@ -392,7 +614,8 @@ class PhoenixVoiceCommands {
     }
 
     /* ============================================
-       COMMAND PROCESSING
+       COMMAND PROCESSING - CONSCIOUS INTERFACE
+       Conversation-first approach with domain awareness
        ============================================ */
     async processCommand(transcript) {
         // CRITICAL: Prevent duplicate processing from interim + final transcripts
@@ -408,18 +631,94 @@ class PhoenixVoiceCommands {
         this.isProcessing = true;
 
         try {
-            // STEP 1: Classify intent (ACTION vs WISDOM)
-            const classification = await this.classifyCommand(transcript);
+            // ============================================
+            // STEP 1: DOMAIN DETECTION
+            // ============================================
+            const detectedDomains = this.detectDomain(transcript);
+            this.currentDomains = detectedDomains;
+            this.lastDomainDetection = detectedDomains;
 
-            if (classification && classification.category === 'butler_action') {
-                // BUTLER ACTION: Execute real-world action
-                console.log('🎯 Butler action detected:', classification.actionType);
-                await this.executeButlerAction(classification);
-            } else {
-                // WISDOM: Route to AI for conversation
-                console.log('💬 Wisdom query detected, routing to AI');
-                await this.sendToAIIntelligent(transcript);
+            // ============================================
+            // STEP 2: TRIGGER PHRASE DETECTION
+            // ============================================
+            const triggerDetection = this.detectTriggerPhrase(transcript);
+
+            // ============================================
+            // STEP 3: HANDLE CONFIRMATION FLOW
+            // ============================================
+            if (this.pendingConfirmation) {
+                if (triggerDetection?.mode === 'confirm-yes') {
+                    console.log('✅ User confirmed - switching to Phoenix mode');
+                    this.conversationMode = 'phoenix';
+                    this.pendingConfirmation = false;
+
+                    // Execute full orchestration with detected domains
+                    await this.executePhoenixMode(transcript, detectedDomains);
+                    return;
+                } else if (triggerDetection?.mode === 'confirm-no') {
+                    console.log('❌ User declined - staying in Companion mode');
+                    this.conversationMode = 'companion';
+                    this.pendingConfirmation = false;
+
+                    // Continue normal conversation (voice only, no widgets)
+                    await this.sendToAIIntelligent(transcript, { skipWidgets: true });
+                    return;
+                }
             }
+
+            // ============================================
+            // STEP 4: MODE SWITCHING LOGIC
+            // ============================================
+            if (triggerDetection?.mode === 'phoenix') {
+                console.log(`🔥 Phoenix mode trigger detected: "${triggerDetection.trigger}"`);
+                this.conversationMode = 'phoenix';
+                this.pendingConfirmation = false;
+
+                // Execute full orchestration immediately (user explicitly requested help)
+                await this.executePhoenixMode(transcript, detectedDomains);
+                return;
+            } else if (triggerDetection?.mode === 'companion') {
+                console.log(`💬 Companion mode trigger detected: "${triggerDetection.trigger}"`);
+                this.conversationMode = 'companion';
+                this.pendingConfirmation = false;
+
+                // Just conversation (voice only, no widgets)
+                await this.sendToAIIntelligent(transcript, { skipWidgets: true });
+                return;
+            }
+
+            // ============================================
+            // STEP 5: CONVERSATION-FIRST FLOW
+            // ============================================
+            if (this.conversationMode === 'companion') {
+                // Show contextual reaction if domain detected
+                if (detectedDomains.length > 0) {
+                    this.showContextualReaction(detectedDomains);
+                }
+
+                // Route to AI for conversation (voice only, no widgets)
+                console.log('💬 Companion mode - conversational response');
+                await this.sendToAIIntelligent(transcript, { skipWidgets: true });
+
+                // After AI response, check if we should ask about Phoenixing
+                // (High confidence domain + action-oriented language)
+                if (detectedDomains.length > 0 && detectedDomains[0].confidence > 0.6) {
+                    const isActionOriented = /want|need|help|fix|improve|optimize|track|plan|create/.test(transcript.toLowerCase());
+
+                    if (isActionOriented && !this.pendingConfirmation) {
+                        // Ask if they want help after a delay
+                        setTimeout(() => {
+                            this.pendingConfirmation = true;
+                            this.speak('Want help with this?');
+                        }, 2000);
+                    }
+                }
+            } else {
+                // Phoenix mode - full orchestration
+                console.log('🔥 Phoenix mode - executing full orchestration');
+                await this.executePhoenixMode(transcript, detectedDomains);
+            }
+
         } catch (error) {
             console.error('❌ Error processing command:', error);
             this.speak('Sorry, I encountered an error processing that.');
@@ -431,6 +730,357 @@ class PhoenixVoiceCommands {
             if (!this.isSpeaking) {
                 this.setOrbState('idle');
             }
+        }
+    }
+
+    /* ============================================
+       PHOENIX MODE EXECUTION
+       Full orchestration with widgets and actions
+       ============================================ */
+    async executePhoenixMode(transcript, domains) {
+        console.log('🔥 Executing Phoenix Mode with domains:', domains.map(d => d.name).join(', '));
+
+        // First, try butler action classification
+        const classification = await this.classifyCommand(transcript);
+
+        if (classification && classification.category === 'butler_action') {
+            // BUTLER ACTION: Execute real-world action
+            console.log('🎯 Butler action detected:', classification.actionType);
+            await this.executeButlerAction(classification);
+        } else {
+            // HOLISTIC ORCHESTRATION: Create cross-domain optimization plan
+            console.log('🔥 Phoenix mode - holistic orchestration');
+            console.log('📍 Detected domains:', domains.map(d => d.name).join(', ') || 'none');
+
+            try {
+                const token = localStorage.getItem('phoenixToken');
+                if (!token) {
+                    console.error('❌ No authentication token');
+                    this.speak('Please log in to use Phoenix mode');
+                    return;
+                }
+
+                const baseUrl = (window.PhoenixConfig && window.PhoenixConfig.API_BASE_URL)
+                    ? window.PhoenixConfig.API_BASE_URL
+                    : 'https://pal-backend-production.up.railway.app/api';
+
+                // Step 1: Get conversational response in parallel with plan creation
+                const conversationPromise = this.sendToAIIntelligent(transcript, { skipWidgets: false });
+
+                // Step 2: Create holistic plan via orchestrator
+                console.log('🎯 Creating holistic optimization plan...');
+                console.time('Holistic Plan Creation');
+
+                const planResponse = await fetch(`${baseUrl}/orchestrator/optimize`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        goal: transcript,
+                        timeframe: 'short-term', // Can be enhanced with timeframe detection
+                        autoExecute: true,
+                        detectedDomains: domains.map(d => d.domain) // Pass detected domains to backend
+                    })
+                });
+
+                if (!planResponse.ok) {
+                    console.warn(`⚠️ Orchestrator returned ${planResponse.status}, falling back to standard widgets`);
+                    await conversationPromise;
+                    return;
+                }
+
+                const planData = await planResponse.json();
+                console.timeEnd('Holistic Plan Creation');
+
+                if (planData.success && planData.data) {
+                    console.log('✅ Holistic plan created:', planData.data.plan.planId);
+                    console.log('📊 Optimization score:', planData.data.plan.optimizationScore);
+                    console.log('🔗 Cross-domain patterns detected:', planData.data.patterns?.length || 0);
+
+                    // Step 3: Display the plan as widgets
+                    await this.displayHolisticPlan(planData.data);
+                }
+
+                // Wait for conversation to complete
+                await conversationPromise;
+
+            } catch (error) {
+                console.error('❌ Phoenix mode orchestration error:', error);
+                // Fallback to standard AI response
+                await this.sendToAIIntelligent(transcript, { skipWidgets: false });
+            }
+        }
+    }
+
+    /* ============================================
+       HOLISTIC PLAN DISPLAY
+       ============================================ */
+    async displayHolisticPlan(planData) {
+        console.log('[Holistic Display] Rendering plan widgets...');
+
+        const { plan, domainData, patterns } = planData;
+
+        try {
+            // Create master plan widget container
+            let planContainer = document.getElementById('holistic-plan-container');
+            if (!planContainer) {
+                planContainer = document.createElement('div');
+                planContainer.id = 'holistic-plan-container';
+                planContainer.className = 'phoenix-widget widget-large urgency-high';
+                planContainer.style.cssText = `
+                    position: fixed;
+                    top: 150px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 90%;
+                    max-width: 1200px;
+                    z-index: 700;
+                    background: linear-gradient(135deg, rgba(0, 10, 20, 0.98), rgba(0, 30, 50, 0.95));
+                    border: 3px solid rgba(0, 217, 255, 0.6);
+                    border-radius: 16px;
+                    padding: 30px;
+                    box-shadow: 0 10px 50px rgba(0, 217, 255, 0.3);
+                    backdrop-filter: blur(20px);
+                    animation: widgetFadeIn 0.5s ease-out;
+                `;
+                document.body.appendChild(planContainer);
+            }
+
+            // Build HTML for the plan
+            const domainIcons = {
+                mercury: '☿️',
+                venus: '♀️',
+                earth: '🌍',
+                mars: '♂️',
+                jupiter: '♃',
+                saturn: '♄'
+            };
+
+            const domainNames = {
+                mercury: 'Mercury (Health)',
+                venus: 'Venus (Fitness)',
+                earth: 'Earth (Calendar)',
+                mars: 'Mars (Goals)',
+                jupiter: 'Jupiter (Finance)',
+                saturn: 'Saturn (Legacy)'
+            };
+
+            // Count total actions across all domains
+            const totalActions = Object.keys(plan.domainActions).reduce((sum, domain) => {
+                return sum + (plan.domainActions[domain]?.length || 0);
+            }, 0);
+
+            // Build domain actions HTML
+            let domainsHTML = '';
+            for (const [domain, actions] of Object.entries(plan.domainActions)) {
+                if (actions && actions.length > 0) {
+                    const icon = domainIcons[domain] || '🔮';
+                    const name = domainNames[domain] || domain;
+
+                    const actionsListHTML = actions.map((action, idx) => `
+                        <div class="holistic-action" style="
+                            padding: 12px;
+                            background: rgba(0, 217, 255, 0.05);
+                            border-left: 3px solid rgba(0, 217, 255, 0.5);
+                            border-radius: 6px;
+                            margin: 8px 0;
+                            font-size: 13px;
+                        ">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>
+                                    ${action.status === 'completed' ? '✅' : '⏳'}
+                                    ${action.description}
+                                </span>
+                                <span style="opacity: 0.6; font-size: 11px;">
+                                    Priority: ${action.priority}
+                                </span>
+                            </div>
+                        </div>
+                    `).join('');
+
+                    domainsHTML += `
+                        <div class="holistic-domain-section" style="margin: 20px 0;">
+                            <h3 style="
+                                color: #00d9ff;
+                                font-size: 18px;
+                                margin-bottom: 12px;
+                                display: flex;
+                                align-items: center;
+                                gap: 10px;
+                            ">
+                                <span style="font-size: 24px;">${icon}</span>
+                                ${name}
+                                <span style="
+                                    background: rgba(0, 217, 255, 0.2);
+                                    padding: 4px 12px;
+                                    border-radius: 12px;
+                                    font-size: 12px;
+                                    font-weight: normal;
+                                ">${actions.length} actions</span>
+                            </h3>
+                            ${actionsListHTML}
+                        </div>
+                    `;
+                }
+            }
+
+            // Build cross-domain patterns HTML
+            let patternsHTML = '';
+            if (patterns && patterns.length > 0) {
+                patternsHTML = `
+                    <div class="cross-domain-patterns" style="
+                        margin: 25px 0;
+                        padding: 20px;
+                        background: rgba(255, 170, 0, 0.1);
+                        border: 2px solid rgba(255, 170, 0, 0.3);
+                        border-radius: 12px;
+                    ">
+                        <h3 style="color: #ffaa00; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                            <span>🔗</span> Cross-Domain Insights
+                        </h3>
+                        ${patterns.map(p => `
+                            <div style="
+                                padding: 12px;
+                                background: rgba(255, 170, 0, 0.05);
+                                border-left: 3px solid rgba(255, 170, 0, 0.5);
+                                border-radius: 6px;
+                                margin: 10px 0;
+                            ">
+                                <div style="font-weight: bold; margin-bottom: 6px;">
+                                    ${p.domains.map(d => domainIcons[d]).join(' ↔ ')} ${p.insight}
+                                </div>
+                                <div style="opacity: 0.8; font-size: 12px;">
+                                    💡 ${p.recommendation}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            // Final HTML assembly
+            planContainer.innerHTML = `
+                <div class="holistic-plan-master">
+                    <!-- Close button -->
+                    <button onclick="document.getElementById('holistic-plan-container').remove()" style="
+                        position: absolute;
+                        top: 15px;
+                        right: 15px;
+                        background: rgba(0, 217, 255, 0.2);
+                        border: 1px solid rgba(0, 217, 255, 0.4);
+                        border-radius: 50%;
+                        width: 36px;
+                        height: 36px;
+                        color: #00d9ff;
+                        font-size: 20px;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                    " onmouseover="this.style.background='rgba(0, 217, 255, 0.4)'" onmouseout="this.style.background='rgba(0, 217, 255, 0.2)'">
+                        ×
+                    </button>
+
+                    <!-- Header -->
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <h1 style="
+                            font-size: 28px;
+                            margin-bottom: 15px;
+                            background: linear-gradient(90deg, #00d9ff, #00ff88);
+                            -webkit-background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                        ">🔥 ${plan.goal}</h1>
+
+                        <div style="display: flex; justify-content: center; align-items: center; gap: 30px; margin-top: 20px;">
+                            <div class="optimization-score" style="text-align: center;">
+                                <div style="
+                                    width: 120px;
+                                    height: 120px;
+                                    border-radius: 50%;
+                                    background: conic-gradient(
+                                        #00ff88 0deg,
+                                        #00ff88 ${plan.optimizationScore * 3.6}deg,
+                                        rgba(0, 217, 255, 0.2) ${plan.optimizationScore * 3.6}deg
+                                    );
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    margin: 0 auto;
+                                    position: relative;
+                                ">
+                                    <div style="
+                                        width: 100px;
+                                        height: 100px;
+                                        border-radius: 50%;
+                                        background: rgba(0, 10, 20, 0.95);
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        font-size: 32px;
+                                        font-weight: bold;
+                                        color: #00ff88;
+                                    ">${plan.optimizationScore}%</div>
+                                </div>
+                                <p style="margin-top: 10px; opacity: 0.7;">Optimization Score</p>
+                            </div>
+
+                            <div style="text-align: left;">
+                                <div style="font-size: 14px; opacity: 0.8; margin: 5px 0;">
+                                    📋 Plan ID: <span style="color: #00d9ff;">${plan.planId}</span>
+                                </div>
+                                <div style="font-size: 14px; opacity: 0.8; margin: 5px 0;">
+                                    🎯 Total Actions: <span style="color: #00ff88;">${totalActions}</span>
+                                </div>
+                                <div style="font-size: 14px; opacity: 0.8; margin: 5px 0;">
+                                    🔗 Patterns Detected: <span style="color: #ffaa00;">${patterns?.length || 0}</span>
+                                </div>
+                                <div style="font-size: 14px; opacity: 0.8; margin: 5px 0;">
+                                    ⏱️ Status: <span style="color: #00ff88;">${plan.status}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cross-Domain Patterns -->
+                    ${patternsHTML}
+
+                    <!-- Domain Actions -->
+                    <div class="domains-container">
+                        ${domainsHTML}
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(0, 217, 255, 0.2);">
+                        <button onclick="window.location.href='/jupiter.html'" style="
+                            background: linear-gradient(135deg, #00d9ff, #00ff88);
+                            border: none;
+                            padding: 15px 40px;
+                            border-radius: 8px;
+                            color: #000;
+                            font-size: 16px;
+                            font-weight: bold;
+                            cursor: pointer;
+                            margin: 0 10px;
+                            transition: transform 0.2s;
+                        " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                            View Full Plan Dashboard
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            console.log('[Holistic Display] ✅ Plan widgets rendered successfully');
+
+            // Auto-hide after 30 seconds (optional)
+            setTimeout(() => {
+                if (planContainer && planContainer.parentElement) {
+                    planContainer.style.animation = 'fadeOut 0.5s ease-out';
+                    setTimeout(() => planContainer.remove(), 500);
+                }
+            }, 30000);
+
+        } catch (error) {
+            console.error('[Holistic Display] ❌ Error rendering plan:', error);
         }
     }
 
@@ -1038,8 +1688,9 @@ class PhoenixVoiceCommands {
     /* ============================================
        INTELLIGENT AI PROCESSING (Claude/Gemini)
        ============================================ */
-    async sendToAIIntelligent(transcript) {
-        console.log('Sending to AI intelligence:', transcript);
+    async sendToAIIntelligent(transcript, options = {}) {
+        const { skipWidgets = false } = options;
+        console.log('Sending to AI intelligence:', transcript, skipWidgets ? '(voice only)' : '(with widgets)');
 
         try {
             const token = localStorage.getItem('phoenixToken');
@@ -1082,8 +1733,8 @@ class PhoenixVoiceCommands {
                 }).then(r => r.json())
             ];
 
-            // Skip consciousness orchestration for simple wake words (saves 2-3s)
-            if (!isSimpleWakeWord && window.consciousnessClient) {
+            // Skip consciousness orchestration for simple wake words OR companion mode (saves 2-3s)
+            if (!isSimpleWakeWord && !skipWidgets && window.consciousnessClient) {
                 console.time('🧠 Consciousness');
 
                 // Gather real-time context from dashboard

@@ -12,7 +12,7 @@
     width: 90%;
     max-width: 1400px;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmin(350px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
     gap: 20px;
     z-index: 600;
     pointer-events: none;
@@ -287,5 +287,87 @@
 
     .widget-value {
         font-size: 36px;
+    }
+}
+
+/* ============================================
+   CONSCIOUS INTERFACE: CONTEXTUAL REACTIONS
+   ============================================ */
+
+/* Reaction animations */
+@keyframes reactionSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(50px) scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+@keyframes reactionSlideOut {
+    from {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(50px) scale(0.8);
+    }
+}
+
+@keyframes reactionPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+}
+
+/* Text bubble animations (used in voice commands) */
+@keyframes bubbleSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes bubbleFadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+}
+
+/* Status message animations */
+@keyframes statusFadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+@keyframes statusFadeOut {
+    from {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.9);
     }
 }
