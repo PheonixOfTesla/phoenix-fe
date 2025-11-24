@@ -1787,6 +1787,180 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        /* ============================================
+           SIRI-STYLE ORB STATE ANIMATIONS
+           ============================================ */
+
+        /* LISTENING STATE - Gentle breathing pulse with wave ripples */
+        @keyframes listeningPulse {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+                box-shadow: 0 0 40px rgba(0, 255, 100, 0.6),
+                            0 0 80px rgba(0, 255, 100, 0.3);
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.05);
+                box-shadow: 0 0 60px rgba(0, 255, 100, 0.8),
+                            0 0 100px rgba(0, 255, 100, 0.4);
+            }
+        }
+
+        @keyframes waveRipple {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.6;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1.8);
+                opacity: 0;
+            }
+        }
+
+        /* THINKING STATE - Fast energetic pulse with color shift */
+        @keyframes thinkingPulse {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(0.95);
+                box-shadow: 0 0 50px rgba(0, 217, 255, 0.7),
+                            0 0 90px rgba(0, 217, 255, 0.4);
+            }
+            25% {
+                transform: translate(-50%, -50%) scale(1.1);
+                box-shadow: 0 0 70px rgba(0, 255, 255, 0.9),
+                            0 0 120px rgba(0, 255, 255, 0.5);
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(0.95);
+                box-shadow: 0 0 50px rgba(0, 217, 255, 0.7),
+                            0 0 90px rgba(0, 217, 255, 0.4);
+            }
+            75% {
+                transform: translate(-50%, -50%) scale(1.1);
+                box-shadow: 0 0 70px rgba(0, 255, 255, 0.9),
+                            0 0 120px rgba(0, 255, 255, 0.5);
+            }
+        }
+
+        @keyframes shimmer {
+            0%, 100% {
+                opacity: 0.5;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
+        /* SPEAKING STATE - Dynamic rhythm pulsing like Siri */
+        @keyframes speakingPulse {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+                box-shadow: 0 0 50px rgba(0, 255, 100, 0.7);
+            }
+            10% {
+                transform: translate(-50%, -50%) scale(1.15);
+                box-shadow: 0 0 80px rgba(0, 255, 100, 0.9),
+                            0 0 120px rgba(0, 255, 100, 0.5);
+            }
+            20% {
+                transform: translate(-50%, -50%) scale(0.95);
+                box-shadow: 0 0 40px rgba(0, 255, 100, 0.6);
+            }
+            35% {
+                transform: translate(-50%, -50%) scale(1.2);
+                box-shadow: 0 0 90px rgba(0, 255, 100, 1),
+                            0 0 140px rgba(0, 255, 100, 0.6);
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(0.9);
+                box-shadow: 0 0 35px rgba(0, 255, 100, 0.5);
+            }
+            65% {
+                transform: translate(-50%, -50%) scale(1.1);
+                box-shadow: 0 0 70px rgba(0, 255, 100, 0.8),
+                            0 0 110px rgba(0, 255, 100, 0.5);
+            }
+            80% {
+                transform: translate(-50%, -50%) scale(1);
+                box-shadow: 0 0 50px rgba(0, 255, 100, 0.7);
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                box-shadow: 0 0 50px rgba(0, 255, 100, 0.7);
+            }
+        }
+
+        @keyframes particleBurst {
+            0% {
+                opacity: 1;
+                filter: blur(0px);
+            }
+            100% {
+                opacity: 0.3;
+                filter: blur(2px);
+            }
+        }
+
+        /* ============================================
+           STATE-SPECIFIC ORB STYLING
+           ============================================ */
+
+        /* IDLE STATE - Default peaceful breathing */
+        #phoenix-core-container.idle #phoenix-sphere {
+            animation: corePulse 2s ease-in-out infinite;
+        }
+
+        /* LISTENING STATE - Gentle active pulse */
+        #phoenix-core-container.listening #phoenix-sphere {
+            animation: listeningPulse 1.5s ease-in-out infinite !important;
+        }
+
+        #phoenix-core-container.listening::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 80px;
+            height: 80px;
+            border: 2px solid rgba(0, 255, 100, 0.4);
+            border-radius: 50%;
+            animation: waveRipple 2s ease-out infinite;
+        }
+
+        #phoenix-core-container.listening::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 80px;
+            height: 80px;
+            border: 2px solid rgba(0, 255, 100, 0.3);
+            border-radius: 50%;
+            animation: waveRipple 2s ease-out infinite 1s;
+        }
+
+        /* THINKING STATE - Fast energetic pulse */
+        #phoenix-core-container.thinking #phoenix-sphere {
+            animation: thinkingPulse 0.8s ease-in-out infinite !important;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.7), rgba(0, 217, 255, 0.2));
+        }
+
+        #phoenix-core-container.thinking > div:first-child > div {
+            animation-duration: 5s !important;
+        }
+
+        /* SPEAKING STATE - Dynamic rhythmic pulsing */
+        #phoenix-core-container.speaking #phoenix-sphere {
+            animation: speakingPulse 1.4s ease-in-out infinite !important;
+        }
+
+        #phoenix-core-container.speaking #phoenix-particles {
+            animation: particleBurst 0.7s ease-in-out infinite alternate;
+        }
+
+        /* GENERATING VOICE STATE - Shimmer effect */
+        #phoenix-core-container.generating-voice #phoenix-sphere {
+            animation: shimmer 0.6s ease-in-out infinite;
+        }
     </style>
 
     <!-- THREE.JS REMOVED - Too heavy, unnecessary for minimal UI -->
