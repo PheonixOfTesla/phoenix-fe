@@ -467,11 +467,6 @@ class PhoenixVoiceCommands {
 
         // Mark voice system as ready for dashboard initialization check
         this.ready = true;
-
-        // Hide syncing indicator if dashboard is waiting
-        if (window.hideSyncingIndicator) {
-            window.hideSyncingIndicator();
-        }
     }
 
     /* ============================================

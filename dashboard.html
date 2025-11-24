@@ -148,35 +148,16 @@
                 { main: 'LOADING DATA SYSTEMS', sub: 'Initializing core modules...', progress: 20 },
                 { main: 'LOADING DATA SYSTEMS', sub: 'Connecting to Phoenix AI...', progress: 50 },
                 { main: 'LOADING DATA SYSTEMS', sub: 'Synchronizing user data...', progress: 80 },
-                { main: 'SYSTEM READY', sub: 'All systems operational', progress: 100 }
+                { main: 'INITIALIZING SYSTEMS', sub: 'Waiting for all systems to be ready...', progress: 100 }
             ];
-
-            // Hide syncing indicator on orb
-            function hideSyncingIndicator() {
-                const syncOverlay = document.getElementById('phoenix-syncing-overlay');
-                if (syncOverlay) {
-                    syncOverlay.style.transition = 'opacity 0.5s ease-out';
-                    syncOverlay.style.opacity = '0';
-                    setTimeout(() => {
-                        syncOverlay.style.display = 'none';
-                        console.log('✅ Syncing indicator hidden - orb ready');
-                    }, 500);
-                }
-
-                // Restore full orb opacity
-                const phoenixSphere = document.getElementById('phoenix-sphere');
-                if (phoenixSphere) {
-                    phoenixSphere.style.opacity = '1';
-                }
-            }
 
             // Wait for all background systems to be ready
             async function waitForSystemsReady() {
-                const maxWait = 30000; // Maximum 30 seconds
+                const maxWait = 120000; // Maximum 120 seconds (2 minutes)
                 const checkInterval = 100; // Check every 100ms
                 const startTime = Date.now();
 
-                return new Promise((resolve) => {
+                return new Promise((resolve, reject) => {
                     const checkReady = () => {
                         const elapsed = Date.now() - startTime;
 
@@ -190,14 +171,12 @@
                             console.log(`✅ Systems ready in ${elapsed}ms`);
                             console.log('   • Phoenix Orchestrator: ✅');
                             console.log('   • Consciousness System: ✅');
-                            hideSyncingIndicator();
-                            resolve();
+                            resolve({ phoenixReady, consciousnessReady });
                         } else if (elapsed >= maxWait) {
-                            console.warn('⚠️ System initialization timeout after 30s - proceeding anyway');
+                            console.error('❌ System initialization timeout after 120s');
                             console.log(`   • Phoenix Orchestrator: ${phoenixReady ? '✅' : '❌'}`);
                             console.log(`   • Consciousness System: ${consciousnessReady ? '✅' : '❌'}`);
-                            hideSyncingIndicator();
-                            resolve();
+                            reject({ phoenixReady, consciousnessReady, timeout: true });
                         } else {
                             // Keep checking
                             setTimeout(checkReady, checkInterval);
@@ -208,8 +187,67 @@
                 });
             }
 
-            // Make hideSyncingIndicator globally accessible
-            window.hideSyncingIndicator = hideSyncingIndicator;
+            // Show initialization error screen with retry button
+            function showInitializationError(error) {
+                const statusEl = document.getElementById('consciousness-status');
+                const substatusEl = document.getElementById('consciousness-substatus');
+                const progressEl = document.getElementById('consciousness-progress');
+
+                // Update UI to show error state
+                statusEl.textContent = 'INITIALIZATION FAILED';
+                statusEl.style.color = 'rgba(255, 68, 68, 0.9)';
+                statusEl.style.textShadow = '0 0 10px rgba(255, 68, 68, 0.8)';
+
+                // Show which systems failed
+                const failedSystems = [];
+                if (!error.phoenixReady) failedSystems.push('Phoenix Orchestrator');
+                if (!error.consciousnessReady) failedSystems.push('Consciousness System');
+
+                substatusEl.textContent = `Failed: ${failedSystems.join(', ')}`;
+                substatusEl.style.color = 'rgba(255, 68, 68, 0.6)';
+
+                // Hide progress bar
+                progressEl.parentElement.style.display = 'none';
+
+                // Add retry button
+                const loadingDiv = document.getElementById('loading');
+                let retryBtn = document.getElementById('retry-init-btn');
+
+                if (!retryBtn) {
+                    retryBtn = document.createElement('button');
+                    retryBtn.id = 'retry-init-btn';
+                    retryBtn.textContent = 'RETRY INITIALIZATION';
+                    retryBtn.style.cssText = `
+                        padding: 15px 40px;
+                        background: rgba(0, 217, 255, 0.2);
+                        border: 2px solid #00d9ff;
+                        color: #00d9ff;
+                        font-family: monospace;
+                        font-size: 14px;
+                        cursor: pointer;
+                        border-radius: 8px;
+                        letter-spacing: 2px;
+                        font-weight: bold;
+                        text-shadow: 0 0 10px rgba(0, 217, 255, 0.8);
+                        box-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
+                        transition: all 0.3s;
+                        margin-top: 30px;
+                    `;
+                    retryBtn.onmouseover = function() {
+                        this.style.background = 'rgba(0, 217, 255, 0.4)';
+                        this.style.boxShadow = '0 0 30px rgba(0, 217, 255, 0.6)';
+                    };
+                    retryBtn.onmouseout = function() {
+                        this.style.background = 'rgba(0, 217, 255, 0.2)';
+                        this.style.boxShadow = '0 0 20px rgba(0, 217, 255, 0.3)';
+                    };
+                    retryBtn.onclick = function() {
+                        // Reload the page to retry initialization
+                        window.location.reload();
+                    };
+                    loadingDiv.appendChild(retryBtn);
+                }
+            }
 
             // Start loading sequence (called after quantum link click)
             async function startLoadingSequence() {
@@ -237,11 +275,17 @@
                     if (i === statuses.length - 1) {
                         console.log('🔄 Waiting for all systems to initialize...');
 
-                        // Wait for Phoenix orchestrator and consciousness to be ready
-                        await waitForSystemsReady();
+                        try {
+                            // Wait for Phoenix orchestrator and consciousness to be ready
+                            await waitForSystemsReady();
 
-                        console.log('✅ All systems online - advancing to dashboard');
-                        enterDashboard();
+                            console.log('✅ All systems online - advancing to dashboard');
+                            enterDashboard();
+                        } catch (error) {
+                            // Systems failed to initialize - show error screen
+                            console.error('❌ System initialization failed:', error);
+                            showInitializationError(error);
+                        }
                     }
                 }
             }
@@ -1279,34 +1323,6 @@
         <!-- Particle Canvas -->
         <canvas id="phoenix-particles" width="200" height="200" style="position:absolute;top:0;left:0;pointer-events:none;will-change:transform;transform:translateZ(0)"></canvas>
 
-        <!-- SYNCING INDICATOR OVERLAY -->
-        <div id="phoenix-syncing-overlay" style="
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            pointer-events: none;
-            z-index: 10;
-        ">
-            <div style="
-                font-size: 14px;
-                color: rgba(0, 217, 255, 0.9);
-                font-weight: 600;
-                letter-spacing: 2px;
-                text-align: center;
-                text-shadow: 0 0 10px rgba(0, 217, 255, 0.8);
-                animation: syncPulse 2s ease-in-out infinite;
-                margin-top: 120px;
-            ">
-                SYNCING<br>SYSTEMS...
-            </div>
-        </div>
 
         </div>
     </div>
@@ -1762,16 +1778,6 @@
             }
         }
 
-        @keyframes syncPulse {
-            0%, 100% {
-                opacity: 0.6;
-                text-shadow: 0 0 10px rgba(0, 217, 255, 0.6);
-            }
-            50% {
-                opacity: 1;
-                text-shadow: 0 0 20px rgba(0, 217, 255, 1), 0 0 30px rgba(0, 217, 255, 0.8);
-            }
-        }
 
         @keyframes pulse {
             0%, 100% { opacity: 1; transform: scale(1); }
