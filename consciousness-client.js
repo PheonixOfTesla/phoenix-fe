@@ -12,6 +12,13 @@ class ConsciousnessClient {
         this.sessionId = this.generateSessionId();
         this.biometricData = {};
 
+        // ✨ WebSocket for real-time consciousness streaming
+        this.ws = null;
+        this.wsReconnectAttempts = 0;
+        this.wsMaxReconnectAttempts = 10;
+        this.wsReconnectDelay = 2000;
+        this.wsHeartbeatInterval = null;
+
         console.log('[Consciousness] Client initialized');
     }
 
@@ -81,6 +88,188 @@ class ConsciousnessClient {
             console.error('[Consciousness] Orchestration error:', error);
             return null;
         }
+    }
+
+    /* ============================================
+       WEBSOCKET CONNECTION - Real-time consciousness streaming
+       ============================================ */
+    connectWebSocket() {
+        const token = localStorage.getItem('phoenixToken');
+        if (!token) {
+            console.warn('[Consciousness] No token, skipping WebSocket connection');
+            return;
+        }
+
+        // Determine WebSocket URL from API base URL
+        const apiBase = window.PhoenixConfig.API_BASE_URL;
+        const wsBase = apiBase.replace(/^https/, 'wss').replace(/^http/, 'ws');
+        const wsUrl = `${wsBase}/phoenix-stream?token=${encodeURIComponent(token)}`;
+
+        console.log('[Consciousness] 🔌 Connecting to Phoenix WebSocket...');
+
+        try {
+            this.ws = new WebSocket(wsUrl);
+
+            this.ws.onopen = () => {
+                console.log('[Consciousness] ✅ WebSocket connected - Real-time consciousness ACTIVE');
+                this.isConnected = true;
+                this.wsReconnectAttempts = 0;
+            };
+
+            this.ws.onmessage = (event) => {
+                try {
+                    const message = JSON.parse(event.data);
+                    this.handleWebSocketMessage(message);
+                } catch (error) {
+                    console.error('[Consciousness] Error parsing WebSocket message:', error);
+                }
+            };
+
+            this.ws.onerror = (error) => {
+                console.error('[Consciousness] WebSocket error:', error);
+            };
+
+            this.ws.onclose = () => {
+                console.log('[Consciousness] WebSocket disconnected');
+                this.isConnected = false;
+                this.attemptReconnect();
+            };
+
+        } catch (error) {
+            console.error('[Consciousness] WebSocket connection failed:', error);
+            this.attemptReconnect();
+        }
+    }
+
+    attemptReconnect() {
+        if (this.wsReconnectAttempts >= this.wsMaxReconnectAttempts) {
+            console.error('[Consciousness] Max reconnection attempts reached. Using HTTP polling fallback.');
+            return;
+        }
+
+        this.wsReconnectAttempts++;
+        const delay = this.wsReconnectDelay * this.wsReconnectAttempts;
+        console.log(`[Consciousness] Reconnecting in ${delay}ms... (Attempt ${this.wsReconnectAttempts}/${this.wsMaxReconnectAttempts})`);
+
+        setTimeout(() => {
+            this.connectWebSocket();
+        }, delay);
+    }
+
+    handleWebSocketMessage(message) {
+        console.log('[Consciousness] 📡 Real-time message received:', message.type);
+
+        switch (message.type) {
+            case 'CELEBRATION':
+                this.handleCelebration(message.data);
+                break;
+
+            case 'PATTERN_DETECTED':
+                this.handlePatternDetected(message.data);
+                break;
+
+            case 'CRITICAL_ALERT':
+                this.handleCriticalAlert(message.data);
+                break;
+
+            case 'WIDGET_CREATE':
+                this.handleWidgetCreate(message.data);
+                break;
+
+            case 'CONSCIOUSNESS_UPDATE':
+                this.handleConsciousnessUpdate(message.data);
+                break;
+
+            case 'PROCESSING_STATUS':
+                this.handleProcessingStatus(message.data);
+                break;
+
+            case 'HEARTBEAT':
+                // Backend heartbeat - keep connection alive
+                break;
+
+            default:
+                console.warn('[Consciousness] Unknown message type:', message.type);
+        }
+    }
+
+    handleCelebration(data) {
+        console.log('[Consciousness] 🎉 CELEBRATION:', data.message);
+
+        // Show celebration widget
+        if (window.widgetManager && data.widgetConfig) {
+            window.widgetManager.createWidget(data.widgetConfig);
+        }
+
+        // Show confetti if available
+        if (window.showConfetti) {
+            window.showConfetti();
+        }
+
+        // Play celebration sound if available
+        if (window.phoenixVoice && window.phoenixVoice.speak) {
+            window.phoenixVoice.speak(data.message, { priority: 'high' });
+        }
+    }
+
+    handlePatternDetected(data) {
+        console.log('[Consciousness] 🔍 PATTERN DETECTED:', data.pattern);
+
+        // Create widget if config provided
+        if (window.widgetManager && data.widgetConfig) {
+            window.widgetManager.createWidget(data.widgetConfig);
+        }
+    }
+
+    handleCriticalAlert(data) {
+        console.log('[Consciousness] 🚨 CRITICAL ALERT:', data.message);
+
+        // Show critical alert widget
+        if (window.widgetManager && data.widgetConfig) {
+            window.widgetManager.createWidget(data.widgetConfig);
+        }
+
+        // Play alert sound
+        if (window.phoenixVoice && window.phoenixVoice.speak) {
+            window.phoenixVoice.speak(data.message, { priority: 'urgent' });
+        }
+    }
+
+    handleWidgetCreate(data) {
+        console.log('[Consciousness] 🎨 CREATE WIDGET:', data.id);
+
+        if (window.widgetManager) {
+            window.widgetManager.createWidget(data);
+        }
+    }
+
+    handleConsciousnessUpdate(data) {
+        console.log('[Consciousness] 🧠 CONSCIOUSNESS UPDATE:', data);
+
+        // Update orchestration cache
+        if (data.orchestration) {
+            this.orchestrationCache = data.orchestration;
+            this.lastOrchestrationTime = Date.now();
+        }
+    }
+
+    handleProcessingStatus(data) {
+        console.log('[Consciousness] ⚙️ PROCESSING STATUS:', data.status);
+
+        // Show loading indicator if processing
+        if (data.status === 'processing' && window.showProcessingIndicator) {
+            window.showProcessingIndicator();
+        } else if (data.status === 'complete' && window.hideProcessingIndicator) {
+            window.hideProcessingIndicator();
+        }
+    }
+
+    disconnectWebSocket() {
+        if (this.ws) {
+            this.ws.close();
+            this.ws = null;
+        }
+        this.isConnected = false;
     }
 
     /* ============================================
@@ -279,7 +468,10 @@ document.addEventListener('DOMContentLoaded', () => {
     consciousnessClient = new ConsciousnessClient();
     window.consciousnessClient = consciousnessClient;
 
-    // Start auto re-orchestration every 5 minutes
+    // ✨ Connect to WebSocket for real-time consciousness streaming
+    consciousnessClient.connectWebSocket();
+
+    // Start auto re-orchestration every 5 minutes (HTTP fallback)
     consciousnessClient.startAutoOrchestration(5);
 
     // Initial orchestration
