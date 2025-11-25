@@ -101,7 +101,8 @@ class ConsciousnessClient {
         }
 
         // Determine WebSocket URL from API base URL
-        const apiBase = window.PhoenixConfig.API_BASE_URL;
+        // Strip /api suffix since WebSocket endpoint is at root level
+        const apiBase = window.PhoenixConfig.API_BASE_URL.replace(/\/api$/, '');
         const wsBase = apiBase.replace(/^https/, 'wss').replace(/^http/, 'ws');
         const wsUrl = `${wsBase}/phoenix-stream?token=${encodeURIComponent(token)}`;
 

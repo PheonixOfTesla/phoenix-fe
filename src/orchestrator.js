@@ -1745,15 +1745,15 @@ return true; // Token is valid if this succeeds
         // Load all cache endpoints in parallel for speed
         const cachePromises = cacheEndpoints.map(async (endpoint) => {
             try {
-                // Check if method exists
+                // Check if method exists (skip gracefully if not implemented yet)
                 if (!this.components.api || !this.components.api[endpoint.method]) {
-                    console.warn(`⚠️ Cache method not found: ${endpoint.method}`);
-                    return { key: endpoint.key, success: false, reason: 'method_not_found' };
+                    // Don't log or count as failure - just skip unimplemented methods
+                    return { key: endpoint.key, success: false, reason: 'not_implemented', skip: true };
                 }
-                
+
                 const data = await this.components.api[endpoint.method]();
                 this.performanceMetrics.endpointsCalled++;
-                
+
                 // Store in cache
                 this.state.cache[endpoint.key] = {
                     data,
@@ -1761,9 +1761,9 @@ return true; // Token is valid if this succeeds
                     category: endpoint.category,
                     description: endpoint.description
                 };
-                
+
                 return { key: endpoint.key, success: true, description: endpoint.description };
-                
+
             } catch (error) {
                 console.warn(`⚠️ Cache load failed for ${endpoint.key}:`, error.message);
                 this.performanceMetrics.failedEndpoints++;
@@ -1772,11 +1772,15 @@ return true; // Token is valid if this succeeds
         });
         
         const results = await Promise.all(cachePromises);
-        
+
         const successCount = results.filter(r => r.success).length;
-        const failedCount = results.filter(r => !r.success).length;
-        
-        console.log(`✅ Cache restoration complete: ${successCount}/${cacheEndpoints.length} successful`);
+        const skippedCount = results.filter(r => r.skip).length;
+        const failedCount = results.filter(r => !r.success && !r.skip).length;
+
+        console.log(`✅ Cache restoration complete: ${successCount}/${cacheEndpoints.length - skippedCount} available endpoints loaded`);
+        if (skippedCount > 0) {
+            console.log(`ℹ️  ${skippedCount} endpoints not yet implemented (will be added in future updates)`);
+        }
         if (failedCount > 0) {
             console.warn(`⚠️ ${failedCount} cache endpoints failed - features may have slower initial load`);
         }

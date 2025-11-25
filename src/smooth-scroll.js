@@ -260,8 +260,8 @@ if (document.readyState === 'loading') {
 }
 
 // Add scroll progress indicator styles
-const style = document.createElement('style');
-style.textContent = `
+const scrollProgressStyle = document.createElement('style');
+scrollProgressStyle.textContent = `
     /* Scroll Progress Indicator */
     #scrollProgress {
         position: fixed;
@@ -314,7 +314,7 @@ style.textContent = `
         pointer-events: none;
     }
 `;
-document.head.appendChild(style);
+document.head.appendChild(scrollProgressStyle);
 
 // Add scroll progress indicator
 const progressBar = document.createElement('div');

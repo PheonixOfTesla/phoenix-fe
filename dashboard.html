@@ -3959,7 +3959,10 @@
                     const currentProgress = summary.score - summary.tier.min;
                     const progressPercent = (currentProgress / tierRange) * 100;
 
-                    document.getElementById('opt-next-tier-bar').style.width = Math.min(progressPercent, 100) + '%';
+                    const nextTierBar = document.getElementById('opt-next-tier-bar');
+                    if (nextTierBar) {
+                        nextTierBar.style.width = Math.min(progressPercent, 100) + '%';
+                    }
                 }
             }
         }
@@ -4433,8 +4436,11 @@
                     this.recognition.onend = () => {
                         if (this.isListening) {
                             setTimeout(() => {
-                                try { this.recognition.start(); }
-                                catch (err) { /* already started */ }
+                                try {
+                                    this.recognition.start();
+                                } catch (err) {
+                                    /* already started */
+                                }
                             }, 100);
                         }
                     };
