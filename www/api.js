@@ -635,6 +635,11 @@ class PhoenixAPI {
         return this.request('/phoenix/companion/context', 'GET', null, { cache: true, cacheTTL: 300000 });
     }
 
+    // Alias for backward compatibility
+    async getContext() {
+        return this.getCompanionContext();
+    }
+
     // GET /api/phoenix/companion/personality
     async getPersonality() {
         return this.request('/phoenix/companion/personality', 'GET', null, { cache: true });
