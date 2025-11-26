@@ -94,6 +94,11 @@ class ConsciousnessClient {
        WEBSOCKET CONNECTION - Real-time consciousness streaming
        ============================================ */
     connectWebSocket() {
+        // WebSocket disabled until backend implements /phoenix-stream endpoint
+        // Using HTTP polling fallback instead
+        console.log('[Consciousness] WebSocket disabled - using HTTP polling');
+        return;
+
         const token = localStorage.getItem('phoenixToken');
         if (!token) {
             console.warn('[Consciousness] No token, skipping WebSocket connection');

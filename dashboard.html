@@ -164,18 +164,19 @@
                         // Check if Phoenix orchestrator is initialized
                         const phoenixReady = window.phoenix && window.phoenix.initialized === true;
 
-                        // Check if consciousness system is online
+                        // Check if consciousness system is online (optional - voice may be disabled)
                         const consciousnessReady = window.phoenixVoiceCommands && window.phoenixVoiceCommands.ready === true;
 
-                        if (phoenixReady && consciousnessReady) {
+                        // Only require Phoenix to be ready - consciousness/voice is optional
+                        if (phoenixReady) {
                             console.log(`✅ Systems ready in ${elapsed}ms`);
                             console.log('   • Phoenix Orchestrator: ✅');
-                            console.log('   • Consciousness System: ✅');
+                            console.log(`   • Voice System: ${consciousnessReady ? '✅' : 'ℹ️ Optional'}`);
                             resolve({ phoenixReady, consciousnessReady });
                         } else if (elapsed >= maxWait) {
                             console.error('❌ System initialization timeout after 120s');
                             console.log(`   • Phoenix Orchestrator: ${phoenixReady ? '✅' : '❌'}`);
-                            console.log(`   • Consciousness System: ${consciousnessReady ? '✅' : '❌'}`);
+                            console.log(`   • Voice System: ${consciousnessReady ? '✅' : '❌'}`);
                             reject({ phoenixReady, consciousnessReady, timeout: true });
                         } else {
                             // Keep checking

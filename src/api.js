@@ -81,6 +81,11 @@ class PhoenixAPI {
                 return this.request(endpoint, method, body, { ...options, retry: false });
             }
 
+            // Handle 404 gracefully - return empty success response
+            if (response.status === 404) {
+                return { success: false, data: null, notFound: true };
+            }
+
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
@@ -633,6 +638,11 @@ class PhoenixAPI {
     // GET /api/phoenix/companion/context
     async getCompanionContext() {
         return this.request('/phoenix/companion/context', 'GET', null, { cache: true, cacheTTL: 300000 });
+    }
+
+    // Alias for backward compatibility
+    async getContext() {
+        return this.getCompanionContext();
     }
 
     // GET /api/phoenix/companion/personality
