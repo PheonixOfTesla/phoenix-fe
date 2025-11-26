@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // PHOENIX API CLIENT - PERFECT 1:1 BACKEND MIRROR
 // ═══════════════════════════════════════════════════════════════════════════════
-// Purpose: Central API client - EXACT mirror of backend (307 endpoints)
+// Purpose: Central API client - EXACT mirror of backend (446+ endpoints)
 // Base URL: https://pal-backend-production.up.railway.app/api
 // Generated: October 27, 2025
 // Backend Analysis: PHOENIX_COMPLETE_BACKEND_ANALYSIS.md

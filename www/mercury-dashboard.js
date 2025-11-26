@@ -83,21 +83,17 @@ class MercuryDashboard {
             // THEN: Render data (DOM elements now exist)
             // Render recovery data (use sample if API failed)
             try {
-                if (recovery.status === 'fulfilled') {
+                if (recovery.status === 'fulfilled' && recovery.value) {
                     this.renderRecoveryScore(recovery.value);
                 } else {
-                    // Show sample recovery data
+                    // No data available - show empty state instead of fake data
                     this.renderRecoveryScore({
-                        score: 75,
-                        status: 'Good',
-                        trend: 'improving',
-                        recommendation: 'Your recovery is good. Ready for moderate to high intensity training today.',
-                        breakdown: {
-                            sleep: 85,
-                            hrv: 70,
-                            rhr: 68
-                        },
-                        lastUpdated: new Date().toISOString()
+                        score: null,
+                        status: 'No Data',
+                        trend: null,
+                        recommendation: 'Connect a wearable device or log your first night of sleep to see your recovery score.',
+                        breakdown: null,
+                        lastUpdated: null
                     });
                 }
             } catch (error) {

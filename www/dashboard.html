@@ -1890,7 +1890,7 @@
         /**
          * PHOENIX ENGINE CLASS
          * The Most Sophisticated AI Companion on Earth
-         * Manages all 307 endpoints across 6 planetary systems
+         * Manages all 446+ endpoints across 8 planetary systems
          */
         class PhoenixEngine {
             constructor() {
@@ -2221,10 +2221,12 @@
                     this.connectedSystems.earth = earthData.success;
                     console.log('🌍 Earth connected:', this.connectedSystems.earth);
 
-                    this.connectedSystems.mars = marsData.success && marsData.goals && marsData.goals.length > 0;
+                    // Mars: connected if API succeeds (user can add goals anytime)
+                    this.connectedSystems.mars = Boolean(marsData.success);
                     console.log('🎯 Mars connected:', this.connectedSystems.mars);
 
-                    this.connectedSystems.jupiter = jupiterData.success && jupiterData.accounts && jupiterData.accounts.length > 0;
+                    // Jupiter: connected if API succeeds (user can add accounts anytime)
+                    this.connectedSystems.jupiter = Boolean(jupiterData.success);
                     console.log('💰 Jupiter connected:', this.connectedSystems.jupiter);
 
                     // Venus and Saturn - always available for logging
@@ -2528,10 +2530,14 @@
                 try {
                     const data = await fetchAPI('/mercury/recovery/dashboard');
                     
-                    if (data.success && data.data) {
-                        this.recoveryScore = data.data.recoveryScore || 75;
+                    if (data.success && data.data && data.data.recoveryScore !== undefined) {
+                        this.recoveryScore = data.data.recoveryScore;
                         this.updateRecovery();
                         console.log('✅ Recovery score loaded:', this.recoveryScore);
+                    } else {
+                        // No recovery data - don't show fake score
+                        this.recoveryScore = null;
+                        console.log('ℹ️ No recovery data available yet');
                     }
                 } catch (error) {
                     console.error('Error loading recovery:', error);
@@ -3394,19 +3400,26 @@
             const summary = window.OptimizationTracker.getOptimizationSummary();
 
             // Update score text
-            document.getElementById('opt-score-text').textContent = summary.score + '%';
+            const scoreText = document.getElementById('opt-score-text');
+            if (scoreText) scoreText.textContent = summary.score + '%';
 
             // Update circular progress
             const circle = document.getElementById('opt-progress-circle');
-            const circumference = 2 * Math.PI * 60; // radius is 60
-            const offset = circumference - (summary.score / 100) * circumference;
-            circle.style.strokeDashoffset = offset;
-            circle.style.stroke = summary.tier.color;
+            if (circle) {
+                const circumference = 2 * Math.PI * 60; // radius is 60
+                const offset = circumference - (summary.score / 100) * circumference;
+                circle.style.strokeDashoffset = offset;
+                circle.style.stroke = summary.tier.color;
+            }
 
             // Update tier info
-            document.getElementById('opt-tier-name').textContent = summary.tier.name.toUpperCase();
-            document.getElementById('opt-tier-name').style.color = summary.tier.color;
-            document.getElementById('opt-tier-desc').textContent = summary.tier.description;
+            const tierName = document.getElementById('opt-tier-name');
+            if (tierName) {
+                tierName.textContent = summary.tier.name.toUpperCase();
+                tierName.style.color = summary.tier.color;
+            }
+            const tierDesc = document.getElementById('opt-tier-desc');
+            if (tierDesc) tierDesc.textContent = summary.tier.description;
 
             // Update bottom-right optimization indicator
             const optPercentage = document.getElementById('opt-percentage');
@@ -3439,28 +3452,39 @@
 
             // Update missing count
             const missingCount = summary.missing.length;
-            document.getElementById('opt-missing-count').textContent = missingCount;
+            const missingCountEl = document.getElementById('opt-missing-count');
+            if (missingCountEl) missingCountEl.textContent = missingCount;
 
             // Hide missing section if fully optimized
+            const missingSection = document.getElementById('opt-missing-section');
+            const nextTierSection = document.getElementById('opt-next-tier-section');
+
             if (summary.isOptimized) {
-                document.getElementById('opt-missing-section').style.display = 'none';
-                document.getElementById('opt-next-tier-section').style.display = 'none';
+                if (missingSection) missingSection.style.display = 'none';
+                if (nextTierSection) nextTierSection.style.display = 'none';
             } else {
-                document.getElementById('opt-missing-section').style.display = 'block';
-                document.getElementById('opt-next-tier-section').style.display = 'block';
+                if (missingSection) missingSection.style.display = 'block';
+                if (nextTierSection) nextTierSection.style.display = 'block';
 
                 // Update next tier progress
                 if (summary.nextTier) {
-                    document.getElementById('opt-points-needed').textContent = '+' + summary.pointsToNext + '%';
-                    document.getElementById('opt-next-tier-name').textContent = '→ ' + summary.nextTier.name.toUpperCase();
-                    document.getElementById('opt-next-tier-name').style.color = summary.nextTier.color;
+                    const pointsNeeded = document.getElementById('opt-points-needed');
+                    const nextTierName = document.getElementById('opt-next-tier-name');
+                    const nextTierBar = document.getElementById('opt-next-tier-bar');
+
+                    if (pointsNeeded) pointsNeeded.textContent = '+' + summary.pointsToNext + '%';
+                    if (nextTierName) {
+                        nextTierName.textContent = '→ ' + summary.nextTier.name.toUpperCase();
+                        nextTierName.style.color = summary.nextTier.color;
+                    }
 
                     // Calculate progress towards next tier
-                    const tierRange = summary.nextTier.min - summary.tier.min;
-                    const currentProgress = summary.score - summary.tier.min;
-                    const progressPercent = (currentProgress / tierRange) * 100;
-
-                    document.getElementById('opt-next-tier-bar').style.width = Math.min(progressPercent, 100) + '%';
+                    if (nextTierBar) {
+                        const tierRange = summary.nextTier.min - summary.tier.min;
+                        const currentProgress = summary.score - summary.tier.min;
+                        const progressPercent = (currentProgress / tierRange) * 100;
+                        nextTierBar.style.width = Math.min(progressPercent, 100) + '%';
+                    }
                 }
             }
         }
@@ -3706,13 +3730,13 @@
             initOptimizationWidget();
 
             console.log('🚀 PHOENIX FULLY INITIALIZED');
-            console.log('📊 307 Endpoints Available');
+            console.log('📊 446+ Endpoints Available');
             console.log('🌍 IP Geolocation: ✅ Active');
             console.log('🌤️ Weather Widget: ✅ Active');
             console.log('⚡ Sync System: ✅ Ready');
             console.log('🤖 AI Companion: ✅ Online');
             console.log('🤵 Butler: ✅ Ready');
-            console.log('💪 6 Planetary Systems: ✅ Operational');
+            console.log('💪 8 Planetary Systems: ✅ Operational');
             console.log('⚡ Optimization Tracker: ✅ Active');
             console.log('✨ The Most Sophisticated AI Companion on Earth');
 

@@ -2384,7 +2384,7 @@
         /**
          * PHOENIX ENGINE CLASS
          * The Most Sophisticated AI Companion on Earth
-         * Manages all 307 endpoints across 6 planetary systems
+         * Manages all 446+ endpoints across 8 planetary systems
          */
         class PhoenixEngine {
             constructor() {
@@ -3021,11 +3021,15 @@
                 
                 try {
                     const data = await fetchAPI('/mercury/recovery/dashboard');
-                    
-                    if (data.success && data.data) {
-                        this.recoveryScore = data.data.recoveryScore || 75;
+
+                    if (data.success && data.data && data.data.recoveryScore !== undefined) {
+                        this.recoveryScore = data.data.recoveryScore;
                         this.updateRecovery();
                         console.log('✅ Recovery score loaded:', this.recoveryScore);
+                    } else {
+                        // No recovery data - don't show fake score
+                        this.recoveryScore = null;
+                        console.log('ℹ️ No recovery data available yet');
                     }
                 } catch (error) {
                     console.error('Error loading recovery:', error);
@@ -4208,13 +4212,13 @@
             initOptimizationWidget();
 
             console.log('🚀 PHOENIX FULLY INITIALIZED');
-            console.log('📊 307 Endpoints Available');
+            console.log('📊 446+ Endpoints Available');
             console.log('🌍 IP Geolocation: ✅ Active');
             console.log('🌤️ Weather Widget: ✅ Active');
             console.log('⚡ Sync System: ✅ Ready');
             console.log('🤖 AI Companion: ✅ Online');
             console.log('🤵 Butler: ✅ Ready');
-            console.log('💪 6 Planetary Systems: ✅ Operational');
+            console.log('💪 8 Planetary Systems: ✅ Operational');
             console.log('⚡ Optimization Tracker: ✅ Active');
             console.log('✨ The Most Sophisticated AI Companion on Earth');
 

@@ -129,8 +129,15 @@ class JARVISEngine {
 
             const data = await response.json();
             this.chatHistory.push({ role: 'user', content: message, timestamp: new Date().toISOString() });
-            this.chatHistory.push({ role: 'assistant', content: data.response, timestamp: new Date().toISOString() });
-            return data;
+            this.chatHistory.push({ role: 'assistant', content: data.data.message, timestamp: new Date().toISOString() });
+
+            // Execute UI commands from Claude if present
+            if (data.data.ui && window.phoenixUI) {
+                console.log('[JARVIS] Executing UI command:', data.data.ui);
+                window.phoenixUI.execute(data.data.ui);
+            }
+
+            return data.data;
         } catch (error) {
             console.warn('⚠️  Backend AI unavailable - using intelligent fallback:', error.message);
             // Use intelligent fallback instead of generic error
@@ -524,7 +531,10 @@ class JARVISEngine {
             const response = await this.chat(message);
             this.hideTypingIndicator();
 
-            if (response?.response) {
+            if (response?.message) {
+                this.addMessageToUI(response.message, 'assistant');
+            } else if (response?.response) {
+                // Fallback for old format
                 this.addMessageToUI(response.response, 'assistant');
             } else {
                 this.addMessageToUI('Error processing message', 'assistant');
@@ -560,14 +570,14 @@ class JARVISEngine {
 
             this.hideTypingIndicatorInPanel();
 
-            if (response?.response) {
+            if (response?.message) {
                 // ⚡ STREAM THE RESPONSE for better UX (typewriter effect)
-                await this.streamMessageToPanel(response.response, 'assistant');
+                await this.streamMessageToPanel(response.message, 'assistant');
                 console.log(`✅ Response time: ${responseTime}ms`);
-            } else if (response?.fallback) {
-                // Show intelligent fallback
+            } else if (response?.response) {
+                // Fallback for old format or intelligent fallback
                 await this.streamMessageToPanel(response.response, 'assistant');
-                console.log(`⚡ Using intelligent fallback (backend unavailable)`);
+                console.log(response.fallback ? `⚡ Using intelligent fallback (backend unavailable)` : `✅ Response time: ${responseTime}ms`);
             } else {
                 this.addMessageToConversationPanel('I didn\'t catch that. Can you rephrase?', 'assistant');
             }

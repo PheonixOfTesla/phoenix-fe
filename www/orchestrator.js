@@ -722,34 +722,34 @@ return true; // Token is valid if this succeeds
             subscription: ['getSubscriptionStatus', 'createCheckout', 'cancelSubscription', 
                           'updatePayment', 'getInvoices'],
             
-            // Mercury (10 key methods out of 44)
-            mercury: ['getMercuryDashboard', 'getRecoveryScore', 'getHRV', 'getSleepData',
+            // Mercury (10 key methods) - using actual API method names
+            mercury: ['getRecoveryDashboard', 'getRecoveryLatest', 'getHRV', 'getSleep',
                      'getDevices', 'connectDevice', 'syncDevice', 'getHeartRate',
                      'getStressLevel', 'getReadiness'],
-            
-            // Venus (10 key methods out of 68)
-            venus: ['getVenusWorkouts', 'createWorkout', 'logWorkout', 'getWorkoutHistory',
+
+            // Venus (10 key methods) - using actual API method names
+            venus: ['getWorkouts', 'createWorkout', 'logWorkout', 'getWorkoutHistory',
                    'getNutrition', 'logMeal', 'scanBarcode', 'getSupplements',
-                   'getBodyMetrics', 'uploadProgressPhoto'],
-            
-            // Earth (8 key methods out of 11)
-            earth: ['getEarthCalendar', 'getCalendarEvents', 'createEvent', 'detectConflicts',
+                   'getBodyComposition', 'uploadProgressPhoto'],
+
+            // Earth (8 key methods) - using actual API method names
+            earth: ['getCalendarEvents', 'createCalendarEvent', 'detectConflicts',
                    'getEnergyLevels', 'logEnergy', 'optimizeCalendar', 'connectGoogleCalendar'],
-            
-            // Mars (8 key methods out of 21)
-            mars: ['getMarsGoals', 'createGoal', 'updateGoal', 'trackProgress',
+
+            // Mars (8 key methods) - using actual API method names
+            mars: ['getGoals', 'createGoal', 'updateGoal', 'getGoalProgress',
                   'getHabits', 'logHabit', 'getMilestones', 'getPredictions'],
-            
-            // Jupiter (8 key methods out of 18)
-            jupiter: ['getJupiterAccounts', 'connectBank', 'getTransactions', 'categorizeSpending',
+
+            // Jupiter (8 key methods) - using actual API method names
+            jupiter: ['getAccounts', 'connectBank', 'getTransactions', 'categorizeTransaction',
                      'createBudget', 'getSpendingAnalysis', 'getFinancialHealth', 'linkPlaid'],
-            
-            // Saturn (8 key methods out of 12)
-            saturn: ['getSaturnVision', 'defineVision', 'createQuarterlyReview', 'getTimeline',
+
+            // Saturn (8 key methods) - using actual API method names
+            saturn: ['getVision', 'createVision', 'createQuarterlyReview', 'getTimeline',
                     'setLongTermGoals', 'trackLegacy', 'getMortalityAwareness', 'getLifeVision'],
-            
-            // Phoenix (12 key methods out of 58)
-            phoenix: ['getPhoenixInsights', 'getPersonality', 'setPersonality', 'getContext',
+
+            // Phoenix (12 key methods) - using actual API method names
+            phoenix: ['getInsights', 'getPersonality', 'setPersonality', 'getContext',
                      'sendMessage', 'getPredictions', 'getButlerAutomations', 'createAutomation',
                      'createVoiceSession', 'getRealtimePatterns', 'getActiveInterventions', 'getCompanionHistory']
         };
@@ -1082,13 +1082,13 @@ return true; // Token is valid if this succeeds
         console.log('🪐 Loading initial planet data...');
         
         const planetEndpoints = [
-            { name: 'Mercury', method: 'getMercuryDashboard', icon: '☿️' },
-            { name: 'Venus', method: 'getVenusWorkouts', icon: '♀️' },
-            { name: 'Earth', method: 'getEarthCalendar', icon: '🌍' },
-            { name: 'Mars', method: 'getMarsGoals', icon: '♂️' },
-            { name: 'Jupiter', method: 'getJupiterAccounts', icon: '♃' },
-            { name: 'Saturn', method: 'getSaturnVision', icon: '♄' },
-            { name: 'Phoenix', method: 'getPhoenixInsights', icon: '🤖' }
+            { name: 'Mercury', method: 'getRecoveryDashboard', icon: '☿️' },
+            { name: 'Venus', method: 'getWorkouts', icon: '♀️' },
+            { name: 'Earth', method: 'getCalendarEvents', icon: '🌍' },
+            { name: 'Mars', method: 'getGoals', icon: '♂️' },
+            { name: 'Jupiter', method: 'getAccounts', icon: '♃' },
+            { name: 'Saturn', method: 'getVision', icon: '♄' },
+            { name: 'Phoenix', method: 'getInsights', icon: '🤖' }
         ];
         
         // Load all planets in parallel for speed
@@ -1870,9 +1870,9 @@ return true; // Token is valid if this succeeds
                 }
             }
             
-            // Check voice status
+            // Check voice status (VoiceTTS uses 'enabled' property, not 'isReady')
             if (this.components.voice) {
-                this.state.health.voice = this.components.voice.isReady ? 'healthy' : 'unhealthy';
+                this.state.health.voice = this.components.voice.enabled ? 'healthy' : 'unhealthy';
             }
             
             // Check butler status

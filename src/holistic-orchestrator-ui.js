@@ -18,6 +18,73 @@ class HolisticOrchestratorUI {
     }
 
     /**
+     * SVG Icon Helper Methods
+     */
+    getTargetIcon() {
+        return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <circle cx="12" cy="12" r="6"></circle>
+            <circle cx="12" cy="12" r="2"></circle>
+        </svg>`;
+    }
+
+    getSparkleIcon() {
+        return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3l1.912 5.813a2 2 0 001.275 1.275L21 12l-5.813 1.912a2 2 0 00-1.275 1.275L12 21l-1.912-5.813a2 2 0 00-1.275-1.275L3 12l5.813-1.912a2 2 0 001.275-1.275L12 3z"></path>
+        </svg>`;
+    }
+
+    getListIcon() {
+        return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="8" y1="6" x2="21" y2="6"></line>
+            <line x1="8" y1="12" x2="21" y2="12"></line>
+            <line x1="8" y1="18" x2="21" y2="18"></line>
+            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+        </svg>`;
+    }
+
+    getSearchIcon() {
+        return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+        </svg>`;
+    }
+
+    getCheckIcon() {
+        return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>`;
+    }
+
+    getXIcon() {
+        return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>`;
+    }
+
+    getClockIcon() {
+        return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>`;
+    }
+
+    getPlayIcon() {
+        return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+        </svg>`;
+    }
+
+    getCircleIcon() {
+        return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+        </svg>`;
+    }
+
+    /**
      * Initialize the UI - called on dashboard load
      * Waits for authentication before loading
      */
@@ -76,20 +143,20 @@ class HolisticOrchestratorUI {
             navBtn.className = 'holistic-nav-btn';
             navBtn.innerHTML = `
                 <button class="nav-btn-main" onclick="window.holisticOrchestrator.toggleMenu()" title="Holistic Orchestrator">
-                    🎯
+                    ${this.getTargetIcon()}
                 </button>
                 <div class="nav-menu" id="holistic-nav-menu">
                     <button onclick="window.holisticOrchestrator.showCreatePlanUI()">
-                        <span class="menu-icon">✨</span>
+                        <span class="menu-icon">${this.getSparkleIcon()}</span>
                         <span class="menu-text">Create New Plan</span>
                     </button>
                     <button onclick="window.holisticOrchestrator.showAllPlans()">
-                        <span class="menu-icon">📋</span>
+                        <span class="menu-icon">${this.getListIcon()}</span>
                         <span class="menu-text">View All Plans</span>
                     </button>
                     ${this.activePlan ? `
                     <button onclick="window.holisticOrchestrator.showDetailedView('${this.activePlan.planId}')">
-                        <span class="menu-icon">🔍</span>
+                        <span class="menu-icon">${this.getSearchIcon()}</span>
                         <span class="menu-text">View Active Plan</span>
                     </button>
                     ` : ''}
@@ -129,7 +196,7 @@ class HolisticOrchestratorUI {
                         <h1>Create Holistic Plan</h1>
                         <p>Phoenix will analyze your life and create a comprehensive optimization plan</p>
                     </div>
-                    <button class="modal-close" onclick="window.holisticOrchestrator.closeCreatePlanUI()">✕</button>
+                    <button class="modal-close" onclick="window.holisticOrchestrator.closeCreatePlanUI()">${this.getXIcon()}</button>
                 </div>
 
                 <div class="modal-body">
@@ -170,7 +237,7 @@ class HolisticOrchestratorUI {
                                 Cancel
                             </button>
                             <button type="submit" class="btn-primary">
-                                Create Plan with Phoenix 🔥
+                                Create Plan with Phoenix
                             </button>
                         </div>
                     </form>
@@ -251,7 +318,7 @@ class HolisticOrchestratorUI {
                             <h1>All Holistic Plans</h1>
                             <p>${plans.length} total plans</p>
                         </div>
-                        <button class="modal-close" onclick="window.holisticOrchestrator.closeAllPlansView()">✕</button>
+                        <button class="modal-close" onclick="window.holisticOrchestrator.closeAllPlansView()">${this.getXIcon()}</button>
                     </div>
 
                     <div class="modal-body">
@@ -278,7 +345,7 @@ class HolisticOrchestratorUI {
                             </div>
                         ` : `
                             <div class="empty-state">
-                                <div class="empty-icon">📋</div>
+                                <div class="empty-icon">${this.getListIcon()}</div>
                                 <div class="empty-title">No Plans Yet</div>
                                 <div class="empty-description">Create your first holistic optimization plan to get started</div>
                                 <button class="btn-primary" onclick="window.holisticOrchestrator.closeAllPlansView(); window.holisticOrchestrator.showCreatePlanUI();">
@@ -532,7 +599,7 @@ class HolisticOrchestratorUI {
                 <!-- Header -->
                 <div class="plan-header">
                     <div class="plan-title">
-                        <div class="plan-icon">🎯</div>
+                        <div class="plan-icon">${this.getTargetIcon()}</div>
                         <div>
                             <div class="plan-goal">${plan.goal}</div>
                             <div class="plan-meta">${plan.timeframe} • ${plan.execution.totalActions} actions</div>
@@ -569,7 +636,7 @@ class HolisticOrchestratorUI {
                 </div>
                 ` : `
                 <div class="plan-complete">
-                    <div class="complete-icon">✅</div>
+                    <div class="complete-icon">${this.getCheckIcon()}</div>
                     <div class="complete-text">All actions completed!</div>
                 </div>
                 `}
@@ -617,7 +684,7 @@ class HolisticOrchestratorUI {
                         <h1>${plan.goal}</h1>
                         <p>${plan.timeframe} • Created ${new Date(plan.createdAt).toLocaleDateString()}</p>
                     </div>
-                    <button class="modal-close" onclick="window.holisticOrchestrator.closeDetailedView()">✕</button>
+                    <button class="modal-close" onclick="window.holisticOrchestrator.closeDetailedView()">${this.getXIcon()}</button>
                 </div>
 
                 <div class="modal-body">
@@ -705,11 +772,11 @@ class HolisticOrchestratorUI {
      */
     renderActionItem(action, domain, planId) {
         const statusIcon = {
-            'pending': '⏳',
-            'in_progress': '▶️',
-            'completed': '✅',
-            'failed': '❌'
-        }[action.status] || '○';
+            'pending': this.getClockIcon(),
+            'in_progress': this.getPlayIcon(),
+            'completed': this.getCheckIcon(),
+            'failed': this.getXIcon()
+        }[action.status] || this.getCircleIcon();
 
         return `
             <div class="action-item status-${action.status}">
@@ -722,11 +789,11 @@ class HolisticOrchestratorUI {
                 </div>
                 ${action.scheduledFor ? `
                 <div class="action-schedule">
-                    📅 ${new Date(action.scheduledFor).toLocaleDateString()}
+                    ${new Date(action.scheduledFor).toLocaleDateString()}
                 </div>
                 ` : ''}
                 ${action.error ? `
-                <div class="action-error">⚠️ ${action.error}</div>
+                <div class="action-error">${action.error}</div>
                 ` : ''}
             </div>
         `;
@@ -800,14 +867,32 @@ class HolisticOrchestratorUI {
      */
     getDomainIcon(domain) {
         const icons = {
-            mercury: '☿️',
-            venus: '♀️',
-            earth: '🌍',
-            mars: '♂️',
-            jupiter: '♃',
-            saturn: '♄'
+            mercury: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="6"></circle>
+                <path d="M12 2v4m0 12v4M2 12h4m12 0h4"></path>
+            </svg>`,
+            venus: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="8" r="5"></circle>
+                <path d="M12 13v8m-4 0h8"></path>
+            </svg>`,
+            earth: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"></path>
+            </svg>`,
+            mars: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="10" cy="14" r="6"></circle>
+                <path d="M16 8l5-5m0 0h-4m4 0v4"></path>
+            </svg>`,
+            jupiter: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M6 12h12M9 8h6"></path>
+            </svg>`,
+            saturn: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="6"></circle>
+                <ellipse cx="12" cy="12" rx="11" ry="4"></ellipse>
+            </svg>`
         };
-        return icons[domain] || '🌟';
+        return icons[domain] || this.getTargetIcon();
     }
 
     /**
@@ -834,7 +919,7 @@ class HolisticOrchestratorUI {
         overlay.className = 'creating-plan-overlay';
         overlay.innerHTML = `
             <div class="creating-plan-content">
-                <div class="creating-icon">🔥</div>
+                <div class="creating-icon">${this.getTargetIcon()}</div>
                 <div class="creating-title">Phoenix is analyzing...</div>
                 <div class="creating-description">Creating holistic optimization plan for:<br>"${goal}"</div>
                 <div class="creating-loader"></div>
@@ -863,7 +948,7 @@ class HolisticOrchestratorUI {
         const notification = document.createElement('div');
         notification.className = 'plan-notification success';
         notification.innerHTML = `
-            <div class="notification-icon">✅</div>
+            <div class="notification-icon">${this.getCheckIcon()}</div>
             <div class="notification-content">
                 <div class="notification-title">Plan Created Successfully!</div>
                 <div class="notification-message">"${plan.goal}" • ${plan.execution.totalActions} actions • Score: ${plan.optimizationScore}/100</div>
@@ -885,7 +970,7 @@ class HolisticOrchestratorUI {
         const notification = document.createElement('div');
         notification.className = 'plan-notification error';
         notification.innerHTML = `
-            <div class="notification-icon">❌</div>
+            <div class="notification-icon">${this.getXIcon()}</div>
             <div class="notification-content">
                 <div class="notification-title">Error</div>
                 <div class="notification-message">${message}</div>
