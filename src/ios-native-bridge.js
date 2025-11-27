@@ -12,10 +12,25 @@
  * - Device info → Battery, network context
  */
 
-import { HealthKit } from 'capacitor-healthkit';
-import { Geolocation } from '@capacitor/geolocation';
-import { Device } from '@capacitor/device';
-import { Contacts } from '@capacitor-community/contacts';
+// Only import Capacitor plugins when running in native app
+let HealthKit, Geolocation, Device, Contacts;
+const isNative = typeof window !== 'undefined' && window.Capacitor?.isNativePlatform?.();
+
+if (isNative) {
+  // Dynamic imports for Capacitor - only in native environment
+  Promise.all([
+    import('capacitor-healthkit').then(m => HealthKit = m.HealthKit).catch(() => {}),
+    import('@capacitor/geolocation').then(m => Geolocation = m.Geolocation).catch(() => {}),
+    import('@capacitor/device').then(m => Device = m.Device).catch(() => {}),
+    import('@capacitor-community/contacts').then(m => Contacts = m.Contacts).catch(() => {})
+  ]).then(() => {
+    console.log('[iOS Bridge] Capacitor plugins loaded');
+  }).catch(err => {
+    console.warn('[iOS Bridge] Some plugins failed to load:', err);
+  });
+} else {
+  console.log('[iOS Bridge] Running in browser - native features disabled');
+}
 
 class iOSNativeBridge {
   constructor() {
@@ -31,6 +46,13 @@ class iOSNativeBridge {
    */
   async initialize() {
     if (this.isInitialized) return;
+
+    // Skip initialization in browser - only run in native Capacitor app
+    if (!isNative) {
+      console.log('[iOS Bridge] Skipping - not running in native app');
+      this.isInitialized = true;
+      return;
+    }
 
     console.log('[iOS Bridge] Initializing native integrations...');
 
