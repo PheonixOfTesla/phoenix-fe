@@ -537,6 +537,13 @@ class JARVISEngine {
         // Display user message immediately in conversation panel
         this.addMessageToConversationPanel(message, 'user');
 
+        // Check for workspace commands first
+        const workspaceResult = await this.handleWorkspaceCommand(message);
+        if (workspaceResult) {
+            this.addMessageToConversationPanel(workspaceResult.response, 'assistant');
+            return;
+        }
+
         // Show typing indicator with personality
         this.showTypingIndicatorInPanel();
 
@@ -810,6 +817,90 @@ class JARVISEngine {
 
         document.body.appendChild(notification);
         setTimeout(() => notification.remove(), 5000);
+    }
+
+    // WORKSPACE COMMAND HANDLER - Intercepts workspace-related commands
+    async handleWorkspaceCommand(message) {
+        const lowerMsg = message.toLowerCase();
+        const token = localStorage.getItem('phoenixToken');
+        const API = 'https://pal-backend-production.up.railway.app/api';
+
+        // Check Google connection status first
+        let googleConnected = false;
+        try {
+            const statusRes = await fetch(`${API}/google/status`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const status = await statusRes.json();
+            googleConnected = status.connected;
+        } catch (e) {
+            googleConnected = false;
+        }
+
+        // Define workspace command patterns
+        const patterns = {
+            email: /\b(email|emails|inbox|mail|messages?)\b/i,
+            calendar: /\b(calendar|schedule|events?|meetings?|appointments?|what('s|s)?\s*(on|planned)|today('s)?\s*schedule)\b/i,
+            tasks: /\b(tasks?|to.?do|todos?|reminders?|list)\b/i,
+            contacts: /\b(contacts?|people|find\s+\w+|who\s+is|look\s+up)\b/i,
+            drive: /\b(drive|files?|documents?|find\s+file|find\s+document)\b/i
+        };
+
+        // Check which pattern matches
+        let matchedType = null;
+        for (const [type, pattern] of Object.entries(patterns)) {
+            if (pattern.test(lowerMsg)) {
+                matchedType = type;
+                break;
+            }
+        }
+
+        if (!matchedType) return null; // Not a workspace command
+
+        // If Google not connected, prompt to connect
+        if (!googleConnected) {
+            return {
+                response: `I'd love to help with your ${matchedType}, but you haven't connected your Google account yet. Click the DESK button above to connect Google Workspace.`
+            };
+        }
+
+        // Fetch the data
+        try {
+            const endpoints = {
+                email: '/google/gmail/recent?limit=10',
+                calendar: '/google/calendar/upcoming?limit=10',
+                tasks: '/google/tasks/lists',
+                contacts: '/google/contacts?limit=20',
+                drive: '/google/drive/files?limit=10'
+            };
+
+            const res = await fetch(`${API}${endpoints[matchedType]}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+
+            // Show the widget
+            if (window.showDynamicWidget) {
+                window.showDynamicWidget(matchedType, data);
+            }
+
+            // Generate response based on type
+            const responses = {
+                email: `Found ${data.count || 0} recent emails. I've displayed them for you.`,
+                calendar: `You have ${data.count || 0} upcoming events. I've pulled up your schedule.`,
+                tasks: `Found ${data.count || 0} task lists. Here they are.`,
+                contacts: `Found ${data.count || 0} contacts. Take a look.`,
+                drive: `Found ${data.count || 0} files in your Drive.`
+            };
+
+            return { response: responses[matchedType] };
+
+        } catch (error) {
+            console.error('Workspace command error:', error);
+            return {
+                response: `I had trouble accessing your ${matchedType}. Please try again or check your Google connection in the DESK panel.`
+            };
+        }
     }
 }
 
