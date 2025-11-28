@@ -1,0 +1,382 @@
+/**
+ * PHOENIX UI CONTROLLER STYLES
+ * Styles for modal, sidepanel, inline, and takeover presentation modes
+ */
+
+/* ================================
+   MODAL PRESENTATION MODE
+   ================================ */
+.phoenix-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.phoenix-modal.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.phoenix-modal-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+.phoenix-modal-content {
+  position: relative;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-radius: 20px;
+  padding: 30px;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  transform: scale(0.9);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  color: #fff;
+}
+
+.phoenix-modal.active .phoenix-modal-content {
+  transform: scale(1);
+}
+
+.phoenix-modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 32px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  line-height: 1;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+}
+
+.phoenix-modal-close:hover {
+  opacity: 1;
+}
+
+/* Modal Animation Variants */
+.phoenix-modal-slide .phoenix-modal-content {
+  transform: translateY(-50px);
+}
+
+.phoenix-modal-slide.active .phoenix-modal-content {
+  transform: translateY(0);
+}
+
+/* ================================
+   SIDEPANEL PRESENTATION MODE
+   ================================ */
+.phoenix-sidepanel {
+  position: fixed;
+  top: 0;
+  right: -400px;
+  width: 400px;
+  height: 100%;
+  z-index: 8000;
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  box-shadow: -5px 0 30px rgba(0, 0, 0, 0.5);
+  transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.phoenix-sidepanel.active {
+  right: 0;
+}
+
+.phoenix-panel-header {
+  padding: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.phoenix-panel-header h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.phoenix-panel-close {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 28px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  padding: 0;
+  width: 28px;
+  height: 28px;
+  line-height: 1;
+}
+
+.phoenix-panel-close:hover {
+  opacity: 1;
+}
+
+.phoenix-panel-body {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+/* Sidepanel Animation Variants */
+.phoenix-sidepanel-slide {
+  /* Default slide animation */
+}
+
+/* ================================
+   INLINE PRESENTATION MODE
+   ================================ */
+.phoenix-inline-widget {
+  background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 12px 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: slideInUp 0.4s ease;
+  color: #fff;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================================
+   TAKEOVER PRESENTATION MODE
+   ================================ */
+.phoenix-takeover {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10000;
+  background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  color: #fff;
+}
+
+.phoenix-takeover.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.phoenix-takeover-close {
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #fff;
+  font-size: 32px;
+  cursor: pointer;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  opacity: 0.8;
+  transition: all 0.2s;
+  line-height: 1;
+}
+
+.phoenix-takeover-close:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.phoenix-takeover-content {
+  max-width: 800px;
+  padding: 40px;
+  transform: scale(0.8);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.phoenix-takeover.active .phoenix-takeover-content {
+  transform: scale(1);
+}
+
+/* Takeover Animation Variants */
+.phoenix-takeover-zoom .phoenix-takeover-content {
+  transform: scale(0.5);
+}
+
+.phoenix-takeover-zoom.active .phoenix-takeover-content {
+  transform: scale(1);
+}
+
+/* ================================
+   COMPONENT STYLES
+   ================================ */
+.phoenix-component {
+  color: #fff;
+}
+
+.phoenix-component h2 {
+  margin: 0 0 16px 0;
+  font-size: 24px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.phoenix-component p {
+  margin: 0 0 12px 0;
+  opacity: 0.9;
+  line-height: 1.6;
+}
+
+/* Plan Component */
+.plan-component {
+  text-align: center;
+}
+
+.plan-actions {
+  margin-top: 24px;
+}
+
+.plan-actions button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: #fff;
+  padding: 12px 32px;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.plan-actions button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* Metric Component */
+.metric-component {
+  min-height: 200px;
+}
+
+.metric-chart {
+  margin-top: 20px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+}
+
+.placeholder-chart {
+  height: 150px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.placeholder-chart::after {
+  content: 'Loading chart...';
+  opacity: 0.5;
+}
+
+/* ================================
+   MODE-SPECIFIC ADJUSTMENTS
+   ================================ */
+[data-phoenix-mode="voice"] .phoenix-modal-close,
+[data-phoenix-mode="voice"] .phoenix-panel-close,
+[data-phoenix-mode="voice"] .phoenix-takeover-close {
+  /* In voice mode, make close buttons less prominent */
+  opacity: 0.4;
+}
+
+[data-phoenix-mode="voice"] .phoenix-component button {
+  /* In voice mode, disable button interactions */
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+[data-phoenix-mode="manual"] .phoenix-component button {
+  /* In manual mode, full interactivity */
+  pointer-events: all;
+  opacity: 1;
+}
+
+/* ================================
+   RESPONSIVE DESIGN
+   ================================ */
+@media (max-width: 768px) {
+  .phoenix-modal-content {
+    max-width: 90%;
+    padding: 20px;
+  }
+
+  .phoenix-sidepanel {
+    width: 100%;
+    right: -100%;
+  }
+
+  .phoenix-takeover-content {
+    padding: 20px;
+  }
+}
+
+/* ================================
+   SCROLLBAR STYLING
+   ================================ */
+.phoenix-modal-content::-webkit-scrollbar,
+.phoenix-panel-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.phoenix-modal-content::-webkit-scrollbar-track,
+.phoenix-panel-body::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.phoenix-modal-content::-webkit-scrollbar-thumb,
+.phoenix-panel-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.phoenix-modal-content::-webkit-scrollbar-thumb:hover,
+.phoenix-panel-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}

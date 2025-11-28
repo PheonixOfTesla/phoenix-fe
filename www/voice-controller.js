@@ -145,6 +145,148 @@
         showModeNotification('Manual Mode Active', 'Use buttons and menus to interact');
     };
 
+    // Open Phoenix Desk (Google Workspace)
+    window.openPhoenixDesk = async function() {
+        console.log('💼 Opening Phoenix Desk...');
+
+        const token = localStorage.getItem('phoenixToken');
+        if (!token) {
+            showModeNotification('Login Required', 'Please login to access Phoenix Desk');
+            return;
+        }
+
+        try {
+            // Check if Google is already connected
+            const statusRes = await fetch(`${window.PhoenixConfig?.API_BASE_URL || 'https://pal-backend-production.up.railway.app/api'}/google/status`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const status = await statusRes.json();
+
+            if (status.connected) {
+                // Already connected - show Desk panel
+                showDeskPanel();
+            } else {
+                // Not connected - get OAuth URL and redirect
+                const connectRes = await fetch(`${window.PhoenixConfig?.API_BASE_URL || 'https://pal-backend-production.up.railway.app/api'}/google/connect`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const connectData = await connectRes.json();
+
+                if (connectData.authUrl) {
+                    showModeNotification('Connecting Google', 'Redirecting to Google login...');
+                    window.location.href = connectData.authUrl;
+                } else {
+                    showModeNotification('Error', 'Could not connect to Google');
+                }
+            }
+        } catch (error) {
+            console.error('Phoenix Desk error:', error);
+            showModeNotification('Error', 'Failed to open Phoenix Desk');
+        }
+    };
+
+    // Show Desk Panel with Google Workspace features
+    function showDeskPanel() {
+        // Check if panel already exists
+        let panel = document.getElementById('desk-panel');
+        if (panel) {
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+            return;
+        }
+
+        // Create Desk panel
+        panel = document.createElement('div');
+        panel.id = 'desk-panel';
+        panel.innerHTML = `
+            <div style="position:fixed;top:80px;right:20px;width:350px;background:rgba(0,10,20,0.95);border:2px solid rgba(0,217,255,0.4);border-radius:20px;padding:20px;z-index:10002;backdrop-filter:blur(15px);box-shadow:0 0 30px rgba(0,217,255,0.3)">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+                    <h3 style="color:#00d9ff;margin:0;font-size:18px;letter-spacing:2px">PHOENIX DESK</h3>
+                    <button onclick="document.getElementById('desk-panel').style.display='none'" style="background:none;border:none;color:#00d9ff;font-size:20px;cursor:pointer">&times;</button>
+                </div>
+                <div style="color:rgba(0,217,255,0.7);font-size:12px;margin-bottom:15px">Google Workspace Connected</div>
+                <div style="display:grid;gap:10px">
+                    <button onclick="deskAction('email')" style="padding:15px;background:rgba(0,217,255,0.1);border:1px solid rgba(0,217,255,0.3);border-radius:10px;color:#00d9ff;cursor:pointer;text-align:left">
+                        <div style="font-weight:bold">📧 Email</div>
+                        <div style="font-size:11px;opacity:0.7">Read & send emails</div>
+                    </button>
+                    <button onclick="deskAction('calendar')" style="padding:15px;background:rgba(0,217,255,0.1);border:1px solid rgba(0,217,255,0.3);border-radius:10px;color:#00d9ff;cursor:pointer;text-align:left">
+                        <div style="font-weight:bold">📅 Calendar</div>
+                        <div style="font-size:11px;opacity:0.7">View & create events</div>
+                    </button>
+                    <button onclick="deskAction('tasks')" style="padding:15px;background:rgba(0,217,255,0.1);border:1px solid rgba(0,217,255,0.3);border-radius:10px;color:#00d9ff;cursor:pointer;text-align:left">
+                        <div style="font-weight:bold">✅ Tasks</div>
+                        <div style="font-size:11px;opacity:0.7">Manage to-do lists</div>
+                    </button>
+                    <button onclick="deskAction('contacts')" style="padding:15px;background:rgba(0,217,255,0.1);border:1px solid rgba(0,217,255,0.3);border-radius:10px;color:#00d9ff;cursor:pointer;text-align:left">
+                        <div style="font-weight:bold">👥 Contacts</div>
+                        <div style="font-size:11px;opacity:0.7">Look up people</div>
+                    </button>
+                    <button onclick="deskAction('drive')" style="padding:15px;background:rgba(0,217,255,0.1);border:1px solid rgba(0,217,255,0.3);border-radius:10px;color:#00d9ff;cursor:pointer;text-align:left">
+                        <div style="font-weight:bold">📁 Drive</div>
+                        <div style="font-size:11px;opacity:0.7">Access your files</div>
+                    </button>
+                </div>
+                <div style="margin-top:15px;padding-top:15px;border-top:1px solid rgba(0,217,255,0.2)">
+                    <button onclick="disconnectGoogle()" style="width:100%;padding:10px;background:rgba(255,50,50,0.1);border:1px solid rgba(255,50,50,0.3);border-radius:10px;color:#ff6b6b;cursor:pointer;font-size:12px">
+                        Disconnect Google Account
+                    </button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(panel);
+        showModeNotification('Phoenix Desk', 'Google Workspace ready');
+    }
+
+    // Desk action handler
+    window.deskAction = async function(action) {
+        const token = localStorage.getItem('phoenixToken');
+        const API = window.PhoenixConfig?.API_BASE_URL || 'https://pal-backend-production.up.railway.app/api';
+
+        try {
+            let endpoint = '';
+            switch(action) {
+                case 'email': endpoint = '/google/gmail/recent'; break;
+                case 'calendar': endpoint = '/google/calendar/upcoming'; break;
+                case 'tasks': endpoint = '/google/tasks/lists'; break;
+                case 'contacts': endpoint = '/google/contacts'; break;
+                case 'drive': endpoint = '/google/drive/files'; break;
+            }
+
+            const res = await fetch(API + endpoint, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+
+            console.log(`Desk ${action}:`, data);
+
+            // Trigger widget display with data
+            if (window.showDynamicWidget) {
+                window.showDynamicWidget(action, data);
+            } else {
+                showModeNotification(action.charAt(0).toUpperCase() + action.slice(1), `Loaded ${data.count || 0} items`);
+            }
+        } catch (error) {
+            console.error('Desk action error:', error);
+            showModeNotification('Error', `Failed to load ${action}`);
+        }
+    };
+
+    // Disconnect Google
+    window.disconnectGoogle = async function() {
+        const token = localStorage.getItem('phoenixToken');
+        const API = window.PhoenixConfig?.API_BASE_URL || 'https://pal-backend-production.up.railway.app/api';
+
+        try {
+            await fetch(API + '/google/disconnect', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            document.getElementById('desk-panel').remove();
+            showModeNotification('Disconnected', 'Google account removed');
+        } catch (error) {
+            console.error('Disconnect error:', error);
+        }
+    };
+
     // Close all open menus
     function closeAllMenus() {
         const jarvisMenu = document.getElementById('jarvis-quick-menu');
