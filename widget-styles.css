@@ -44,7 +44,7 @@
     background: rgba(0, 217, 255, 0.2);
     border: 1px solid rgba(0, 217, 255, 0.4);
     border-radius: 50%;
-    color: #00d9ff;
+    color: #00ff88;
     font-size: 20px;
     line-height: 1;
     cursor: pointer;
@@ -103,7 +103,7 @@
 }
 
 /* Color Themes */
-.widget-health { color: #00d9ff; }
+.widget-health { color: #00ff88; }
 .widget-health .widget-value { color: #00ff88; }
 
 .widget-finance { color: #ffaa00; }
@@ -116,7 +116,7 @@
 
 /* Recovery Score Colors */
 .recovery-excellent { color: #00ff88 !important; }
-.recovery-good { color: #00d9ff !important; }
+.recovery-good { color: #00ff88 !important; }
 .recovery-poor { color: #ff6b35 !important; }
 
 /* List Styles */

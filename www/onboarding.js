@@ -671,7 +671,7 @@ class OnboardingEngine {
 
         // Validate - at least name is required
         if (!this.userData.name) {
-            alert('Please enter your name to continue.');
+            showToast('Please enter your name to continue.', 'error');
             return;
         }
 

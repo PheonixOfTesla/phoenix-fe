@@ -3,6 +3,8 @@
 // ✅ AUTHENTICATION FIXED - proper token handling
 // ✅ ERROR HANDLING - proper 401 detection and recovery
 
+const DEBUG_MODE = false; // Set to true to enable verbose debug logging
+
 class JARVISEngine {
     constructor() {
         // Use centralized config if available, fallback to production
@@ -45,7 +47,7 @@ class JARVISEngine {
             
             if (response.ok) {
                 const data = await response.json();
-                console.log('Authenticated:', data.user?.name);
+                if (DEBUG_MODE) console.log('Authenticated:', data.user?.name);
                 return true;
             } else {
                 console.error('❌ Token invalid');

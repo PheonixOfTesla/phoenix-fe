@@ -4,32 +4,34 @@
 // Version: 2.0 - 100% COMPLETE
 // Last Updated: October 25, 2025
 
+const DEBUG_MODE = false; // Set to true to enable verbose debug logging
+
 /**
  * =============================================================================
  * WHAT USERS CAN DO WITH ORCHESTRATOR
  * =============================================================================
- * 
+ *
  * AUTOMATIC ON APP START:
  * ✅ Seamless app startup (< 3 seconds)
  * ✅ Automatic authentication (login/register/validate)
  * ✅ Resume where you left off (state + cache restoration)
  * ✅ Auto-detect and fix system issues
  * ✅ Auto-reconnect when network restored
- * 
+ *
  * VOICE COMMANDS ENABLED BY ORCHESTRATOR:
  * - "What's my system status?"
  * - "Run diagnostics"
  * - "Show me what's broken"
  * - "Restart Phoenix"
  * - "Clear my cache"
- * 
+ *
  * HEALTH MONITORING:
  * ✅ Detect API failures → Auto-retry
  * ✅ Detect authentication issues → Auto-refresh token
  * ✅ Detect voice crashes → Auto-reconnect
  * ✅ Detect memory leaks → Auto-cleanup
  * ✅ Detect network loss → Queue actions for later
- * 
+ *
  * =============================================================================
  */
 
@@ -177,7 +179,7 @@ class PhoenixOrchestrator {
             // Create session ID
             this.state.session.id = this.generateSessionId();
             this.state.session.startTime = Date.now();
-            console.log(`📋 Session ID: ${this.state.session.id}`);
+            if (DEBUG_MODE) console.log(`📋 Session ID: ${this.state.session.id}`);
             
             // STEP 1: Setup authentication (3 endpoints)
             await this.executeInitStep('Authentication', () => this.setupAuthentication());
@@ -341,16 +343,16 @@ class PhoenixOrchestrator {
                     this.state.authenticated = true;
                     this.state.health.auth = 'healthy';
                     this.performanceMetrics.endpointsCalled++;
-                    console.log(`✅ Token valid for user: ${this.state.user?.name || storedUserId}`);
+                    if (DEBUG_MODE) console.log(`✅ Token valid for user: ${this.state.user?.name || storedUserId}`);
                     return;
                 }
                 
-                console.log('Stored token invalid, attempting refresh...');
-                
+                if (DEBUG_MODE) console.log('Stored token invalid, attempting refresh...');
+
                 // Try to refresh token
                 const refreshed = await this.attemptTokenRefresh(storedToken);
                 if (refreshed) {
-                    console.log('Token refreshed successfully');
+                    if (DEBUG_MODE) console.log('Token refreshed successfully');
                     return;
                 }
             }
@@ -423,14 +425,14 @@ return true; // Token is valid if this succeeds
             if (response.ok) {
                 const userData = await response.json();
                 this.state.user = userData;
-                console.log(`✅ Token valid for user: ${userData.name || userData.email}`);
+                if (DEBUG_MODE) console.log(`✅ Token valid for user: ${userData.name || userData.email}`);
                 return true;
             }
-            
+
             if (response.status === 401) {
-                console.log('Token expired (401 Unauthorized)');
+                if (DEBUG_MODE) console.log('Token expired (401 Unauthorized)');
             } else if (response.status === 403) {
-                console.log('Token invalid (403 Forbidden)');
+                if (DEBUG_MODE) console.log('Token invalid (403 Forbidden)');
             }
             
             return false;
@@ -444,7 +446,7 @@ return true; // Token is valid if this succeeds
 
     async attemptTokenRefresh(oldToken) {
         try {
-            console.log('Attempting token refresh...');
+            if (DEBUG_MODE) console.log('Attempting token refresh...');
             
             // ENDPOINT: POST /api/auth/refresh
             // Real-world: "This token expired, give me a new one"
@@ -469,13 +471,13 @@ return true; // Token is valid if this succeeds
                 
                 localStorage.setItem('phoenixToken', token);
                 localStorage.setItem('phoenix_user_id', userId);
-                
+
                 this.performanceMetrics.endpointsCalled++;
-                console.log('Token refreshed - continuing seamlessly');
+                if (DEBUG_MODE) console.log('Token refreshed - continuing seamlessly');
                 return true;
             }
-            
-            console.log('Token refresh failed - user needs to login again');
+
+            if (DEBUG_MODE) console.log('Token refresh failed - user needs to login again');
             return false;
             
         } catch (error) {
@@ -492,7 +494,7 @@ return true; // Token is valid if this succeeds
             const { email, password } = event.detail;
             
             try {
-                console.log(`📝 Logging in as ${email}...`);
+                if (DEBUG_MODE) console.log(`📝 Logging in as ${email}...`);
                 
                 // ENDPOINT: POST /api/auth/login
                 // Real-world: "User wants to login, check credentials"
@@ -517,8 +519,8 @@ return true; // Token is valid if this succeeds
                     localStorage.setItem('phoenix_user_id', userId);
                     
                     this.performanceMetrics.endpointsCalled++;
-                    
-                    console.log(`✅ Login successful: ${user.name || email}`);
+
+                    if (DEBUG_MODE) console.log(`✅ Login successful: ${user.name || email}`);
                     
                     // Continue initialization now that we're authenticated
                     this.initialize();
@@ -547,7 +549,7 @@ return true; // Token is valid if this succeeds
             const { email, password, name } = event.detail;
             
             try {
-                console.log(`📝 Registering new user: ${email}...`);
+                if (DEBUG_MODE) console.log(`📝 Registering new user: ${email}...`);
                 
                 // ENDPOINT: POST /api/auth/register
                 // Real-world: "New user wants to create an account"
@@ -572,8 +574,8 @@ return true; // Token is valid if this succeeds
                     localStorage.setItem('phoenix_user_id', userId);
                     
                     this.performanceMetrics.endpointsCalled++;
-                    
-                    console.log(`✅ Registration successful: Welcome ${user.name || email}!`);
+
+                    if (DEBUG_MODE) console.log(`✅ Registration successful: Welcome ${user.name || email}!`);
                     
                     // Continue initialization now that we're authenticated
                     this.initialize();
@@ -599,7 +601,7 @@ return true; // Token is valid if this succeeds
         // CRITICAL: Check localStorage first - NEVER overwrite existing JWT token
         const existingToken = localStorage.getItem('phoenixToken');
         if (existingToken && existingToken.startsWith('eyJ')) {
-            console.log('✅ JWT token found in localStorage - using authenticated mode instead of guest');
+            if (DEBUG_MODE) console.log('✅ JWT token found in localStorage - using authenticated mode instead of guest');
             this.state.session.authToken = existingToken;
             this.state.authenticated = true;
             this.state.health.auth = 'valid';
@@ -678,7 +680,7 @@ return true; // Token is valid if this succeeds
             // Set authentication token on all API requests
             if (this.components.api.setAuthToken) {
                 this.components.api.setAuthToken(this.state.session.authToken);
-                console.log('🔑 Auth token configured on API client');
+                if (DEBUG_MODE) console.log('🔑 Auth token configured on API client');
             }
             
             // VERIFY ALL REQUIRED METHODS EXIST
@@ -1352,7 +1354,7 @@ return true; // Token is valid if this succeeds
             // Real-world: "Create a voice session for this user"
             const voiceSession = await this.components.api.createVoiceSession();
             this.performanceMetrics.endpointsCalled++;
-            console.log(`✅ Voice Session: ${voiceSession.sessionId}`);
+            if (DEBUG_MODE) console.log(`✅ Voice Session: ${voiceSession.sessionId}`);
             
             // Configure voice with session
             if (this.components.voice.setSession) {
@@ -1793,15 +1795,15 @@ return true; // Token is valid if this succeeds
             const maxAge = 30 * 60 * 1000; // 30 minutes
             
             if (age < maxAge) {
-                console.log(`💾 Cache hit: ${key} (age: ${Math.floor(age / 1000)}s)`);
+                if (DEBUG_MODE) console.log(`💾 Cache hit: ${key} (age: ${Math.floor(age / 1000)}s)`);
                 return this.state.cache[key].data;
             } else {
-                console.log(`⏰ Cache expired: ${key}`);
+                if (DEBUG_MODE) console.log(`⏰ Cache expired: ${key}`);
             }
         }
         
         // Cache miss or expired - fetch from API
-        console.log(`🌐 Cache miss: ${key} - fetching from API...`);
+        if (DEBUG_MODE) console.log(`🌐 Cache miss: ${key} - fetching from API...`);
         
         if (this.components.api && this.components.api[fallbackMethod]) {
             try {
@@ -1813,7 +1815,7 @@ return true; // Token is valid if this succeeds
                     timestamp: Date.now()
                 };
                 
-                console.log(`✅ Cache updated: ${key}`);
+                if (DEBUG_MODE) console.log(`✅ Cache updated: ${key}`);
                 return data;
             } catch (error) {
                 console.error(`❌ Failed to fetch ${key}:`, error);
@@ -2216,7 +2218,7 @@ return true; // Token is valid if this succeeds
         console.log('═══════════════════════════════════════════════════════');
         console.log('PHOENIX ORCHESTRATOR READY');
         console.log('═══════════════════════════════════════════════════════');
-        console.log(`📋 Session ID: ${this.state.session.id}`);
+        if (DEBUG_MODE) console.log(`📋 Session ID: ${this.state.session.id}`);
         console.log(`👤 User: ${this.state.user?.name || 'User'}`);
         console.log(`⏱️ Init Time: ${this.performanceMetrics.initDuration}ms`);
         console.log(`📡 Endpoints Called: ${this.performanceMetrics.endpointsCalled}`);

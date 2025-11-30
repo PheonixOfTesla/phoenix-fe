@@ -361,15 +361,8 @@
                     'phoenix': '#ff6347'
                 };
 
-                const planetColor = planetColors[result.intent.planet] || '#00d4ff';
-                const confidencePercent = Math.round((result.intent.confidence || 1) * 100);
-
-                const intentBadge = `<div class="intent-badge" style="background: ${planetColor}22; color: ${planetColor};">
-                    ${result.intent.planet.toUpperCase()} | ${result.intent.action} (${confidencePercent}%)
-                </div>`;
-
-                // Display conversational response
-                document.getElementById('response').innerHTML = intentBadge + `<div>${result.response}</div>`;
+                // Display conversational response (intent badge removed - was showing debug info)
+                document.getElementById('response').innerHTML = `<div>${result.response}</div>`;
 
                 // Add to conversation history
                 conversationHistory.push({

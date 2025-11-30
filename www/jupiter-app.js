@@ -82,80 +82,44 @@ class JupiterApp {
 
             // THEN: Render data (DOM elements now exist)
 
-            // Render net worth (use sample if API failed)
+            // Render net worth (show zeros if API failed)
             if (netWorth.status === 'fulfilled') {
                 this.renderNetWorth(netWorth.value);
             } else {
                 this.renderNetWorth({
-                    net_worth: 52000,
-                    change: 2500,
-                    monthly_income: 5000,
-                    monthly_spending: 3200
+                    net_worth: 0,
+                    change: 0,
+                    monthly_income: 0,
+                    monthly_spending: 0
                 });
             }
 
-            // Render accounts (use sample if API failed)
+            // Render accounts (show empty if API failed)
             if (accounts.status === 'fulfilled' && accounts.value?.length > 0) {
                 this.renderAccounts(accounts.value);
             } else {
-                this.renderAccounts({
-                    accounts: [
-                        { name: 'Chase Checking', type: 'checking', balance: 12500, mask: '4523' },
-                        { name: 'Ally Savings', type: 'savings', balance: 28000, mask: '7821' },
-                        { name: 'Chase Sapphire', type: 'credit', balance: -1200, mask: '0045' },
-                        { name: 'Vanguard 401k', type: 'investment', balance: 12700, mask: '9912' }
-                    ]
-                });
+                this.renderAccounts([]);
             }
 
-            // Render transactions (use sample if API failed)
+            // Render transactions (show empty if API failed)
             if (transactions.status === 'fulfilled') {
                 this.renderTransactions(transactions.value);
             } else {
-                const today = new Date().toISOString().split('T')[0];
-                const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-                const twoDaysAgo = new Date(Date.now() - 2*86400000).toISOString().split('T')[0];
-                this.renderTransactions({
-                    transactions: [
-                        { name: 'Whole Foods', amount: 87.43, category: 'food', date: today },
-                        { name: 'Shell Gas Station', amount: 52.00, category: 'transport', date: today },
-                        { name: 'Netflix', amount: 15.99, category: 'entertainment', date: yesterday },
-                        { name: 'Amazon', amount: 124.50, category: 'shopping', date: yesterday },
-                        { name: 'Starbucks', amount: 6.75, category: 'food', date: twoDaysAgo },
-                        { name: 'Spotify', amount: 10.99, category: 'entertainment', date: twoDaysAgo },
-                        { name: 'Target', amount: 78.32, category: 'shopping', date: twoDaysAgo }
-                    ]
-                });
+                this.renderTransactions([]);
             }
 
-            // Render spending (use sample if API failed)
+            // Render spending (show empty if API failed)
             if (spending.status === 'fulfilled') {
                 this.renderSpending(spending.value);
             } else {
-                this.renderSpending({
-                    categories: [
-                        { category: 'Food', amount: 650 },
-                        { category: 'Shopping', amount: 420 },
-                        { category: 'Transport', amount: 280 },
-                        { category: 'Entertainment', amount: 150 },
-                        { category: 'Bills', amount: 1200 },
-                        { category: 'Health', amount: 180 }
-                    ]
-                });
+                this.renderSpending([]);
             }
 
-            // Render budgets (use sample if API failed)
+            // Render budgets (show empty if API failed)
             if (budgets.status === 'fulfilled') {
                 this.renderBudgets(budgets.value);
             } else {
-                this.renderBudgets({
-                    budgets: [
-                        { category: 'Food', spent: 650, limit: 800 },
-                        { category: 'Shopping', spent: 420, limit: 500 },
-                        { category: 'Entertainment', spent: 150, limit: 200 },
-                        { category: 'Transport', spent: 280, limit: 300 }
-                    ]
-                });
+                this.renderBudgets([]);
             }
 
         } catch (error) {
@@ -342,7 +306,12 @@ class JupiterApp {
             container.innerHTML = `
                 <div class="connect-bank-card" onclick="window.jupiterApp.connectBank()">
                     <div class="connect-bank-icon"><span class="icon-bank">Bank</span></div>
-                    <div class="connect-bank-text">Connect Your First Account</div>
+                    <div class="connect-bank-text">Connect your bank with Plaid to see your finances</div>
+                    <div class="connect-button" onclick="window.jupiterApp.connectBank()">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 5v14M5 12h14"/>
+                        </svg>
+                    </div>
                 </div>
             `;
             return;
@@ -402,7 +371,12 @@ class JupiterApp {
         if (!transactions.length) {
             container.innerHTML = `
                 <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.4);">
-                    No transactions yet
+                    Connect your bank with Plaid to see your finances
+                    <div class="connect-button" onclick="window.jupiterApp.connectBank()">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 5v14M5 12h14"/>
+                        </svg>
+                    </div>
                 </div>
             `;
             return;
@@ -448,7 +422,7 @@ class JupiterApp {
         if (!categories.length) {
             container.innerHTML = `
                 <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.4);">
-                    No spending data yet
+                    Connect your bank with Plaid to see your finances
                 </div>
             `;
             return;
@@ -503,7 +477,7 @@ class JupiterApp {
         if (!budgets.length) {
             container.innerHTML = `
                 <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.4);">
-                    No budgets set. Create one to track spending.
+                    Create your first budget to track spending
                 </div>
             `;
             const budgetStatusEl = document.getElementById('budgetStatus');
@@ -613,13 +587,13 @@ class JupiterApp {
                 handler.open();
             } else {
                 // Fallback if Plaid SDK not loaded
-                alert('[Bank Integration] Plaid integration coming soon! For now, this is a demo.');
+                showToast('Plaid integration coming soon! For now, this is a demo.', 'info');
                 console.log('Plaid Link token received:', linkToken);
             }
 
         } catch (error) {
             console.error('Bank connection error:', error);
-            alert('Bank connection coming soon! Backend integration pending.');
+            showToast('Bank connection coming soon! Backend integration pending.', 'info');
         }
     }
 
@@ -641,14 +615,14 @@ class JupiterApp {
             });
 
             if (response.ok) {
-                alert('[Success] Bank connected successfully!');
+                showToast('Bank connected successfully!', 'success');
                 await this.loadDashboardData(); // Refresh
             } else {
                 throw new Error('Token exchange failed');
             }
         } catch (error) {
             console.error('Token exchange error:', error);
-            alert('Failed to connect bank. Please try again.');
+            showToast('Failed to connect bank. Please try again.', 'error');
         }
     }
 
@@ -678,11 +652,11 @@ class JupiterApp {
             });
 
             if (response.ok) {
-                alert('[Success] Transaction added!');
+                showToast('Transaction added!', 'success');
                 await this.loadDashboardData();
             }
         } catch (error) {
-            alert(`Error: ${error.message}`);
+            showToast(`Error: ${error.message}`, 'error');
         }
     }
 
@@ -710,11 +684,11 @@ class JupiterApp {
             });
 
             if (response.ok) {
-                alert('[Success] Budget created!');
+                showToast('Budget created!', 'success');
                 await this.loadDashboardData();
             }
         } catch (error) {
-            alert(`Error: ${error.message}`);
+            showToast(`Error: ${error.message}`, 'error');
         }
     }
 
@@ -740,14 +714,14 @@ class JupiterApp {
                 const insights = data.insights || [];
 
                 if (insights.length) {
-                    const summary = insights.map(i => `• ${i.message || i.text}`).join('\n');
-                    alert(`[Phoenix AI] Financial Insights:\n\n${summary}\n\n(These insights use your health, fitness, and habit data to give you personalized financial coaching!)`);
+                    const summary = insights.map(i => `• ${i.message || i.text}`).join(', ');
+                    showToast(`Phoenix AI Financial Insights: ${summary}. These insights use your health, fitness, and habit data!`, 'info', 6000);
                 } else {
-                    alert('[Phoenix AI] Analyzing your data across all domains. Check back soon for personalized insights!');
+                    showToast('Phoenix AI is analyzing your data across all domains. Check back soon for personalized insights!', 'info');
                 }
             }
         } catch (error) {
-            alert('Phoenix AI insights temporarily unavailable');
+            showToast('Phoenix AI insights temporarily unavailable', 'error');
         }
     }
 

@@ -1,6 +1,6 @@
 require_relative '../../node_modules/@capacitor/ios/scripts/pods_helpers'
 
-platform :ios, '13.0'
+platform :ios, '14.0'
 use_frameworks!
 
 # workaround to avoid Xcode caching of Pods that requires
@@ -11,8 +11,6 @@ install! 'cocoapods', :disable_input_output_paths => true
 def capacitor_pods
   pod 'Capacitor', :path => '../../node_modules/@capacitor/ios'
   pod 'CapacitorCordova', :path => '../../node_modules/@capacitor/ios'
-  pod 'AparajitaCapacitorBiometricAuth', :path => '../../node_modules/@aparajita/capacitor-biometric-auth'
-  pod 'AparajitaCapacitorSecureStorage', :path => '../../node_modules/@aparajita/capacitor-secure-storage'
   pod 'CapacitorCommunityCapacitorGooglemapsNative', :path => '../../node_modules/@capacitor-community/capacitor-googlemaps-native'
   pod 'CapacitorCommunityContacts', :path => '../../node_modules/@capacitor-community/contacts'
   pod 'CapacitorCommunityKeepAwake', :path => '../../node_modules/@capacitor-community/keep-awake'
@@ -39,11 +37,10 @@ def capacitor_pods
   pod 'CapawesomeCapacitorBadge', :path => '../../node_modules/@capawesome/capacitor-badge'
   pod 'CapgoNativeAudio', :path => '../../node_modules/@capgo/native-audio'
   pod 'PerfoodCapacitorHealthkit', :path => '../../node_modules/@perfood/capacitor-healthkit'
+  pod 'TransistorsoftCapacitorBackgroundFetch', :path => '../../node_modules/@transistorsoft/capacitor-background-fetch'
   pod 'TransistorsoftCapacitorBackgroundGeolocation', :path => '../../node_modules/@transistorsoft/capacitor-background-geolocation'
   pod 'CapacitorApplePay', :path => '../../node_modules/capacitor-apple-pay'
-  pod 'CapacitorCalendarPlugin', :path => '../../node_modules/capacitor-calendar-plugin'
   pod 'CapacitorEmailComposer', :path => '../../node_modules/capacitor-email-composer'
-  pod 'CapacitorLiveActivities', :path => '../../node_modules/capacitor-live-activities'
   pod 'CapacitorPluginSiriShorts', :path => '../../node_modules/capacitor-plugin-siri-shorts'
   pod 'CapacitorVideoPlayer', :path => '../../node_modules/capacitor-video-player'
 end

@@ -77,7 +77,7 @@ body[data-mode="manual"] #phoenix-core-container {
 /* Voice mode button active state */
 body[data-mode="voice"] #voice-mode-btn {
     background: rgba(0, 217, 255, 0.3) !important;
-    color: #00d9ff !important;
+    color: #00ff88 !important;
     box-shadow: 0 0 20px rgba(0, 217, 255, 0.5), inset 0 0 15px rgba(0, 217, 255, 0.3) !important;
 }
 
@@ -90,7 +90,7 @@ body[data-mode="voice"] #manual-mode-btn {
 /* Manual mode button active state */
 body[data-mode="manual"] #manual-mode-btn {
     background: rgba(0, 217, 255, 0.3) !important;
-    color: #00d9ff !important;
+    color: #00ff88 !important;
     box-shadow: 0 0 20px rgba(0, 217, 255, 0.5), inset 0 0 15px rgba(0, 217, 255, 0.3) !important;
 }
 

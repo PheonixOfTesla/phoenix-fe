@@ -22,6 +22,9 @@ const config: CapacitorConfig = {
     limitsNavigationsToAppBoundDomains: false
   },
   plugins: {
+    CapacitorHttp: {
+      enabled: true  // Route fetch through native - bypasses CORS
+    },
     SplashScreen: {
       launchShowDuration: 2000,
       backgroundColor: '#000a14',

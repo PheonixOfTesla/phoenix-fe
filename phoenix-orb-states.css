@@ -209,7 +209,7 @@
 /* Enhance visibility during active states */
 #phoenix-core-container.listening .phoenix-particles circle,
 #phoenix-core-container.speaking .phoenix-particles circle {
-    fill: #00d9ff;
+    fill: #00ff88;
     filter: drop-shadow(0 0 4px rgba(0, 217, 255, 0.8));
 }
 

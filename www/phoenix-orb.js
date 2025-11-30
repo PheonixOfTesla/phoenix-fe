@@ -8,6 +8,8 @@
  * ========================================
  */
 
+const DEBUG_MODE = false; // Set to true to enable verbose debug logging
+
 class PhoenixOrb {
     constructor() {
         this.currentPlanet = this.detectPlanet();
@@ -354,7 +356,8 @@ class PhoenixOrb {
 
                     <!-- Response Area -->
                     <div class="phoenix-response" id="phoenixResponse" style="display:none;">
-                        <div class="phoenix-intent-badge" id="phoenixIntent"></div>
+                        <!-- Intent badge hidden - was showing debug info like "CLARIFIED_CAPABILITY | action (98%)" -->
+                        <div class="phoenix-intent-badge" id="phoenixIntent" style="display:none;"></div>
                         <div class="phoenix-response-text" id="phoenixResponseText"></div>
                     </div>
 
@@ -613,7 +616,7 @@ class PhoenixOrb {
      */
     startVoice() {
         if (!this.recognition) {
-            alert('Voice recognition not supported in this browser');
+            showToast('Voice recognition not supported in this browser', 'error');
             return;
         }
 
@@ -713,14 +716,16 @@ class PhoenixOrb {
             }
 
             const result = await response.json();
-            console.log('🌟 Phoenix Companion Response:', result);
+            if (DEBUG_MODE) console.log('🌟 Phoenix Companion Response:', result);
 
             // Extract message from companion chat format
             const aiMessage = result.data?.message || result.message || 'Sorry, I didn\'t get a response';
             const confidence = result.data?.confidence || 0;
 
-            console.log(`📊 Confidence: ${confidence}%);
-            console.log(`💬 Response: ${aiMessage}`);
+            if (DEBUG_MODE) {
+                console.log(`📊 Confidence: ${confidence}%`);
+                console.log(`💬 Response: ${aiMessage}`);
+            }
 
             // ⭐ NEW: Show text IMMEDIATELY in conversation bubble
             this.showTextBubble(aiMessage, 'phoenix');
@@ -825,6 +830,11 @@ class PhoenixOrb {
      * Show text bubble in conversation UI
      */
     showTextBubble(text, sender = 'phoenix') {
+        // Strip JSON metadata that AI sometimes appends
+        text = text.replace(/\s*\{[\s\S]*?"confidence_score"[\s\S]*?\}\s*$/i, '').trim();
+        text = text.replace(/\s*\{[\s\S]*?"mood"[\s\S]*?\}\s*$/i, '').trim();
+        text = text.replace(/\s*\{[\s\S]*?"action_taken"[\s\S]*?\}\s*$/i, '').trim();
+
         let conversationEl = document.getElementById('phoenix-conversation');
 
         if (!conversationEl) {

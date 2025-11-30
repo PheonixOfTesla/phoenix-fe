@@ -24,9 +24,9 @@
     box-shadow: 0 0 15px rgba(0, 217, 255, 0.3);
     backdrop-filter: blur(10px);
     font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
-    border: 2px solid var(--primary-cyan, #00d9ff);
+    border: 2px solid var(--primary-cyan, #00ff88);
     background: rgba(0, 217, 255, 0.1);
-    color: var(--primary-cyan, #00d9ff);
+    color: var(--primary-cyan, #00ff88);
     text-transform: uppercase;
     letter-spacing: 1px;
 }
@@ -39,24 +39,24 @@
 
 .voice-status.listening {
     background: rgba(0, 217, 255, 0.2);
-    border-color: var(--primary-cyan, #00d9ff);
-    color: var(--primary-cyan, #00d9ff);
+    border-color: var(--primary-cyan, #00ff88);
+    color: var(--primary-cyan, #00ff88);
     animation: pulse-listening 1.5s infinite ease-in-out;
     box-shadow: 0 0 25px rgba(0, 217, 255, 0.6);
 }
 
 .voice-status.processing {
     background: rgba(0, 217, 255, 0.15);
-    border-color: var(--primary-cyan, #00d9ff);
-    color: var(--primary-cyan, #00d9ff);
+    border-color: var(--primary-cyan, #00ff88);
+    color: var(--primary-cyan, #00ff88);
     animation: pulse-processing 1s infinite ease-in-out;
     box-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
 }
 
 .voice-status.speaking {
     background: rgba(0, 217, 255, 0.25);
-    border-color: var(--primary-cyan, #00d9ff);
-    color: var(--primary-cyan, #00d9ff);
+    border-color: var(--primary-cyan, #00ff88);
+    color: var(--primary-cyan, #00ff88);
     animation: wave 1.2s infinite ease-in-out;
     box-shadow: 0 0 30px rgba(0, 217, 255, 0.7);
 }
@@ -74,11 +74,11 @@
     padding: 16px 32px;
     font-size: 16px;
     font-weight: 600;
-    border: 2px solid var(--primary-cyan, #00d9ff);
+    border: 2px solid var(--primary-cyan, #00ff88);
     border-radius: 6px;
     cursor: pointer;
     background: rgba(0, 217, 255, 0.1);
-    color: var(--primary-cyan, #00d9ff);
+    color: var(--primary-cyan, #00ff88);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 0 15px rgba(0, 217, 255, 0.3);
     font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
@@ -110,9 +110,9 @@
 .voice-selector {
     padding: 12px 20px;
     border-radius: 6px;
-    border: 2px solid var(--primary-cyan, #00d9ff);
+    border: 2px solid var(--primary-cyan, #00ff88);
     background: rgba(0, 10, 20, 0.9);
-    color: var(--primary-cyan, #00d9ff);
+    color: var(--primary-cyan, #00ff88);
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
@@ -125,13 +125,13 @@
 }
 
 .voice-selector:hover {
-    border-color: var(--primary-cyan, #00d9ff);
+    border-color: var(--primary-cyan, #00ff88);
     box-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
     background: rgba(0, 217, 255, 0.1);
 }
 
 .voice-selector:focus {
-    border-color: var(--primary-cyan, #00d9ff);
+    border-color: var(--primary-cyan, #00ff88);
     box-shadow: 0 0 25px rgba(0, 217, 255, 0.6);
     background: rgba(0, 217, 255, 0.15);
 }
@@ -220,8 +220,8 @@
 @media (prefers-color-scheme: dark) {
     .voice-selector {
         background: rgba(0, 10, 20, 0.95);
-        color: var(--primary-cyan, #00d9ff);
-        border-color: var(--primary-cyan, #00d9ff);
+        color: var(--primary-cyan, #00ff88);
+        border-color: var(--primary-cyan, #00ff88);
     }
 
     .voice-selector:hover {
@@ -291,7 +291,7 @@
 
 .siri-waveform .bar {
     width: 3px;
-    background: var(--primary-cyan, #00d9ff);
+    background: var(--primary-cyan, #00ff88);
     border-radius: 2px;
     animation-timing-function: ease-in-out;
     animation-iteration-count: infinite;
@@ -381,8 +381,8 @@
 
 .voice-toast.success {
     background: rgba(0, 217, 255, 0.15);
-    border-color: var(--primary-cyan, #00d9ff);
-    color: var(--primary-cyan, #00d9ff);
+    border-color: var(--primary-cyan, #00ff88);
+    color: var(--primary-cyan, #00ff88);
     box-shadow: 0 0 25px rgba(0, 217, 255, 0.5);
 }
 

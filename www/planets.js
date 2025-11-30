@@ -1546,7 +1546,7 @@
             const response = await this.api.venus.generateQuantumWorkout({});
             if (response.ok) {
                 const workout = await response.json();
-                alert(`Generated: ${workout.name}`);
+                showToast(`Generated: ${workout.name}`, 'success');
                 await this.loadVenus(true);
             }
         }
@@ -1584,7 +1584,7 @@
             if (response.ok) {
                 const { link_token } = await response.json();
                 // Initialize Plaid Link with token
-                alert('Plaid integration would launch here');
+                showToast('Plaid integration would launch here', 'info');
             }
         }
 

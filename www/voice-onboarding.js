@@ -314,7 +314,7 @@ class VoiceOnboarding {
      */
     testCurrentSelection() {
         if (!this.selectedVoice) {
-            alert('Please select a voice first');
+            showToast('Please select a voice first', 'error');
             return;
         }
 
@@ -351,7 +351,7 @@ class VoiceOnboarding {
      */
     saveAndContinue() {
         if (!this.selectedVoice) {
-            alert('Please select a voice');
+            showToast('Please select a voice', 'error');
             return;
         }
 
@@ -371,7 +371,7 @@ class VoiceOnboarding {
         window.dispatchEvent(new CustomEvent('phoenixVoiceConfigured', { detail: voiceSettings }));
 
         // Alert user
-        alert(`✅ Voice configured!\n\nPersonality: ${this.personalities.find(p => p.id === this.selectedPersonality).name}\nLanguage: ${this.selectedLanguage}\nVoice: ${this.selectedVoice.name}`);
+        showToast(`Voice configured! Personality: ${this.personalities.find(p => p.id === this.selectedPersonality).name}, Language: ${this.selectedLanguage}, Voice: ${this.selectedVoice.name}`, 'success', 4000);
     }
 
     /**

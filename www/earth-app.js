@@ -74,49 +74,31 @@ class EarthApp {
 
             // THEN: Render data (DOM elements now exist)
 
-            // Render events (use sample if API failed)
+            // Render events (show empty state if API failed)
             if (events.status === 'fulfilled') {
                 this.renderWeekView(events.value);
                 this.renderTodayEvents(events.value);
             } else {
-                const today = new Date();
-                const sampleEvents = {
-                    events: [
-                        { title: 'Team Standup', start: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 9, 0).toISOString(), end: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 9, 30).toISOString(), attendees: [1, 2, 3] },
-                        { title: 'Deep Work Block', start: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 10, 0).toISOString(), end: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12, 0).toISOString() },
-                        { title: 'Lunch with Sarah', start: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12, 30).toISOString(), end: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 13, 30).toISOString(), location: 'Downtown Cafe' },
-                        { title: 'Project Review', start: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 14, 0).toISOString(), end: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 15, 0).toISOString(), attendees: [1, 2] },
-                        { title: 'Gym Workout', start: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 17, 30).toISOString(), end: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 18, 30).toISOString() },
-                        // Tomorrow
-                        { title: 'Morning Focus', start: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1, 8, 0).toISOString(), end: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1, 10, 0).toISOString() },
-                        { title: 'Client Call', start: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1, 11, 0).toISOString(), end: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1, 12, 0).toISOString() },
-                        // Day after tomorrow
-                        { title: '1-on-1 with Manager', start: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 2, 15, 0).toISOString(), end: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 2, 16, 0).toISOString() }
-                    ]
-                };
-                this.renderWeekView(sampleEvents);
-                this.renderTodayEvents(sampleEvents);
+                this.renderWeekView({ events: [] });
+                this.renderTodayEvents({ events: [] });
             }
 
-            // Render energy profile (use sample if API failed)
+            // Render energy profile (show empty state if API failed)
             if (energy.status === 'fulfilled') {
                 this.renderEnergyProfile(energy.value);
             } else {
-                this.renderEnergyProfile({
-                    current_energy: 75,
-                    profile: this.getDefaultEnergyProfile()
-                });
+                this.renderEnergyProfile(null);
             }
 
-            // Render analytics (use sample if API failed)
+            // Render analytics (show empty state if API failed)
             if (analytics.status === 'fulfilled') {
                 this.renderAnalytics(analytics.value);
             } else {
                 this.renderAnalytics({
-                    total_events: 18,
-                    total_meetings: 8,
-                    deep_work_hours: 12,
-                    free_hours: 15
+                    total_events: 0,
+                    total_meetings: 0,
+                    deep_work_hours: 0,
+                    free_hours: 0
                 });
             }
 
@@ -210,6 +192,25 @@ class EarthApp {
         weekRangeEl.textContent =
             `${weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
 
+        // Check if calendar is empty
+        if (!events.length) {
+            container.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: center; height: 100%; padding: 40px; text-align: center;">
+                    <div>
+                        <div style="color: rgba(255,255,255,0.5); font-size: 14px; margin-bottom: 10px;">
+                            Connect Google Calendar to see your schedule
+                        </div>
+                        <div class="connect-button" onclick="window.earthApp.connectCalendar()">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 5v14M5 12h14"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
         // Generate 7 day columns
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -295,10 +296,24 @@ class EarthApp {
         }
         todayEventCountEl.textContent = `${todayEvents.length} event${todayEvents.length !== 1 ? 's' : ''}`;
 
+        if (!events.length) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.5);">
+                    Connect Google Calendar to see your schedule
+                </div>
+            `;
+            return;
+        }
+
         if (!todayEvents.length) {
             container.innerHTML = `
                 <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.4);">
                     No events today - perfect for deep work!
+                    <div class="connect-button" onclick="window.earthApp.connectCalendar()">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 5v14M5 12h14"/>
+                        </svg>
+                    </div>
                 </div>
             `;
             return;
@@ -342,8 +357,29 @@ class EarthApp {
      * Render energy profile
      */
     renderEnergyProfile(data) {
-        const currentEnergy = data.current_energy || data.energy || 75;
-        const profile = data.profile || data.energy_profile || this.getDefaultEnergyProfile();
+        // Handle empty state
+        if (!data) {
+            const energyScoreEl = document.getElementById('energyScore');
+            if (energyScoreEl) energyScoreEl.textContent = '--';
+
+            const energyStatusEl = document.getElementById('energyStatus');
+            if (energyStatusEl) {
+                energyStatusEl.textContent = 'Log your energy levels throughout the day to build your personal energy profile';
+            }
+
+            const peakEnergyTimeEl = document.getElementById('peakEnergyTime');
+            if (peakEnergyTimeEl) peakEnergyTimeEl.textContent = '--';
+
+            const lowEnergyTimeEl = document.getElementById('lowEnergyTime');
+            if (lowEnergyTimeEl) lowEnergyTimeEl.textContent = '--';
+
+            // Render empty energy curve
+            this.renderEnergyCurve(null);
+            return;
+        }
+
+        const currentEnergy = data.current_energy || data.energy || 0;
+        const profile = data.profile || data.energy_profile || null;
 
         // Update current energy score
         const energyScoreEl = document.getElementById('energyScore');
@@ -374,29 +410,37 @@ class EarthApp {
         // Render energy curve
         this.renderEnergyCurve(profile);
 
-        // Update peak/low energy times
-        const peakHour = profile.findIndex(val => val === Math.max(...profile));
-        const lowHour = profile.findIndex(val => val === Math.min(...profile));
+        if (profile && profile.length > 0) {
+            // Update peak/low energy times
+            const peakHour = profile.findIndex(val => val === Math.max(...profile));
+            const lowHour = profile.findIndex(val => val === Math.min(...profile));
 
-        const peakStart = (6 + peakHour);
-        const peakEnd = peakStart + 2;
-        const peakEnergyTimeEl = document.getElementById('peakEnergyTime');
-        if (!peakEnergyTimeEl) {
-            console.warn('Element peakEnergyTime not found');
-            return;
-        }
-        peakEnergyTimeEl.textContent =
-            `${this.formatHour(peakStart)} - ${this.formatHour(peakEnd)}`;
+            const peakStart = (6 + peakHour);
+            const peakEnd = peakStart + 2;
+            const peakEnergyTimeEl = document.getElementById('peakEnergyTime');
+            if (!peakEnergyTimeEl) {
+                console.warn('Element peakEnergyTime not found');
+                return;
+            }
+            peakEnergyTimeEl.textContent =
+                `${this.formatHour(peakStart)} - ${this.formatHour(peakEnd)}`;
 
-        const lowStart = (6 + lowHour);
-        const lowEnd = lowStart + 2;
-        const lowEnergyTimeEl = document.getElementById('lowEnergyTime');
-        if (!lowEnergyTimeEl) {
-            console.warn('Element lowEnergyTime not found');
-            return;
+            const lowStart = (6 + lowHour);
+            const lowEnd = lowStart + 2;
+            const lowEnergyTimeEl = document.getElementById('lowEnergyTime');
+            if (!lowEnergyTimeEl) {
+                console.warn('Element lowEnergyTime not found');
+                return;
+            }
+            lowEnergyTimeEl.textContent =
+                `${this.formatHour(lowStart)} - ${this.formatHour(lowEnd)}`;
+        } else {
+            const peakEnergyTimeEl = document.getElementById('peakEnergyTime');
+            if (peakEnergyTimeEl) peakEnergyTimeEl.textContent = '--';
+
+            const lowEnergyTimeEl = document.getElementById('lowEnergyTime');
+            if (lowEnergyTimeEl) lowEnergyTimeEl.textContent = '--';
         }
-        lowEnergyTimeEl.textContent =
-            `${this.formatHour(lowStart)} - ${this.formatHour(lowEnd)}`;
     }
 
     /**
@@ -410,6 +454,20 @@ class EarthApp {
         }
         const width = 1000;
         const height = 150;
+
+        // Handle empty state
+        if (!profile || profile.length === 0) {
+            const energyLineEl = document.getElementById('energyLine');
+            if (energyLineEl) energyLineEl.setAttribute('d', '');
+
+            const energyPathEl = document.getElementById('energyPath');
+            if (energyPathEl) energyPathEl.setAttribute('d', '');
+
+            const marker = document.getElementById('currentTimeMarker');
+            if (marker) marker.setAttribute('r', '0');
+            return;
+        }
+
         const points = profile.length;
 
         // Generate path data
@@ -458,6 +516,12 @@ class EarthApp {
             return;
         }
 
+        // Handle empty state
+        if (!profile || profile.length === 0) {
+            marker.setAttribute('r', '0');
+            return;
+        }
+
         // Calculate position (6 AM to 9 PM = 15 hours)
         if (hour < 6 || hour >= 21) {
             // Outside display range
@@ -465,14 +529,13 @@ class EarthApp {
             return;
         }
 
-        const currentProfile = profile || this.getDefaultEnergyProfile();
         const hoursSince6AM = hour - 6 + (minute / 60);
         const x = (hoursSince6AM / 15) * 1000;
 
         // Interpolate energy value
         const index = Math.floor(hoursSince6AM);
         const fraction = hoursSince6AM - index;
-        const energy = currentProfile[index] + (currentProfile[index + 1] - currentProfile[index]) * fraction;
+        const energy = profile[index] + (profile[index + 1] - profile[index]) * fraction;
         const y = 150 - (energy / 100 * 150);
 
         // Update marker position
@@ -550,7 +613,7 @@ class EarthApp {
 
         } catch (error) {
             console.error('Calendar connection error:', error);
-            alert(' Google Calendar integration coming soon! Backend integration pending.');
+            showToast('Google Calendar integration coming soon! Backend integration pending.', 'info');
         }
     }
 
@@ -573,11 +636,11 @@ class EarthApp {
 
             if (response.ok) {
                 const data = await response.json();
-                alert(` Deep work blocked! Best time: ${data.start_time} (when your energy is highest)`);
+                showToast(`Deep work blocked! Best time: ${data.start_time} (when your energy is highest)`, 'success');
                 await this.loadDashboardData();
             }
         } catch (error) {
-            alert('Phoenix will analyze your energy patterns and suggest the optimal time for deep work');
+            showToast('Phoenix will analyze your energy patterns and suggest the optimal time for deep work', 'info');
         }
     }
 
@@ -606,11 +669,11 @@ class EarthApp {
             });
 
             if (response.ok) {
-                alert('[Success] Event created!');
+                showToast('Event created!', 'success');
                 await this.loadDashboardData();
             }
         } catch (error) {
-            alert(`Error: ${error.message}`);
+            showToast(`Error: ${error.message}`, 'error');
         }
     }
 
@@ -639,38 +702,14 @@ class EarthApp {
             if (response.ok) {
                 const data = await response.json();
                 const changes = data.optimizations || [];
-                alert(` Schedule optimized!\n\n${changes.length} improvements made based on your energy profile and goals.\n\nPhoenix analyzed your sleep, recovery, and HRV to find the perfect time for each task.`);
+                showToast(`Schedule optimized! ${changes.length} improvements made based on your energy profile and goals. Phoenix analyzed your sleep, recovery, and HRV.`, 'success', 5000);
                 await this.loadDashboardData();
             }
         } catch (error) {
-            alert('Phoenix will analyze your energy patterns across Mercury (health), Mars (goals), and Venus (workouts) to create the optimal schedule for YOU. No calendar app has this.');
+            showToast('Phoenix will analyze your energy patterns across Mercury (health), Mars (goals), and Venus (workouts) to create the optimal schedule for YOU.', 'info', 5000);
         }
     }
 
-    /**
-     * Helper: Get default energy profile (15 hours, 6AM to 9PM)
-     */
-    getDefaultEnergyProfile() {
-        // Typical energy curve: low morning, peak mid-morning, dip afternoon, recovery evening
-        return [
-            40, // 6 AM
-            55, // 7 AM
-            70, // 8 AM
-            85, // 9 AM - PEAK
-            90, // 10 AM - PEAK
-            85, // 11 AM
-            75, // 12 PM
-            65, // 1 PM
-            50, // 2 PM - DIP
-            45, // 3 PM - DIP
-            55, // 4 PM
-            60, // 5 PM
-            65, // 6 PM
-            60, // 7 PM
-            50, // 8 PM
-            40  // 9 PM
-        ];
-    }
 
     /**
      * Helper: Get week start (Sunday)

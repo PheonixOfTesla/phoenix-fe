@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="description" content="Phoenix - The Most Sophisticated AI Life Companion">
@@ -40,10 +40,11 @@
            ============================================ */
         .auth-view {
             background: #000;
-            color: #00d9ff;
-            display: flex;
+            color: #00ff88;
+            display: flex !important;
             align-items: center;
             justify-content: center;
+            min-height: 100vh;
             font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
         }
 
@@ -51,10 +52,10 @@
             width: 90%;
             max-width: 450px;
             background: rgba(0, 10, 20, 0.95);
-            border: 2px solid rgba(0, 217, 255, 0.5);
+            border: 2px solid rgba(0, 255, 136, 0.5);
             padding: 50px 40px;
             backdrop-filter: blur(20px);
-            box-shadow: 0 0 60px rgba(0, 217, 255, 0.4);
+            box-shadow: 0 0 60px rgba(0, 255, 136, 0.4);
             animation: slideIn 0.8s ease-out;
             margin: 0 auto;
         }
@@ -77,8 +78,8 @@
 
         .auth-logo-text {
             font-size: 48px;
-            color: #00d9ff;
-            text-shadow: 0 0 30px rgba(0, 217, 255, 1);
+            color: #00ff88;
+            text-shadow: 0 0 30px rgba(0, 255, 136, 1);
             letter-spacing: 8px;
             margin-bottom: 10px;
             animation: pulse 2s ease-in-out infinite;
@@ -86,23 +87,23 @@
 
         @keyframes pulse {
             0%, 100% {
-                text-shadow: 0 0 30px rgba(0, 217, 255, 1);
+                text-shadow: 0 0 30px rgba(0, 255, 136, 1);
             }
             50% {
-                text-shadow: 0 0 50px rgba(0, 217, 255, 1);
+                text-shadow: 0 0 50px rgba(0, 255, 136, 1);
             }
         }
 
         .auth-logo-subtitle {
             font-size: 14px;
-            color: rgba(0, 217, 255, 0.6);
+            color: rgba(0, 255, 136, 0.6);
             letter-spacing: 2px;
         }
 
         .auth-tabs {
             display: flex;
             margin-bottom: 30px;
-            border-bottom: 1px solid rgba(0, 217, 255, 0.2);
+            border-bottom: 1px solid rgba(0, 255, 136, 0.2);
         }
 
         .auth-tab {
@@ -111,15 +112,15 @@
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
-            color: rgba(0, 217, 255, 0.5);
+            color: rgba(0, 255, 136, 0.5);
             font-size: 14px;
             letter-spacing: 2px;
             border-bottom: 2px solid transparent;
         }
 
         .auth-tab.active {
-            color: #00d9ff;
-            border-bottom-color: #00d9ff;
+            color: #00ff88;
+            border-bottom-color: #00ff88;
         }
 
         .auth-form {
@@ -143,7 +144,7 @@
         .form-label {
             display: block;
             font-size: 11px;
-            color: rgba(0, 217, 255, 0.7);
+            color: rgba(0, 255, 136, 0.7);
             margin-bottom: 8px;
             letter-spacing: 2px;
             text-transform: uppercase;
@@ -153,9 +154,9 @@
         .form-input {
             width: 100%;
             padding: 15px;
-            background: rgba(0, 217, 255, 0.05);
-            border: 1px solid rgba(0, 217, 255, 0.3);
-            color: #00d9ff;
+            background: rgba(0, 255, 136, 0.05);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #00ff88;
             font-family: inherit;
             font-size: 14px;
             outline: none;
@@ -163,17 +164,17 @@
         }
 
         .form-input:focus {
-            background: rgba(0, 217, 255, 0.1);
-            border-color: #00d9ff;
-            box-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
+            background: rgba(0, 255, 136, 0.1);
+            border-color: #00ff88;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
         }
 
         .submit-btn {
             width: 100%;
             padding: 18px;
-            background: rgba(0, 217, 255, 0.1);
-            border: 2px solid #00d9ff;
-            color: #00d9ff;
+            background: rgba(0, 255, 136, 0.1);
+            border: 2px solid #00ff88;
+            color: #00ff88;
             font-family: inherit;
             font-size: 14px;
             letter-spacing: 3px;
@@ -184,8 +185,8 @@
         }
 
         .submit-btn:hover {
-            background: rgba(0, 217, 255, 0.3);
-            box-shadow: 0 0 30px rgba(0, 217, 255, 0.6);
+            background: rgba(0, 255, 136, 0.3);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.6);
             transform: translateY(-2px);
         }
 
@@ -209,9 +210,9 @@
         }
 
         .success-message {
-            background: rgba(0, 217, 255, 0.1);
-            border: 1px solid rgba(0, 217, 255, 0.5);
-            color: #00d9ff;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.5);
+            color: #00ff88;
         }
 
         .error-message.show, .success-message.show {
@@ -223,7 +224,7 @@
            ============================================ */
         .onboarding-view {
             background: #000;
-            color: #00d9ff;
+            color: #00ff88;
             font-family: 'Courier New', 'Consolas', monospace;
         }
 
@@ -247,14 +248,14 @@
             z-index: 100;
             background: rgba(0, 0, 0, 0.95);
             backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(0, 217, 255, 0.3);
+            border-bottom: 1px solid rgba(0, 255, 136, 0.3);
         }
 
         .progress-bar {
             height: 4px;
-            background: linear-gradient(90deg, #00d9ff, rgba(0, 217, 255, 1));
+            background: linear-gradient(90deg, #00ff88, rgba(0, 255, 136, 1));
             transition: width 0.5s ease;
-            box-shadow: 0 0 20px rgba(0, 217, 255, 1);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 1);
         }
 
         .progress-steps {
@@ -277,8 +278,8 @@
 
         .progress-step.active {
             opacity: 1;
-            color: #00d9ff;
-            text-shadow: 0 0 10px rgba(0, 217, 255, 1);
+            color: #00ff88;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 1);
         }
 
         .progress-step.completed {
@@ -289,7 +290,7 @@
             width: 28px;
             height: 28px;
             border-radius: 50%;
-            border: 2px solid rgba(0, 217, 255, 0.3);
+            border: 2px solid rgba(0, 255, 136, 0.3);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -299,14 +300,14 @@
         }
 
         .progress-step.active .step-number {
-            border-color: #00d9ff;
-            background: rgba(0, 217, 255, 0.1);
-            box-shadow: 0 0 20px rgba(0, 217, 255, 0.4);
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
         }
 
         .progress-step.completed .step-number {
-            border-color: #00d9ff;
-            background: #00d9ff;
+            border-color: #00ff88;
+            background: #00ff88;
             color: #000;
         }
 
@@ -328,14 +329,14 @@
             font-size: 32px;
             font-weight: 700;
             margin-bottom: 12px;
-            color: #00d9ff;
-            text-shadow: 0 0 20px rgba(0, 217, 255, 1);
+            color: #00ff88;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 1);
             letter-spacing: 2px;
         }
 
         .phase-subtitle {
             font-size: 14px;
-            color: rgba(0, 217, 255, 0.6);
+            color: rgba(0, 255, 136, 0.6);
             letter-spacing: 1px;
         }
 
@@ -347,8 +348,8 @@
         }
 
         .selection-card {
-            background: linear-gradient(135deg, rgba(0, 217, 255, 0.05), rgba(0, 217, 255, 0.1));
-            border: 1px solid rgba(0, 217, 255, 0.3);
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.05), rgba(0, 255, 136, 0.1));
+            border: 1px solid rgba(0, 255, 136, 0.3);
             border-radius: 4px;
             padding: 24px;
             cursor: pointer;
@@ -359,40 +360,40 @@
         }
 
         .selection-card:hover {
-            border-color: #00d9ff;
-            background: rgba(0, 217, 255, 0.15);
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.15);
             transform: translateY(-4px);
-            box-shadow: 0 0 30px rgba(0, 217, 255, 0.8);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.8);
         }
 
         .selection-card.selected {
-            border-color: #00d9ff;
-            background: rgba(0, 217, 255, 0.2);
-            box-shadow: 0 0 20px rgba(0, 217, 255, 0.4);
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.2);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
         }
 
         .selection-card .icon {
             font-size: 48px;
             margin-bottom: 16px;
-            text-shadow: 0 0 10px rgba(0, 217, 255, 1);
+            text-shadow: 0 0 10px rgba(0, 255, 136, 1);
         }
 
         .selection-card .title {
             font-size: 16px;
             font-weight: 600;
             margin-bottom: 8px;
-            color: #00d9ff;
+            color: #00ff88;
         }
 
         .selection-card .subtitle {
             font-size: 12px;
-            color: rgba(0, 217, 255, 0.6);
+            color: rgba(0, 255, 136, 0.6);
         }
 
         .voice-preview-btn {
-            background: rgba(0, 217, 255, 0.1);
-            border: 1px solid rgba(0, 217, 255, 0.3);
-            color: #00d9ff;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #00ff88;
             padding: 8px 16px;
             border-radius: 4px;
             cursor: pointer;
@@ -404,9 +405,9 @@
         }
 
         .voice-preview-btn:hover {
-            background: rgba(0, 217, 255, 0.2);
-            border-color: #00d9ff;
-            box-shadow: 0 0 20px rgba(0, 217, 255, 0.4);
+            background: rgba(0, 255, 136, 0.2);
+            border-color: #00ff88;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
         }
 
         .button-group {
@@ -431,15 +432,15 @@
         }
 
         .btn-primary {
-            background: rgba(0, 217, 255, 0.1);
-            color: #00d9ff;
-            border: 2px solid #00d9ff;
-            box-shadow: 0 0 20px rgba(0, 217, 255, 0.4);
+            background: rgba(0, 255, 136, 0.1);
+            color: #00ff88;
+            border: 2px solid #00ff88;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 0 30px rgba(0, 217, 255, 0.8);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.8);
         }
 
         .btn-primary:disabled {
@@ -450,13 +451,13 @@
 
         .btn-secondary {
             background: rgba(255, 255, 255, 0.05);
-            color: rgba(0, 217, 255, 0.6);
-            border: 1px solid rgba(0, 217, 255, 0.3);
+            color: rgba(0, 255, 136, 0.6);
+            border: 1px solid rgba(0, 255, 136, 0.3);
         }
 
         .btn-secondary:hover {
             background: rgba(255, 255, 255, 0.1);
-            border-color: #00d9ff;
+            border-color: #00ff88;
         }
 
         .intro-text {
@@ -464,7 +465,7 @@
             max-width: 600px;
             margin: 0 auto 40px;
             line-height: 1.8;
-            color: rgba(0, 217, 255, 0.6);
+            color: rgba(0, 255, 136, 0.6);
             font-size: 14px;
         }
 
@@ -479,8 +480,8 @@
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(0, 217, 255, 0.1), transparent);
-            border: 3px solid rgba(0, 217, 255, 0.3);
+            background: radial-gradient(circle, rgba(0, 255, 136, 0.1), transparent);
+            border: 3px solid rgba(0, 255, 136, 0.3);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -490,10 +491,10 @@
 
         @keyframes corePulse {
             0%, 100% {
-                box-shadow: 0 0 30px rgba(0, 217, 255, 1);
+                box-shadow: 0 0 30px rgba(0, 255, 136, 1);
             }
             50% {
-                box-shadow: 0 0 50px rgba(0, 217, 255, 1);
+                box-shadow: 0 0 50px rgba(0, 255, 136, 1);
             }
         }
 
@@ -523,24 +524,24 @@
 
         <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:20px">
             <div style="text-align:center;margin-bottom:60px">
-                <div style="font-size:72px;font-weight:900;letter-spacing:8px;background:linear-gradient(135deg,#00d9ff,#00cccc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px">
+                <div style="font-size:72px;font-weight:900;letter-spacing:8px;background:linear-gradient(135deg,#00ff88,#00cc66);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px">
                     PHOENIX
                 </div>
-                <div style="font-size:16px;color:rgba(0, 217, 255,0.6);letter-spacing:4px;font-weight:300">
+                <div style="font-size:16px;color:rgba(0, 255, 136,0.6);letter-spacing:4px;font-weight:300">
                     AI LIFE OPERATING SYSTEM
                 </div>
             </div>
 
             <div style="display:flex;flex-direction:column;gap:20px;width:100%;max-width:400px">
-                <button onclick="ViewManager.showView('login')" style="padding:24px;font-size:18px;font-weight:700;letter-spacing:2px;background:linear-gradient(135deg,rgba(0, 217, 255,0.2),rgba(0, 217, 255,0.1));border:2px solid rgba(0, 217, 255,0.5);color:#00d9ff;border-radius:8px;cursor:pointer;transition:all 0.3s;text-transform:uppercase">
+                <button onclick="ViewManager.showView('login')" style="padding:24px;font-size:18px;font-weight:700;letter-spacing:2px;background:linear-gradient(135deg,rgba(0, 255, 136,0.2),rgba(0, 255, 136,0.1));border:2px solid rgba(0, 255, 136,0.5);color:#00ff88;border-radius:8px;cursor:pointer;transition:all 0.3s;text-transform:uppercase">
                     LOGIN
                 </button>
-                <button onclick="window.location.href='onboarding.html'" style="padding:24px;font-size:18px;font-weight:700;letter-spacing:2px;background:linear-gradient(135deg,rgba(0, 217, 255,0.1),rgba(0, 217, 255,0.05));border:2px solid rgba(0, 217, 255,0.3);color:rgba(0, 217, 255,0.8);border-radius:8px;cursor:pointer;transition:all 0.3s;text-transform:uppercase">
+                <button onclick="window.location.href='onboarding.html'" style="padding:24px;font-size:18px;font-weight:700;letter-spacing:2px;background:linear-gradient(135deg,rgba(0, 255, 136,0.1),rgba(0, 255, 136,0.05));border:2px solid rgba(0, 255, 136,0.3);color:rgba(0, 255, 136,0.8);border-radius:8px;cursor:pointer;transition:all 0.3s;text-transform:uppercase">
                     CREATE ACCOUNT
                 </button>
             </div>
 
-            <div style="margin-top:40px;text-align:center;color:rgba(0, 217, 255,0.4);font-size:13px;line-height:1.6">
+            <div style="margin-top:40px;text-align:center;color:rgba(0, 255, 136,0.4);font-size:13px;line-height:1.6">
                 The most sophisticated AI companion<br>
                 for optimizing your entire existence
             </div>
@@ -594,13 +595,13 @@
                     </div>
                     <button type="submit" class="submit-btn" id="login-btn">ACTIVATE PHOENIX</button>
                     <div style="text-align: center; margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
-                        <button type="button" class="btn-link" onclick="window.location.href='onboarding.html'" style="background: none; border: none; color: rgba(0, 217, 255,0.7); cursor: pointer; text-decoration: underline; font-size: 14px;">
+                        <button type="button" class="btn-link" onclick="window.location.href='onboarding.html'" style="background: none; border: none; color: rgba(0, 255, 136,0.7); cursor: pointer; text-decoration: underline; font-size: 14px;">
                             Don't have an account? Create one
                         </button>
-                        <button type="button" class="btn-link" onclick="toggleLoginMethod()" style="background: none; border: none; color: rgba(0, 217, 255,0.6); cursor: pointer; text-decoration: underline; font-size: 13px;">
+                        <button type="button" class="btn-link" onclick="toggleLoginMethod()" style="background: none; border: none; color: rgba(0, 255, 136,0.6); cursor: pointer; text-decoration: underline; font-size: 13px;">
                             Sign in with email instead
                         </button>
-                        <button type="button" class="btn-link" onclick="showForgotPassword()" style="background: none; border: none; color: rgba(0, 217, 255,0.5); cursor: pointer; text-decoration: underline; font-size: 13px;">
+                        <button type="button" class="btn-link" onclick="showForgotPassword()" style="background: none; border: none; color: rgba(0, 255, 136,0.5); cursor: pointer; text-decoration: underline; font-size: 13px;">
                             Forgot password?
                         </button>
                     </div>
@@ -829,15 +830,15 @@
     <div class="view main-app" id="main-app-view">
         <!-- Loading Screen -->
         <div id="loading" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10000;transition:opacity 1s">
-            <div style="font-size:64px;color:#00d9ff;text-shadow:0 0 30px rgba(0, 217, 255,1);letter-spacing:12px;margin-bottom:30px;animation:pulse 2s infinite">PHOENIX</div>
-            <div style="width:60px;height:60px;border:3px solid rgba(0, 217, 255,0.2);border-top-color:#00d9ff;border-radius:50%;animation:spin 1s linear infinite"></div>
-            <div style="margin-top:30px;color:rgba(0, 217, 255,0.7);font-size:14px;letter-spacing:2px">INITIALIZING AI SYSTEMS...</div>
+            <div style="font-size:64px;color:#00ff88;text-shadow:0 0 30px rgba(0, 255, 136,1);letter-spacing:12px;margin-bottom:30px;animation:pulse 2s infinite">PHOENIX</div>
+            <div style="width:60px;height:60px;border:3px solid rgba(0, 255, 136,0.2);border-top-color:#00ff88;border-radius:50%;animation:spin 1s linear infinite"></div>
+            <div style="margin-top:30px;color:rgba(0, 255, 136,0.7);font-size:14px;letter-spacing:2px">INITIALIZING AI SYSTEMS...</div>
         </div>
 
         <!-- Main app content will be loaded here from existing index.html -->
         <div id="main-content">
             <!-- HUD, panels, voice controls, etc. -->
-            <p style="color:#00d9ff;text-align:center;padding-top:200px;font-size:24px">
+            <p style="color:#00ff88;text-align:center;padding-top:200px;font-size:24px">
                 🤖 PHOENIX MAIN APP LOADS HERE 🤖
             </p>
         </div>
@@ -938,7 +939,7 @@
                     stars.forEach(star => {
                         ctx.beginPath();
                         ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-                        ctx.fillStyle = `rgba(0, 217, 255, ${star.alpha})`;
+                        ctx.fillStyle = `rgba(0, 255, 136, ${star.alpha})`;
                         ctx.fill();
 
                         star.alpha += (Math.random() - 0.5) * 0.02;
@@ -1007,7 +1008,7 @@
 
                             if (distance < 150) { // Connection distance
                                 const opacity = (1 - distance / 150) * 0.15;
-                                ctx.strokeStyle = `rgba(0, 217, 255, ${opacity})`;
+                                ctx.strokeStyle = `rgba(0, 255, 136, ${opacity})`;
                                 ctx.lineWidth = 0.5;
                                 ctx.beginPath();
                                 ctx.moveTo(stars[i].x, stars[i].y);
@@ -1019,14 +1020,14 @@
 
                     // Draw stars
                     stars.forEach(star => {
-                        ctx.fillStyle = `rgba(0, 217, 255, ${star.alpha})`;
+                        ctx.fillStyle = `rgba(0, 255, 136, ${star.alpha})`;
                         ctx.beginPath();
                         ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
                         ctx.fill();
 
                         // Glow effect
                         ctx.shadowBlur = 10;
-                        ctx.shadowColor = 'rgba(0, 217, 255, 0.5)';
+                        ctx.shadowColor = 'rgba(0, 255, 136, 0.5)';
                         ctx.fill();
                         ctx.shadowBlur = 0;
                     });
@@ -1416,10 +1417,10 @@
                     </div>
                     <button type="submit" class="submit-btn" id="login-btn">ACTIVATE PHOENIX</button>
                     <div style="text-align: center; margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
-                        <button type="button" class="btn-link" onclick="toggleLoginMethod()" style="background: none; border: none; color: rgba(0, 217, 255,0.7); cursor: pointer; text-decoration: underline; font-size: 13px;">
+                        <button type="button" class="btn-link" onclick="toggleLoginMethod()" style="background: none; border: none; color: rgba(0, 255, 136,0.7); cursor: pointer; text-decoration: underline; font-size: 13px;">
                             Sign in with phone number
                         </button>
-                        <button type="button" class="btn-link" onclick="showForgotPassword()" style="background: none; border: none; color: rgba(0, 217, 255,0.5); cursor: pointer; text-decoration: underline; font-size: 13px;">
+                        <button type="button" class="btn-link" onclick="showForgotPassword()" style="background: none; border: none; color: rgba(0, 255, 136,0.5); cursor: pointer; text-decoration: underline; font-size: 13px;">
                             Forgot password?
                         </button>
                     </div>
@@ -1457,13 +1458,13 @@
                     </div>
                     <button type="submit" class="submit-btn" id="login-btn">ACTIVATE PHOENIX</button>
                     <div style="text-align: center; margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
-                        <button type="button" class="btn-link" onclick="window.location.href='onboarding.html'" style="background: none; border: none; color: rgba(0, 217, 255,0.7); cursor: pointer; text-decoration: underline; font-size: 14px;">
+                        <button type="button" class="btn-link" onclick="window.location.href='onboarding.html'" style="background: none; border: none; color: rgba(0, 255, 136,0.7); cursor: pointer; text-decoration: underline; font-size: 14px;">
                             Don't have an account? Create one
                         </button>
-                        <button type="button" class="btn-link" onclick="toggleLoginMethod()" style="background: none; border: none; color: rgba(0, 217, 255,0.6); cursor: pointer; text-decoration: underline; font-size: 13px;">
+                        <button type="button" class="btn-link" onclick="toggleLoginMethod()" style="background: none; border: none; color: rgba(0, 255, 136,0.6); cursor: pointer; text-decoration: underline; font-size: 13px;">
                             Sign in with email instead
                         </button>
-                        <button type="button" class="btn-link" onclick="showForgotPassword()" style="background: none; border: none; color: rgba(0, 217, 255,0.5); cursor: pointer; text-decoration: underline; font-size: 13px;">
+                        <button type="button" class="btn-link" onclick="showForgotPassword()" style="background: none; border: none; color: rgba(0, 255, 136,0.5); cursor: pointer; text-decoration: underline; font-size: 13px;">
                             Forgot password?
                         </button>
                     </div>
@@ -1472,44 +1473,72 @@
             }
         }
 
+        // Twilio SMS Password Reset Flow
         async function showForgotPassword() {
-            const email = prompt('Enter your email address to reset your password:');
-            if (!email) return;
+            // Step 1: Get phone number
+            const countryCode = prompt('Enter your country code (e.g., +1 for US):') || '+1';
+            if (!countryCode) return;
 
-            if (!email.includes('@')) {
-                alert('Please enter a valid email address.');
+            const phoneNumber = prompt('Enter your phone number (digits only):');
+            if (!phoneNumber) return;
+
+            const fullPhone = countryCode + phoneNumber.replace(/\D/g, '');
+
+            if (fullPhone.length < 10) {
+                alert('Please enter a valid phone number.');
                 return;
             }
 
             try {
-                const response = await api.request('/auth/reset-password', {
+                // Step 2: Send SMS verification code via Twilio
+                console.log('[Password Reset] Sending SMS to:', fullPhone);
+
+                const sendResponse = await fetch(`${PhoenixConfig.API_BASE_URL}/sms-verification/send-verification`, {
                     method: 'POST',
-                    body: JSON.stringify({ email })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone: fullPhone })
                 });
 
-                if (response.success) {
-                    // In development, backend returns the reset code
-                    if (response.resetCode) {
-                        const resetCode = prompt(`Password reset code sent!\n\nDEVELOPMENT MODE: Your reset code is ${response.resetCode}\n\nEnter the 3-digit code:`);
-                        if (resetCode) {
-                            await handleResetCode(resetCode, email);
-                        }
-                    } else {
-                        alert('Password reset code sent to ' + email + '\n\nCheck your email and enter the code when you receive it.');
-                        const resetCode = prompt('Enter the 3-digit reset code from your email:');
-                        if (resetCode) {
-                            await handleResetCode(resetCode, email);
-                        }
-                    }
+                const sendData = await sendResponse.json();
+
+                if (!sendData.success) {
+                    alert('Failed to send verification code: ' + (sendData.error || 'Unknown error'));
+                    return;
                 }
+
+                alert('Verification code sent to ' + fullPhone + '\n\nCheck your SMS messages.');
+
+                // Step 3: Get verification code from user
+                const verificationCode = prompt('Enter the 6-digit verification code from SMS:');
+                if (!verificationCode) return;
+
+                // Step 4: Verify the code with Twilio (public endpoint for password reset)
+                const verifyResponse = await fetch(`${PhoenixConfig.API_BASE_URL}/sms-verification/verify-code-public`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone: fullPhone, code: verificationCode })
+                });
+
+                const verifyData = await verifyResponse.json();
+
+                if (!verifyData.success) {
+                    alert('Invalid verification code. Please try again.');
+                    return;
+                }
+
+                console.log('[Password Reset] Phone verified successfully');
+
+                // Step 5: Phone verified - now reset password
+                await handlePasswordResetWithPhone(fullPhone, verifyData.verificationToken);
+
             } catch (error) {
-                console.error('Reset password error:', error);
-                alert('Failed to send reset code. Please try again.');
+                console.error('Password reset error:', error);
+                alert('Failed to process password reset. Please try again.');
             }
         }
 
-        async function handleResetCode(resetCode, email) {
-            const newPassword = prompt('Enter your new password (minimum 6 characters):');
+        async function handlePasswordResetWithPhone(phone, verificationToken) {
+            const newPassword = prompt('Phone verified!\n\nEnter your new password (minimum 6 characters):');
             if (!newPassword) return;
 
             if (newPassword.length < 6) {
@@ -1517,20 +1546,33 @@
                 return;
             }
 
+            const confirmPassword = prompt('Confirm your new password:');
+            if (confirmPassword !== newPassword) {
+                alert('Passwords do not match. Please try again.');
+                return;
+            }
+
             try {
-                const response = await api.request(`/auth/reset-password/${resetCode}`, {
-                    method: 'PUT',
-                    body: JSON.stringify({ password: newPassword })
+                const response = await fetch(`${PhoenixConfig.API_BASE_URL}/auth/reset-password-phone`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        phone: phone,
+                        password: newPassword,
+                        verificationToken: verificationToken
+                    })
                 });
 
-                if (response.success) {
-                    alert('Password reset successful! You can now login with your new password.');
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Password reset successful!\n\nYou can now login with your new password.');
                 } else {
-                    alert('Invalid or expired reset code. Please try again.');
+                    alert('Password reset failed: ' + (data.message || 'Unknown error'));
                 }
             } catch (error) {
-                console.error('Reset code error:', error);
-                alert('Invalid or expired reset code. Please request a new one.');
+                console.error('Password reset error:', error);
+                alert('Failed to reset password. Please try again.');
             }
         }
 
@@ -1559,8 +1601,8 @@
                     width: 100%;
                     height: 100%;
                     background-image:
-                        linear-gradient(rgba(0, 217, 255, 0.1) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(0, 217, 255, 0.1) 1px, transparent 1px);
+                        linear-gradient(rgba(0, 255, 136, 0.1) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(0, 255, 136, 0.1) 1px, transparent 1px);
                     background-size: 50px 50px;
                     opacity: 0.1;
                     pointer-events: none;

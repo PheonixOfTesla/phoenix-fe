@@ -9,6 +9,8 @@
    - Target: <2s total response time
    ============================================ */
 
+const DEBUG_MODE = false; // Set to true to enable verbose debug logging
+
 class PhoenixVoiceCommands {
     constructor() {
         this.isListening = false;
@@ -189,7 +191,7 @@ class PhoenixVoiceCommands {
                 const transcript = event.results[i][0].transcript;
 
                 // Log alternatives for debugging (helps understand accent/slang issues)
-                if (event.results[i].isFinal && event.results[i].length > 1) {
+                if (DEBUG_MODE && event.results[i].isFinal && event.results[i].length > 1) {
                     console.log('🎤 Alternatives:', Array.from(event.results[i]).map((alt, idx) =>
                         `${idx + 1}: "${alt.transcript}" (${Math.round(alt.confidence * 100)}%)`
                     ).join(', '));
@@ -335,12 +337,142 @@ class PhoenixVoiceCommands {
         this.isProcessing = true;
 
         try {
+            const msg = transcript.toLowerCase();
+
+            // ========== WORKSPACE INTERCEPT - MUST BE FIRST ==========
+            // Intercepts email/calendar/tasks/contacts/drive commands BEFORE any AI processing
+            if (msg.includes('email') || msg.includes('inbox') || msg.includes('mail') ||
+                msg.includes('calendar') || msg.includes('schedule') || msg.includes('event') || msg.includes('meeting') ||
+                msg.includes('task') || msg.includes('todo') || msg.includes('reminder') ||
+                msg.includes('contact') || msg.includes('people') ||
+                msg.includes('drive') || msg.includes('file') || msg.includes('document')) {
+
+                console.log('📂 [WORKSPACE] Intercepted workspace command');
+                const result = await this.handleWorkspaceCommand(transcript);
+                if (result) {
+                    this.showTextBubble(result.response);
+                    this.speak(result.response);
+                    return; // EXIT - don't continue to AI
+                }
+            }
+            // ========== END WORKSPACE INTERCEPT ==========
+
+            // ========== HEALTH/FITNESS INTERCEPT ==========
+            if (msg.includes('health') || msg.includes('recovery') || msg.includes('hrv') ||
+                msg.includes('sleep') || msg.includes('heart rate') || msg.includes('fitness') ||
+                msg.includes('workout') || msg.includes('exercise')) {
+                // Try to fetch real health data from API
+                try {
+                    const token = localStorage.getItem('phoenixToken');
+                    const baseUrl = window.PhoenixConfig?.API_BASE_URL || 'https://pal-backend-production.up.railway.app/api';
+                    const res = await fetch(`${baseUrl}/wearables/health/summary`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        const healthData = await res.json();
+                        if (window.widgetManager?.showOrbitalWidget) {
+                            window.widgetManager.showOrbitalWidget('health', healthData);
+                        }
+                        this.showTextBubble(`Your recovery is at ${healthData.recoveryScore || 'N/A'}%. ${healthData.readiness || 'Check your wearable for more details.'}`);
+                        this.speak(`Your recovery is at ${healthData.recoveryScore || 'not available'}. ${healthData.readiness || 'Check your wearable for more details.'}`);
+                        return;
+                    }
+                } catch (e) { /* Fall through to default message */ }
+                // No health data connected
+                if (window.widgetManager?.showOrbitalWidget) {
+                    window.widgetManager.showOrbitalWidget('preview-health', {});
+                }
+                this.showTextBubble(`Connect a wearable device like Whoop, Oura, or Apple Watch to track your health metrics. Tap the Health icon to get started.`);
+                this.speak(`Connect a wearable device to track your health metrics. I can monitor your recovery, HRV, and sleep quality.`);
+                return;
+            }
+            // ========== END HEALTH/FITNESS INTERCEPT ==========
+
+            // ========== FINANCE INTERCEPT ==========
+            if (msg.includes('budget') || msg.includes('finance') || msg.includes('spending') ||
+                msg.includes('money') || msg.includes('expense') || msg.includes('savings')) {
+                // Try to fetch real finance data
+                try {
+                    const token = localStorage.getItem('phoenixToken');
+                    const baseUrl = window.PhoenixConfig?.API_BASE_URL || 'https://pal-backend-production.up.railway.app/api';
+                    const res = await fetch(`${baseUrl}/finance/summary`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        const financeData = await res.json();
+                        if (window.widgetManager?.showOrbitalWidget) {
+                            window.widgetManager.showOrbitalWidget('finance', financeData);
+                        }
+                        this.showTextBubble(`You have $${financeData.budgetRemaining || 0} remaining this month.`);
+                        this.speak(`You have ${financeData.budgetRemaining || 'no data'} dollars remaining this month.`);
+                        return;
+                    }
+                } catch (e) { /* Fall through to default message */ }
+                // No finance data connected
+                if (window.widgetManager?.showOrbitalWidget) {
+                    window.widgetManager.showOrbitalWidget('preview-finance', {});
+                }
+                this.showTextBubble(`Connect your bank or budgeting app to track spending and savings goals. Tap the Finance icon to link your accounts.`);
+                this.speak(`Connect your bank or budgeting app to track your finances. I can help you manage budgets and savings goals.`);
+                return;
+            }
+            // ========== END FINANCE INTERCEPT ==========
+
+            // ========== GOALS INTERCEPT ==========
+            if (msg.includes('goal') || msg.includes('progress') || msg.includes('habit') ||
+                msg.includes('streak') || msg.includes('tracking')) {
+                // Try to fetch real goals data
+                try {
+                    const token = localStorage.getItem('phoenixToken');
+                    const baseUrl = window.PhoenixConfig?.API_BASE_URL || 'https://pal-backend-production.up.railway.app/api';
+                    const res = await fetch(`${baseUrl}/goals/active`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        const goalsData = await res.json();
+                        if (goalsData.goals?.length > 0 && window.widgetManager?.showOrbitalWidget) {
+                            window.widgetManager.showOrbitalWidget('goals', goalsData);
+                            this.showTextBubble(`You're at ${goalsData.goals[0].progress}% on ${goalsData.goals[0].name}!`);
+                            this.speak(`You're at ${goalsData.goals[0].progress} percent on ${goalsData.goals[0].name}.`);
+                            return;
+                        }
+                    }
+                } catch (e) { /* Fall through to default message */ }
+                // No goals set up
+                if (window.widgetManager?.showOrbitalWidget) {
+                    window.widgetManager.showOrbitalWidget('preview-goals', {});
+                }
+                this.showTextBubble(`Set up your goals in the Goals section. I'll help you track progress and build streaks.`);
+                this.speak(`Set up your goals and I'll help you track your progress and build streaks.`);
+                return;
+            }
+            // ========== END GOALS INTERCEPT ==========
+
+            // ========== CAPABILITY QUESTIONS - SHOW PREVIEW WIDGETS ==========
+            if (msg.match(/what can you do|what are your capabilities|help me|what do you do/)) {
+                const response = `I'm Phoenix, your personal AI butler. I can manage your workspace - emails, calendar, tasks, contacts, and files. I track your health metrics, help with goals, handle finances, and automate daily routines. Just ask me anything or say "show me my emails" to get started.`;
+
+                // Show preview widgets orbiting around the orb
+                if (window.widgetManager && window.widgetManager.showOrbitalWidget) {
+                    // Show multiple preview widgets with staggered timing
+                    setTimeout(() => window.widgetManager.showOrbitalWidget('preview-health', {}), 0);
+                    setTimeout(() => window.widgetManager.showOrbitalWidget('preview-finance', {}), 200);
+                    setTimeout(() => window.widgetManager.showOrbitalWidget('preview-calendar', {}), 400);
+                    setTimeout(() => window.widgetManager.showOrbitalWidget('preview-fitness', {}), 600);
+                }
+
+                this.showTextBubble(response);
+                this.speak(response);
+                return;
+            }
+            // ========== END CAPABILITY QUESTIONS ==========
+
             // STEP 1: Classify intent (ACTION vs WISDOM)
             const classification = await this.classifyCommand(transcript);
 
             if (classification && classification.category === 'butler_action') {
                 // BUTLER ACTION: Execute real-world action
-                console.log('🎯 Butler action detected:', classification.actionType);
+                if (DEBUG_MODE) console.log('🎯 Butler action detected:', classification.actionType);
                 await this.executeButlerAction(classification);
             } else {
                 // WISDOM: Route to AI for conversation
@@ -396,7 +528,7 @@ class PhoenixVoiceCommands {
             }
 
             const data = await response.json();
-            console.log('📊 Classification result:', data.classification);
+            if (DEBUG_MODE) console.log('📊 Classification result:', data.classification);
             return data.classification;
 
         } catch (error) {
@@ -981,6 +1113,16 @@ class PhoenixVoiceCommands {
                 ? window.PhoenixConfig.API_BASE_URL
                 : 'https://pal-backend-production.up.railway.app/api';
 
+            // WORKSPACE COMMAND INTERCEPTION - Handle email/calendar/tasks/contacts/drive locally
+            const workspaceResult = await this.handleWorkspaceCommand(transcript, token, baseUrl);
+            if (workspaceResult) {
+                console.log('📂 Workspace command handled locally');
+                this.showTextBubble(workspaceResult.response);
+                this.speakAsync(workspaceResult.response);
+                this.setOrbState('idle');
+                return;
+            }
+
             // OPTIMIZATION: Start timing for performance monitoring
             console.time('⚡ Total Response Time');
             console.time('🤖 AI Response');
@@ -1043,7 +1185,7 @@ class PhoenixVoiceCommands {
 
                 // Extract and log 3-tier classification
                 const classificationTier = aiResponse.tier || aiResponse.classification || 'UNKNOWN';
-                console.log(`📊 Phoenix Classification: ${classificationTier}`);
+                if (DEBUG_MODE) console.log(`📊 Phoenix Classification: ${classificationTier}`);
 
                 // Apply orchestration to display (if we fetched it)
                 if (orchestration && window.widgetManager) {
@@ -1057,7 +1199,11 @@ class PhoenixVoiceCommands {
 
                 // Speak the response with tier-based timing
                 if (aiResponse.message || aiResponse.response) {
-                    const responseText = aiResponse.message || aiResponse.response;
+                    let responseText = aiResponse.message || aiResponse.response;
+
+                    // Strip any JSON metadata that might be appended to the response
+                    responseText = responseText.replace(/\s*\{[^}]*"confidence_score"[^}]*\}\s*$/i, '').trim();
+                    responseText = responseText.replace(/\s*\{[^}]*"mood"[^}]*\}\s*$/i, '').trim();
 
                     // Save to conversation history for ChatGPT-level context awareness
                     this.addToConversationHistory(transcript, responseText);
@@ -1211,6 +1357,11 @@ class PhoenixVoiceCommands {
        TEXT-TO-SPEECH (Backend OpenAI TTS - Natural Voice)
        ============================================ */
     async speak(text, skipStateChange = false) {
+        // Strip JSON metadata before speaking
+        text = text.replace(/\s*\{[\s\S]*?"confidence_score"[\s\S]*?\}\s*$/i, '').trim();
+        text = text.replace(/\s*\{[\s\S]*?"mood"[\s\S]*?\}\s*$/i, '').trim();
+        text = text.replace(/\s*\{[\s\S]*?"action_taken"[\s\S]*?\}\s*$/i, '').trim();
+
         console.log('🗣️ Speaking:', text);
 
         // Stop any current audio
@@ -1403,6 +1554,11 @@ class PhoenixVoiceCommands {
        TEXT BUBBLE DISPLAY
        ============================================ */
     showTextBubble(text, sender = 'phoenix') {
+        // Strip JSON metadata before displaying
+        text = text.replace(/\s*\{[\s\S]*?"confidence_score"[\s\S]*?\}\s*$/i, '').trim();
+        text = text.replace(/\s*\{[\s\S]*?"mood"[\s\S]*?\}\s*$/i, '').trim();
+        text = text.replace(/\s*\{[\s\S]*?"action_taken"[\s\S]*?\}\s*$/i, '').trim();
+
         console.log(`💬 Showing text bubble: "${text.substring(0, 50)}..."`);
 
         let conversationEl = document.getElementById('phoenix-conversation');
@@ -1508,6 +1664,87 @@ class PhoenixVoiceCommands {
             setTimeout(() => {
                 statusEl.style.display = 'none';
             }, 300);
+        }
+    }
+
+    /* ============================================
+       WORKSPACE COMMAND HANDLER
+       Intercepts email/calendar/tasks/contacts/drive commands
+       FAST: Simple string matching, no async Google check upfront
+       ============================================ */
+    async handleWorkspaceCommand(message, token, baseUrl) {
+        try {
+            const msg = message.toLowerCase();
+            console.log(`📂 [Workspace] Checking: "${msg}"`);
+
+            // FAST: Simple keyword matching
+            let matchedType = null;
+            if (msg.includes('email') || msg.includes('inbox') || msg.includes('mail')) {
+                matchedType = 'email';
+            } else if (msg.includes('calendar') || msg.includes('schedule') || msg.includes('event') || msg.includes('meeting')) {
+                matchedType = 'calendar';
+            } else if (msg.includes('task') || msg.includes('todo') || msg.includes('reminder')) {
+                matchedType = 'tasks';
+            } else if (msg.includes('contact') || msg.includes('people')) {
+                matchedType = 'contacts';
+            } else if (msg.includes('drive') || msg.includes('file') || msg.includes('document')) {
+                matchedType = 'drive';
+            }
+
+            if (!matchedType) {
+                console.log(`📂 [Workspace] No workspace keyword found`);
+                return null;
+            }
+
+            if (DEBUG_MODE) console.log(`📂 [Workspace] ✓ Matched: ${matchedType}`);
+
+            // Immediately show loading feedback
+            this.showTextBubble(`Fetching your ${matchedType}...`);
+
+            // Try to fetch data (this will check auth implicitly)
+            const endpoints = {
+                email: '/google/gmail/recent?limit=8',
+                calendar: '/google/calendar/upcoming?limit=8',
+                tasks: '/google/tasks/lists',
+                contacts: '/google/contacts?limit=15',
+                drive: '/google/drive/files?limit=8'
+            };
+
+            const res = await fetch(`${baseUrl}${endpoints[matchedType]}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (!res.ok) {
+                // Check if it's an auth issue
+                if (res.status === 401) {
+                    return { response: `To access your ${matchedType}, please connect your Google account. Click the DESK button at the top.` };
+                }
+                throw new Error(`HTTP ${res.status}`);
+            }
+
+            const data = await res.json();
+
+            // Check if Google not connected
+            if (data.error && data.error.includes('not connected')) {
+                return { response: `To access your ${matchedType}, please connect your Google account. Click the DESK button at the top.` };
+            }
+
+            // Show the ORBITAL widget (animated, positioned around orb)
+            if (window.widgetManager && window.widgetManager.showOrbitalWidget) {
+                window.widgetManager.showOrbitalWidget(matchedType, data);
+                console.log(`🌐 [Orbital] Showing ${matchedType} widget`);
+            } else if (window.showDynamicWidget) {
+                // Fallback to old system
+                window.showDynamicWidget(matchedType, data);
+            }
+
+            const count = data.count || data.emails?.length || data.events?.length || data.taskLists?.length || data.contacts?.length || data.files?.length || 0;
+            return { response: `Here are your ${count} ${matchedType}.` };
+
+        } catch (error) {
+            console.error('📂 [Workspace] Error:', error);
+            // Still return a response so we don't fall through to AI
+            return { response: `I couldn't fetch your workspace data. Please check your Google connection in the DESK panel.` };
         }
     }
 

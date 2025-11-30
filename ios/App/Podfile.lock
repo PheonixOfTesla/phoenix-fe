@@ -1,0 +1,231 @@
+PODS:
+  - Capacitor (5.7.8):
+    - CapacitorCordova
+  - CapacitorActionSheet (5.0.7):
+    - Capacitor
+  - CapacitorAppLauncher (5.0.8):
+    - Capacitor
+  - CapacitorApplePay (0.2.1):
+    - Capacitor
+  - CapacitorBrowser (5.2.1):
+    - Capacitor
+  - CapacitorCamera (5.0.10):
+    - Capacitor
+  - CapacitorClipboard (5.0.8):
+    - Capacitor
+  - CapacitorCommunityCapacitorGooglemapsNative (1.2.0):
+    - Capacitor
+    - GoogleMaps
+  - CapacitorCommunityContacts (5.1.1):
+    - Capacitor
+  - CapacitorCommunityKeepAwake (7.1.0):
+    - Capacitor
+  - CapacitorCommunityPrivacyScreen (6.0.0):
+    - Capacitor
+  - CapacitorCommunityScreenBrightness (7.0.0):
+    - Capacitor
+  - CapacitorCommunitySpeechRecognition (5.1.0):
+    - Capacitor
+  - CapacitorCordova (5.7.8)
+  - CapacitorDevice (5.0.8):
+    - Capacitor
+  - CapacitorDialog (5.0.8):
+    - Capacitor
+  - CapacitorEmailComposer (7.0.2):
+    - Capacitor
+  - CapacitorFilesystem (5.2.2):
+    - Capacitor
+  - CapacitorGeolocation (5.0.8):
+    - Capacitor
+  - CapacitorHaptics (5.0.8):
+    - Capacitor
+  - CapacitorKeyboard (5.0.9):
+    - Capacitor
+  - CapacitorLocalNotifications (5.0.8):
+    - Capacitor
+  - CapacitorNetwork (5.0.8):
+    - Capacitor
+  - CapacitorPluginSiriShorts (5.0.0):
+    - Capacitor
+  - CapacitorPushNotifications (5.1.2):
+    - Capacitor
+  - CapacitorShare (5.0.8):
+    - Capacitor
+  - CapacitorStatusBar (5.0.8):
+    - Capacitor
+  - CapacitorToast (5.0.8):
+    - Capacitor
+  - CapacitorVideoPlayer (6.0.2):
+    - Capacitor
+  - CapawesomeCapacitorBadge (7.0.1):
+    - Capacitor
+  - CapgoNativeAudio (6.0.14):
+    - Capacitor
+  - CocoaLumberjack (3.7.4):
+    - CocoaLumberjack/Core (= 3.7.4)
+  - CocoaLumberjack/Core (3.7.4)
+  - GoogleMaps (8.4.0):
+    - GoogleMaps/Maps (= 8.4.0)
+  - GoogleMaps/Base (8.4.0)
+  - GoogleMaps/Maps (8.4.0):
+    - GoogleMaps/Base
+  - PerfoodCapacitorHealthkit (1.3.2):
+    - Capacitor
+  - TransistorsoftCapacitorBackgroundFetch (5.2.5):
+    - Capacitor
+  - TransistorsoftCapacitorBackgroundGeolocation (5.4.2):
+    - Capacitor
+    - CocoaLumberjack (~> 3.7.2)
+
+DEPENDENCIES:
+  - "Capacitor (from `../../node_modules/@capacitor/ios`)"
+  - "CapacitorActionSheet (from `../../node_modules/@capacitor/action-sheet`)"
+  - "CapacitorAppLauncher (from `../../node_modules/@capacitor/app-launcher`)"
+  - CapacitorApplePay (from `../../node_modules/capacitor-apple-pay`)
+  - "CapacitorBrowser (from `../../node_modules/@capacitor/browser`)"
+  - "CapacitorCamera (from `../../node_modules/@capacitor/camera`)"
+  - "CapacitorClipboard (from `../../node_modules/@capacitor/clipboard`)"
+  - "CapacitorCommunityCapacitorGooglemapsNative (from `../../node_modules/@capacitor-community/capacitor-googlemaps-native`)"
+  - "CapacitorCommunityContacts (from `../../node_modules/@capacitor-community/contacts`)"
+  - "CapacitorCommunityKeepAwake (from `../../node_modules/@capacitor-community/keep-awake`)"
+  - "CapacitorCommunityPrivacyScreen (from `../../node_modules/@capacitor-community/privacy-screen`)"
+  - "CapacitorCommunityScreenBrightness (from `../../node_modules/@capacitor-community/screen-brightness`)"
+  - "CapacitorCommunitySpeechRecognition (from `../../node_modules/@capacitor-community/speech-recognition`)"
+  - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
+  - "CapacitorDevice (from `../../node_modules/@capacitor/device`)"
+  - "CapacitorDialog (from `../../node_modules/@capacitor/dialog`)"
+  - CapacitorEmailComposer (from `../../node_modules/capacitor-email-composer`)
+  - "CapacitorFilesystem (from `../../node_modules/@capacitor/filesystem`)"
+  - "CapacitorGeolocation (from `../../node_modules/@capacitor/geolocation`)"
+  - "CapacitorHaptics (from `../../node_modules/@capacitor/haptics`)"
+  - "CapacitorKeyboard (from `../../node_modules/@capacitor/keyboard`)"
+  - "CapacitorLocalNotifications (from `../../node_modules/@capacitor/local-notifications`)"
+  - "CapacitorNetwork (from `../../node_modules/@capacitor/network`)"
+  - CapacitorPluginSiriShorts (from `../../node_modules/capacitor-plugin-siri-shorts`)
+  - "CapacitorPushNotifications (from `../../node_modules/@capacitor/push-notifications`)"
+  - "CapacitorShare (from `../../node_modules/@capacitor/share`)"
+  - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
+  - "CapacitorToast (from `../../node_modules/@capacitor/toast`)"
+  - CapacitorVideoPlayer (from `../../node_modules/capacitor-video-player`)
+  - "CapawesomeCapacitorBadge (from `../../node_modules/@capawesome/capacitor-badge`)"
+  - "CapgoNativeAudio (from `../../node_modules/@capgo/native-audio`)"
+  - "PerfoodCapacitorHealthkit (from `../../node_modules/@perfood/capacitor-healthkit`)"
+  - "TransistorsoftCapacitorBackgroundFetch (from `../../node_modules/@transistorsoft/capacitor-background-fetch`)"
+  - "TransistorsoftCapacitorBackgroundGeolocation (from `../../node_modules/@transistorsoft/capacitor-background-geolocation`)"
+
+SPEC REPOS:
+  trunk:
+    - CocoaLumberjack
+    - GoogleMaps
+
+EXTERNAL SOURCES:
+  Capacitor:
+    :path: "../../node_modules/@capacitor/ios"
+  CapacitorActionSheet:
+    :path: "../../node_modules/@capacitor/action-sheet"
+  CapacitorAppLauncher:
+    :path: "../../node_modules/@capacitor/app-launcher"
+  CapacitorApplePay:
+    :path: "../../node_modules/capacitor-apple-pay"
+  CapacitorBrowser:
+    :path: "../../node_modules/@capacitor/browser"
+  CapacitorCamera:
+    :path: "../../node_modules/@capacitor/camera"
+  CapacitorClipboard:
+    :path: "../../node_modules/@capacitor/clipboard"
+  CapacitorCommunityCapacitorGooglemapsNative:
+    :path: "../../node_modules/@capacitor-community/capacitor-googlemaps-native"
+  CapacitorCommunityContacts:
+    :path: "../../node_modules/@capacitor-community/contacts"
+  CapacitorCommunityKeepAwake:
+    :path: "../../node_modules/@capacitor-community/keep-awake"
+  CapacitorCommunityPrivacyScreen:
+    :path: "../../node_modules/@capacitor-community/privacy-screen"
+  CapacitorCommunityScreenBrightness:
+    :path: "../../node_modules/@capacitor-community/screen-brightness"
+  CapacitorCommunitySpeechRecognition:
+    :path: "../../node_modules/@capacitor-community/speech-recognition"
+  CapacitorCordova:
+    :path: "../../node_modules/@capacitor/ios"
+  CapacitorDevice:
+    :path: "../../node_modules/@capacitor/device"
+  CapacitorDialog:
+    :path: "../../node_modules/@capacitor/dialog"
+  CapacitorEmailComposer:
+    :path: "../../node_modules/capacitor-email-composer"
+  CapacitorFilesystem:
+    :path: "../../node_modules/@capacitor/filesystem"
+  CapacitorGeolocation:
+    :path: "../../node_modules/@capacitor/geolocation"
+  CapacitorHaptics:
+    :path: "../../node_modules/@capacitor/haptics"
+  CapacitorKeyboard:
+    :path: "../../node_modules/@capacitor/keyboard"
+  CapacitorLocalNotifications:
+    :path: "../../node_modules/@capacitor/local-notifications"
+  CapacitorNetwork:
+    :path: "../../node_modules/@capacitor/network"
+  CapacitorPluginSiriShorts:
+    :path: "../../node_modules/capacitor-plugin-siri-shorts"
+  CapacitorPushNotifications:
+    :path: "../../node_modules/@capacitor/push-notifications"
+  CapacitorShare:
+    :path: "../../node_modules/@capacitor/share"
+  CapacitorStatusBar:
+    :path: "../../node_modules/@capacitor/status-bar"
+  CapacitorToast:
+    :path: "../../node_modules/@capacitor/toast"
+  CapacitorVideoPlayer:
+    :path: "../../node_modules/capacitor-video-player"
+  CapawesomeCapacitorBadge:
+    :path: "../../node_modules/@capawesome/capacitor-badge"
+  CapgoNativeAudio:
+    :path: "../../node_modules/@capgo/native-audio"
+  PerfoodCapacitorHealthkit:
+    :path: "../../node_modules/@perfood/capacitor-healthkit"
+  TransistorsoftCapacitorBackgroundFetch:
+    :path: "../../node_modules/@transistorsoft/capacitor-background-fetch"
+  TransistorsoftCapacitorBackgroundGeolocation:
+    :path: "../../node_modules/@transistorsoft/capacitor-background-geolocation"
+
+SPEC CHECKSUMS:
+  Capacitor: 9686e5711b48a1aa84671ede795d0175848abcba
+  CapacitorActionSheet: 98e1f2ebaa462525a95602fa9add287f8709babb
+  CapacitorAppLauncher: 4584773578ec21018b228fe214430dbb00e13bd5
+  CapacitorApplePay: 803d545266f1b23b9ccc333cf16fa0475a4e1e8a
+  CapacitorBrowser: f13ada96777742309ae17a974e934eda8e102508
+  CapacitorCamera: 916a67c6726fabcc623df79d3f934828f2520103
+  CapacitorClipboard: abbfdc04f29068f141375506a8f3e06650da9325
+  CapacitorCommunityCapacitorGooglemapsNative: 215c19348e8ce119dced47ec9738862a9b5e6378
+  CapacitorCommunityContacts: 1f080d0a0f526c7d6a6b3058874e789371164e32
+  CapacitorCommunityKeepAwake: 05c75aab989f60e621870cf03b24a144a5544c30
+  CapacitorCommunityPrivacyScreen: 682470c41cce325d7a85b95907887919d4694066
+  CapacitorCommunityScreenBrightness: 508f3d0f79024cd8da7d063f456870a4a1932723
+  CapacitorCommunitySpeechRecognition: 062b0734384f373a12cca62edc8105c49465e923
+  CapacitorCordova: 31ab98dca2ddcee051027a1afe7e8c85c82f7297
+  CapacitorDevice: 4aceb502ce1142ea45a2aece603169d7479cd271
+  CapacitorDialog: 31f0f4391e42e93c0f0f7731409b92faaf505fc2
+  CapacitorEmailComposer: 47e488b85f3a4400e3b616fe56b5b9f65a4aa2f3
+  CapacitorFilesystem: afe2c055f1e379385c80eafdece32751926b2910
+  CapacitorGeolocation: 6beed87d5d2b80745f03a84db4ab2269bc872c9c
+  CapacitorHaptics: acd823c6ed0ec2cd968a09316768144b0495a1e7
+  CapacitorKeyboard: 38db46e3e9a8024814994b5a909f102f3d27c207
+  CapacitorLocalNotifications: 73765422be07829b2d0a4c7c22a77ea2252ca210
+  CapacitorNetwork: b76949446d62b4832ecd5b652ef95b5294c25f00
+  CapacitorPluginSiriShorts: 3d18622f09f95bc03b60b89c5060e825f0124920
+  CapacitorPushNotifications: 95dc889e9f3540e3c4f118f7ed53fd61db82100b
+  CapacitorShare: 0a43832a9e09fca9ada569ee1856de75d54c61bf
+  CapacitorStatusBar: 8e0a8f213504695505dc8c4f808dffbe03aa0e0f
+  CapacitorToast: 487af6115e48e6692513ea57a980cae54f52e647
+  CapacitorVideoPlayer: b10c7102c50bb5d5eba2653b5bd99109f5a1bf10
+  CapawesomeCapacitorBadge: 7fc1fa00c920b88eabb8451ddc92bdc75da2cffa
+  CapgoNativeAudio: 75fb8708944a0cd90aa0ae894819f6b58f0cb556
+  CocoaLumberjack: 543c79c114dadc3b1aba95641d8738b06b05b646
+  GoogleMaps: 8939898920281c649150e0af74aa291c60f2e77d
+  PerfoodCapacitorHealthkit: 0708728954308c0217daa6912deeb73df7cba050
+  TransistorsoftCapacitorBackgroundFetch: a3e40934309db9988f93c0b2e4c89766e0a08660
+  TransistorsoftCapacitorBackgroundGeolocation: 6f1d150a459bf3d470da550ef74a5d8a93a821ed
+
+PODFILE CHECKSUM: df256fce2df585180332bf1ad0cb27f1f62e7337
+
+COCOAPODS: 1.16.2

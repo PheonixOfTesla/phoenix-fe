@@ -76,51 +76,46 @@ class VenusApp {
 
             // THEN: Render data (DOM elements now exist)
 
-            // Render streak (use sample if API failed)
+            // Render streak (empty state if API failed)
             if (streak.status === 'fulfilled') {
                 this.renderStreak(streak.value);
             } else {
-                this.renderStreak({ current_streak: 7, longest_streak: 14 });
+                this.renderStreak({ current_streak: 0, longest_streak: 0 });
             }
 
-            // Render workouts (use sample if API failed)
+            // Render workouts (empty state if API failed)
             if (workouts.status === 'fulfilled' && workouts.value && workouts.value.length > 0) {
                 this.renderWorkouts(workouts.value);
             } else {
-                this.renderWorkouts([
-                    { id: '1', name: 'Upper Body Push', date: new Date().toISOString(), duration: 65, total_volume: 8500, exercises_count: 6 },
-                    { id: '2', name: 'Legs', date: new Date(Date.now() - 86400000).toISOString(), duration: 75, total_volume: 12000, exercises_count: 5 },
-                    { id: '3', name: 'Upper Body Pull', date: new Date(Date.now() - 2*86400000).toISOString(), duration: 60, total_volume: 7200, exercises_count: 6 },
-                    { id: '4', name: 'Cardio & Core', date: new Date(Date.now() - 3*86400000).toISOString(), duration: 45, total_volume: 0, exercises_count: 8 }
-                ]);
+                this.renderWorkouts([]);
             }
 
-            // Render nutrition (use sample if API failed)
+            // Render nutrition (empty state if API failed)
             if (nutrition.status === 'fulfilled') {
                 this.renderNutrition(nutrition.value);
             } else {
                 this.renderNutrition({
-                    totals: { calories: 2150, protein: 165, carbs: 220, fat: 65 }
+                    totals: { calories: 0, protein: 0, carbs: 0, fat: 0 }
                 });
             }
 
-            // Render weekly stats (use sample if API failed)
+            // Render weekly stats (empty state if API failed)
             if (stats.status === 'fulfilled') {
                 this.renderWeeklyProgress(stats.value);
             } else {
                 this.renderWeeklyProgress({
-                    workouts_completed: 4,
-                    total_volume: 35000,
-                    nutrition_days: 5,
+                    workouts_completed: 0,
+                    total_volume: 0,
+                    nutrition_days: 0,
                     weekly_goals: { workouts: 5, volume: 50000, nutrition: 7 }
                 });
             }
 
-            // Render level (use sample if API failed)
+            // Render level (empty state if API failed)
             if (level.status === 'fulfilled') {
                 this.renderLevel(level.value);
             } else {
-                this.renderLevel({ level: 8, xp: 3400, next_level_xp: 4000 });
+                this.renderLevel({ level: 1, xp: 0, next_level_xp: 100 });
             }
 
             // Load AI recommendations
@@ -245,7 +240,8 @@ class VenusApp {
 
         // Update icon based on streak
         let icon = 'Active';
-        if (streak >= 30) icon = 'Fire';
+        if (streak === 0) icon = 'Start';
+        else if (streak >= 30) icon = 'Fire';
         else if (streak >= 14) icon = 'Power';
         else if (streak >= 7) icon = 'Star';
 
@@ -281,7 +277,13 @@ class VenusApp {
             container.innerHTML = `
                 <div style="text-align: center; padding: 40px; color: rgba(255, 255, 255, 0.5);">
                     <div style="font-size: 48px; margin-bottom: 15px;"><span class="icon-workout">Workout</span></div>
-                    <div>No workouts yet. Time to get started!</div>
+                    <div style="font-size: 16px; margin-bottom: 10px;">No workouts logged yet</div>
+                    <div style="font-size: 14px; color: rgba(255, 255, 255, 0.4);">Log your first workout to start tracking your progress and earning XP!</div>
+                    <div class="connect-button" onclick="window.venusApp.startWorkout()">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 5v14M5 12h14"/>
+                        </svg>
+                    </div>
                 </div>
             `;
             return;
@@ -339,7 +341,13 @@ class VenusApp {
         if (totals.calories === 0) {
             container.innerHTML = `
                 <div style="text-align: center; color: rgba(255, 255, 255, 0.5); padding: 20px;">
-                    No meals logged today
+                    <div style="font-size: 16px; margin-bottom: 8px;">No meals logged today</div>
+                    <div style="font-size: 13px; color: rgba(255, 255, 255, 0.4);">Track your nutrition to see your macros and calories</div>
+                    <div class="connect-button" onclick="window.venusApp.scanNutrition()">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 5v14M5 12h14"/>
+                        </svg>
+                    </div>
                 </div>
             `;
             return;
@@ -525,40 +533,35 @@ class VenusApp {
      * Start workout
      */
     startWorkout() {
-        alert('🏋️ Workout Logger\n\nOpening real-time workout tracking...\n\nThis will connect to /api/venus/workouts/start endpoint');
-        // TODO: Open workout logger modal
+        this.showToast('Workout logger coming soon');
     }
 
     /**
      * Generate Quantum workout
      */
     async generateQuantumWorkout() {
-        alert('[Quantum Workout] Generating AI-optimized workout based on:\n• Your recovery score\n• Recent training volume\n• Energy patterns\n• Goal targets\n\nConnects to /api/venus/quantum-workout endpoint');
-        // TODO: Call backend and display quantum workout
+        this.showToast('Quantum workout feature coming soon');
     }
 
     /**
      * Scan nutrition
      */
     scanNutrition() {
-        alert('📸 Nutrition Scanner\n\nOpening camera for:\n• Photo recognition (meal analysis)\n• Barcode scanning\n• Manual entry\n\nConnects to /api/venus/nutrition/scan endpoint');
-        // TODO: Open nutrition scanner
+        this.showToast('Nutrition scanner coming soon');
     }
 
     /**
      * View challenges
      */
     viewChallenges() {
-        alert(' Challenges\n\nActive challenges:\n• 30-day consistency\n• Volume milestone\n• Nutrition streak\n\nConnects to /api/venus/challenges endpoint');
-        // TODO: Open challenges view
+        this.showToast('Challenges coming soon');
     }
 
     /**
      * View workout details
      */
     viewWorkout(workoutId) {
-        alert(`[Workout Details]\n\nOpening workout: ${workoutId}\n\nShows:\n• Exercise breakdown\n• Sets & reps\n• Volume calculations\n• Progress vs last time`);
-        // TODO: Open workout detail modal
+        this.showToast('Workout details coming soon');
     }
 
     /**
@@ -621,6 +624,44 @@ class VenusApp {
             </div>
         `;
         document.getElementById('dashboard').style.display = 'block';
+    }
+
+    /**
+     * Show toast notification
+     */
+    showToast(message, type = 'info') {
+        // Check if global showToast exists
+        if (typeof window.showToast === 'function') {
+            window.showToast(message, type);
+            return;
+        }
+
+        // Fallback: Create inline toast notification
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 255, 170, 0.2);
+            border: 2px solid #00ffaa;
+            color: #00ffaa;
+            padding: 20px 30px;
+            border-radius: 8px;
+            font-family: 'SF Mono', monospace;
+            font-size: 16px;
+            font-weight: bold;
+            z-index: 10000;
+            box-shadow: 0 10px 30px rgba(0, 255, 170, 0.4);
+            animation: slideIn 0.3s ease;
+        `;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transition = 'opacity 0.3s ease';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
     }
 
     /**

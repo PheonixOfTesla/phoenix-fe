@@ -82,95 +82,66 @@ class SaturnApp {
 
             // THEN: Render data (DOM elements now exist)
 
-            // Render mortality (use sample if API failed)
+            // Render mortality (calculate from birthdate or prompt to set)
             if (mortality.status === 'fulfilled') {
                 this.renderMortality(mortality.value);
             } else {
-                this.renderMortality({
-                    weeks_remaining: 2600,
-                    age: 30,
-                    life_expectancy: 80
-                });
+                // Calculate from birthdate if available, otherwise show empty state
+                const birthdate = localStorage.getItem('phoenixBirthdate');
+                if (birthdate) {
+                    const birth = new Date(birthdate);
+                    const now = new Date();
+                    const age = now.getFullYear() - birth.getFullYear();
+                    const lifeExpectancy = 80;
+                    const weeksRemaining = (lifeExpectancy - age) * 52;
+                    this.renderMortality({
+                        weeks_remaining: weeksRemaining,
+                        age: age,
+                        life_expectancy: lifeExpectancy
+                    });
+                } else {
+                    // No birthdate set - show empty state
+                    this.renderMortalityEmpty();
+                }
             }
 
-            // Render reviews (use sample if API failed)
+            // Render reviews (show empty state if API failed)
             if (reviews.status === 'fulfilled') {
                 this.renderReviews(reviews.value);
             } else {
-                this.renderReviews({
-                    reviews: [
-                        { quarter: 'Q4 2024', highlights: 'Launched my side project, hit fitness goals, read 6 books', score: 8 },
-                        { quarter: 'Q3 2024', highlights: 'Started new job, traveled to Japan, improved relationships', score: 9 },
-                        { quarter: 'Q2 2024', highlights: 'Completed certification, ran first 10K, saved $5K', score: 7 }
-                    ]
-                });
+                this.renderReviews({ reviews: [] });
             }
 
-            // Render long-term goals (use sample if API failed)
+            // Render long-term goals (show empty state if API failed)
             if (goals.status === 'fulfilled') {
                 this.renderLongTermGoals(goals.value);
             } else {
                 this.renderLongTermGoals({
-                    '5year': [
-                        { title: 'Build a successful business generating $100K+ annually' },
-                        { title: 'Achieve complete financial independence' },
-                        { title: 'Write and publish a book' }
-                    ],
-                    '10year': [
-                        { title: 'Retire early or work on passion projects only' },
-                        { title: 'Own a home in a place I love' },
-                        { title: 'Master a creative skill (music, art, or writing)' }
-                    ],
-                    '25year': [
-                        { title: 'Create a lasting positive impact on 10,000+ lives' },
-                        { title: 'Build generational wealth for my family' },
-                        { title: 'Be remembered for wisdom and kindness' }
-                    ]
+                    '5year': [],
+                    '10year': [],
+                    '25year': []
                 });
             }
 
-            // Render legacy projects (use sample if API failed)
+            // Render legacy projects (show empty state if API failed)
             if (legacy.status === 'fulfilled') {
                 this.renderLegacyProjects(legacy.value);
             } else {
-                this.renderLegacyProjects({
-                    projects: [
-                        { title: 'Open Source Library', description: 'Building a tool that helps developers worldwide', status: 'In Progress', progress: 45 },
-                        { title: 'Mentorship Program', description: 'Helping 10 aspiring entrepreneurs launch their dreams', status: 'Active', progress: 30 }
-                    ]
-                });
+                this.renderLegacyProjects({ projects: [] });
             }
 
-            // Render relationships (use sample if API failed)
+            // Render relationships (show empty state if API failed)
             if (relationships.status === 'fulfilled') {
                 this.renderRelationships(relationships.value);
             } else {
-                const weekAgo = new Date(Date.now() - 7*86400000).toISOString();
-                const twoWeeksAgo = new Date(Date.now() - 14*86400000).toISOString();
-                this.renderRelationships({
-                    relationships: [
-                        { name: 'Mom', role: 'Family', last_contact: weekAgo, avatar: 'M' },
-                        { name: 'Best Friend', role: 'Friend', last_contact: new Date().toISOString(), avatar: 'BF' },
-                        { name: 'Mentor', role: 'Advisor', last_contact: twoWeeksAgo, avatar: 'ME' },
-                        { name: 'Partner', role: 'Significant Other', last_contact: new Date().toISOString(), avatar: 'P' }
-                    ]
-                });
+                this.renderRelationships({ relationships: [] });
             }
 
-            // Render satisfaction (use sample if API failed)
+            // Render satisfaction (show empty state if API failed)
             if (satisfaction.status === 'fulfilled') {
                 this.renderSatisfaction(satisfaction.value);
             } else {
-                this.renderSatisfaction({
-                    scores: {
-                        'health_&_fitness': 8,
-                        'career_&_purpose': 7,
-                        'relationships': 9,
-                        'personal_growth': 8,
-                        'financial_security': 6,
-                        'fun_&_adventure': 7
-                    }
-                });
+                this.renderSatisfaction({ scores: {} });
             }
 
         } catch (error) {
@@ -288,6 +259,43 @@ class SaturnApp {
     }
 
     /**
+     * Render mortality empty state
+     */
+    renderMortalityEmpty() {
+        const weeksRemainingEl = document.getElementById('weeksRemaining');
+        if (weeksRemainingEl) {
+            weeksRemainingEl.textContent = '?';
+        }
+
+        const yearsLivedEl = document.getElementById('yearsLived');
+        if (yearsLivedEl) {
+            yearsLivedEl.textContent = 'Birthdate not set';
+        }
+
+        const lifeExpectancyEl = document.getElementById('lifeExpectancy');
+        if (lifeExpectancyEl) {
+            lifeExpectancyEl.textContent = 'Est. 80 years total';
+        }
+
+        const lifeProgressBarEl = document.getElementById('lifeProgressBar');
+        if (lifeProgressBarEl) {
+            lifeProgressBarEl.style.width = '0%';
+        }
+
+        const mortalityMessageEl = document.getElementById('mortalityMessage');
+        if (mortalityMessageEl) {
+            mortalityMessageEl.innerHTML = `
+                Set your birthdate to calculate your weeks remaining
+                <div class="connect-button" onclick="window.saturnApp.setBirthdate()">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                </div>
+            `;
+        }
+    }
+
+    /**
      * Render mortality counter
      */
     renderMortality(data) {
@@ -365,7 +373,12 @@ class SaturnApp {
         if (!reviews.length) {
             container.innerHTML = `
                 <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.4);">
-                    No reviews yet. Start your first quarterly review.
+                    Complete your first quarterly review
+                    <div class="connect-button" onclick="window.saturnApp.startQuarterlyReview()">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 5v14M5 12h14"/>
+                        </svg>
+                    </div>
                 </div>
             `;
             return;
@@ -400,17 +413,17 @@ class SaturnApp {
         // Render 5-year goals
         const fiveYearHtml = fiveYear.length ? fiveYear.map(g => `
             <div class="goal-item">${g.title || g}</div>
-        `).join('') : '<div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.3); font-size: 12px;">Set goals</div>';
+        `).join('') : '<div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.4); font-size: 12px;">Define your 5 year vision<div class="connect-button" onclick="window.saturnApp.setLongTermGoals()" style="margin-top: 10px;"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div></div>';
 
         // Render 10-year goals
         const tenYearHtml = tenYear.length ? tenYear.map(g => `
             <div class="goal-item">${g.title || g}</div>
-        `).join('') : '<div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.3); font-size: 12px;">Set goals</div>';
+        `).join('') : '<div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.4); font-size: 12px;">Define your 10 year vision</div>';
 
         // Render 25-year goals
         const twentyFiveYearHtml = twentyFiveYear.length ? twentyFiveYear.map(g => `
             <div class="goal-item">${g.title || g}</div>
-        `).join('') : '<div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.3); font-size: 12px;">Set goals</div>';
+        `).join('') : '<div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.4); font-size: 12px;">Define your 25 year vision</div>';
 
         // Update grid
         const longTermGoalsEl = document.getElementById('longTermGoals');
@@ -457,6 +470,11 @@ class SaturnApp {
             container.innerHTML = `
                 <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.4);">
                     What will you leave behind?
+                    <div class="connect-button" onclick="window.saturnApp.createLegacyProject()">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 5v14M5 12h14"/>
+                        </svg>
+                    </div>
                 </div>
             `;
             return;
@@ -543,9 +561,21 @@ class SaturnApp {
             return;
         }
 
+        // Check if any scores exist
+        const hasScores = Object.keys(scores).length > 0;
+
+        if (!hasScores) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.4); grid-column: 1/-1;">
+                    Rate your life areas to see your balance
+                </div>
+            `;
+            return;
+        }
+
         const html = this.satisfactionAreas.map(area => {
             const key = area.toLowerCase().replace(/\s+&\s+/g, '_').replace(/\s+/g, '_');
-            const score = scores[key] || scores[area] || 5;
+            const score = scores[key] || scores[area] || 0;
             const percentage = (score / 10) * 100;
 
             return `
@@ -593,11 +623,11 @@ class SaturnApp {
 
             if (response.ok) {
                 const data = await response.json();
-                alert(`[Success] Quarterly review complete!\n\nPhoenix analyzed your performance across all 5 life domains:\n${data.ai_summary || 'Review saved successfully'}`);
+                showToast(`Quarterly review complete! Phoenix analyzed your performance across all 5 life domains: ${data.ai_summary || 'Review saved successfully'}`, 'success');
                 await this.loadDashboardData();
             }
         } catch (error) {
-            alert(`Error: ${error.message}`);
+            showToast(`Error: ${error.message}`, 'error');
         }
     }
 
@@ -625,11 +655,11 @@ class SaturnApp {
             });
 
             if (response.ok) {
-                alert(`[Success] ${timeframe}-year goal set: "${goal}"`);
+                showToast(`${timeframe}-year goal set: "${goal}"`, 'success');
                 await this.loadDashboardData();
             }
         } catch (error) {
-            alert(`Error: ${error.message}`);
+            showToast(`Error: ${error.message}`, 'error');
         }
     }
 
@@ -658,11 +688,11 @@ class SaturnApp {
             });
 
             if (response.ok) {
-                alert(`[Success] Legacy project created: "${title}"\n\nThis is what you'll leave behind. Make it count.`);
+                showToast(`Legacy project created: "${title}". This is what you'll leave behind. Make it count.`, 'success');
                 await this.loadDashboardData();
             }
         } catch (error) {
-            alert(`Error: ${error.message}`);
+            showToast(`Error: ${error.message}`, 'error');
         }
     }
 
@@ -689,12 +719,12 @@ class SaturnApp {
 
                     if (confirm(`It's been ${daysSince} days since you connected with ${name}.\n\nLife is short. Reach out now?`)) {
                         // Open default messaging app or show phone number
-                        alert(`[Reminder] Great! Take a moment to reach out to ${name} today.`);
+                        showToast(`Great! Take a moment to reach out to ${name} today.`, 'info');
                     }
                 }
             }
         } catch (error) {
-            alert('[Reminder] Life is short. Reach out to someone important today.');
+            showToast('Life is short. Reach out to someone important today.', 'info');
         }
     }
 
@@ -714,8 +744,12 @@ class SaturnApp {
     setupProfile() {
         const birthYear = prompt('What year were you born?');
         if (birthYear) {
+            // Save birthdate to localStorage for mortality calculation
+            const birthdate = `${birthYear}-01-01`; // Default to January 1st
+            localStorage.setItem('phoenixBirthdate', birthdate);
+
             const age = new Date().getFullYear() - parseInt(birthYear);
-            alert(`Welcome! At ${age} years old, you have approximately ${(80 - age) * 52} weeks left. Make them count.`);
+            showToast(`Welcome! At ${age} years old, you have approximately ${(80 - age) * 52} weeks left. Make them count.`, 'info');
             this.loadDashboardData();
         }
     }
@@ -769,6 +803,12 @@ class SaturnApp {
         `;
         document.getElementById('dashboard').style.display = 'block';
     }
+
+    // Alias methods for connect buttons
+    setBirthdate() { this.setupProfile(); }
+    startQuarterlyReview() { this.quarterlyReview(); }
+    setLongTermGoals() { this.setLongTermGoal(); }
+    createLegacyProject() { this.addLegacyProject(); }
 }
 
 // Initialize app when page loads

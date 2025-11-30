@@ -81,92 +81,74 @@ class MarsApp {
 
             // THEN: Render data (DOM elements now exist)
 
-            // Render OKR (use sample if API failed)
+            // Render OKR (use empty state if API failed)
             if (okr.status === 'fulfilled') {
                 this.renderCurrentOKR(okr.value);
             } else {
                 this.renderCurrentOKR({
-                    objective: 'Launch my first product and reach $10K MRR',
-                    progress: 35,
-                    weeks_remaining: 8
+                    objective: 'Set your first Objective to start tracking progress',
+                    progress: 0,
+                    weeks_remaining: 0
                 });
             }
 
-            // Render key results (use sample if API failed)
+            // Render key results (use empty state if API failed)
             if (keyResults.status === 'fulfilled') {
                 this.renderKeyResults(keyResults.value);
             } else {
                 this.renderKeyResults({
-                    keyResults: [
-                        { id: '1', title: 'Acquire 100 paying customers', current: 35, target: 100, deadline: '2025-03-31' },
-                        { id: '2', title: 'Build MVP with 5 core features', current: 4, target: 5, deadline: '2025-02-28' },
-                        { id: '3', title: 'Generate $10,000 in revenue', current: 3500, target: 10000, deadline: '2025-03-31' }
-                    ]
+                    keyResults: []
                 });
             }
 
-            // Render goals (use sample if API failed)
+            // Render goals (use empty state if API failed)
             if (goals.status === 'fulfilled') {
                 this.renderGoals(goals.value);
             } else {
                 this.renderGoals({
-                    goals: [
-                        { title: 'Read 24 books this year', category: 'Learning', deadline: '2025-12-31', status: 'active' },
-                        { title: 'Run a marathon', category: 'Fitness', deadline: '2025-06-15', status: 'active' },
-                        { title: 'Learn Spanish to B2 level', category: 'Personal', deadline: '2025-12-31', status: 'active' }
-                    ]
+                    goals: []
                 });
             }
 
-            // Render habits (use sample if API failed)
+            // Render habits (use empty state if API failed)
             if (habits.status === 'fulfilled') {
                 this.renderHabits(habits.value);
             } else {
                 this.renderHabits({
-                    habits: [
-                        { id: '1', name: 'Morning workout', frequency: 'Daily', streak: 12, completed_today: true },
-                        { id: '2', name: 'Read for 30 minutes', frequency: 'Daily', streak: 8, completed_today: false },
-                        { id: '3', name: 'Meditate', frequency: 'Daily', streak: 5, completed_today: true },
-                        { id: '4', name: 'Journal', frequency: 'Daily', streak: 15, completed_today: false }
-                    ]
+                    habits: []
                 });
             }
 
-            // Render habit grid (use sample if API failed)
+            // Render habit grid (use empty state if API failed)
             if (habitGrid.status === 'fulfilled' && streak.status === 'fulfilled') {
                 this.renderHabitGrid(habitGrid.value, streak.value);
             } else {
-                // Generate sample grid with some completed days
-                const sampleGrid = [];
+                // Generate empty grid for 365 days
+                const emptyGrid = [];
                 for (let i = 0; i < 365; i++) {
                     const date = new Date();
                     date.setDate(date.getDate() - (364 - i));
-                    const completed = Math.random() > 0.3 ? Math.floor(Math.random() * 4) : 0; // 70% have some completions
-                    sampleGrid.push({
+                    emptyGrid.push({
                         date: date.toISOString().split('T')[0],
-                        count: completed
+                        count: 0
                     });
                 }
-                this.renderHabitGrid({ grid: sampleGrid }, { current_streak: 12 });
+                this.renderHabitGrid({ grid: emptyGrid }, { current_streak: 0 });
             }
 
-            // Render AI suggestions (use sample if API failed)
+            // Render AI suggestions (use empty state if API failed)
             if (aiSuggestions.status === 'fulfilled') {
                 this.renderAISuggestions(aiSuggestions.value);
             } else {
                 this.renderAISuggestions({
-                    insights: [
-                        { id: '1', type: 'goal', title: 'Start a side project', description: 'Based on your skills and interests, consider building a SaaS product' },
-                        { id: '2', type: 'habit', title: 'Add evening review habit', description: 'Reflect on your day each evening to stay aligned with goals' },
-                        { id: '3', type: 'goal', title: 'Network with 5 entrepreneurs', description: 'Expand your network to accelerate your business growth' }
-                    ]
+                    insights: []
                 });
             }
 
-            // Calculate stats (use sample data if needed)
-            const okrValue = okr.status === 'fulfilled' ? okr.value : { objective: 'Sample OKR' };
-            const habitsValue = habits.status === 'fulfilled' ? habits.value : { habits: [1, 2, 3, 4] };
-            const streakValue = streak.status === 'fulfilled' ? streak.value : { current_streak: 12, completion_rate: 75 };
+            // Calculate stats (use empty data if API failed)
+            const okrValue = okr.status === 'fulfilled' ? okr.value : { objective: null };
+            const habitsValue = habits.status === 'fulfilled' ? habits.value : { habits: [] };
+            const streakValue = streak.status === 'fulfilled' ? streak.value : { current_streak: 0, completion_rate: 0 };
             this.updateStats(okrValue, habitsValue, streakValue);
 
         } catch (error) {
@@ -348,7 +330,7 @@ class MarsApp {
         if (!keyResults.length) {
             container.innerHTML = `
                 <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.4);">
-                    No key results yet. Create an OKR to get started.
+                    Set your first Objective to start tracking progress
                 </div>
             `;
             return;
@@ -411,7 +393,12 @@ class MarsApp {
         if (!goals.length) {
             container.innerHTML = `
                 <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.4);">
-                    No goals yet. Set your first goal to get started.
+                    Create a goal to begin your journey
+                    <div class="connect-button" onclick="window.marsApp.createGoal()">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 5v14M5 12h14"/>
+                        </svg>
+                    </div>
                 </div>
             `;
             return;
@@ -460,7 +447,12 @@ class MarsApp {
         if (!habits.length) {
             todayContainer.innerHTML = `
                 <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.4);">
-                    No habits yet. Add your first habit to get started.
+                    Add a daily habit to build consistency
+                    <div class="connect-button" onclick="window.marsApp.createHabit()">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 5v14M5 12h14"/>
+                        </svg>
+                    </div>
                 </div>
             `;
             allContainer.innerHTML = todayContainer.innerHTML;
@@ -571,7 +563,7 @@ class MarsApp {
         if (!suggestions.length) {
             container.innerHTML = `
                 <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.4);">
-                    No AI suggestions available yet. Start tracking goals to get personalized recommendations.
+                    Start tracking goals to get personalized AI recommendations
                 </div>
             `;
             return;
@@ -688,7 +680,7 @@ class MarsApp {
         const kr3Target = document.getElementById('kr3Target').value;
 
         if (!objective) {
-            alert('Please enter an objective');
+            showToast('Please enter an objective', 'error');
             return;
         }
 
@@ -717,11 +709,11 @@ class MarsApp {
                 this.showAchievement('Target', 'OKR Created!', 'Time to crush your goals');
                 await this.loadDashboardData();
             } else {
-                alert('Failed to create OKR. Please try again.');
+                showToast('Failed to create OKR. Please try again.', 'error');
             }
         } catch (error) {
             console.error('OKR creation error:', error);
-            alert(`Error creating OKR: ${error.message}`);
+            showToast(`Error creating OKR: ${error.message}`, 'error');
         }
     }
 
@@ -734,7 +726,7 @@ class MarsApp {
         const frequency = document.getElementById('habitFrequency').value;
 
         if (!name) {
-            alert('Please enter a habit name');
+            showToast('Please enter a habit name', 'error');
             return;
         }
 
@@ -759,7 +751,7 @@ class MarsApp {
                     this.showAchievement('Success', 'Habit Added!', 'Start building your streak');
                     await this.loadDashboardData();
                 } else {
-                    alert('Failed to create habit. Please try again.');
+                    showToast('Failed to create habit. Please try again.', 'error');
                 }
             } else {
                 // No auth token - add to local sample data
@@ -798,7 +790,7 @@ class MarsApp {
             }
         } catch (error) {
             console.error('Habit creation error:', error);
-            alert(`Error creating habit: ${error.message}`);
+            showToast(`Error creating habit: ${error.message}`, 'error');
         }
     }
 
@@ -812,7 +804,7 @@ class MarsApp {
         const description = document.getElementById('goalDescription').value;
 
         if (!title) {
-            alert('Please enter a goal title');
+            showToast('Please enter a goal title', 'error');
             return;
         }
 
@@ -838,7 +830,7 @@ class MarsApp {
                     this.showAchievement('Achievement', 'Goal Created!', 'One step closer to success');
                     await this.loadDashboardData();
                 } else {
-                    alert('Failed to create goal. Please try again.');
+                    showToast('Failed to create goal. Please try again.', 'error');
                 }
             } else {
                 // No auth token - add to local sample data
@@ -884,7 +876,7 @@ class MarsApp {
             }
         } catch (error) {
             console.error('Goal creation error:', error);
-            alert(`Error creating goal: ${error.message}`);
+            showToast(`Error creating goal: ${error.message}`, 'error');
         }
     }
 
@@ -912,11 +904,11 @@ class MarsApp {
                 }
                 await this.loadDashboardData();
             } else {
-                alert('Failed to log habit. Please try again.');
+                showToast('Failed to log habit. Please try again.', 'error');
             }
         } catch (error) {
             console.error('Habit logging error:', error);
-            alert(`Error logging habit: ${error.message}`);
+            showToast(`Error logging habit: ${error.message}`, 'error');
         }
     }
 
@@ -938,7 +930,7 @@ class MarsApp {
         const newValue = parseInt(document.getElementById('progressCurrent').value);
 
         if (!newValue || newValue < 0) {
-            alert('Please enter a valid value');
+            showToast('Please enter a valid value', 'error');
             return;
         }
 
@@ -959,11 +951,11 @@ class MarsApp {
                 this.showAchievement('Progress', 'Progress Updated!', 'You\'re making great progress');
                 await this.loadDashboardData();
             } else {
-                alert('Failed to update progress. Please try again.');
+                showToast('Failed to update progress. Please try again.', 'error');
             }
         } catch (error) {
             console.error('Progress update error:', error);
-            alert(`Error updating progress: ${error.message}`);
+            showToast(`Error updating progress: ${error.message}`, 'error');
         }
     }
 
@@ -983,13 +975,13 @@ class MarsApp {
             if (response.ok) {
                 const data = await response.json();
                 const summary = data.summary || 'Great week! Keep up the momentum.';
-                alert(`Weekly Review:\n\n${summary}`);
+                showToast(`Weekly Review: ${summary}`, 'info', 5000);
             } else {
-                alert('Weekly review data not available yet.');
+                showToast('Weekly review data not available yet.', 'info');
             }
         } catch (error) {
             console.error('Weekly review error:', error);
-            alert('Weekly review feature coming soon!');
+            showToast('Weekly review feature coming soon!', 'info');
         }
     }
 
@@ -1021,7 +1013,7 @@ class MarsApp {
             }
         } catch (error) {
             console.error('Apply suggestion error:', error);
-            alert('Error applying suggestion. Please try manually.');
+            showToast('Error applying suggestion. Please try manually.', 'error');
         }
     }
 

@@ -938,10 +938,232 @@
             <!-- Tab Navigation -->
             <div class="tab-navigation">
                 <button class="tab-button active" onclick="window.mercuryDashboard.switchTab('overview')">Overview</button>
+                <button class="tab-button" onclick="window.mercuryDashboard.switchTab('vitals')">Vitals</button>
                 <button class="tab-button" onclick="window.mercuryDashboard.switchTab('sleep')">Sleep</button>
                 <button class="tab-button" onclick="window.mercuryDashboard.switchTab('hrv')">HRV & Stress</button>
                 <button class="tab-button" onclick="window.mercuryDashboard.switchTab('body')">Body Comp</button>
                 <button class="tab-button" onclick="window.mercuryDashboard.switchTab('correlations')">Correlations</button>
+            </div>
+
+            <!-- Vitals Tab - ALL Health Metrics (cards hidden if no data) -->
+            <div id="tab-vitals" class="tab-content">
+                <div class="dashboard-grid">
+                    <!-- Blood Oxygen (SpO2) -->
+                    <div class="glass-card" id="spO2Card">
+                        <div class="card-header">
+                            <div class="card-title">Blood Oxygen (SpO2)</div>
+                            <div class="card-icon" style="background: rgba(255, 99, 132, 0.2);">O₂</div>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Current SpO2</span>
+                            <span class="metric-value" id="currentSpO2">--%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Avg During Sleep</span>
+                            <span class="metric-value" id="avgSpO2">--%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Low Events</span>
+                            <span class="metric-value" id="spO2Events">--</span>
+                        </div>
+                    </div>
+
+                    <!-- Respiratory Rate -->
+                    <div class="glass-card" id="respiratoryCard">
+                        <div class="card-header">
+                            <div class="card-title">Respiratory Rate</div>
+                            <div class="card-icon" style="background: rgba(54, 162, 235, 0.2);">BR</div>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Current Rate</span>
+                            <span class="metric-value" id="currentRespRate">-- bpm</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Avg During Sleep</span>
+                            <span class="metric-value" id="avgRespRate">-- bpm</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Deep Sleep Rate</span>
+                            <span class="metric-value" id="deepRespRate">-- bpm</span>
+                        </div>
+                    </div>
+
+                    <!-- Skin Temperature -->
+                    <div class="glass-card" id="temperatureCard">
+                        <div class="card-header">
+                            <div class="card-title">Temperature</div>
+                            <div class="card-icon" style="background: rgba(255, 159, 64, 0.2);">°F</div>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Skin Temp Variation</span>
+                            <span class="metric-value" id="skinTempVariation">--°</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Baseline</span>
+                            <span class="metric-value" id="tempBaseline">--°F</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Trend</span>
+                            <span class="metric-value" id="tempTrend">--</span>
+                        </div>
+                    </div>
+
+                    <!-- VO2 Max / Cardio Fitness -->
+                    <div class="glass-card" id="vo2Card">
+                        <div class="card-header">
+                            <div class="card-title">Cardio Fitness (VO2 Max)</div>
+                            <div class="card-icon" style="background: rgba(75, 192, 192, 0.2);">V</div>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">VO2 Max</span>
+                            <span class="metric-value" id="vo2Max">-- ml/kg/min</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Fitness Level</span>
+                            <span class="metric-value" id="fitnessLevel">--</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">vs. Age Group</span>
+                            <span class="metric-value" id="vo2Percentile">--</span>
+                        </div>
+                    </div>
+
+                    <!-- ECG / Heart Health -->
+                    <div class="glass-card" id="ecgCard">
+                        <div class="card-header">
+                            <div class="card-title">Heart Rhythm (ECG)</div>
+                            <div class="card-icon" style="background: rgba(255, 99, 71, 0.2);">♥</div>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Last Reading</span>
+                            <span class="metric-value" id="ecgLastReading">--</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Rhythm Classification</span>
+                            <span class="metric-value" id="ecgClassification">--</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Irregular Alerts</span>
+                            <span class="metric-value" id="irregularAlerts">--</span>
+                        </div>
+                    </div>
+
+                    <!-- Active Zone Minutes -->
+                    <div class="glass-card" id="azmCard">
+                        <div class="card-header">
+                            <div class="card-title">Active Zone Minutes</div>
+                            <div class="card-icon" style="background: rgba(153, 102, 255, 0.2);">AZ</div>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Today's AZM</span>
+                            <span class="metric-value" id="todayAZM">-- min</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Weekly Total</span>
+                            <span class="metric-value" id="weeklyAZM">-- min</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Goal Progress</span>
+                            <span class="metric-value" id="azmGoalProgress">--%</span>
+                        </div>
+                        <div class="azm-breakdown" style="margin-top: 15px; display: flex; gap: 10px;">
+                            <div style="flex: 1; text-align: center; padding: 10px; background: rgba(255, 159, 64, 0.2); border-radius: 8px;">
+                                <div style="font-size: 11px; color: rgba(255,255,255,0.5);">Fat Burn</div>
+                                <div id="fatBurnMins" style="font-size: 18px; font-weight: bold;">--</div>
+                            </div>
+                            <div style="flex: 1; text-align: center; padding: 10px; background: rgba(255, 99, 132, 0.2); border-radius: 8px;">
+                                <div style="font-size: 11px; color: rgba(255,255,255,0.5);">Cardio</div>
+                                <div id="cardioMins" style="font-size: 18px; font-weight: bold;">--</div>
+                            </div>
+                            <div style="flex: 1; text-align: center; padding: 10px; background: rgba(255, 0, 0, 0.2); border-radius: 8px;">
+                                <div style="font-size: 11px; color: rgba(255,255,255,0.5);">Peak</div>
+                                <div id="peakMins" style="font-size: 18px; font-weight: bold;">--</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Daily Activity Summary -->
+                    <div class="glass-card" id="activityCard" style="grid-column: span 2;">
+                        <div class="card-header">
+                            <div class="card-title">Today's Activity</div>
+                            <div class="card-icon" style="background: rgba(0, 255, 136, 0.2);">+</div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 32px; font-weight: bold; color: #00d4ff;" id="todaySteps">--</div>
+                                <div style="font-size: 12px; color: rgba(255,255,255,0.5);">Steps</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 32px; font-weight: bold; color: #00ffaa;" id="todayDistance">--</div>
+                                <div style="font-size: 12px; color: rgba(255,255,255,0.5);">Miles</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 32px; font-weight: bold; color: #ff6b6b;" id="todayCalories">--</div>
+                                <div style="font-size: 12px; color: rgba(255,255,255,0.5);">Calories</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 32px; font-weight: bold; color: #ffd700;" id="todayFloors">--</div>
+                                <div style="font-size: 12px; color: rgba(255,255,255,0.5);">Floors</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 32px; font-weight: bold; color: #8b5cf6;" id="todayActiveMinutes">--</div>
+                                <div style="font-size: 12px; color: rgba(255,255,255,0.5);">Active Min</div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 20px; display: flex; gap: 15px;">
+                            <div style="flex: 1; background: rgba(0,217,255,0.1); border-radius: 10px; padding: 15px;">
+                                <div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 5px;">Sedentary Time</div>
+                                <div style="font-size: 20px; font-weight: bold;" id="sedentaryTime">--h --m</div>
+                            </div>
+                            <div style="flex: 1; background: rgba(0,255,136,0.1); border-radius: 10px; padding: 15px;">
+                                <div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 5px;">Lightly Active</div>
+                                <div style="font-size: 20px; font-weight: bold;" id="lightlyActiveTime">--h --m</div>
+                            </div>
+                            <div style="flex: 1; background: rgba(255,159,64,0.1); border-radius: 10px; padding: 15px;">
+                                <div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 5px;">Fairly Active</div>
+                                <div style="font-size: 20px; font-weight: bold;" id="fairlyActiveTime">--h --m</div>
+                            </div>
+                            <div style="flex: 1; background: rgba(255,99,132,0.1); border-radius: 10px; padding: 15px;">
+                                <div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 5px;">Very Active</div>
+                                <div style="font-size: 20px; font-weight: bold;" id="veryActiveTime">--h --m</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nutrition / Hydration -->
+                    <div class="glass-card" id="nutritionCard">
+                        <div class="card-header">
+                            <div class="card-title">Nutrition & Hydration</div>
+                            <div class="card-icon" style="background: rgba(0, 191, 255, 0.2);">H₂O</div>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Water Intake</span>
+                            <span class="metric-value" id="waterIntake">-- oz</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Calories In</span>
+                            <span class="metric-value" id="caloriesIn">--</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Net Calories</span>
+                            <span class="metric-value" id="netCalories">--</span>
+                        </div>
+                        <div style="margin-top: 15px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                                <div style="font-size: 11px; color: rgba(255,255,255,0.5);">Carbs</div>
+                                <div id="carbsGrams" style="font-size: 16px; font-weight: bold;">--g</div>
+                            </div>
+                            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                                <div style="font-size: 11px; color: rgba(255,255,255,0.5);">Protein</div>
+                                <div id="proteinGrams" style="font-size: 16px; font-weight: bold;">--g</div>
+                            </div>
+                            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                                <div style="font-size: 11px; color: rgba(255,255,255,0.5);">Fat</div>
+                                <div id="fatGrams" style="font-size: 16px; font-weight: bold;">--g</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Overview Tab -->
