@@ -113,10 +113,18 @@ class JARVISEngine {
     // COMPANION CHAT - 6 endpoints
     async chat(message) {
         try {
+            // ⚡ OPTIMIZATION: Use pre-loaded context if available (saves 2+ seconds!)
+            const cachedContext = window.phoenixCache?.context || null;
+
             const response = await fetch(`${this.baseURL}/phoenix/companion/chat`, {
                 method: 'POST',
                 headers: this.getHeaders(),
-                body: JSON.stringify({ message, personality: this.personality })
+                body: JSON.stringify({
+                    message,
+                    personality: this.personality,
+                    // Pass cached context to skip DB queries on backend
+                    cachedContext: cachedContext
+                })
             });
 
             if (!response.ok) {

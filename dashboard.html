@@ -221,8 +221,8 @@
                     retryBtn.style.cssText = `
                         padding: 15px 40px;
                         background: rgba(0, 217, 255, 0.2);
-                        border: 2px solid #00d9ff;
-                        color: #00d9ff;
+                        border: 2px solid #00ff88;
+                        color: #00ff88;
                         font-family: monospace;
                         font-size: 14px;
                         cursor: pointer;
@@ -252,15 +252,92 @@
 
             // Start loading sequence (called after quantum link click)
             async function startLoadingSequence() {
-                // Request microphone permissions early
-                try {
-                    await navigator.mediaDevices.getUserMedia({ audio: true });
-                    console.log('🎤 Microphone access granted');
-                } catch (err) {
-                    console.log('🎤 Microphone access denied:', err);
-                }
+                const token = localStorage.getItem('phoenixToken');
+                const API_BASE = 'https://pal-backend-production.up.railway.app';
 
-                // Show loading steps quickly without TTS
+                // =====================================================
+                // PARALLEL INITIALIZATION - Do all slow work NOW
+                // =====================================================
+                const initPromises = [];
+
+                // 1. Pre-fetch ALL user context (9 DB queries in parallel on backend)
+                initPromises.push(
+                    fetch(`${API_BASE}/api/phoenix/preload`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.phoenixCache = data;
+                            console.log(`✅ Phoenix context pre-loaded in ${data.loadTimeMs}ms`);
+                            return { type: 'preload', success: true, data };
+                        }
+                        throw new Error(data.error || 'Preload failed');
+                    })
+                    .catch(err => {
+                        console.warn('⚠️ Preload failed (will fetch on demand):', err.message);
+                        return { type: 'preload', success: false, error: err.message };
+                    })
+                );
+
+                // 2. Warm up AI backend (first request is always slower)
+                initPromises.push(
+                    fetch(`${API_BASE}/api/phoenix/warmup`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        console.log(`✅ AI backend warmed up in ${data.latency}ms`);
+                        return { type: 'warmup', success: true };
+                    })
+                    .catch(err => {
+                        console.warn('⚠️ Warmup failed:', err.message);
+                        return { type: 'warmup', success: false };
+                    })
+                );
+
+                // 3. Request microphone permissions
+                initPromises.push(
+                    navigator.mediaDevices.getUserMedia({ audio: true })
+                    .then(() => {
+                        console.log('🎤 Microphone access granted');
+                        return { type: 'mic', success: true };
+                    })
+                    .catch(err => {
+                        console.log('🎤 Microphone access denied:', err.message);
+                        return { type: 'mic', success: false };
+                    })
+                );
+
+                // 4. Unlock audio context for TTS (needed for iOS)
+                initPromises.push(
+                    new Promise(resolve => {
+                        try {
+                            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                            audioCtx.resume().then(() => {
+                                console.log('🔊 Audio context unlocked');
+                                window.phoenixAudioContext = audioCtx;
+                                resolve({ type: 'audio', success: true });
+                            });
+                        } catch (err) {
+                            console.warn('⚠️ Audio context failed:', err.message);
+                            resolve({ type: 'audio', success: false });
+                        }
+                    })
+                );
+
+                // Start all initialization in parallel (don't await yet)
+                const initPromise = Promise.allSettled(initPromises);
+
+                // Show loading steps while initialization runs
                 for (let i = 0; i < statuses.length; i++) {
                     const status = statuses[i];
 
@@ -275,6 +352,10 @@
                     // On final status, wait for systems to be ready
                     if (i === statuses.length - 1) {
                         console.log('🔄 Waiting for all systems to initialize...');
+
+                        // Wait for parallel init to complete
+                        const results = await initPromise;
+                        console.log('📊 Initialization results:', results.map(r => r.value));
 
                         try {
                             // Wait for Phoenix orchestrator and consciousness to be ready
