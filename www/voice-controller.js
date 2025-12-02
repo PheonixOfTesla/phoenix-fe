@@ -145,8 +145,8 @@
         showModeNotification('Manual Mode Active', 'Use buttons and menus to interact');
     };
 
-    // Open Phoenix Desk (Google Workspace)
-    window.openPhoenixDesk = async function() {
+    // Open Phoenix Desk (Business Management Workspace)
+    window.openPhoenixDesk = function() {
         console.log('💼 Opening Phoenix Desk...');
 
         const token = localStorage.getItem('phoenixToken');
@@ -155,34 +155,11 @@
             return;
         }
 
-        try {
-            // Check if Google is already connected
-            const statusRes = await fetch(`${window.PhoenixConfig?.API_BASE_URL || 'https://pal-backend-production.up.railway.app/api'}/google/status`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const status = await statusRes.json();
-
-            if (status.connected) {
-                // Already connected - show Desk panel
-                showDeskPanel();
-            } else {
-                // Not connected - get OAuth URL and redirect
-                const connectRes = await fetch(`${window.PhoenixConfig?.API_BASE_URL || 'https://pal-backend-production.up.railway.app/api'}/google/connect`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const connectData = await connectRes.json();
-
-                if (connectData.authUrl) {
-                    showModeNotification('Connecting Google', 'Redirecting to Google login...');
-                    window.location.href = connectData.authUrl;
-                } else {
-                    showModeNotification('Error', 'Could not connect to Google');
-                }
-            }
-        } catch (error) {
-            console.error('Phoenix Desk error:', error);
-            showModeNotification('Error', 'Failed to open Phoenix Desk');
-        }
+        // Navigate to desk mode
+        showModeNotification('Opening Desk Mode', 'Loading business workspace...');
+        setTimeout(() => {
+            window.location.href = 'desk.html';
+        }, 500);
     };
 
     // Show Desk Panel with Google Workspace features
