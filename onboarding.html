@@ -886,13 +886,15 @@
             try {
                 dbg('[TTS] Fetching from: ' + API_BASE_URL);
 
+                // Request base64 format for iOS compatibility
                 const response = await fetch(`${API_BASE_URL}/tts/generate`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         text: text,
                         voice: userData.voice,
-                        language: userData.language
+                        language: userData.language,
+                        format: 'base64'
                     })
                 });
 
@@ -904,7 +906,16 @@
                     throw new Error(`TTS failed: ${response.status}`);
                 }
 
-                const audioBlob = await response.blob();
+                // Convert base64 to blob for iOS compatibility
+                const data = await response.json();
+                const audioBase64 = data.audio;
+                const audioBytes = atob(audioBase64);
+                const arrayBuffer = new ArrayBuffer(audioBytes.length);
+                const uint8Array = new Uint8Array(arrayBuffer);
+                for (let i = 0; i < audioBytes.length; i++) {
+                    uint8Array[i] = audioBytes.charCodeAt(i);
+                }
+                const audioBlob = new Blob([uint8Array], { type: 'audio/mpeg' });
                 dbg('[TTS] Blob: ' + audioBlob.size + ' bytes, type: ' + audioBlob.type);
 
                 if (audioBlob.size < 100) {

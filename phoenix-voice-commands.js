@@ -3,15 +3,13 @@
    Full dashboard control via natural language voice commands
    Navigation, data manipulation, logging, tracking
 
-   NATIVE iOS SPEECH RECOGNITION:
-   - Uses Capacitor SpeechRecognition plugin
-   - Native iOS SFSpeechRecognizer (Apple's on-device API)
-   - Better accent, slang, and multi-language support
+   OPTIMIZED FOR NATIVE APPLE APIS:
+   - iOS/macOS: Native Whisper (SFSpeechRecognizer) + AVSpeechSynthesizer
+   - Other: Web Speech API fallback
    - Target: <2s total response time
    ============================================ */
 
-// Capacitor SpeechRecognition will be available globally if running in native app
-// No import needed - Capacitor plugins are loaded via script tags
+const DEBUG_MODE = false; // Set to true to enable verbose debug logging
 
 class PhoenixVoiceCommands {
     constructor() {
@@ -25,88 +23,10 @@ class PhoenixVoiceCommands {
         this.audioElement = null; // Track current audio playback
         this.userInteracted = false; // Track if user has interacted (for autoplay policy)
         this.audioUnlocked = false; // Track if audio context has been unlocked
-        this.ready = false; // Track if voice system is fully initialized
 
         // Conversation memory for ChatGPT-level contextual awareness
         this.conversationHistory = [];
         this.maxHistoryLength = 10; // Keep last 10 messages for context
-
-        // ============================================
-        // CONSCIOUS INTERFACE: Domain & Mode Tracking
-        // ============================================
-        this.conversationMode = 'companion'; // 'companion' or 'phoenix'
-        this.currentDomains = []; // Active domains in conversation
-        this.pendingConfirmation = false; // Waiting for user to confirm action
-        this.lastDomainDetection = null; // Cache last detection
-        this.conversationContext = {}; // Track ongoing conversation thread
-
-        // Domain detection mapping: 9 life categories → 8 planetary domains
-        this.domainMap = {
-            mercury: {
-                name: 'Mercury',
-                categories: ['health', 'mental health', 'sleep'],
-                keywords: ['health', 'hrv', 'recovery', 'biometric', 'sleep', 'tired', 'rest', 'wellness', 'mental', 'anxiety', 'stress', 'meditation', 'breathing'],
-                reaction: '💚',
-                description: 'Health & Recovery'
-            },
-            venus: {
-                name: 'Venus',
-                categories: ['fitness'],
-                keywords: ['fitness', 'workout', 'exercise', 'nutrition', 'meal', 'food', 'diet', 'weight', 'lose weight', 'gain muscle', 'body', 'calories', 'protein', 'gym'],
-                reaction: '💪',
-                description: 'Fitness & Body'
-            },
-            earth: {
-                name: 'Earth',
-                categories: ['work'],
-                keywords: ['calendar', 'schedule', 'meeting', 'time', 'appointment', 'work', 'job', 'task', 'deadline', 'plan', 'organize', 'productivity'],
-                reaction: '📅',
-                description: 'Time & Work'
-            },
-            mars: {
-                name: 'Mars',
-                categories: ['lifestyle'],
-                keywords: ['goal', 'habit', 'progress', 'achieve', 'milestone', 'track', 'improve', 'build', 'routine', 'discipline', 'focus', 'motivation'],
-                reaction: '🎯',
-                description: 'Goals & Habits'
-            },
-            jupiter: {
-                name: 'Jupiter',
-                categories: ['financial'],
-                keywords: ['money', 'finance', 'budget', 'spending', 'expense', 'income', 'save', 'invest', 'broke', 'rich', 'wealth', 'financial', 'debt', 'pay'],
-                reaction: '💰',
-                description: 'Finance & Wealth'
-            },
-            saturn: {
-                name: 'Saturn',
-                categories: ['relationship', 'social'],
-                keywords: ['relationship', 'girlfriend', 'boyfriend', 'dating', 'love', 'partner', 'social', 'friends', 'people', 'family', 'connection', 'lonely', 'romance'],
-                reaction: '❤️',
-                description: 'Relationships & Social'
-            },
-            uranus: {
-                name: 'Uranus',
-                categories: [],
-                keywords: ['idea', 'creative', 'innovation', 'invent', 'project', 'startup', 'business', 'vision', 'brainstorm', 'design', 'build'],
-                reaction: '💡',
-                description: 'Innovation & Ideas'
-            },
-            neptune: {
-                name: 'Neptune',
-                categories: [],
-                keywords: ['dream', 'aspire', 'intuition', 'spiritual', 'purpose', 'meaning', 'vision', 'future', 'manifest', 'believe'],
-                reaction: '✨',
-                description: 'Dreams & Intuition'
-            }
-        };
-
-        // Mode switching trigger phrases
-        this.triggerPhrases = {
-            toPhoenix: ['help me', 'create a plan', 'show me', 'track this', 'optimize', 'analyze', 'i\'m serious', 'take me to', 'phoenixing'],
-            toCompanion: ['just talking', 'nevermind', 'never mind', 'i\'m good', 'not now', 'cancel', 'just chat'],
-            confirmYes: ['yes', 'yeah', 'sure', 'do it', 'go ahead', 'proceed', 'let\'s go', 'help', 'now we\'re talking'],
-            confirmNo: ['no', 'nah', 'not really', 'just wanna talk', 'just want to talk', 'not yet']
-        };
 
         // Load user voice preferences from localStorage
         this.voice = localStorage.getItem('phoenixVoice') || 'echo';
@@ -117,6 +37,13 @@ class PhoenixVoiceCommands {
         // Platform detection
         this.isAppleDevice = this.detectAppleDevice();
         this.useNativeAPIs = this.isAppleDevice && this.supportsNativeAPIs();
+
+        // WebSocket for real-time streaming (audio chunks, widget updates)
+        this.ws = null;
+        this.wsReconnectAttempts = 0;
+        this.wsMaxReconnectAttempts = 5;
+        this.audioChunkQueue = []; // Queue for sequential audio playback
+        this.currentAudioIndex = 0;
 
         this.init();
     }
@@ -155,166 +82,44 @@ class PhoenixVoiceCommands {
         // Get the center orb element
         this.orbElement = document.getElementById('phoenix-core-container');
 
+        // Request microphone permissions on page load
+        this.requestMicrophonePermission();
+
         // Initialize speech recognition (optimized for platform)
         this.initSpeechRecognition();
 
         // Set up wake word detection integration
         this.setupWakeWordIntegration();
 
+        // Initialize WebSocket connection for streaming
+        this.initWebSocket();
+
         // Set initial state
         this.setOrbState('idle');
 
         console.log('Phoenix Voice Commands ready');
         if (this.useNativeAPIs) {
-            console.log('✅ Using native SFSpeechRecognizer + AVSpeechSynthesizer for optimal speed');
+            console.log('✅ Using native Apple Whisper + AVSpeechSynthesizer for optimal speed');
         } else {
             console.log('✅ Using Web Speech API (fallback)');
         }
     }
 
     /* ============================================
-       CONSCIOUS INTERFACE: DOMAIN DETECTION
-       Analyzes conversation to detect life domains
+       MICROPHONE PERMISSION REQUEST
        ============================================ */
-    detectDomain(transcript) {
-        const lowerTranscript = transcript.toLowerCase();
-        const detectedDomains = [];
-
-        // Check each domain for keyword matches
-        for (const [domainKey, domain] of Object.entries(this.domainMap)) {
-            let matchCount = 0;
-            const matchedKeywords = [];
-
-            // Count keyword matches
-            for (const keyword of domain.keywords) {
-                if (lowerTranscript.includes(keyword)) {
-                    matchCount++;
-                    matchedKeywords.push(keyword);
-                }
-            }
-
-            // If we found matches, add domain with confidence score
-            if (matchCount > 0) {
-                const confidence = Math.min(matchCount / 3, 1); // 3+ matches = 100% confidence
-                detectedDomains.push({
-                    domain: domainKey,
-                    name: domain.name,
-                    confidence,
-                    matchCount,
-                    matchedKeywords,
-                    reaction: domain.reaction,
-                    description: domain.description
-                });
-            }
+    async requestMicrophonePermission() {
+        try {
+            console.log('🎤 Requesting microphone permission...');
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            // Got permission - stop the stream immediately (we don't need it yet)
+            stream.getTracks().forEach(track => track.stop());
+            console.log('✅ Microphone permission granted');
+            this.microphonePermissionGranted = true;
+        } catch (error) {
+            console.warn('⚠️ Microphone permission denied:', error.message);
+            this.microphonePermissionGranted = false;
         }
-
-        // Sort by confidence (highest first)
-        detectedDomains.sort((a, b) => b.confidence - a.confidence);
-
-        console.log(`🔍 Domain Detection:`, detectedDomains.map(d =>
-            `${d.name} (${Math.round(d.confidence * 100)}%)`
-        ).join(', ') || 'none');
-
-        return detectedDomains;
-    }
-
-    /* ============================================
-       CONSCIOUS INTERFACE: TRIGGER PHRASE DETECTION
-       Detects mode switching intentions
-       ============================================ */
-    detectTriggerPhrase(transcript) {
-        const lowerTranscript = transcript.toLowerCase();
-
-        // Check for Phoenix mode triggers (user wants help/action)
-        for (const phrase of this.triggerPhrases.toPhoenix) {
-            if (lowerTranscript.includes(phrase)) {
-                return { mode: 'phoenix', trigger: phrase };
-            }
-        }
-
-        // Check for Companion mode triggers (user wants to just talk)
-        for (const phrase of this.triggerPhrases.toCompanion) {
-            if (lowerTranscript.includes(phrase)) {
-                return { mode: 'companion', trigger: phrase };
-            }
-        }
-
-        // Check for confirmation (when pendingConfirmation is true)
-        if (this.pendingConfirmation) {
-            for (const phrase of this.triggerPhrases.confirmYes) {
-                if (lowerTranscript.includes(phrase)) {
-                    return { mode: 'confirm-yes', trigger: phrase };
-                }
-            }
-
-            for (const phrase of this.triggerPhrases.confirmNo) {
-                if (lowerTranscript.includes(phrase)) {
-                    return { mode: 'confirm-no', trigger: phrase };
-                }
-            }
-        }
-
-        return null; // No trigger detected
-    }
-
-    /* ============================================
-       CONSCIOUS INTERFACE: CONTEXTUAL WIDGET REACTION
-       Shows small animated reaction based on domain
-       ============================================ */
-    showContextualReaction(domains) {
-        if (!domains || domains.length === 0) return;
-
-        // Show reaction for highest confidence domain
-        const primaryDomain = domains[0];
-
-        console.log(`${primaryDomain.reaction} Contextual reaction: ${primaryDomain.description}`);
-
-        // Create floating reaction widget
-        const reaction = document.createElement('div');
-        reaction.className = 'phoenix-domain-reaction';
-        reaction.innerHTML = `
-            <div class="reaction-emoji">${primaryDomain.reaction}</div>
-            <div class="reaction-text">${primaryDomain.description}</div>
-        `;
-        reaction.style.cssText = `
-            position: fixed;
-            top: 20%;
-            right: 30px;
-            background: rgba(0, 217, 255, 0.1);
-            border: 2px solid rgba(0, 217, 255, 0.5);
-            border-radius: 20px;
-            padding: 15px 20px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 20px rgba(0, 217, 255, 0.3);
-            animation: reactionSlideIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        `;
-
-        // Style the emoji
-        const emojiStyle = `
-            font-size: 32px;
-            animation: reactionPulse 1s ease-in-out infinite;
-        `;
-        reaction.querySelector('.reaction-emoji').style.cssText = emojiStyle;
-
-        // Style the text
-        const textStyle = `
-            color: #00d9ff;
-            font-size: 14px;
-            font-weight: 600;
-        `;
-        reaction.querySelector('.reaction-text').style.cssText = textStyle;
-
-        document.body.appendChild(reaction);
-
-        // Auto-remove after 5 seconds
-        setTimeout(() => {
-            reaction.style.animation = 'reactionSlideOut 0.5s ease-out';
-            setTimeout(() => reaction.remove(), 500);
-        }, 5000);
     }
 
     /* ============================================
@@ -354,119 +159,308 @@ class PhoenixVoiceCommands {
     }
 
     /* ============================================
-       MICROPHONE PERMISSION REQUEST (BROWSER)
+       WEBSOCKET CONNECTION (STREAMING AUDIO + WIDGETS)
        ============================================ */
-    async requestMicrophonePermission() {
-        try {
-            console.log('🎤 Requesting microphone permission (browser)...');
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            // Got permission - stop the stream immediately
-            stream.getTracks().forEach(track => track.stop());
-            console.log('✅ Browser microphone permission granted');
-            this.microphonePermissionGranted = true;
-        } catch (error) {
-            console.warn('⚠️ Browser microphone permission denied:', error.message);
-            this.microphonePermissionGranted = false;
-        }
-    }
-
-    /* ============================================
-       SPEECH RECOGNITION SETUP - DUAL MODE
-       Native iOS (Capacitor) + Browser fallback
-       ============================================ */
-    async initSpeechRecognition() {
-        // Check if running in Capacitor native app
-        const isCapacitor = window.Capacitor !== undefined;
-
-        if (isCapacitor && window.SpeechRecognition) {
-            // NATIVE iOS MODE - Use Capacitor plugin
-            console.log('🎤 Initializing NATIVE iOS speech recognition...');
-
-            const { available } = await window.SpeechRecognition.available();
-            if (!available) {
-                console.error('❌ Speech recognition not available on this device');
-                return;
-            }
-
-            // Request permissions
-            const permStatus = await window.SpeechRecognition.requestPermissions();
-            if (permStatus.speechRecognition !== 'granted') {
-                console.error('❌ Speech recognition permission denied');
-                this.trackError('permission_denied', { permission: 'speech' });
-                return;
-            }
-
-            console.log('✅ Native iOS speech recognition initialized');
-
-            // Set up listeners
-            await window.SpeechRecognition.addListener('partialResults', (data) => {
-                if (data.matches && data.matches.length > 0) {
-                    this.currentTranscript = data.matches[0];
-                    console.log('🎤 Partial:', this.currentTranscript);
-                }
-            });
-
-            await window.SpeechRecognition.addListener('listeningState', (data) => {
-                if (data.status === 'started') {
-                    console.log('✅ Voice recognition started');
-                    this.isListening = true;
-                    this.setOrbState('listening');
-                } else if (data.status === 'stopped') {
-                    console.log('⏹️ Voice recognition stopped');
-                    this.isListening = false;
-                    if (!this.isProcessing && !this.isSpeaking) {
-                        this.setOrbState('idle');
-                    }
-                }
-            });
-
-        } else {
-            // BROWSER MODE - Wait for overlay button click
-            console.log('🎤 Browser mode - waiting for user to enable mic via overlay...');
-        }
-    }
-
-    /* ============================================
-       WEB SPEECH API INITIALIZATION (BROWSER ONLY)
-       Called after user grants permission via overlay button
-       ============================================ */
-    async initWebSpeechAPI() {
-        console.log('🎤 Initializing Web Speech API...');
-
-        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-            console.error('❌ Web Speech API not supported');
+    initWebSocket() {
+        const token = localStorage.getItem('phoenixToken');
+        if (!token) {
+            console.warn('⚠️ No auth token - WebSocket will connect when user logs in');
             return;
         }
 
-        const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
-        this.recognition = new SpeechRecognitionAPI();
+        const baseUrl = (window.PhoenixConfig && window.PhoenixConfig.API_BASE_URL)
+            ? window.PhoenixConfig.API_BASE_URL
+            : 'https://pal-backend-production.up.railway.app/api';
+
+        // Convert HTTP to WS protocol
+        const wsUrl = baseUrl.replace('https://', 'wss://').replace('http://', 'ws://').replace('/api', '');
+        const wsEndpoint = `${wsUrl}/phoenix-stream?token=${token}`;
+
+        console.log('🔌 Connecting to WebSocket:', wsEndpoint);
+
+        try {
+            this.ws = new WebSocket(wsEndpoint);
+
+            this.ws.onopen = () => {
+                console.log('✅ WebSocket connected for streaming');
+                this.wsReconnectAttempts = 0;
+            };
+
+            this.ws.onmessage = (event) => {
+                try {
+                    const message = JSON.parse(event.data);
+                    this.handleWebSocketMessage(message);
+                } catch (error) {
+                    console.error('❌ WebSocket message parse error:', error);
+                }
+            };
+
+            this.ws.onerror = (error) => {
+                console.error('❌ WebSocket error:', error);
+            };
+
+            this.ws.onclose = () => {
+                console.log('🔌 WebSocket disconnected');
+                // Auto-reconnect with exponential backoff
+                if (this.wsReconnectAttempts < this.wsMaxReconnectAttempts) {
+                    const delay = Math.min(1000 * Math.pow(2, this.wsReconnectAttempts), 30000);
+                    console.log(`🔄 Reconnecting in ${delay}ms...`);
+                    setTimeout(() => {
+                        this.wsReconnectAttempts++;
+                        this.initWebSocket();
+                    }, delay);
+                }
+            };
+
+        } catch (error) {
+            console.error('❌ WebSocket connection failed:', error);
+        }
+    }
+
+    handleWebSocketMessage(message) {
+        console.log('📩 WebSocket message:', message.type);
+
+        switch (message.type) {
+            case 'audio_chunk':
+                this.handleAudioChunk(message);
+                break;
+
+            case 'widget_create':
+                this.handleWidgetCreate(message);
+                break;
+
+            case 'widget_update':
+                this.handleWidgetUpdate(message);
+                break;
+
+            case 'widget_complete':
+                this.handleWidgetComplete(message);
+                break;
+
+            case 'processing_status':
+                this.handleProcessingStatus(message);
+                break;
+
+            case 'heartbeat':
+                // Respond to heartbeat to keep connection alive
+                if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+                    this.ws.send(JSON.stringify({ type: 'heartbeat_ack' }));
+                }
+                break;
+
+            default:
+                console.log('Unknown WebSocket message type:', message.type);
+        }
+    }
+
+    handleAudioChunk(message) {
+        // Add audio chunk to queue
+        this.audioChunkQueue.push({
+            sequence: message.sequence,
+            audioData: message.chunk,
+            format: message.format || 'base64'
+        });
+
+        // Sort by sequence number (in case they arrive out of order)
+        this.audioChunkQueue.sort((a, b) => a.sequence - b.sequence);
+
+        console.log(`🎵 Audio chunk ${message.sequence} queued (${this.audioChunkQueue.length} in queue)`);
+
+        // Start playing if not already playing
+        if (!this.isSpeaking) {
+            this.playAudioQueue();
+        }
+    }
+
+    async playAudioQueue() {
+        if (this.audioChunkQueue.length === 0) {
+            console.log('✅ Audio queue empty');
+            this.isSpeaking = false;
+            this.setOrbState('idle');
+            return;
+        }
+
+        // Get next chunk
+        const chunk = this.audioChunkQueue.shift();
+        this.isSpeaking = true;
+        this.setOrbState('speaking');
+
+        try {
+            // Convert base64 to blob
+            const audioBytes = atob(chunk.audioData);
+            const arrayBuffer = new ArrayBuffer(audioBytes.length);
+            const uint8Array = new Uint8Array(arrayBuffer);
+            for (let i = 0; i < audioBytes.length; i++) {
+                uint8Array[i] = audioBytes.charCodeAt(i);
+            }
+            const audioBlob = new Blob([uint8Array], { type: 'audio/mpeg' });
+            const audioUrl = URL.createObjectURL(audioBlob);
+
+            // Play audio
+            const audio = new Audio(audioUrl);
+            this.audioElement = audio;
+
+            audio.onended = () => {
+                URL.revokeObjectURL(audioUrl);
+                console.log(`✅ Chunk ${chunk.sequence} played`);
+                // Play next chunk
+                this.playAudioQueue();
+            };
+
+            audio.onerror = () => {
+                URL.revokeObjectURL(audioUrl);
+                console.error(`❌ Chunk ${chunk.sequence} playback error`);
+                // Skip to next chunk
+                this.playAudioQueue();
+            };
+
+            await audio.play();
+
+        } catch (error) {
+            console.error('❌ Audio playback error:', error);
+            // Skip to next chunk
+            this.playAudioQueue();
+        }
+    }
+
+    handleWidgetCreate(message) {
+        console.log('👁️ Creating widget:', message.category);
+
+        // Show widget via widget manager
+        if (window.widgetManager && window.widgetManager.showOrbitalWidget) {
+            window.widgetManager.showOrbitalWidget(message.category, {
+                status: 'generating',
+                title: message.title,
+                ...message.data
+            });
+        }
+
+        // Show text bubble
+        this.showTextBubble(`Creating ${message.title}...`);
+    }
+
+    handleWidgetUpdate(message) {
+        console.log('👁️ Updating widget:', message.progress);
+
+        // Update widget via widget manager
+        if (window.widgetManager && window.widgetManager.updateWidget) {
+            window.widgetManager.updateWidget(message.widgetId, {
+                status: 'generating',
+                progress: message.progress,
+                currentSection: message.section,
+                ...message.data
+            });
+        }
+    }
+
+    handleWidgetComplete(message) {
+        console.log('👁️ Widget complete:', message.category);
+
+        // Update widget to complete state
+        if (window.widgetManager && window.widgetManager.showOrbitalWidget) {
+            window.widgetManager.showOrbitalWidget(message.category, {
+                status: 'complete',
+                ...message.data
+            });
+        }
+
+        // Show completion message
+        this.showTextBubble(message.message || 'Complete!');
+    }
+
+    handleProcessingStatus(message) {
+        console.log('⚙️ Processing status:', message.status);
+        this.setOrbState(message.status || 'processing');
+    }
+
+    /* ============================================
+       SPEECH RECOGNITION SETUP
+       ============================================ */
+    initSpeechRecognition() {
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            console.warn('Speech recognition not supported');
+            return;
+        }
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        this.recognition = new SpeechRecognition();
+
         this.recognition.continuous = false;
         this.recognition.interimResults = true;
+        // Use generic 'en' instead of 'en-US' for better accent support across all English variants
+        // This handles US, UK, Australian, Indian, and other English accents better
         this.recognition.lang = 'en';
+        // Get top 3 alternatives to handle slang, accents, and ambiguous speech better
         this.recognition.maxAlternatives = 3;
 
+        // OPTIMIZATION: Silence detection (only on non-Apple devices)
+        // Apple devices use native Whisper which handles this automatically
+        if (!this.useNativeAPIs) {
+            this.lastSpeechTime = 0;
+            this.silenceThreshold = 300; // ms - ultra-fast response
+            this.silenceTimer = null;
+        }
+
         this.recognition.onstart = () => {
-            console.log('✅ Web Speech API listening started');
+            console.log('Voice recognition started');
             this.isListening = true;
             this.setOrbState('listening');
         };
 
+        this.recognition.onresult = (event) => {
+            let interimTranscript = '';
+            let finalTranscript = '';
+
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                // Get the best transcript (alternative 0)
+                const transcript = event.results[i][0].transcript;
+
+                // Log alternatives for debugging (helps understand accent/slang issues)
+                if (DEBUG_MODE && event.results[i].isFinal && event.results[i].length > 1) {
+                    console.log('🎤 Alternatives:', Array.from(event.results[i]).map((alt, idx) =>
+                        `${idx + 1}: "${alt.transcript}" (${Math.round(alt.confidence * 100)}%)`
+                    ).join(', '));
+                }
+
+                if (event.results[i].isFinal) {
+                    finalTranscript += transcript;
+                } else {
+                    interimTranscript += transcript;
+                }
+            }
+
+            this.currentTranscript = finalTranscript || interimTranscript;
+            console.log('Transcript:', this.currentTranscript);
+
+            // Apple devices: Process immediately (native Whisper is faster)
+            if (this.useNativeAPIs) {
+                if (finalTranscript) {
+                    this.processCommand(finalTranscript.trim().toLowerCase());
+                }
+                return;
+            }
+
+            // CRITICAL FIX: Only process final transcripts to prevent duplicates
+            // Interim transcripts cause multiple AI calls with slightly different text,
+            // resulting in overlapping audio responses
+            if (finalTranscript) {
+                this.processCommand(finalTranscript.trim().toLowerCase());
+            }
+        };
+
+        this.recognition.onerror = (event) => {
+            console.error('Speech recognition error:', event.error);
+            this.setOrbState('idle');
+            this.isListening = false;
+        };
+
         this.recognition.onend = () => {
-            console.log('⏹️ Web Speech API listening stopped');
+            console.log('Voice recognition ended');
             this.isListening = false;
             if (!this.isProcessing && !this.isSpeaking) {
                 this.setOrbState('idle');
             }
         };
-
-        this.recognition.onerror = (event) => {
-            console.error('❌ Web Speech API error:', event.error);
-        };
-
-        console.log('✅ Web Speech API initialized and ready');
-
-        // Mark voice system as ready for dashboard initialization check
-        this.ready = true;
     }
 
     /* ============================================
@@ -511,7 +505,7 @@ class PhoenixVoiceCommands {
        ============================================ */
     async startListening() {
         // PREVENT DOUBLE-CLICK: Check if request already in progress
-        if (this.isListening || this.requestInProgress) {
+        if (!this.recognition || this.isListening || this.requestInProgress) {
             if (this.requestInProgress) {
                 console.log('⚠️ Request already in progress - ignoring click');
             }
@@ -522,6 +516,8 @@ class PhoenixVoiceCommands {
         this.userInteracted = true;
 
         // CRITICAL FIX: Unlock audio context on first user interaction
+        // This ensures TTS autoplay will work
+        // DON'T await - must stay synchronous for speech recognition to work!
         if (!this.audioUnlocked) {
             this.unlockAudioContext(); // Fire and forget - don't await!
         }
@@ -534,92 +530,23 @@ class PhoenixVoiceCommands {
 
         try {
             this.requestInProgress = true; // Lock to prevent double-click
+            this.recognition.start();
             this.setOrbState('listening');
-
-            const isCapacitor = window.Capacitor !== undefined;
-
-            if (isCapacitor && window.SpeechRecognition) {
-                // NATIVE iOS MODE - Use Capacitor plugin
-                const result = await window.SpeechRecognition.start({
-                    language: 'en',
-                    maxResults: 3,
-                    partialResults: true,
-                    popup: false
-                });
-
-                if (result.matches && result.matches.length > 0) {
-                    const finalTranscript = result.matches[0];
-                    console.log('🎤 Final transcript:', finalTranscript);
-
-                    if (result.matches.length > 1) {
-                        console.log('🎤 Alternatives:', result.matches.slice(1).map((alt, idx) =>
-                            `${idx + 2}: "${alt}"`
-                        ).join(', '));
-                    }
-
-                    await this.processCommand(finalTranscript.trim().toLowerCase());
-                }
-            } else {
-                // BROWSER MODE - Use Web Speech API
-                if (!this.recognition) {
-                    console.error('❌ Speech recognition not initialized');
-                    return;
-                }
-
-                // Set up result handler for browser
-                this.recognition.onresult = async (event) => {
-                    const result = event.results[event.results.length - 1];
-                    if (result.isFinal) {
-                        const transcript = result[0].transcript;
-                        console.log('🎤 Final transcript:', transcript);
-
-                        // Log alternatives
-                        if (result.length > 1) {
-                            console.log('🎤 Alternatives:', Array.from(result).slice(1).map((alt, idx) =>
-                                `${idx + 2}: "${alt.transcript}"`
-                            ).join(', '));
-                        }
-
-                        await this.processCommand(transcript.trim().toLowerCase());
-                    }
-                };
-
-                this.recognition.onerror = (error) => {
-                    console.error('❌ Browser speech recognition error:', error);
-                    this.setOrbState('idle');
-                    this.requestInProgress = false;
-                };
-
-                // Start recognition
-                this.recognition.start();
-            }
         } catch (error) {
-            console.error('❌ Speech recognition error:', error);
-            this.trackError('recognition_failed', { error: error.message });
-            this.setOrbState('idle');
+            console.error('Could not start recognition:', error);
             this.requestInProgress = false; // Release lock on error
         }
     }
 
-    async stopListening() {
-        if (!this.isListening) return;
+    stopListening() {
+        if (!this.recognition || !this.isListening) return;
 
-        try {
-            if (window.SpeechRecognition && window.Capacitor) {
-                await window.SpeechRecognition.stop();
-            } else if (this.recognition) {
-                this.recognition.stop();
-            }
-            this.isListening = false;
-        } catch (error) {
-            console.error('❌ Error stopping recognition:', error);
-            this.trackError('stop_failed', { error: error.message });
-        }
+        this.recognition.stop();
+        this.isListening = false;
     }
 
     /* ============================================
-       COMMAND PROCESSING - CONSCIOUS INTERFACE
-       Conversation-first approach with domain awareness
+       COMMAND PROCESSING
        ============================================ */
     async processCommand(transcript) {
         // CRITICAL: Prevent duplicate processing from interim + final transcripts
@@ -635,94 +562,148 @@ class PhoenixVoiceCommands {
         this.isProcessing = true;
 
         try {
-            // ============================================
-            // STEP 1: DOMAIN DETECTION
-            // ============================================
-            const detectedDomains = this.detectDomain(transcript);
-            this.currentDomains = detectedDomains;
-            this.lastDomainDetection = detectedDomains;
+            const msg = transcript.toLowerCase();
 
-            // ============================================
-            // STEP 2: TRIGGER PHRASE DETECTION
-            // ============================================
-            const triggerDetection = this.detectTriggerPhrase(transcript);
+            // ========== WORKSPACE INTERCEPT - MUST BE FIRST ==========
+            // Intercepts email/calendar/tasks/contacts/drive commands BEFORE any AI processing
+            if (msg.includes('email') || msg.includes('inbox') || msg.includes('mail') ||
+                msg.includes('calendar') || msg.includes('schedule') || msg.includes('event') || msg.includes('meeting') ||
+                msg.includes('task') || msg.includes('todo') || msg.includes('reminder') ||
+                msg.includes('contact') || msg.includes('people') ||
+                msg.includes('drive') || msg.includes('file') || msg.includes('document')) {
 
-            // ============================================
-            // STEP 3: HANDLE CONFIRMATION FLOW
-            // ============================================
-            if (this.pendingConfirmation) {
-                if (triggerDetection?.mode === 'confirm-yes') {
-                    console.log('✅ User confirmed - switching to Phoenix mode');
-                    this.conversationMode = 'phoenix';
-                    this.pendingConfirmation = false;
-
-                    // Execute full orchestration with detected domains
-                    await this.executePhoenixMode(transcript, detectedDomains);
-                    return;
-                } else if (triggerDetection?.mode === 'confirm-no') {
-                    console.log('❌ User declined - staying in Companion mode');
-                    this.conversationMode = 'companion';
-                    this.pendingConfirmation = false;
-
-                    // Continue normal conversation (voice only, no widgets)
-                    await this.sendToAIIntelligent(transcript, { skipWidgets: true });
-                    return;
+                console.log('📂 [WORKSPACE] Intercepted workspace command');
+                const result = await this.handleWorkspaceCommand(transcript);
+                if (result) {
+                    this.showTextBubble(result.response);
+                    this.speak(result.response);
+                    return; // EXIT - don't continue to AI
                 }
             }
+            // ========== END WORKSPACE INTERCEPT ==========
 
-            // ============================================
-            // STEP 4: MODE SWITCHING LOGIC
-            // ============================================
-            if (triggerDetection?.mode === 'phoenix') {
-                console.log(`🔥 Phoenix mode trigger detected: "${triggerDetection.trigger}"`);
-                this.conversationMode = 'phoenix';
-                this.pendingConfirmation = false;
-
-                // Execute full orchestration immediately (user explicitly requested help)
-                await this.executePhoenixMode(transcript, detectedDomains);
-                return;
-            } else if (triggerDetection?.mode === 'companion') {
-                console.log(`💬 Companion mode trigger detected: "${triggerDetection.trigger}"`);
-                this.conversationMode = 'companion';
-                this.pendingConfirmation = false;
-
-                // Just conversation (voice only, no widgets)
-                await this.sendToAIIntelligent(transcript, { skipWidgets: true });
-                return;
-            }
-
-            // ============================================
-            // STEP 5: CONVERSATION-FIRST FLOW
-            // ============================================
-            if (this.conversationMode === 'companion') {
-                // Show contextual reaction if domain detected
-                if (detectedDomains.length > 0) {
-                    this.showContextualReaction(detectedDomains);
-                }
-
-                // Route to AI for conversation (voice only, no widgets)
-                console.log('💬 Companion mode - conversational response');
-                await this.sendToAIIntelligent(transcript, { skipWidgets: true });
-
-                // After AI response, check if we should ask about Phoenixing
-                // (High confidence domain + action-oriented language)
-                if (detectedDomains.length > 0 && detectedDomains[0].confidence > 0.6) {
-                    const isActionOriented = /want|need|help|fix|improve|optimize|track|plan|create/.test(transcript.toLowerCase());
-
-                    if (isActionOriented && !this.pendingConfirmation) {
-                        // Ask if they want help after a delay
-                        setTimeout(() => {
-                            this.pendingConfirmation = true;
-                            this.speak('Want help with this?');
-                        }, 2000);
+            // ========== HEALTH/FITNESS INTERCEPT ==========
+            if (msg.includes('health') || msg.includes('recovery') || msg.includes('hrv') ||
+                msg.includes('sleep') || msg.includes('heart rate') || msg.includes('fitness') ||
+                msg.includes('workout') || msg.includes('exercise')) {
+                // Try to fetch real health data from API
+                try {
+                    const token = localStorage.getItem('phoenixToken');
+                    const baseUrl = window.PhoenixConfig?.API_BASE_URL || 'https://pal-backend-production.up.railway.app/api';
+                    const res = await fetch(`${baseUrl}/wearables/health/summary`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        const healthData = await res.json();
+                        if (window.widgetManager?.showOrbitalWidget) {
+                            window.widgetManager.showOrbitalWidget('health', healthData);
+                        }
+                        this.showTextBubble(`Your recovery is at ${healthData.recoveryScore || 'N/A'}%. ${healthData.readiness || 'Check your wearable for more details.'}`);
+                        this.speak(`Your recovery is at ${healthData.recoveryScore || 'not available'}. ${healthData.readiness || 'Check your wearable for more details.'}`);
+                        return;
                     }
+                } catch (e) { /* Fall through to default message */ }
+                // No health data connected
+                if (window.widgetManager?.showOrbitalWidget) {
+                    window.widgetManager.showOrbitalWidget('preview-health', {});
                 }
-            } else {
-                // Phoenix mode - full orchestration
-                console.log('🔥 Phoenix mode - executing full orchestration');
-                await this.executePhoenixMode(transcript, detectedDomains);
+                this.showTextBubble(`Connect a wearable device like Whoop, Oura, or Apple Watch to track your health metrics. Tap the Health icon to get started.`);
+                this.speak(`Connect a wearable device to track your health metrics. I can monitor your recovery, HRV, and sleep quality.`);
+                return;
             }
+            // ========== END HEALTH/FITNESS INTERCEPT ==========
 
+            // ========== FINANCE INTERCEPT ==========
+            if (msg.includes('budget') || msg.includes('finance') || msg.includes('spending') ||
+                msg.includes('money') || msg.includes('expense') || msg.includes('savings')) {
+                // Try to fetch real finance data
+                try {
+                    const token = localStorage.getItem('phoenixToken');
+                    const baseUrl = window.PhoenixConfig?.API_BASE_URL || 'https://pal-backend-production.up.railway.app/api';
+                    const res = await fetch(`${baseUrl}/finance/summary`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        const financeData = await res.json();
+                        if (window.widgetManager?.showOrbitalWidget) {
+                            window.widgetManager.showOrbitalWidget('finance', financeData);
+                        }
+                        this.showTextBubble(`You have $${financeData.budgetRemaining || 0} remaining this month.`);
+                        this.speak(`You have ${financeData.budgetRemaining || 'no data'} dollars remaining this month.`);
+                        return;
+                    }
+                } catch (e) { /* Fall through to default message */ }
+                // No finance data connected
+                if (window.widgetManager?.showOrbitalWidget) {
+                    window.widgetManager.showOrbitalWidget('preview-finance', {});
+                }
+                this.showTextBubble(`Connect your bank or budgeting app to track spending and savings goals. Tap the Finance icon to link your accounts.`);
+                this.speak(`Connect your bank or budgeting app to track your finances. I can help you manage budgets and savings goals.`);
+                return;
+            }
+            // ========== END FINANCE INTERCEPT ==========
+
+            // ========== GOALS INTERCEPT ==========
+            if (msg.includes('goal') || msg.includes('progress') || msg.includes('habit') ||
+                msg.includes('streak') || msg.includes('tracking')) {
+                // Try to fetch real goals data
+                try {
+                    const token = localStorage.getItem('phoenixToken');
+                    const baseUrl = window.PhoenixConfig?.API_BASE_URL || 'https://pal-backend-production.up.railway.app/api';
+                    const res = await fetch(`${baseUrl}/goals/active`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        const goalsData = await res.json();
+                        if (goalsData.goals?.length > 0 && window.widgetManager?.showOrbitalWidget) {
+                            window.widgetManager.showOrbitalWidget('goals', goalsData);
+                            this.showTextBubble(`You're at ${goalsData.goals[0].progress}% on ${goalsData.goals[0].name}!`);
+                            this.speak(`You're at ${goalsData.goals[0].progress} percent on ${goalsData.goals[0].name}.`);
+                            return;
+                        }
+                    }
+                } catch (e) { /* Fall through to default message */ }
+                // No goals set up
+                if (window.widgetManager?.showOrbitalWidget) {
+                    window.widgetManager.showOrbitalWidget('preview-goals', {});
+                }
+                this.showTextBubble(`Set up your goals in the Goals section. I'll help you track progress and build streaks.`);
+                this.speak(`Set up your goals and I'll help you track your progress and build streaks.`);
+                return;
+            }
+            // ========== END GOALS INTERCEPT ==========
+
+            // ========== CAPABILITY QUESTIONS - SHOW PREVIEW WIDGETS ==========
+            if (msg.match(/what can you do|what are your capabilities|help me|what do you do/)) {
+                const response = `I'm Phoenix, your personal AI butler. I can manage your workspace - emails, calendar, tasks, contacts, and files. I track your health metrics, help with goals, handle finances, and automate daily routines. Just ask me anything or say "show me my emails" to get started.`;
+
+                // Show preview widgets orbiting around the orb
+                if (window.widgetManager && window.widgetManager.showOrbitalWidget) {
+                    // Show multiple preview widgets with staggered timing
+                    setTimeout(() => window.widgetManager.showOrbitalWidget('preview-health', {}), 0);
+                    setTimeout(() => window.widgetManager.showOrbitalWidget('preview-finance', {}), 200);
+                    setTimeout(() => window.widgetManager.showOrbitalWidget('preview-calendar', {}), 400);
+                    setTimeout(() => window.widgetManager.showOrbitalWidget('preview-fitness', {}), 600);
+                }
+
+                this.showTextBubble(response);
+                this.speak(response);
+                return;
+            }
+            // ========== END CAPABILITY QUESTIONS ==========
+
+            // STEP 1: Classify intent (ACTION vs WISDOM)
+            const classification = await this.classifyCommand(transcript);
+
+            if (classification && classification.category === 'butler_action') {
+                // BUTLER ACTION: Execute real-world action
+                if (DEBUG_MODE) console.log('🎯 Butler action detected:', classification.actionType);
+                await this.executeButlerAction(classification);
+            } else {
+                // WISDOM: Route to AI for conversation
+                console.log('💬 Wisdom query detected, routing to AI');
+                await this.sendToAIIntelligent(transcript);
+            }
         } catch (error) {
             console.error('❌ Error processing command:', error);
             this.speak('Sorry, I encountered an error processing that.');
@@ -734,352 +715,6 @@ class PhoenixVoiceCommands {
             if (!this.isSpeaking) {
                 this.setOrbState('idle');
             }
-        }
-    }
-
-    /* ============================================
-       PHOENIX MODE EXECUTION
-       Full orchestration with widgets and actions
-       ============================================ */
-    async executePhoenixMode(transcript, domains) {
-        console.log('🔥 Executing Phoenix Mode with domains:', domains.map(d => d.name).join(', '));
-
-        // First, try butler action classification
-        const classification = await this.classifyCommand(transcript);
-
-        if (classification && classification.category === 'butler_action') {
-            // BUTLER ACTION: Execute real-world action
-            console.log('🎯 Butler action detected:', classification.actionType);
-            await this.executeButlerAction(classification);
-        } else {
-            // HOLISTIC ORCHESTRATION: Create cross-domain optimization plan
-            console.log('🔥 Phoenix mode - holistic orchestration');
-            console.log('📍 Detected domains:', domains.map(d => d.name).join(', ') || 'none');
-
-            try {
-                const token = localStorage.getItem('phoenixToken');
-                if (!token) {
-                    console.error('❌ No authentication token');
-                    this.speak('Please log in to use Phoenix mode');
-                    return;
-                }
-
-                const baseUrl = (window.PhoenixConfig && window.PhoenixConfig.API_BASE_URL)
-                    ? window.PhoenixConfig.API_BASE_URL
-                    : 'https://pal-backend-production.up.railway.app/api';
-
-                // Step 1: Get conversational response in parallel with plan creation
-                const conversationPromise = this.sendToAIIntelligent(transcript, { skipWidgets: false });
-
-                // Step 2: Create holistic plan via orchestrator
-                console.log('🎯 Creating holistic optimization plan...');
-                console.time('Holistic Plan Creation');
-
-                const planResponse = await fetch(`${baseUrl}/orchestrator/optimize`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        goal: transcript,
-                        timeframe: 'short-term', // Can be enhanced with timeframe detection
-                        autoExecute: true,
-                        detectedDomains: domains.map(d => d.domain) // Pass detected domains to backend
-                    })
-                });
-
-                if (!planResponse.ok) {
-                    console.warn(`⚠️ Orchestrator returned ${planResponse.status}, falling back to standard widgets`);
-                    await conversationPromise;
-                    return;
-                }
-
-                const planData = await planResponse.json();
-                console.timeEnd('Holistic Plan Creation');
-
-                if (planData.success && planData.data) {
-                    console.log('✅ Holistic plan created:', planData.data.plan.planId);
-                    console.log('📊 Optimization score:', planData.data.plan.optimizationScore);
-                    console.log('🔗 Cross-domain patterns detected:', planData.data.patterns?.length || 0);
-
-                    // Step 3: Display the plan as widgets
-                    await this.displayHolisticPlan(planData.data);
-                }
-
-                // Wait for conversation to complete
-                await conversationPromise;
-
-            } catch (error) {
-                console.error('❌ Phoenix mode orchestration error:', error);
-                // Fallback to standard AI response
-                await this.sendToAIIntelligent(transcript, { skipWidgets: false });
-            }
-        }
-    }
-
-    /* ============================================
-       HOLISTIC PLAN DISPLAY
-       ============================================ */
-    async displayHolisticPlan(planData) {
-        console.log('[Holistic Display] Rendering plan widgets...');
-
-        const { plan, domainData, patterns } = planData;
-
-        try {
-            // Create master plan widget container
-            let planContainer = document.getElementById('holistic-plan-container');
-            if (!planContainer) {
-                planContainer = document.createElement('div');
-                planContainer.id = 'holistic-plan-container';
-                planContainer.className = 'phoenix-widget widget-large urgency-high';
-                planContainer.style.cssText = `
-                    position: fixed;
-                    top: 150px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    width: 90%;
-                    max-width: 1200px;
-                    z-index: 700;
-                    background: linear-gradient(135deg, rgba(0, 10, 20, 0.98), rgba(0, 30, 50, 0.95));
-                    border: 3px solid rgba(0, 217, 255, 0.6);
-                    border-radius: 16px;
-                    padding: 30px;
-                    box-shadow: 0 10px 50px rgba(0, 217, 255, 0.3);
-                    backdrop-filter: blur(20px);
-                    animation: widgetFadeIn 0.5s ease-out, holisticPulse 3s ease-in-out infinite, holisticBreathe 4s ease-in-out infinite;
-                `;
-                document.body.appendChild(planContainer);
-            }
-
-            // Build HTML for the plan
-            const domainIcons = {
-                mercury: '☿️',
-                venus: '♀️',
-                earth: '🌍',
-                mars: '♂️',
-                jupiter: '♃',
-                saturn: '♄'
-            };
-
-            const domainNames = {
-                mercury: 'Mercury (Health)',
-                venus: 'Venus (Fitness)',
-                earth: 'Earth (Calendar)',
-                mars: 'Mars (Goals)',
-                jupiter: 'Jupiter (Finance)',
-                saturn: 'Saturn (Legacy)'
-            };
-
-            // Count total actions across all domains
-            const totalActions = Object.keys(plan.domainActions).reduce((sum, domain) => {
-                return sum + (plan.domainActions[domain]?.length || 0);
-            }, 0);
-
-            // Build domain actions HTML
-            let domainsHTML = '';
-            for (const [domain, actions] of Object.entries(plan.domainActions)) {
-                if (actions && actions.length > 0) {
-                    const icon = domainIcons[domain] || '🔮';
-                    const name = domainNames[domain] || domain;
-
-                    const actionsListHTML = actions.map((action, idx) => `
-                        <div class="holistic-action" style="
-                            padding: 12px;
-                            background: rgba(0, 217, 255, 0.05);
-                            border-left: 3px solid rgba(0, 217, 255, 0.5);
-                            border-radius: 6px;
-                            margin: 8px 0;
-                            font-size: 13px;
-                        ">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span>
-                                    ${action.status === 'completed' ? '✅' : '⏳'}
-                                    ${action.description}
-                                </span>
-                                <span style="opacity: 0.6; font-size: 11px;">
-                                    Priority: ${action.priority}
-                                </span>
-                            </div>
-                        </div>
-                    `).join('');
-
-                    domainsHTML += `
-                        <div class="holistic-domain-section" style="margin: 20px 0;">
-                            <h3 style="
-                                color: #00d9ff;
-                                font-size: 18px;
-                                margin-bottom: 12px;
-                                display: flex;
-                                align-items: center;
-                                gap: 10px;
-                            ">
-                                <span style="font-size: 24px;">${icon}</span>
-                                ${name}
-                                <span style="
-                                    background: rgba(0, 217, 255, 0.2);
-                                    padding: 4px 12px;
-                                    border-radius: 12px;
-                                    font-size: 12px;
-                                    font-weight: normal;
-                                ">${actions.length} actions</span>
-                            </h3>
-                            ${actionsListHTML}
-                        </div>
-                    `;
-                }
-            }
-
-            // Build cross-domain patterns HTML
-            let patternsHTML = '';
-            if (patterns && patterns.length > 0) {
-                patternsHTML = `
-                    <div class="cross-domain-patterns" style="
-                        margin: 25px 0;
-                        padding: 20px;
-                        background: rgba(255, 170, 0, 0.1);
-                        border: 2px solid rgba(255, 170, 0, 0.3);
-                        border-radius: 12px;
-                    ">
-                        <h3 style="color: #ffaa00; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                            <span>🔗</span> Cross-Domain Insights
-                        </h3>
-                        ${patterns.map(p => `
-                            <div style="
-                                padding: 12px;
-                                background: rgba(255, 170, 0, 0.05);
-                                border-left: 3px solid rgba(255, 170, 0, 0.5);
-                                border-radius: 6px;
-                                margin: 10px 0;
-                            ">
-                                <div style="font-weight: bold; margin-bottom: 6px;">
-                                    ${p.domains.map(d => domainIcons[d]).join(' ↔ ')} ${p.insight}
-                                </div>
-                                <div style="opacity: 0.8; font-size: 12px;">
-                                    💡 ${p.recommendation}
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            }
-
-            // Final HTML assembly
-            planContainer.innerHTML = `
-                <div class="holistic-plan-master">
-                    <!-- Close button -->
-                    <button onclick="document.getElementById('holistic-plan-container').remove()" style="
-                        position: absolute;
-                        top: 15px;
-                        right: 15px;
-                        background: rgba(0, 217, 255, 0.2);
-                        border: 1px solid rgba(0, 217, 255, 0.4);
-                        border-radius: 50%;
-                        width: 36px;
-                        height: 36px;
-                        color: #00d9ff;
-                        font-size: 20px;
-                        cursor: pointer;
-                        transition: all 0.2s;
-                    " onmouseover="this.style.background='rgba(0, 217, 255, 0.4)'" onmouseout="this.style.background='rgba(0, 217, 255, 0.2)'">
-                        ×
-                    </button>
-
-                    <!-- Header -->
-                    <div style="text-align: center; margin-bottom: 30px;">
-                        <h1 style="
-                            font-size: 28px;
-                            margin-bottom: 15px;
-                            background: linear-gradient(90deg, #00d9ff, #00ff88);
-                            -webkit-background-clip: text;
-                            -webkit-text-fill-color: transparent;
-                        ">🔥 ${plan.goal}</h1>
-
-                        <div style="display: flex; justify-content: center; align-items: center; gap: 30px; margin-top: 20px;">
-                            <div class="optimization-score" style="text-align: center;">
-                                <div style="
-                                    width: 120px;
-                                    height: 120px;
-                                    border-radius: 50%;
-                                    background: conic-gradient(
-                                        #00ff88 0deg,
-                                        #00ff88 ${plan.optimizationScore * 3.6}deg,
-                                        rgba(0, 217, 255, 0.2) ${plan.optimizationScore * 3.6}deg
-                                    );
-                                    display: flex;
-                                    align-items: center;
-                                    justify-content: center;
-                                    margin: 0 auto;
-                                    position: relative;
-                                ">
-                                    <div style="
-                                        width: 100px;
-                                        height: 100px;
-                                        border-radius: 50%;
-                                        background: rgba(0, 10, 20, 0.95);
-                                        display: flex;
-                                        align-items: center;
-                                        justify-content: center;
-                                        font-size: 32px;
-                                        font-weight: bold;
-                                        color: #00ff88;
-                                    ">${plan.optimizationScore}%</div>
-                                </div>
-                                <p style="margin-top: 10px; opacity: 0.7;">Optimization Score</p>
-                            </div>
-
-                            <div style="text-align: left;">
-                                <div style="font-size: 14px; opacity: 0.8; margin: 5px 0;">
-                                    📋 Plan ID: <span style="color: #00d9ff;">${plan.planId}</span>
-                                </div>
-                                <div style="font-size: 14px; opacity: 0.8; margin: 5px 0;">
-                                    🎯 Total Actions: <span style="color: #00ff88;">${totalActions}</span>
-                                </div>
-                                <div style="font-size: 14px; opacity: 0.8; margin: 5px 0;">
-                                    🔗 Patterns Detected: <span style="color: #ffaa00;">${patterns?.length || 0}</span>
-                                </div>
-                                <div style="font-size: 14px; opacity: 0.8; margin: 5px 0;">
-                                    ⏱️ Status: <span style="color: #00ff88;">${plan.status}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Cross-Domain Patterns -->
-                    ${patternsHTML}
-
-                    <!-- Domain Actions -->
-                    <div class="domains-container">
-                        ${domainsHTML}
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(0, 217, 255, 0.2);">
-                        <button onclick="window.location.href='/jupiter.html'" style="
-                            background: linear-gradient(135deg, #00d9ff, #00ff88);
-                            border: none;
-                            padding: 15px 40px;
-                            border-radius: 8px;
-                            color: #000;
-                            font-size: 16px;
-                            font-weight: bold;
-                            cursor: pointer;
-                            margin: 0 10px;
-                            transition: transform 0.2s;
-                        " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                            View Full Plan Dashboard
-                        </button>
-                    </div>
-                </div>
-            `;
-
-            console.log('[Holistic Display] ✅ Plan widgets rendered successfully');
-
-            // Widgets persist until user manually closes them
-            // Auto-hide removed per user request for persistent, animated widgets
-
-        } catch (error) {
-            console.error('[Holistic Display] ❌ Error rendering plan:', error);
         }
     }
 
@@ -1118,7 +753,7 @@ class PhoenixVoiceCommands {
             }
 
             const data = await response.json();
-            console.log('📊 Classification result:', data.classification);
+            if (DEBUG_MODE) console.log('📊 Classification result:', data.classification);
             return data.classification;
 
         } catch (error) {
@@ -1687,9 +1322,8 @@ class PhoenixVoiceCommands {
     /* ============================================
        INTELLIGENT AI PROCESSING (Claude/Gemini)
        ============================================ */
-    async sendToAIIntelligent(transcript, options = {}) {
-        const { skipWidgets = false } = options;
-        console.log('Sending to AI intelligence:', transcript, skipWidgets ? '(voice only)' : '(with widgets)');
+    async sendToAIIntelligent(transcript) {
+        console.log('Sending to AI intelligence:', transcript);
 
         try {
             const token = localStorage.getItem('phoenixToken');
@@ -1703,6 +1337,16 @@ class PhoenixVoiceCommands {
             const baseUrl = (window.PhoenixConfig && window.PhoenixConfig.API_BASE_URL)
                 ? window.PhoenixConfig.API_BASE_URL
                 : 'https://pal-backend-production.up.railway.app/api';
+
+            // WORKSPACE COMMAND INTERCEPTION - Handle email/calendar/tasks/contacts/drive locally
+            const workspaceResult = await this.handleWorkspaceCommand(transcript, token, baseUrl);
+            if (workspaceResult) {
+                console.log('📂 Workspace command handled locally');
+                this.showTextBubble(workspaceResult.response);
+                this.speakAsync(workspaceResult.response);
+                this.setOrbState('idle');
+                return;
+            }
 
             // OPTIMIZATION: Start timing for performance monitoring
             console.time('⚡ Total Response Time');
@@ -1732,8 +1376,8 @@ class PhoenixVoiceCommands {
                 }).then(r => r.json())
             ];
 
-            // Skip consciousness orchestration for simple wake words OR companion mode (saves 2-3s)
-            if (!isSimpleWakeWord && !skipWidgets && window.consciousnessClient) {
+            // Skip consciousness orchestration for simple wake words (saves 2-3s)
+            if (!isSimpleWakeWord && window.consciousnessClient) {
                 console.time('🧠 Consciousness');
 
                 // Gather real-time context from dashboard
@@ -1766,7 +1410,7 @@ class PhoenixVoiceCommands {
 
                 // Extract and log 3-tier classification
                 const classificationTier = aiResponse.tier || aiResponse.classification || 'UNKNOWN';
-                console.log(`📊 Phoenix Classification: ${classificationTier}`);
+                if (DEBUG_MODE) console.log(`📊 Phoenix Classification: ${classificationTier}`);
 
                 // Apply orchestration to display (if we fetched it)
                 if (orchestration && window.widgetManager) {
@@ -1780,7 +1424,11 @@ class PhoenixVoiceCommands {
 
                 // Speak the response with tier-based timing
                 if (aiResponse.message || aiResponse.response) {
-                    const responseText = aiResponse.message || aiResponse.response;
+                    let responseText = aiResponse.message || aiResponse.response;
+
+                    // Strip any JSON metadata that might be appended to the response
+                    responseText = responseText.replace(/\s*\{[^}]*"confidence_score"[^}]*\}\s*$/i, '').trim();
+                    responseText = responseText.replace(/\s*\{[^}]*"mood"[^}]*\}\s*$/i, '').trim();
 
                     // Save to conversation history for ChatGPT-level context awareness
                     this.addToConversationHistory(transcript, responseText);
@@ -1934,6 +1582,11 @@ class PhoenixVoiceCommands {
        TEXT-TO-SPEECH (Backend OpenAI TTS - Natural Voice)
        ============================================ */
     async speak(text, skipStateChange = false) {
+        // Strip JSON metadata before speaking
+        text = text.replace(/\s*\{[\s\S]*?"confidence_score"[\s\S]*?\}\s*$/i, '').trim();
+        text = text.replace(/\s*\{[\s\S]*?"mood"[\s\S]*?\}\s*$/i, '').trim();
+        text = text.replace(/\s*\{[\s\S]*?"action_taken"[\s\S]*?\}\s*$/i, '').trim();
+
         console.log('🗣️ Speaking:', text);
 
         // Stop any current audio
@@ -1959,6 +1612,7 @@ class PhoenixVoiceCommands {
                 ? window.PhoenixConfig.API_BASE_URL
                 : 'https://pal-backend-production.up.railway.app/api';
 
+            // Request base64 format for iOS compatibility
             const response = await fetch(`${baseUrl}/tts/generate`, {
                 method: 'POST',
                 headers: {
@@ -1969,7 +1623,8 @@ class PhoenixVoiceCommands {
                     voice: this.voice,      // Use user's voice preference
                     speed: 1.0,             // Natural conversation pace (user feedback: 1.4 was too fast)
                     language: this.language, // Use user's language preference
-                    model: 'tts-1'
+                    model: 'tts-1',
+                    format: 'base64'        // iOS compatibility
                 })
             });
 
@@ -1977,8 +1632,16 @@ class PhoenixVoiceCommands {
                 throw new Error('TTS generation failed');
             }
 
-            // Get audio blob
-            const audioBlob = await response.blob();
+            // Convert base64 to blob for iOS compatibility
+            const data = await response.json();
+            const audioBase64 = data.audio;
+            const audioBytes = atob(audioBase64);
+            const arrayBuffer = new ArrayBuffer(audioBytes.length);
+            const uint8Array = new Uint8Array(arrayBuffer);
+            for (let i = 0; i < audioBytes.length; i++) {
+                uint8Array[i] = audioBytes.charCodeAt(i);
+            }
+            const audioBlob = new Blob([uint8Array], { type: 'audio/mpeg' });
 
             // Load audio data into the pre-created element
             const audioUrl = URL.createObjectURL(audioBlob);
@@ -2060,6 +1723,7 @@ class PhoenixVoiceCommands {
                 ? window.PhoenixConfig.API_BASE_URL
                 : 'https://pal-backend-production.up.railway.app/api';
 
+            // Request base64 format for iOS compatibility
             const response = await fetch(`${baseUrl}/tts/generate`, {
                 method: 'POST',
                 headers: {
@@ -2070,7 +1734,8 @@ class PhoenixVoiceCommands {
                     voice: this.voice,
                     speed: 1.0,
                     language: this.language,
-                    model: 'tts-1'
+                    model: 'tts-1',
+                    format: 'base64'        // iOS compatibility
                 })
             });
 
@@ -2078,7 +1743,16 @@ class PhoenixVoiceCommands {
                 throw new Error('TTS generation failed');
             }
 
-            const audioBlob = await response.blob();
+            // Convert base64 to blob for iOS compatibility
+            const data = await response.json();
+            const audioBase64 = data.audio;
+            const audioBytes = atob(audioBase64);
+            const arrayBuffer = new ArrayBuffer(audioBytes.length);
+            const uint8Array = new Uint8Array(arrayBuffer);
+            for (let i = 0; i < audioBytes.length; i++) {
+                uint8Array[i] = audioBytes.charCodeAt(i);
+            }
+            const audioBlob = new Blob([uint8Array], { type: 'audio/mpeg' });
 
             // Clear "Generating voice..." status
             this.clearStatusMessage();
@@ -2126,6 +1800,11 @@ class PhoenixVoiceCommands {
        TEXT BUBBLE DISPLAY
        ============================================ */
     showTextBubble(text, sender = 'phoenix') {
+        // Strip JSON metadata before displaying
+        text = text.replace(/\s*\{[\s\S]*?"confidence_score"[\s\S]*?\}\s*$/i, '').trim();
+        text = text.replace(/\s*\{[\s\S]*?"mood"[\s\S]*?\}\s*$/i, '').trim();
+        text = text.replace(/\s*\{[\s\S]*?"action_taken"[\s\S]*?\}\s*$/i, '').trim();
+
         console.log(`💬 Showing text bubble: "${text.substring(0, 50)}..."`);
 
         let conversationEl = document.getElementById('phoenix-conversation');
@@ -2235,40 +1914,83 @@ class PhoenixVoiceCommands {
     }
 
     /* ============================================
-       ERROR TRACKING FOR OPTIMIZATION
+       WORKSPACE COMMAND HANDLER
+       Intercepts email/calendar/tasks/contacts/drive commands
+       FAST: Simple string matching, no async Google check upfront
        ============================================ */
-    async trackError(errorType, metadata = {}) {
+    async handleWorkspaceCommand(message, token, baseUrl) {
         try {
-            const token = localStorage.getItem('phoenixToken');
-            if (!token) {
-                console.warn('⚠️ Cannot track error - no auth token');
-                return;
+            const msg = message.toLowerCase();
+            console.log(`📂 [Workspace] Checking: "${msg}"`);
+
+            // FAST: Simple keyword matching
+            let matchedType = null;
+            if (msg.includes('email') || msg.includes('inbox') || msg.includes('mail')) {
+                matchedType = 'email';
+            } else if (msg.includes('calendar') || msg.includes('schedule') || msg.includes('event') || msg.includes('meeting')) {
+                matchedType = 'calendar';
+            } else if (msg.includes('task') || msg.includes('todo') || msg.includes('reminder')) {
+                matchedType = 'tasks';
+            } else if (msg.includes('contact') || msg.includes('people')) {
+                matchedType = 'contacts';
+            } else if (msg.includes('drive') || msg.includes('file') || msg.includes('document')) {
+                matchedType = 'drive';
             }
 
-            const baseUrl = (window.PhoenixConfig && window.PhoenixConfig.API_BASE_URL)
-                ? window.PhoenixConfig.API_BASE_URL
-                : 'https://pal-backend-production.up.railway.app/api';
+            if (!matchedType) {
+                console.log(`📂 [Workspace] No workspace keyword found`);
+                return null;
+            }
 
-            // Send error to backend analytics endpoint
-            await fetch(`${baseUrl}/analytics/speech-errors`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    errorType,
-                    metadata,
-                    timestamp: new Date().toISOString(),
-                    platform: 'iOS',
-                    userAgent: navigator.userAgent
-                })
+            if (DEBUG_MODE) console.log(`📂 [Workspace] ✓ Matched: ${matchedType}`);
+
+            // Immediately show loading feedback
+            this.showTextBubble(`Fetching your ${matchedType}...`);
+
+            // Try to fetch data (this will check auth implicitly)
+            const endpoints = {
+                email: '/google/gmail/recent?limit=8',
+                calendar: '/google/calendar/upcoming?limit=8',
+                tasks: '/google/tasks/lists',
+                contacts: '/google/contacts?limit=15',
+                drive: '/google/drive/files?limit=8'
+            };
+
+            const res = await fetch(`${baseUrl}${endpoints[matchedType]}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
             });
 
-            console.log('📊 Error tracked:', errorType, metadata);
+            if (!res.ok) {
+                // Check if it's an auth issue
+                if (res.status === 401) {
+                    return { response: `To access your ${matchedType}, please connect your Google account. Click the DESK button at the top.` };
+                }
+                throw new Error(`HTTP ${res.status}`);
+            }
+
+            const data = await res.json();
+
+            // Check if Google not connected
+            if (data.error && data.error.includes('not connected')) {
+                return { response: `To access your ${matchedType}, please connect your Google account. Click the DESK button at the top.` };
+            }
+
+            // Show the ORBITAL widget (animated, positioned around orb)
+            if (window.widgetManager && window.widgetManager.showOrbitalWidget) {
+                window.widgetManager.showOrbitalWidget(matchedType, data);
+                console.log(`🌐 [Orbital] Showing ${matchedType} widget`);
+            } else if (window.showDynamicWidget) {
+                // Fallback to old system
+                window.showDynamicWidget(matchedType, data);
+            }
+
+            const count = data.count || data.emails?.length || data.events?.length || data.taskLists?.length || data.contacts?.length || data.files?.length || 0;
+            return { response: `Here are your ${count} ${matchedType}.` };
+
         } catch (error) {
-            // Silently fail - don't interrupt user experience for tracking errors
-            console.error('Failed to track error:', error);
+            console.error('📂 [Workspace] Error:', error);
+            // Still return a response so we don't fall through to AI
+            return { response: `I couldn't fetch your workspace data. Please check your Google connection in the DESK panel.` };
         }
     }
 
@@ -2289,310 +2011,12 @@ function initPhoenixVoiceCommands() {
     console.log('✅ Phoenix Voice Commands loaded and initialized');
 }
 
-/* ============================================
-   MIC PERMISSION OVERLAY (BROWSER)
-   Blocking overlay that forces mic enable on first tap
-   ============================================ */
-function showMicEnableOverlay() {
-    // Check if running in Capacitor (native app)
-    const isCapacitor = window.Capacitor !== undefined;
-
-    // Only show overlay in browsers (not in native app)
-    if (isCapacitor) {
-        console.log('Running in Capacitor - skipping browser overlay');
-        return;
-    }
-
-    console.log('🎤 Showing consciousness initialization screen...');
-
-    const overlay = document.createElement('div');
-    overlay.id = 'mic-enable-overlay';
-    overlay.innerHTML = `
-        <style>
-            @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap');
-
-            @keyframes matrixRain {
-                0% { transform: translateY(-100%); }
-                100% { transform: translateY(100vh); }
-            }
-
-            @keyframes glitchScan {
-                0%, 100% { transform: translateY(-100%); }
-                50% { transform: translateY(100%); }
-            }
-
-            @keyframes hexPulse {
-                0%, 100% { transform: scale(1); opacity: 0.3; }
-                50% { transform: scale(1.2); opacity: 0.6; }
-            }
-
-            @keyframes orbPulse {
-                0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(0, 255, 100, 0.8); }
-                50% { transform: scale(1.1); box-shadow: 0 0 60px rgba(0, 255, 100, 1); }
-            }
-
-            @keyframes particleOrbit {
-                0% { transform: rotate(0deg) translateX(80px) rotate(0deg); }
-                100% { transform: rotate(360deg) translateX(80px) rotate(-360deg); }
-            }
-
-            @keyframes typewriter {
-                from { width: 0; }
-                to { width: 100%; }
-            }
-
-            @keyframes glitchHover {
-                0%, 100% { transform: translate(0); }
-                20% { transform: translate(-2px, 2px); }
-                40% { transform: translate(2px, -2px); }
-                60% { transform: translate(-2px, -2px); }
-                80% { transform: translate(2px, 2px); }
-            }
-
-            @keyframes digitalDissolve {
-                0% { opacity: 1; filter: blur(0); }
-                50% { opacity: 0.5; filter: blur(10px); }
-                100% { opacity: 0; filter: blur(20px); transform: scale(0.8); }
-            }
-
-            .matrix-rain {
-                position: absolute;
-                top: -100%;
-                font-family: 'Fira Code', monospace;
-                color: rgba(0, 255, 100, 0.8);
-                font-size: 14px;
-                animation: matrixRain 8s linear infinite;
-                text-shadow: 0 0 5px rgba(0, 255, 100, 0.8);
-            }
-
-            .glitch-line {
-                position: absolute;
-                width: 100%;
-                height: 2px;
-                background: linear-gradient(90deg, transparent, rgba(0, 255, 100, 0.8), transparent);
-                animation: glitchScan 6s linear infinite;
-                opacity: 0.6;
-            }
-
-            .hex-grid {
-                position: absolute;
-                width: 400px;
-                height: 400px;
-                border: 2px solid rgba(0, 255, 100, 0.3);
-                border-radius: 50%;
-                animation: hexPulse 3s ease-in-out infinite;
-            }
-
-            .phoenix-orb {
-                width: 120px;
-                height: 120px;
-                border-radius: 50%;
-                background: radial-gradient(circle, rgba(0, 255, 100, 0.6), rgba(0, 200, 80, 0.2));
-                animation: orbPulse 2s ease-in-out infinite;
-                position: relative;
-            }
-
-            .particle {
-                position: absolute;
-                width: 8px;
-                height: 8px;
-                background: rgba(0, 255, 100, 0.9);
-                border-radius: 50%;
-                box-shadow: 0 0 10px rgba(0, 255, 100, 0.9);
-                animation: particleOrbit 4s linear infinite;
-            }
-
-            .typewriter-line {
-                font-family: 'Fira Code', monospace;
-                color: rgba(0, 255, 100, 0.9);
-                font-size: 18px;
-                white-space: nowrap;
-                overflow: hidden;
-                border-right: 2px solid rgba(0, 255, 100, 0.9);
-                margin: 15px 0;
-                letter-spacing: 2px;
-            }
-
-            .cyber-button {
-                font-family: 'Fira Code', monospace;
-                padding: 20px 50px;
-                font-size: 18px;
-                font-weight: bold;
-                background: linear-gradient(135deg, rgba(0, 255, 100, 0.2), rgba(0, 200, 80, 0.2));
-                color: #00ff64;
-                border: 2px solid #00ff64;
-                border-radius: 0;
-                cursor: pointer;
-                box-shadow: 0 0 30px rgba(0, 255, 100, 0.9);
-                transition: all 0.3s ease;
-                letter-spacing: 3px;
-                text-transform: uppercase;
-                position: relative;
-                overflow: hidden;
-            }
-
-            .cyber-button:hover {
-                animation: glitchHover 0.3s ease-in-out;
-                box-shadow: 0 0 50px rgba(0, 255, 100, 1);
-                background: linear-gradient(135deg, rgba(0, 255, 100, 0.4), rgba(0, 200, 80, 0.4));
-            }
-
-            .cyber-button::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: -100%;
-                width: 100%;
-                height: 100%;
-                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-                transition: left 0.5s;
-            }
-
-            .cyber-button:hover::before {
-                left: 100%;
-            }
-        </style>
-
-        <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-                    background: #000; z-index: 99999;
-                    display: flex; align-items: center; justify-content: center;
-                    overflow: hidden;">
-
-            <!-- Matrix Rain -->
-            <div id="matrix-container" style="position: absolute; width: 100%; height: 100%; overflow: hidden;"></div>
-
-            <!-- Glitch Scan Lines -->
-            <div class="glitch-line" style="top: 20%;"></div>
-            <div class="glitch-line" style="top: 50%; animation-delay: 2s;"></div>
-            <div class="glitch-line" style="top: 80%; animation-delay: 4s;"></div>
-
-            <!-- Grid Overlay -->
-            <div style="position: absolute; width: 100%; height: 100%;
-                        background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 255, 100, 0.03) 2px, rgba(0, 255, 100, 0.03) 4px),
-                                    repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0, 255, 100, 0.03) 2px, rgba(0, 255, 100, 0.03) 4px);"></div>
-
-            <!-- Main Content -->
-            <div style="text-align: center; z-index: 10; position: relative;">
-
-                <!-- Hexagonal Grid Pulses -->
-                <div style="position: relative; display: inline-block; margin-bottom: 60px;">
-                    <div class="hex-grid" style="animation-delay: 0s;"></div>
-                    <div class="hex-grid" style="animation-delay: 1s; width: 350px; height: 350px;"></div>
-                    <div class="hex-grid" style="animation-delay: 2s; width: 300px; height: 300px;"></div>
-
-                    <!-- Phoenix Orb -->
-                    <div class="phoenix-orb">
-                        <div class="particle" style="animation-delay: 0s;"></div>
-                        <div class="particle" style="animation-delay: 1s;"></div>
-                        <div class="particle" style="animation-delay: 2s;"></div>
-                        <div class="particle" style="animation-delay: 3s;"></div>
-                    </div>
-                </div>
-
-                <!-- Typewriter Text -->
-                <div id="typewriter-container" style="min-height: 200px; margin-bottom: 40px;">
-                    <div class="typewriter-line" id="line1" style="display: none;"></div>
-                    <div class="typewriter-line" id="line2" style="display: none;"></div>
-                    <div class="typewriter-line" id="line3" style="display: none;"></div>
-                    <div class="typewriter-line" id="line4" style="display: none; color: #00ff64; font-size: 22px;"></div>
-                </div>
-
-                <!-- Cyber Button -->
-                <button id="enableMicBtn" class="cyber-button" style="display: none;">
-                    ENTER OPTIMIZATION DOMAIN
-                </button>
-            </div>
-        </div>
-    `;
-
-    document.body.appendChild(overlay);
-
-    // Generate Matrix Rain
-    const matrixContainer = document.getElementById('matrix-container');
-    const columns = Math.floor(window.innerWidth / 20);
-    for (let i = 0; i < columns; i++) {
-        const rain = document.createElement('div');
-        rain.className = 'matrix-rain';
-        rain.style.left = `${i * 20}px`;
-        rain.style.animationDelay = `${Math.random() * 8}s`;
-        rain.textContent = String.fromCharCode(0x30A0 + Math.random() * 96);
-        matrixContainer.appendChild(rain);
-    }
-
-    // Typewriter Animation
-    const lines = [
-        { id: 'line1', text: 'INITIALIZING PHOENIX CONSCIOUSNESS...', delay: 500 },
-        { id: 'line2', text: 'OPTIMIZING NEURAL PATHWAYS...', delay: 1500 },
-        { id: 'line3', text: 'SYNCHRONIZING LIFE SYSTEMS...', delay: 2500 },
-        { id: 'line4', text: 'READY TO ENTER', delay: 4000 }
-    ];
-
-    lines.forEach(line => {
-        setTimeout(() => {
-            const el = document.getElementById(line.id);
-            el.style.display = 'block';
-            el.textContent = '';
-            let i = 0;
-            const typeInterval = setInterval(() => {
-                if (i < line.text.length) {
-                    el.textContent += line.text.charAt(i);
-                    i++;
-                } else {
-                    clearInterval(typeInterval);
-                    el.style.borderRight = 'none';
-                    if (line.id === 'line4') {
-                        setTimeout(() => {
-                            document.getElementById('enableMicBtn').style.display = 'inline-block';
-                        }, 300);
-                    }
-                }
-            }, 50);
-        }, line.delay);
-    });
-
-    // Handle button click
-    document.getElementById('enableMicBtn').onclick = async () => {
-        try {
-            const btn = document.getElementById('enableMicBtn');
-            btn.textContent = 'ESTABLISHING CONNECTION...';
-            btn.style.animation = 'glitchHover 0.3s ease-in-out infinite';
-
-            // Request mic permission
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            stream.getTracks().forEach(track => track.stop());
-
-            console.log('✅ Mic permission granted');
-
-            // Initialize Web Speech API
-            if (window.phoenixVoiceCommands) {
-                await window.phoenixVoiceCommands.initWebSpeechAPI();
-            }
-
-            // Digital dissolve exit
-            overlay.style.animation = 'digitalDissolve 1s ease-out forwards';
-            setTimeout(() => {
-                overlay.remove();
-                console.log('✅ Consciousness system online');
-            }, 1000);
-
-        } catch (error) {
-            console.error('❌ Connection failed:', error);
-            document.getElementById('line4').textContent = 'CONNECTION FAILED - RETRY';
-            document.getElementById('enableMicBtn').textContent = 'RETRY CONNECTION';
-        }
-    };
-}
-
 // Check if DOM is already loaded
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        initPhoenixVoiceCommands();
-        showMicEnableOverlay(); // Show blocking overlay on load
-    });
+    document.addEventListener('DOMContentLoaded', initPhoenixVoiceCommands);
 } else {
     // DOM already loaded, initialize immediately
     initPhoenixVoiceCommands();
-    showMicEnableOverlay(); // Show blocking overlay on load
 }
 
 // Global function to start voice command from anywhere

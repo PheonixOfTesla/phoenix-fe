@@ -12,22 +12,36 @@
     <title>Phoenix - AI Life Operating System</title>
     <link rel="stylesheet" href="styles.css?v=20251128f">
     <link rel="stylesheet" href="phoenix-voice.css?v=20251128f">
-    <link rel="stylesheet" href="voice-mode.css?v=20251128f">
+    <link rel="stylesheet" href="voice-mode.css?v=20251201a">
     <link rel="stylesheet" href="widget-styles.css?v=20251128f">
     <link rel="stylesheet" href="src/phoenix-orb-animations.css?v=20251128f">
 </head>
 <body data-mode="voice">
+    <!-- Force voice mode on EVERY load - override localStorage -->
+    <script>
+        // ALWAYS reset to voice mode on page load (before voice-controller.js loads)
+        // This ensures we ALWAYS start in voice-only mode regardless of saved preference
+        localStorage.setItem('phoenix_ui_mode', 'voice');
+        console.log('🎤 Forcing voice mode on page load');
+    </script>
+    <!-- ============================================ -->
+    <!-- BACK BUTTON FOR NAVIGATION -->
+    <!-- ============================================ -->
+    <button onclick="window.history.back()" style="position:fixed;top:15px;right:15px;z-index:10002;padding:10px 16px;background:rgba(0,10,20,0.85);border:1.5px solid rgba(0, 217, 255,0.3);color:rgba(0, 217, 255,0.7);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;border-radius:6px;backdrop-filter:blur(10px);transition:all 0.3s;pointer-events:auto" onmouseover="this.style.borderColor='rgba(0, 217, 255,0.8)';this.style.background='rgba(0,10,20,0.95)';this.style.color='#00ff88'" onmouseout="this.style.borderColor='rgba(0, 217, 255,0.3)';this.style.background='rgba(0,10,20,0.85)';this.style.color='rgba(0, 217, 255,0.7)'">
+        ← BACK
+    </button>
+
     <!-- ============================================ -->
     <!-- VOICE/MANUAL MODE TOGGLE -->
     <!-- ============================================ -->
-    <div id="mode-toggle-container" style="position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:10001;display:flex;gap:0;background:rgba(0,10,20,0.95);border:2px solid rgba(0, 217, 255,0.4);border-radius:50px;padding:4px;backdrop-filter:blur(15px);box-shadow:0 0 30px rgba(0, 217, 255,0.3);pointer-events:auto">
-        <button id="voice-mode-btn" onclick="switchToVoiceMode()" style="padding:12px 24px;background:rgba(0, 217, 255,0.3);border:none;color:#00ff88;font-family:inherit;font-size:12px;font-weight:bold;cursor:pointer;border-radius:50px;letter-spacing:1px;transition:all 0.3s;box-shadow:0 0 20px rgba(0, 217, 255,0.5),inset 0 0 15px rgba(0, 217, 255,0.3)" data-i18n="dashboard.voiceMode">
+    <div id="mode-toggle-container" class="mode-toggle-container">
+        <button id="voice-mode-btn" onclick="switchToVoiceMode()" class="mode-toggle-btn mode-toggle-btn-active" data-i18n="dashboard.voiceMode">
             VOICE
         </button>
-        <button id="manual-mode-btn" onclick="switchToManualMode()" style="padding:12px 24px;background:transparent;border:none;color:rgba(0, 217, 255,0.5);font-family:inherit;font-size:12px;font-weight:bold;cursor:pointer;border-radius:50px;letter-spacing:1px;transition:all 0.3s" data-i18n="dashboard.manualMode">
+        <button id="manual-mode-btn" onclick="switchToManualMode()" class="mode-toggle-btn" data-i18n="dashboard.manualMode">
             MANUAL
         </button>
-        <button id="desk-btn" onclick="openPhoenixDesk()" style="padding:12px 24px;background:transparent;border:none;color:rgba(0, 217, 255,0.5);font-family:inherit;font-size:12px;font-weight:bold;cursor:pointer;border-radius:50px;letter-spacing:1px;transition:all 0.3s;border-left:1px solid rgba(0, 217, 255,0.3)">
+        <button id="desk-btn" onclick="openPhoenixDesk()" class="mode-toggle-btn mode-toggle-btn-desk">
             DESK
         </button>
     </div>
@@ -707,25 +721,25 @@
             </button>
 
             <!-- Planetary Systems Grid -->
-            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(350px, 1fr));gap:20px">
+            <div class="planet-cards-grid">
                 <!-- MERCURY - Health & Biometrics -->
                 <div class="sync-card" data-planet="mercury">
                     <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:15px">
                         <div>
-                            <div style="font-size:24px;color:#ff6b35;margin-bottom:8px">💪 MERCURY</div>
-                            <div style="font-size:16px;color:#ff6b35;font-weight:bold;margin-bottom:4px">HEALTH & RECOVERY</div>
-                            <div style="font-size:11px;color:rgba(255,107,53,0.7)">Wearables • Biometrics • Sleep • Recovery</div>
+                            <div class="planet-card-title" style="color:#ff6b35">💪 MERCURY</div>
+                            <div class="planet-card-heading" style="color:#ff6b35">HEALTH & RECOVERY</div>
+                            <div class="planet-card-subtitle" style="color:rgba(255,107,53,0.7)">Wearables • Biometrics • Sleep • Recovery</div>
                         </div>
-                        <div id="mercury-status" class="status-badge" style="padding:6px 12px;background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.5);border-radius:4px;font-size:10px;color:#00ff88">
+                        <div id="mercury-status" class="status-badge" style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.5);color:#00ff88">
                             ✓ ACTIVE
                         </div>
                     </div>
 
-                    <button onclick="window.location.href='mercury.html'" style="width:100%;padding:15px;background:linear-gradient(135deg, rgba(255,107,53,0.2), rgba(255,107,53,0.05));border:2px solid rgba(255,107,53,0.5);color:#ff6b35;font-family:inherit;font-size:14px;font-weight:bold;cursor:pointer;border-radius:8px;letter-spacing:1px;margin:15px 0;box-shadow:0 0 20px rgba(255,107,53,0.3);transition:all 0.3s" onmouseover="this.style.background='linear-gradient(135deg, rgba(255,107,53,0.3), rgba(255,107,53,0.1)';this.style.boxShadow='0 0 30px rgba(255,107,53,0.5)';this.style.transform='scale(1.02)'" onmouseout="this.style.background='linear-gradient(135deg, rgba(255,107,53,0.2), rgba(255,107,53,0.05)';this.style.boxShadow='0 0 20px rgba(255,107,53,0.3)';this.style.transform='scale(1)'">
+                    <button onclick="window.location.href='mercury.html'" class="planet-card-btn" style="background:linear-gradient(135deg, rgba(255,107,53,0.2), rgba(255,107,53,0.05));border:2px solid rgba(255,107,53,0.5);color:#ff6b35;box-shadow:0 0 20px rgba(255,107,53,0.3)" onmouseover="this.style.background='linear-gradient(135deg, rgba(255,107,53,0.3), rgba(255,107,53,0.1)';this.style.boxShadow='0 0 30px rgba(255,107,53,0.5)';this.style.transform='scale(1.02)'" onmouseout="this.style.background='linear-gradient(135deg, rgba(255,107,53,0.2), rgba(255,107,53,0.05)';this.style.boxShadow='0 0 20px rgba(255,107,53,0.3)';this.style.transform='scale(1)'">
                         🔬 OPEN HEALTH DASHBOARD
                     </button>
 
-                    <div style="font-size:10px;color:rgba(255,107,53,0.6);line-height:1.6;margin-top:12px">
+                    <div class="planet-card-description" style="color:rgba(255,107,53,0.6)">
                         <strong>38 endpoints:</strong> HRV, Heart Rate, Sleep Analysis, Recovery Score, Readiness, Body Composition, Metabolic Rate, Training Load
                     </div>
                 </div>
@@ -734,20 +748,20 @@
                 <div class="sync-card" data-planet="venus">
                     <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:15px">
                         <div>
-                            <div style="font-size:24px;color:#00ff88;margin-bottom:8px">🍽️ VENUS</div>
-                            <div style="font-size:16px;color:#00ff88;font-weight:bold;margin-bottom:4px">FITNESS & NUTRITION</div>
-                            <div style="font-size:11px;color:rgba(0, 217, 255,0.7)">Workouts • Meals • Macros • AI Planning</div>
+                            <div class="planet-card-title" style="color:#00ff88">🍽️ VENUS</div>
+                            <div class="planet-card-heading" style="color:#00ff88">FITNESS & NUTRITION</div>
+                            <div class="planet-card-subtitle" style="color:rgba(0, 217, 255,0.7)">Workouts • Meals • Macros • AI Planning</div>
                         </div>
                         <div id="venus-status" class="status-badge">
                             NOT CONNECTED
                         </div>
                     </div>
 
-                    <button onclick="setupVenus()" style="width:100%;padding:12px;background:rgba(0, 217, 255,0.1);border:1px solid rgba(0, 217, 255,0.3);color:#00ff88;font-family:inherit;font-size:12px;cursor:pointer;border-radius:6px;letter-spacing:1px;margin:15px 0">
+                    <button onclick="setupVenus()" class="planet-card-btn" style="background:rgba(0, 217, 255,0.1);border:1px solid rgba(0, 217, 255,0.3);color:#00ff88">
                         SETUP NUTRITION & FITNESS
                     </button>
 
-                    <div style="font-size:10px;color:rgba(0, 217, 255,0.6);line-height:1.6;margin-top:12px">
+                    <div class="planet-card-description" style="color:rgba(0, 217, 255,0.6)">
                         <strong>77 endpoints:</strong> Quantum Workouts, Meal Planning, Macro Tracking, Supplement Timing, Injury Prevention, Form Analysis, Progress Photos
                     </div>
                 </div>
@@ -1887,7 +1901,7 @@
     <!-- ============================================ -->
     <!-- CENTRALIZED CONFIGURATION -->
     <!-- ============================================ -->
-    <script src="src/config.js"></script>
+    <script src="config.js"></script>
 
     <!-- ============================================ -->
     <!-- OPTIMIZATION TRACKER -->
@@ -1898,8 +1912,10 @@
     <!-- PHOENIX CORE ENGINE - WITH REAL API CONNECTIONS -->
     <!-- ============================================ -->
     <script>
-        // API Configuration - Using centralized config
-        const API_BASE = PhoenixConfig.API_BASE_URL;
+        // API Configuration - Using centralized config or fallback
+        const API_BASE = (typeof PhoenixConfig !== 'undefined' && PhoenixConfig.API_BASE_URL)
+            ? PhoenixConfig.API_BASE_URL
+            : 'https://pal-backend-production.up.railway.app/api';
         
         const getAuthHeaders = () => {
             const token = localStorage.getItem('phoenixToken');
@@ -2104,26 +2120,42 @@
                 this.startHUD();
 
                 // Step 6: Fetch User Profile (name, location, preferences) from backend
-                await this.fetchUserProfile();
+                // FIXED: Add timeout to prevent infinite loading
+                try {
+                    await Promise.race([
+                        this.fetchUserProfile(),
+                        new Promise((_, reject) => setTimeout(() => reject(new Error('Profile timeout')), 5000))
+                    ]);
+                } catch (e) {
+                    console.warn('⚠️  Profile fetch timed out or failed, continuing anyway:', e.message);
+                }
 
                 // Step 7: Weather & Location (uses profile data, falls back to IP geolocation)
-                await this.initWeatherAndLocation();
+                // FIXED: Add timeout
+                try {
+                    await Promise.race([
+                        this.initWeatherAndLocation(),
+                        new Promise((_, reject) => setTimeout(() => reject(new Error('Weather timeout')), 5000))
+                    ]);
+                } catch (e) {
+                    console.warn('⚠️  Weather fetch timed out or failed, continuing anyway:', e.message);
+                }
 
                 // Step 8: Load User Data & Check Connections - ACTUALLY WORKS NOW
-                await this.loadUserData();
-                await this.checkConnections();
-                
+                // FIXED: Don't block on these, run them in background
+                this.loadUserData().catch(e => console.warn('User data load failed:', e));
+                this.checkConnections().catch(e => console.warn('Connection check failed:', e));
+
                 // Step 8: Start Data Sync
                 this.startDataSync();
-                
+
                 // Step 9: Check if first-time sync needed
                 this.checkFirstTimeSync();
-                
-                // Hide loading screen
-                setTimeout(() => {
-                    document.getElementById('loading').style.opacity = '0';
-                    setTimeout(() => document.getElementById('loading').style.display = 'none', 1000);
-                }, 2000);
+
+                // Hide loading screen IMMEDIATELY (don't wait 2 seconds)
+                console.log('✅ Hiding loading screen now...');
+                document.getElementById('loading').style.opacity = '0';
+                setTimeout(() => document.getElementById('loading').style.display = 'none', 500);
                 
                 console.log('✅ Phoenix Engine Initialized - All Systems Operational');
             }
@@ -3938,7 +3970,7 @@
                 } catch (error) {
                     console.log('⚠️ Background warmup error (non-critical):', error);
                 }
-            }, 2000); // Wait 2s after dashboard loads to avoid blocking initialization
+            }, 0); // Start immediately - non-blocking async warmup
         });
     </script>
 
@@ -4101,8 +4133,11 @@
                     this.recognition.onend = () => {
                         if (this.isListening) {
                             setTimeout(() => {
-                                try { this.recognition.start(); }
-                                catch (err) { /* already started */ }
+                                try {
+                                    this.recognition.start();
+                                } catch (err) {
+                                    /* already started */
+                                }
                             }, 100);
                         }
                     };
@@ -4273,6 +4308,11 @@
 
             async speak(text) {
                 try {
+                    // Ensure audio is unlocked before attempting to play
+                    if (typeof window.unlockAudio === 'function') {
+                        await window.unlockAudio();
+                    }
+
                     const apiBase = window.API_BASE || 'http://localhost:5000/api';
                     const ttsLanguage = this.getTTSLanguage();
 
@@ -4296,12 +4336,36 @@
                         const blob = await res.blob();
                         const url = URL.createObjectURL(blob);
                         const audio = new Audio(url);
-                        audio.onended = () => URL.revokeObjectURL(url);
-                        await audio.play();
-                        console.log('🔊 Speaking...');
+
+                        // Set up cleanup
+                        audio.onended = () => {
+                            URL.revokeObjectURL(url);
+                            console.log('🔊 Finished speaking');
+                        };
+
+                        // Handle play errors explicitly
+                        try {
+                            await audio.play();
+                            console.log('🔊 Speaking...');
+                        } catch (playError) {
+                            console.error('❌ Audio play failed:', playError);
+                            URL.revokeObjectURL(url);
+
+                            // If autoplay failed, try to unlock and retry once
+                            if (playError.name === 'NotAllowedError' || playError.name === 'AbortError') {
+                                console.log('⚠️ Autoplay blocked, attempting to unlock audio context...');
+                                await window.unlockAudio();
+                                const retryAudio = new Audio(url);
+                                retryAudio.onended = () => URL.revokeObjectURL(url);
+                                await retryAudio.play();
+                                console.log('🔊 Speaking (retry successful)...');
+                            }
+                        }
+                    } else {
+                        console.error('❌ TTS API error:', res.status, await res.text());
                     }
                 } catch (err) {
-                    console.error('TTS error:', err);
+                    console.error('❌ TTS error:', err);
                 }
             }
 
@@ -4832,6 +4896,28 @@
 
     <!-- Phoenix Voice Command System -->
     <script src="phoenix-voice-commands.js?v=20251128f"></script>
+
+    <!-- Auto-Start Voice Listening in Voice-Only Mode -->
+    <script>
+        // Wait for phoenix-voice-commands.js to fully initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                // Check if we're in voice-only mode
+                const isVoiceMode = document.body.getAttribute('data-mode') === 'voice';
+
+                if (isVoiceMode && window.phoenixVoiceCommands) {
+                    console.log('🎤 Voice-only mode detected - auto-starting voice listening...');
+
+                    // Auto-start voice listening
+                    window.phoenixVoiceCommands.startListening();
+
+                    console.log('✅ Voice listening auto-started - ready to receive commands');
+                } else {
+                    console.log('ℹ️ Manual mode - voice listening requires orb click');
+                }
+            }, 1000); // Wait 1s for voice commands to fully initialize
+        });
+    </script>
 
     <!-- Planet Navigation Functions -->
     <script>

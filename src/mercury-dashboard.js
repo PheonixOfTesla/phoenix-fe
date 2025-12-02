@@ -17,13 +17,13 @@ class MercuryDashboard {
         this.refreshInterval = 60000; // Refresh every 60 seconds
         this.charts = {};
         this.deviceTypes = [
-            { id: 'fitbit', name: 'Fitbit', icon: '⌚', endpoint: '/api/mercury/devices/fitbit/connect' }
+            { id: 'fitbit', name: 'Fitbit', icon: '⌚', endpoint: '/mercury/devices/fitbit/connect' }
             // Other wearables temporarily disabled - only Fitbit active
-            // { id: 'polar', name: 'Polar', icon: '🏃', endpoint: '/api/mercury/devices/polar/connect' },
-            // { id: 'apple_health', name: 'Apple Health', icon: '🍎', endpoint: '/api/mercury/devices/apple/connect' },
-            // { id: 'oura', name: 'Oura Ring', icon: '💍', endpoint: '/api/mercury/devices/oura/connect' },
-            // { id: 'whoop', name: 'WHOOP', icon: '💪', endpoint: '/api/mercury/devices/whoop/connect' },
-            // { id: 'garmin', name: 'Garmin', icon: '🏔️', endpoint: '/api/mercury/devices/garmin/connect' }
+            // { id: 'polar', name: 'Polar', icon: '🏃', endpoint: '/mercury/devices/polar/connect' },
+            // { id: 'apple_health', name: 'Apple Health', icon: '🍎', endpoint: '/mercury/devices/apple/connect' },
+            // { id: 'oura', name: 'Oura Ring', icon: '💍', endpoint: '/mercury/devices/oura/connect' },
+            // { id: 'whoop', name: 'WHOOP', icon: '💪', endpoint: '/mercury/devices/whoop/connect' },
+            // { id: 'garmin', name: 'Garmin', icon: '🏔️', endpoint: '/mercury/devices/garmin/connect' }
         ];
     }
 

@@ -38,6 +38,13 @@ class PhoenixVoiceCommands {
         this.isAppleDevice = this.detectAppleDevice();
         this.useNativeAPIs = this.isAppleDevice && this.supportsNativeAPIs();
 
+        // WebSocket for real-time streaming (audio chunks, widget updates)
+        this.ws = null;
+        this.wsReconnectAttempts = 0;
+        this.wsMaxReconnectAttempts = 5;
+        this.audioChunkQueue = []; // Queue for sequential audio playback
+        this.currentAudioIndex = 0;
+
         this.init();
     }
 
@@ -83,6 +90,9 @@ class PhoenixVoiceCommands {
 
         // Set up wake word detection integration
         this.setupWakeWordIntegration();
+
+        // Initialize WebSocket connection for streaming
+        this.initWebSocket();
 
         // Set initial state
         this.setOrbState('idle');
@@ -146,6 +156,221 @@ class PhoenixVoiceCommands {
             // Don't throw - TTS might still work on some browsers
             return false;
         }
+    }
+
+    /* ============================================
+       WEBSOCKET CONNECTION (STREAMING AUDIO + WIDGETS)
+       ============================================ */
+    initWebSocket() {
+        const token = localStorage.getItem('phoenixToken');
+        if (!token) {
+            console.warn('⚠️ No auth token - WebSocket will connect when user logs in');
+            return;
+        }
+
+        const baseUrl = (window.PhoenixConfig && window.PhoenixConfig.API_BASE_URL)
+            ? window.PhoenixConfig.API_BASE_URL
+            : 'https://pal-backend-production.up.railway.app/api';
+
+        // Convert HTTP to WS protocol
+        const wsUrl = baseUrl.replace('https://', 'wss://').replace('http://', 'ws://').replace('/api', '');
+        const wsEndpoint = `${wsUrl}/phoenix-stream?token=${token}`;
+
+        console.log('🔌 Connecting to WebSocket:', wsEndpoint);
+
+        try {
+            this.ws = new WebSocket(wsEndpoint);
+
+            this.ws.onopen = () => {
+                console.log('✅ WebSocket connected for streaming');
+                this.wsReconnectAttempts = 0;
+            };
+
+            this.ws.onmessage = (event) => {
+                try {
+                    const message = JSON.parse(event.data);
+                    this.handleWebSocketMessage(message);
+                } catch (error) {
+                    console.error('❌ WebSocket message parse error:', error);
+                }
+            };
+
+            this.ws.onerror = (error) => {
+                console.error('❌ WebSocket error:', error);
+            };
+
+            this.ws.onclose = () => {
+                console.log('🔌 WebSocket disconnected');
+                // Auto-reconnect with exponential backoff
+                if (this.wsReconnectAttempts < this.wsMaxReconnectAttempts) {
+                    const delay = Math.min(1000 * Math.pow(2, this.wsReconnectAttempts), 30000);
+                    console.log(`🔄 Reconnecting in ${delay}ms...`);
+                    setTimeout(() => {
+                        this.wsReconnectAttempts++;
+                        this.initWebSocket();
+                    }, delay);
+                }
+            };
+
+        } catch (error) {
+            console.error('❌ WebSocket connection failed:', error);
+        }
+    }
+
+    handleWebSocketMessage(message) {
+        console.log('📩 WebSocket message:', message.type);
+
+        switch (message.type) {
+            case 'audio_chunk':
+                this.handleAudioChunk(message);
+                break;
+
+            case 'widget_create':
+                this.handleWidgetCreate(message);
+                break;
+
+            case 'widget_update':
+                this.handleWidgetUpdate(message);
+                break;
+
+            case 'widget_complete':
+                this.handleWidgetComplete(message);
+                break;
+
+            case 'processing_status':
+                this.handleProcessingStatus(message);
+                break;
+
+            case 'heartbeat':
+                // Respond to heartbeat to keep connection alive
+                if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+                    this.ws.send(JSON.stringify({ type: 'heartbeat_ack' }));
+                }
+                break;
+
+            default:
+                console.log('Unknown WebSocket message type:', message.type);
+        }
+    }
+
+    handleAudioChunk(message) {
+        // Add audio chunk to queue
+        this.audioChunkQueue.push({
+            sequence: message.sequence,
+            audioData: message.chunk,
+            format: message.format || 'base64'
+        });
+
+        // Sort by sequence number (in case they arrive out of order)
+        this.audioChunkQueue.sort((a, b) => a.sequence - b.sequence);
+
+        console.log(`🎵 Audio chunk ${message.sequence} queued (${this.audioChunkQueue.length} in queue)`);
+
+        // Start playing if not already playing
+        if (!this.isSpeaking) {
+            this.playAudioQueue();
+        }
+    }
+
+    async playAudioQueue() {
+        if (this.audioChunkQueue.length === 0) {
+            console.log('✅ Audio queue empty');
+            this.isSpeaking = false;
+            this.setOrbState('idle');
+            return;
+        }
+
+        // Get next chunk
+        const chunk = this.audioChunkQueue.shift();
+        this.isSpeaking = true;
+        this.setOrbState('speaking');
+
+        try {
+            // Convert base64 to blob
+            const audioBytes = atob(chunk.audioData);
+            const arrayBuffer = new ArrayBuffer(audioBytes.length);
+            const uint8Array = new Uint8Array(arrayBuffer);
+            for (let i = 0; i < audioBytes.length; i++) {
+                uint8Array[i] = audioBytes.charCodeAt(i);
+            }
+            const audioBlob = new Blob([uint8Array], { type: 'audio/mpeg' });
+            const audioUrl = URL.createObjectURL(audioBlob);
+
+            // Play audio
+            const audio = new Audio(audioUrl);
+            this.audioElement = audio;
+
+            audio.onended = () => {
+                URL.revokeObjectURL(audioUrl);
+                console.log(`✅ Chunk ${chunk.sequence} played`);
+                // Play next chunk
+                this.playAudioQueue();
+            };
+
+            audio.onerror = () => {
+                URL.revokeObjectURL(audioUrl);
+                console.error(`❌ Chunk ${chunk.sequence} playback error`);
+                // Skip to next chunk
+                this.playAudioQueue();
+            };
+
+            await audio.play();
+
+        } catch (error) {
+            console.error('❌ Audio playback error:', error);
+            // Skip to next chunk
+            this.playAudioQueue();
+        }
+    }
+
+    handleWidgetCreate(message) {
+        console.log('👁️ Creating widget:', message.category);
+
+        // Show widget via widget manager
+        if (window.widgetManager && window.widgetManager.showOrbitalWidget) {
+            window.widgetManager.showOrbitalWidget(message.category, {
+                status: 'generating',
+                title: message.title,
+                ...message.data
+            });
+        }
+
+        // Show text bubble
+        this.showTextBubble(`Creating ${message.title}...`);
+    }
+
+    handleWidgetUpdate(message) {
+        console.log('👁️ Updating widget:', message.progress);
+
+        // Update widget via widget manager
+        if (window.widgetManager && window.widgetManager.updateWidget) {
+            window.widgetManager.updateWidget(message.widgetId, {
+                status: 'generating',
+                progress: message.progress,
+                currentSection: message.section,
+                ...message.data
+            });
+        }
+    }
+
+    handleWidgetComplete(message) {
+        console.log('👁️ Widget complete:', message.category);
+
+        // Update widget to complete state
+        if (window.widgetManager && window.widgetManager.showOrbitalWidget) {
+            window.widgetManager.showOrbitalWidget(message.category, {
+                status: 'complete',
+                ...message.data
+            });
+        }
+
+        // Show completion message
+        this.showTextBubble(message.message || 'Complete!');
+    }
+
+    handleProcessingStatus(message) {
+        console.log('⚙️ Processing status:', message.status);
+        this.setOrbState(message.status || 'processing');
     }
 
     /* ============================================
@@ -1387,6 +1612,7 @@ class PhoenixVoiceCommands {
                 ? window.PhoenixConfig.API_BASE_URL
                 : 'https://pal-backend-production.up.railway.app/api';
 
+            // Request base64 format for iOS compatibility
             const response = await fetch(`${baseUrl}/tts/generate`, {
                 method: 'POST',
                 headers: {
@@ -1397,7 +1623,8 @@ class PhoenixVoiceCommands {
                     voice: this.voice,      // Use user's voice preference
                     speed: 1.0,             // Natural conversation pace (user feedback: 1.4 was too fast)
                     language: this.language, // Use user's language preference
-                    model: 'tts-1'
+                    model: 'tts-1',
+                    format: 'base64'        // iOS compatibility
                 })
             });
 
@@ -1405,8 +1632,16 @@ class PhoenixVoiceCommands {
                 throw new Error('TTS generation failed');
             }
 
-            // Get audio blob
-            const audioBlob = await response.blob();
+            // Convert base64 to blob for iOS compatibility
+            const data = await response.json();
+            const audioBase64 = data.audio;
+            const audioBytes = atob(audioBase64);
+            const arrayBuffer = new ArrayBuffer(audioBytes.length);
+            const uint8Array = new Uint8Array(arrayBuffer);
+            for (let i = 0; i < audioBytes.length; i++) {
+                uint8Array[i] = audioBytes.charCodeAt(i);
+            }
+            const audioBlob = new Blob([uint8Array], { type: 'audio/mpeg' });
 
             // Load audio data into the pre-created element
             const audioUrl = URL.createObjectURL(audioBlob);
@@ -1488,6 +1723,7 @@ class PhoenixVoiceCommands {
                 ? window.PhoenixConfig.API_BASE_URL
                 : 'https://pal-backend-production.up.railway.app/api';
 
+            // Request base64 format for iOS compatibility
             const response = await fetch(`${baseUrl}/tts/generate`, {
                 method: 'POST',
                 headers: {
@@ -1498,7 +1734,8 @@ class PhoenixVoiceCommands {
                     voice: this.voice,
                     speed: 1.0,
                     language: this.language,
-                    model: 'tts-1'
+                    model: 'tts-1',
+                    format: 'base64'        // iOS compatibility
                 })
             });
 
@@ -1506,7 +1743,16 @@ class PhoenixVoiceCommands {
                 throw new Error('TTS generation failed');
             }
 
-            const audioBlob = await response.blob();
+            // Convert base64 to blob for iOS compatibility
+            const data = await response.json();
+            const audioBase64 = data.audio;
+            const audioBytes = atob(audioBase64);
+            const arrayBuffer = new ArrayBuffer(audioBytes.length);
+            const uint8Array = new Uint8Array(arrayBuffer);
+            for (let i = 0; i < audioBytes.length; i++) {
+                uint8Array[i] = audioBytes.charCodeAt(i);
+            }
+            const audioBlob = new Blob([uint8Array], { type: 'audio/mpeg' });
 
             // Clear "Generating voice..." status
             this.clearStatusMessage();

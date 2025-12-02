@@ -1683,6 +1683,7 @@ class PhoenixAPI {
         };
         const language = languageMap[savedLanguageCode] || 'en-US';
 
+        // Request base64 format for iOS compatibility (binary has CORS issues on iOS)
         const response = await fetch(`${this.baseURL}/tts/generate`, {
             method: 'POST',
             headers: {
@@ -1693,7 +1694,8 @@ class PhoenixAPI {
                 text,
                 voice,
                 language,
-                speed
+                speed,
+                format: 'base64' // Request base64 for iOS compatibility
             })
         });
 
@@ -1701,8 +1703,16 @@ class PhoenixAPI {
             throw new Error(`TTS Error: ${response.status}`);
         }
 
-        // Return audio blob directly
-        return await response.blob();
+        // Convert base64 to blob
+        const data = await response.json();
+        const audioBase64 = data.audio;
+        const audioBytes = atob(audioBase64);
+        const arrayBuffer = new ArrayBuffer(audioBytes.length);
+        const uint8Array = new Uint8Array(arrayBuffer);
+        for (let i = 0; i < audioBytes.length; i++) {
+            uint8Array[i] = audioBytes.charCodeAt(i);
+        }
+        return new Blob([uint8Array], { type: 'audio/mpeg' });
     }
 
     // POST /api/whisper/transcribe
