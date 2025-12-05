@@ -4926,6 +4926,9 @@
     <!-- Phoenix Voice Command System -->
     <script src="phoenix-voice-commands.js?v=20251128f"></script>
 
+    <!-- God Mode - "Optimize my life" -->
+    <script src="god-mode.js?v=20251204"></script>
+
     <!-- Auto-Start Voice Listening in Voice-Only Mode -->
     <script>
         // Wait for phoenix-voice-commands.js to fully initialize
@@ -4945,6 +4948,24 @@
                     console.log('ℹ️ Manual mode - voice listening requires orb click');
                 }
             }, 1000); // Wait 1s for voice commands to fully initialize
+        });
+    </script>
+
+    <!-- Initialize Proactive Consciousness -->
+    <script>
+        // Trigger proactive greeting after page fully loads
+        window.addEventListener('load', async () => {
+            console.log('[Dashboard] Page loaded, initializing proactive consciousness...');
+
+            // Wait for consciousness client to be ready
+            setTimeout(async () => {
+                if (window.consciousnessClient) {
+                    console.log('[Dashboard] Triggering proactive greeting...');
+                    await window.consciousnessClient.initProactive();
+                } else {
+                    console.warn('[Dashboard] Consciousness client not found');
+                }
+            }, 3000); // Wait 3s for all systems to initialize
         });
     </script>
 

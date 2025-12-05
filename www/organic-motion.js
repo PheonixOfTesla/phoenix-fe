@@ -9,8 +9,64 @@ class OrganicMotion {
         this.currentEmotion = 'neutral';
         this.breathingRate = 0.4; // Hz (breaths per second)
         this.biometrics = {};
+        this.urgencyLevel = 'low'; // low, medium, high
+        this.currentColor = '#00d9ff'; // Default cyan
 
         console.log('[OrganicMotion] Initialized');
+    }
+
+    /* ============================================
+       URGENCY COLOR STATES - Red/Amber/Green orb
+       ============================================ */
+    setUrgencyState(level, element) {
+        if (!element) {
+            element = document.getElementById('orb');
+        }
+        if (!element) return;
+
+        this.urgencyLevel = level;
+
+        const urgencyColors = {
+            high: {
+                color: '#ff3366',
+                glow: 'rgba(255, 51, 102, 0.6)',
+                breathRate: 0.7, // Faster breathing
+                name: 'RED - HIGH URGENCY'
+            },
+            medium: {
+                color: '#ffaa33',
+                glow: 'rgba(255, 170, 51, 0.6)',
+                breathRate: 0.5, // Medium breathing
+                name: 'AMBER - MODERATE'
+            },
+            low: {
+                color: '#33ffaa',
+                glow: 'rgba(51, 255, 170, 0.6)',
+                breathRate: 0.3, // Slow breathing
+                name: 'GREEN - CALM'
+            },
+            neutral: {
+                color: '#00d9ff',
+                glow: 'rgba(0, 217, 255, 0.6)',
+                breathRate: 0.4, // Default breathing
+                name: 'CYAN - NEUTRAL'
+            }
+        };
+
+        const config = urgencyColors[level] || urgencyColors.neutral;
+        this.currentColor = config.color;
+        this.breathingRate = config.breathRate;
+
+        // Apply color with smooth transition
+        element.style.transition = 'all 1.5s cubic-bezier(0.4, 0.0, 0.2, 1)';
+        element.style.background = `radial-gradient(circle at center, ${config.color} 0%, rgba(0,10,20,0.8) 100%)`;
+        element.style.boxShadow = `0 0 60px ${config.glow}, 0 0 120px ${config.glow}, inset 0 0 40px ${config.glow}`;
+
+        // Update breathing rate
+        this.breathe(element, { rate: config.breathRate, type: 'glow' });
+
+        console.log(`[OrganicMotion] Urgency state: ${config.name}`);
+        return config;
     }
 
     /* ============================================

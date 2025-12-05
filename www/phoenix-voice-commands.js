@@ -995,6 +995,11 @@ class PhoenixVoiceCommands {
             }
         }
 
+        // GOD MODE - "Optimize my life"
+        if (t.match(/optimize my life|optimize everything|god mode|full optimization|analyze everything/)) {
+            return { type: 'god_mode' };
+        }
+
         // HIDE/CLOSE COMMANDS
         if (t.match(/hide|close|dismiss|remove|push.*away/)) {
             if (t.includes('health')) {
@@ -1071,6 +1076,10 @@ class PhoenixVoiceCommands {
                 await this.handleShow(command.target);
                 break;
 
+            case 'god_mode':
+                await this.handleGodMode();
+                break;
+
             case 'hide':
                 await this.handleHide(command.target);
                 break;
@@ -1115,6 +1124,30 @@ class PhoenixVoiceCommands {
             window.location.href = planetUrls[target];
             // Note: speak() won't complete before navigation, but that's OK
         }
+    }
+
+    /* ============================================
+       GOD MODE HANDLER
+       ============================================ */
+    async handleGodMode() {
+        console.log('[PhoenixVoice] 🌟 God Mode activated');
+
+        // Set orb to processing state
+        this.setOrbState('processing');
+
+        // Speak confirmation
+        this.speak('Initiating full life optimization. Give me a moment to analyze everything.');
+
+        // Execute God Mode
+        if (window.godMode) {
+            await window.godMode.execute();
+        } else {
+            console.error('[PhoenixVoice] God Mode not loaded');
+            this.speak('God Mode is not available. Please refresh the page.');
+        }
+
+        // Return to idle
+        this.setOrbState('idle');
     }
 
     /* ============================================
@@ -1581,6 +1614,59 @@ class PhoenixVoiceCommands {
     /* ============================================
        TEXT-TO-SPEECH (Backend OpenAI TTS - Natural Voice)
        ============================================ */
+    /* ============================================
+       PROACTIVE GREETING - Called on app open
+       ============================================ */
+    async proactiveGreeting(context, orchestration) {
+        console.log('[PhoenixVoice] Proactive greeting triggered', context);
+
+        // Build greeting message
+        let greeting = '';
+
+        // Time-based greeting
+        const timeOfDay = context.timeOfDay || 'morning';
+        if (timeOfDay === 'morning') {
+            greeting = 'Good morning! ';
+        } else if (timeOfDay === 'afternoon') {
+            greeting = 'Good afternoon! ';
+        } else if (timeOfDay === 'evening') {
+            greeting = 'Good evening! ';
+        } else {
+            greeting = 'Hello! ';
+        }
+
+        // Add context-aware information
+        const greetingParts = [greeting];
+
+        if (context.recovery !== null && context.recovery !== undefined) {
+            if (context.recovery < 60) {
+                greetingParts.push(`Your recovery score is ${context.recovery} percent. You might want to take it easy today.`);
+            } else if (context.recovery > 80) {
+                greetingParts.push(`You're at ${context.recovery} percent recovery. You're primed for a great day.`);
+            }
+        }
+
+        if (context.upcomingEvents > 0) {
+            greetingParts.push(`You have ${context.upcomingEvents} event${context.upcomingEvents > 1 ? 's' : ''} on your calendar today.`);
+        }
+
+        if (context.insights && context.insights.length > 0) {
+            greetingParts.push(`I found ${context.insights.length} insight${context.insights.length > 1 ? 's' : ''} for you.`);
+        }
+
+        // Fallback if no context
+        if (greetingParts.length === 1) {
+            greetingParts.push('How can I help you today?');
+        }
+
+        const fullGreeting = greetingParts.join(' ');
+
+        // Speak the greeting
+        await this.speak(fullGreeting);
+
+        console.log('[PhoenixVoice] Proactive greeting complete');
+    }
+
     async speak(text, skipStateChange = false) {
         // Strip JSON metadata before speaking
         text = text.replace(/\s*\{[\s\S]*?"confidence_score"[\s\S]*?\}\s*$/i, '').trim();
