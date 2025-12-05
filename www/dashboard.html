@@ -21,13 +21,42 @@
     <script>
         // ALWAYS reset to voice mode on page load (before voice-controller.js loads)
         // This ensures we ALWAYS start in voice-only mode regardless of saved preference
+
+        // Mobile detection - force VOICE ONLY mode on mobile
+        function isMobileDevice() {
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+            // Check user agent for mobile indicators
+            if (/mobile|android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase())) {
+                return true;
+            }
+
+            // Check viewport width
+            if (window.innerWidth <= 768) {
+                return true;
+            }
+
+            // Check touch capability
+            if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+                return true;
+            }
+
+            return false;
+        }
+
+        const isMobile = isMobileDevice();
+
+        // FORCE VOICE MODE ON MOBILE
         localStorage.setItem('phoenix_ui_mode', 'voice');
+        localStorage.setItem('phoenix_is_mobile', isMobile ? 'true' : 'false');
+
         console.log('🎤 Forcing voice mode on page load');
+        console.log(isMobile ? '📱 Mobile device detected - VOICE MODE ONLY' : '🖥️ Desktop device - all modes available');
     </script>
     <!-- ============================================ -->
     <!-- BACK BUTTON FOR NAVIGATION -->
     <!-- ============================================ -->
-    <button onclick="window.history.back()" style="position:fixed;top:15px;right:15px;z-index:10002;padding:10px 16px;background:rgba(0,10,20,0.85);border:1.5px solid rgba(0, 217, 255,0.3);color:rgba(0, 217, 255,0.7);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;border-radius:6px;backdrop-filter:blur(10px);transition:all 0.3s;pointer-events:auto" onmouseover="this.style.borderColor='rgba(0, 217, 255,0.8)';this.style.background='rgba(0,10,20,0.95)';this.style.color='#00ff88'" onmouseout="this.style.borderColor='rgba(0, 217, 255,0.3)';this.style.background='rgba(0,10,20,0.85)';this.style.color='rgba(0, 217, 255,0.7)'">
+    <button onclick="window.history.back()" style="position:fixed;top:15px;right:15px;z-index:10002;padding:14px 20px;min-height:44px;min-width:44px;background:rgba(0,10,20,0.85);border:1.5px solid rgba(0, 217, 255,0.3);color:rgba(0, 217, 255,0.7);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;border-radius:6px;backdrop-filter:blur(10px);transition:all 0.3s;pointer-events:auto" onmouseover="this.style.borderColor='rgba(0, 217, 255,0.8)';this.style.background='rgba(0,10,20,0.95)';this.style.color='#00ff88'" onmouseout="this.style.borderColor='rgba(0, 217, 255,0.3)';this.style.background='rgba(0,10,20,0.85)';this.style.color='rgba(0, 217, 255,0.7)'">
         ← BACK
     </button>
 
@@ -38,7 +67,7 @@
         <button id="voice-mode-btn" onclick="switchToVoiceMode()" class="mode-toggle-btn mode-toggle-btn-active" data-i18n="dashboard.voiceMode">
             VOICE
         </button>
-        <button id="manual-mode-btn" onclick="switchToManualMode()" class="mode-toggle-btn" data-i18n="dashboard.manualMode">
+        <button id="manual-mode-btn" onclick="switchToManualMode()" class="mode-toggle-btn mode-hide-mobile" data-i18n="dashboard.manualMode">
             MANUAL
         </button>
         <button id="desk-btn" onclick="openPhoenixDesk()" class="mode-toggle-btn mode-toggle-btn-desk">

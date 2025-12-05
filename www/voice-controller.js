@@ -70,6 +70,11 @@
     // Load mode from localStorage
     function loadMode() {
         try {
+            const isMobile = localStorage.getItem('phoenix_is_mobile') === 'true';
+            // On mobile, ALWAYS return VOICE_MODE - never allow manual mode
+            if (isMobile) {
+                return VOICE_MODE;
+            }
             const savedMode = localStorage.getItem(STORAGE_KEY);
             return savedMode || VOICE_MODE; // Default to voice mode
         } catch (e) {
@@ -85,6 +90,7 @@
         // Update button states
         const voiceBtn = document.getElementById('voice-mode-btn');
         const manualBtn = document.getElementById('manual-mode-btn');
+        const isMobile = localStorage.getItem('phoenix_is_mobile') === 'true';
 
         if (voiceBtn && manualBtn) {
             if (mode === VOICE_MODE) {
@@ -93,6 +99,12 @@
             } else {
                 voiceBtn.setAttribute('aria-pressed', 'false');
                 manualBtn.setAttribute('aria-pressed', 'true');
+            }
+
+            // Hide manual mode button on mobile
+            if (isMobile) {
+                manualBtn.style.display = 'none';
+                console.log('📱 Manual mode button hidden on mobile');
             }
         }
 
@@ -135,6 +147,18 @@
 
     // Switch to Manual Mode
     window.switchToManualMode = function() {
+        const isMobile = localStorage.getItem('phoenix_is_mobile') === 'true';
+
+        // On mobile, VOICE MODE ONLY - cannot switch to manual
+        if (isMobile) {
+            console.log('📱 Manual mode not available on mobile - VOICE ONLY');
+            showModeNotification('Voice Only Mode', 'Mobile devices use voice mode exclusively');
+            // Force back to voice mode
+            applyMode(VOICE_MODE);
+            saveMode(VOICE_MODE);
+            return;
+        }
+
         console.log('👆 Switching to MANUAL mode...');
         applyMode(MANUAL_MODE);
         saveMode(MANUAL_MODE);
@@ -489,6 +513,7 @@
         // Set initial button states
         const voiceBtn = document.getElementById('voice-mode-btn');
         const manualBtn = document.getElementById('manual-mode-btn');
+        const isMobile = localStorage.getItem('phoenix_is_mobile') === 'true';
 
         if (voiceBtn) {
             voiceBtn.setAttribute('aria-label', 'Switch to voice mode');
@@ -498,6 +523,12 @@
         if (manualBtn) {
             manualBtn.setAttribute('aria-label', 'Switch to manual mode');
             manualBtn.setAttribute('role', 'button');
+
+            // Hide manual button on mobile - VOICE ONLY MODE
+            if (isMobile) {
+                manualBtn.style.display = 'none';
+                console.log('📱 Manual mode DISABLED on mobile - showing VOICE ONLY');
+            }
         }
 
         console.log(`📍 Initial mode: ${savedMode.toUpperCase()}`);

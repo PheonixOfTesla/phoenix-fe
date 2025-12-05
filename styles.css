@@ -1137,6 +1137,20 @@ body {
     }
 }
 
+@media (max-width: 768px) {
+    /* Hide MANUAL button on mobile - voice/desk only */
+    .mode-hide-mobile {
+        display: none !important;
+    }
+
+    .mode-toggle-btn {
+        padding: 16px 20px; /* Increased for 44px touch target */
+        font-size: 13px;
+        min-width: 80px;
+        min-height: 44px; /* iOS minimum */
+    }
+}
+
 @media (max-width: 480px) {
     :root {
         --font-size-4xl: 32px;
@@ -1146,15 +1160,40 @@ body {
 
     /* Mode toggle adjustments for small screens */
     .mode-toggle-container {
-        gap: 4px;
+        gap: 6px;
         padding: 4px;
         top: 12px;
     }
 
     .mode-toggle-btn {
-        padding: 12px 16px;
+        padding: 16px 20px; /* 44px touch target */
         font-size: 12px;
+        min-height: 44px;
     }
+}
+
+/* SMALL PHONES (iPhone SE, older Android) */
+@media (max-width: 375px) {
+    /* Further reduce mode toggle */
+    .mode-toggle-btn {
+        padding: 14px 16px;
+        font-size: 11px;
+        min-height: 44px;
+    }
+
+    /* Smaller optimization indicator */
+    #optimization-indicator {
+        width: 70px !important;
+        height: 70px !important;
+        bottom: 10px !important;
+        right: 10px !important;
+    }
+
+    /* Reduce HUD panel widths */
+    #hud-tl, #hud-bl {
+        min-width: 180px !important;
+    }
+}
 
     /* Planet cards mobile optimization */
     .planet-cards-grid {
