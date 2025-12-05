@@ -4953,19 +4953,14 @@
 
     <!-- Initialize Proactive Consciousness -->
     <script>
-        // Trigger proactive greeting after page fully loads
-        window.addEventListener('load', async () => {
-            console.log('[Dashboard] Page loaded, initializing proactive consciousness...');
-
-            // Wait for consciousness client to be ready
-            setTimeout(async () => {
+        // Trigger proactive greeting after page fully loads (non-blocking)
+        window.addEventListener('load', () => {
+            // Non-blocking - run in background after 1 second
+            setTimeout(() => {
                 if (window.consciousnessClient) {
-                    console.log('[Dashboard] Triggering proactive greeting...');
-                    await window.consciousnessClient.initProactive();
-                } else {
-                    console.warn('[Dashboard] Consciousness client not found');
+                    window.consciousnessClient.initProactive();
                 }
-            }, 3000); // Wait 3s for all systems to initialize
+            }, 1000);
         });
     </script>
 

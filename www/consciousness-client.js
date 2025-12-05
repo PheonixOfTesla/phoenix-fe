@@ -20,48 +20,51 @@ class ConsciousnessClient {
        PROACTIVE INITIALIZATION - Auto-greet on app open
        ============================================ */
     async initProactive() {
-        console.log('[Consciousness] Initiating proactive greeting...');
-
         try {
-            // Wait for core systems to load
-            await this.waitForSystems();
+            // Non-blocking - run in background
+            setTimeout(async () => {
+                // Wait for core systems to load (max 5 seconds)
+                await Promise.race([
+                    this.waitForSystems(),
+                    new Promise(resolve => setTimeout(resolve, 5000))
+                ]);
 
-            // Build comprehensive context
-            const context = await this.buildAppOpenContext();
+                // Build comprehensive context
+                const context = await this.buildAppOpenContext();
 
-            // Fetch orchestration from backend
-            const orchestration = await this.orchestrate(context, null);
+                // Fetch orchestration from backend (5s timeout built-in)
+                const orchestration = await this.orchestrate(context, null);
 
-            if (orchestration) {
-                // Display widgets from orchestration
-                if (window.widgetManager && orchestration.widgets) {
-                    window.widgetManager.displayFromOrchestration(orchestration);
+                if (orchestration) {
+                    // Display widgets from orchestration
+                    if (window.widgetManager && orchestration.widgets) {
+                        window.widgetManager.displayFromOrchestration(orchestration);
+                    }
+
+                    // Trigger proactive greeting with context
+                    if (window.phoenixVoice && !this.hasGreeted) {
+                        this.hasGreeted = true;
+                        await window.phoenixVoice.proactiveGreeting(context, orchestration);
+                    }
                 }
-
-                // Trigger proactive greeting with context
-                if (window.phoenixVoice && !this.hasGreeted) {
-                    this.hasGreeted = true;
-                    await window.phoenixVoice.proactiveGreeting(context, orchestration);
-                }
-            }
-
-            console.log('[Consciousness] Proactive initialization complete');
+            }, 500); // Delay to not block app initialization
         } catch (error) {
-            console.error('[Consciousness] Proactive init error:', error);
+            // Silent fail - proactive greeting is optional
         }
     }
 
     async waitForSystems() {
-        // Wait for critical systems to be ready
+        // Wait for critical systems to be ready (max 3 seconds)
         let attempts = 0;
-        while (attempts < 50) {
+        while (attempts < 30) {
             if (window.phoenixAPI && window.widgetManager) {
                 return true;
             }
             await new Promise(resolve => setTimeout(resolve, 100));
             attempts++;
         }
-        console.warn('[Consciousness] Systems not fully loaded, proceeding anyway');
+        // Proceed anyway after 3 seconds
+        return false;
     }
 
     async buildAppOpenContext() {
@@ -83,27 +86,24 @@ class ConsciousnessClient {
             location: 'dashboard'
         };
 
-        // Fetch quick metrics if API available
+        // Fetch quick metrics if API available (3-second timeout)
         if (window.phoenixAPI) {
             try {
-                // Parallel fetch key metrics
-                const [recovery, calendar, insights] = await Promise.allSettled([
+                // Parallel fetch key metrics with 3s timeout
+                const timeout = new Promise(resolve => setTimeout(() => resolve([null, null, null]), 3000));
+                const fetches = Promise.all([
                     window.phoenixAPI.getMercuryRecoveryScore().catch(() => null),
                     window.phoenixAPI.getEarthTodaySchedule().catch(() => null),
                     window.phoenixAPI.getPhoenixInsights().catch(() => null)
                 ]);
 
-                if (recovery.status === 'fulfilled' && recovery.value) {
-                    context.recovery = recovery.value.score || null;
-                }
-                if (calendar.status === 'fulfilled' && calendar.value) {
-                    context.upcomingEvents = calendar.value.events?.length || 0;
-                }
-                if (insights.status === 'fulfilled' && insights.value) {
-                    context.insights = insights.value.insights?.slice(0, 3) || [];
-                }
+                const [recovery, calendar, insights] = await Promise.race([fetches, timeout]);
+
+                if (recovery) context.recovery = recovery.score || null;
+                if (calendar) context.upcomingEvents = calendar.events?.length || 0;
+                if (insights) context.insights = insights.insights?.slice(0, 3) || [];
             } catch (error) {
-                console.warn('[Consciousness] Context gathering partial:', error);
+                // Silent fail - context is optional
             }
         }
 
@@ -120,15 +120,11 @@ class ConsciousnessClient {
     async orchestrate(context = {}, voiceQuery = null) {
         try {
             const token = localStorage.getItem('phoenixToken');
-            if (!token) {
-                console.warn('[Consciousness] No token, skipping orchestration');
-                return null;
-            }
+            if (!token) return null;
 
             // Throttle orchestration calls (max once per 5 seconds unless voice query)
             const now = Date.now();
             if (!voiceQuery && (now - this.lastOrchestrationTime) < 5000) {
-                console.log('[Consciousness] Using cached orchestration');
                 return this.orchestrationCache;
             }
 
@@ -146,7 +142,9 @@ class ConsciousnessClient {
                 requestBody.voiceQuery = voiceQuery;
             }
 
-            console.log('[Consciousness] Requesting orchestration...', requestBody);
+            // 5-second timeout
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000);
 
             const response = await fetch(`${window.PhoenixConfig.API_BASE_URL}/interface/orchestrate`, {
                 method: 'POST',
@@ -154,11 +152,14 @@ class ConsciousnessClient {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(requestBody)
+                body: JSON.stringify(requestBody),
+                signal: controller.signal
             });
 
+            clearTimeout(timeoutId);
+
             if (!response.ok) {
-                throw new Error(`Orchestration failed: ${response.status}`);
+                return null;
             }
 
             const data = await response.json();
@@ -166,14 +167,13 @@ class ConsciousnessClient {
             if (data.success && data.orchestration) {
                 this.orchestrationCache = data.orchestration;
                 this.lastOrchestrationTime = now;
-                console.log('[Consciousness] Orchestration received:', data.orchestration);
                 return data.orchestration;
             }
 
             return null;
 
         } catch (error) {
-            console.error('[Consciousness] Orchestration error:', error);
+            // Silent fail - orchestration is optional
             return null;
         }
     }

@@ -1876,7 +1876,12 @@ class PhoenixVoiceCommands {
             }
 
         } catch (error) {
-            console.error('❌ Async TTS Error:', error);
+            // Handle autoplay restrictions silently
+            if (error.name === 'NotAllowedError' || error.message?.includes('autoplay') || error.message?.includes('user agent')) {
+                // iOS/Safari autoplay block - completely normal, text already shown
+            } else {
+                console.error('TTS Error:', error.message);
+            }
             this.clearStatusMessage();
             this.isSpeaking = false;
             this.setOrbState('idle');
