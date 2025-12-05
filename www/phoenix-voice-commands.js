@@ -23,6 +23,7 @@ class PhoenixVoiceCommands {
         this.audioElement = null; // Track current audio playback
         this.userInteracted = false; // Track if user has interacted (for autoplay policy)
         this.audioUnlocked = false; // Track if audio context has been unlocked
+        this.silentAudioUnlocked = false; // Track if silent audio unlock completed
 
         // Conversation memory for ChatGPT-level contextual awareness
         this.conversationHistory = [];
@@ -41,7 +42,7 @@ class PhoenixVoiceCommands {
         // WebSocket for real-time streaming (audio chunks, widget updates)
         this.ws = null;
         this.wsReconnectAttempts = 0;
-        this.wsMaxReconnectAttempts = 5;
+        this.wsMaxReconnectAttempts = 0; // Disable WebSocket reconnection (non-critical)
         this.audioChunkQueue = []; // Queue for sequential audio playback
         this.currentAudioIndex = 0;
 
