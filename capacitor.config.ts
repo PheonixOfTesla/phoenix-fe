@@ -5,11 +5,9 @@ const config: CapacitorConfig = {
   appName: 'Phoenix AI',
   webDir: 'www',
   server: {
-    // For development: allow localhost connections
-    // Remove or comment out in production
-    cleartext: true,
+    // PRODUCTION: HTTPS only, no cleartext
     allowNavigation: [
-      'pal-backend-production.up.railway.app'
+      'https://pal-backend-production.up.railway.app'
     ]
   },
   ios: {

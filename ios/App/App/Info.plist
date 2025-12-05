@@ -114,11 +114,24 @@
 		<string>fetch</string>
 	</array>
 
-	<!-- APP TRANSPORT SECURITY - Allow HTTP for development -->
+	<!-- APP TRANSPORT SECURITY - PRODUCTION: HTTPS only -->
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
-		<true/>
+		<false/>
+		<!-- Exception only for backend domain (uses HTTPS) -->
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>pal-backend-production.up.railway.app</key>
+			<dict>
+				<key>NSExceptionRequiresForwardSecrecy</key>
+				<false/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<false/>
+			</dict>
+		</dict>
 	</dict>
 
 	<!-- SUPPORTED EXTERNAL ACCESSORY PROTOCOLS - Apple Pay -->

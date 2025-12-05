@@ -1,0 +1,77 @@
+#!/bin/bash
+#
+# PHOENIX PRE-COMMIT HOOK - OMEGA PROTOCOL
+#
+# PURPOSE:
+# - Verify iOS bundle is synced with www/ before commit
+# - Prevent commits with out-of-sync iOS files
+# - Zero tolerance for deployment drift
+#
+# INSTALL:
+#   chmod +x .git-hooks/pre-commit
+#   git config core.hooksPath .git-hooks
+#
+
+echo "🔍 Phoenix Pre-Commit: iOS Bundle Verification"
+
+# Critical files that MUST be synced
+CRITICAL_FILES=(
+  "dashboard.html"
+  "voice-controller.js"
+  "styles.css"
+  "api.js"
+  "widget-manager.js"
+  "consciousness-client.js"
+)
+
+SYNC_REQUIRED=false
+MISMATCHED_FILES=()
+
+for file in "${CRITICAL_FILES[@]}"; do
+  WWW_FILE="www/$file"
+  IOS_FILE="ios/App/App/public/$file"
+
+  # Check if files exist
+  if [[ ! -f "$WWW_FILE" ]]; then
+    continue
+  fi
+
+  if [[ ! -f "$IOS_FILE" ]]; then
+    echo "❌ iOS bundle missing: $file"
+    SYNC_REQUIRED=true
+    MISMATCHED_FILES+=("$file (missing in iOS)")
+    continue
+  fi
+
+  # Compare file checksums
+  WWW_CHECKSUM=$(md5 -q "$WWW_FILE" 2>/dev/null || md5sum "$WWW_FILE" | awk '{print $1}')
+  IOS_CHECKSUM=$(md5 -q "$IOS_FILE" 2>/dev/null || md5sum "$IOS_FILE" | awk '{print $1}')
+
+  if [[ "$WWW_CHECKSUM" != "$IOS_CHECKSUM" ]]; then
+    echo "⚠️  Mismatch detected: $file"
+    SYNC_REQUIRED=true
+    MISMATCHED_FILES+=("$file")
+  fi
+done
+
+if [[ "$SYNC_REQUIRED" == true ]]; then
+  echo ""
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo "❌ COMMIT BLOCKED: iOS bundle out of sync"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo ""
+  echo "Mismatched files:"
+  for file in "${MISMATCHED_FILES[@]}"; do
+    echo "  - $file"
+  done
+  echo ""
+  echo "🔧 Fix: Run 'npx cap sync ios' before committing"
+  echo ""
+  echo "Or bypass this check (NOT RECOMMENDED):"
+  echo "  git commit --no-verify"
+  echo ""
+  exit 1
+fi
+
+echo "✅ iOS bundle verified - all critical files synced"
+exit 0
