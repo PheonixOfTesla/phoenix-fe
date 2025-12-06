@@ -50,6 +50,9 @@
         localStorage.setItem('phoenix_ui_mode', 'voice');
         localStorage.setItem('phoenix_is_mobile', isMobile ? 'true' : 'false');
 
+        // CRITICAL: Set data-mode attribute IMMEDIATELY (before any scripts run)
+        document.body.setAttribute('data-mode', 'voice');
+
         console.log('🎤 Forcing voice mode on page load');
         console.log(isMobile ? '📱 Mobile device detected - VOICE MODE ONLY' : '🖥️ Desktop device - all modes available');
     </script>
