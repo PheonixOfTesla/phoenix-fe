@@ -29,10 +29,10 @@ class PhoenixVoiceCommands {
         this.conversationHistory = [];
         this.maxHistoryLength = 10; // Keep last 10 messages for context
 
-        // Load user voice preferences from localStorage
-        this.voice = localStorage.getItem('phoenixVoice') || 'echo';
+        // Load user voice preferences from localStorage (TESLA DEFAULTS)
+        this.voice = localStorage.getItem('phoenixVoice') || 'nova';
         this.language = localStorage.getItem('phoenixLanguage') || 'en';
-        this.personality = localStorage.getItem('phoenixPersonality') || 'friendly_helpful';
+        this.personality = localStorage.getItem('phoenixPersonality') || 'tesla';
         console.log('🎙️ Voice preferences loaded:', { voice: this.voice, language: this.language });
 
         // Platform detection
