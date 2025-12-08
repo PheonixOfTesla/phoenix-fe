@@ -101,7 +101,6 @@ class PhoenixAPI {
             return data;
 
         } catch (error) {
-            console.error(`API Error [${method} ${endpoint}]:`, error);
             throw error;
         }
     }
@@ -1747,7 +1746,6 @@ class PhoenixAPI {
     async refreshToken() {
         // Note: Backend doesn't have a /auth/refresh endpoint
         // This would need to be implemented on the backend
-        console.warn('Token refresh not implemented on backend');
         throw new Error('Token refresh not available');
     }
 
@@ -1784,11 +1782,7 @@ const API = new PhoenixAPI();
 
 // Auto-initialize on page load
 (function() {
-    console.log('Phoenix API Client Initialized');
-    console.log(`📡 Base URL: ${API.baseURL}`);
-    console.log(`🔐 Authenticated: ${!!API.token}`);
-    console.log(`👤 User ID: ${API.userId || 'Not logged in'}`);
-    console.log('257 backend endpoints loaded (perfect 1:1 mirror)');
+    // API client initialized silently
 })();
 
 // Export for use in other modules

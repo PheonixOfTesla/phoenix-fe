@@ -47,7 +47,6 @@ class PhoenixOrb {
      * Initialize Phoenix Orb
      */
     async init() {
-        console.log(`🔥 Phoenix Orb initializing on ${this.currentPlanet.toUpperCase()}...`);
 
         // Fetch user name for personalization
         await this.fetchUserName();
@@ -70,7 +69,6 @@ class PhoenixOrb {
         // Set up activity batch sending
         setInterval(() => this.sendActivityBatch(), 5000); // Send every 5 seconds
 
-        console.log('✅ Phoenix Orb ready');
 
         // ⭐ NEW: Cache common responses in background
         setTimeout(() => this.cacheCommonResponses(), 2000);
@@ -86,7 +84,6 @@ class PhoenixOrb {
         try {
             const token = localStorage.getItem('phoenixToken');
             if (!token) {
-                console.log('⚠️  No auth token, skipping user name fetch');
                 return;
             }
 
@@ -99,10 +96,8 @@ class PhoenixOrb {
             if (response.ok) {
                 const data = await response.json();
                 this.userName = data.user?.name || data.user?.email?.split('@')[0] || 'there';
-                console.log(`👤 User name loaded: ${this.userName}`);
             }
         } catch (error) {
-            console.error('Error fetching user name:', error);
             this.userName = 'there'; // Fallback
         }
     }
@@ -112,12 +107,10 @@ class PhoenixOrb {
      */
     initTTS() {
         if (typeof VoiceTTS === 'undefined') {
-            console.error('❌ VoiceTTS not loaded');
             return;
         }
 
         if (typeof window.API === 'undefined') {
-            console.error('❌ Phoenix API not loaded - TTS disabled');
             return;
         }
 
@@ -128,7 +121,6 @@ class PhoenixOrb {
             volume: 0.8
         });
 
-        console.log('🔊 TTS initialized with OpenAI nova voice');
     }
 
     /**
@@ -136,7 +128,6 @@ class PhoenixOrb {
      */
     initWakeWordDetection() {
         if (typeof WakeWordDetector === 'undefined') {
-            console.error('❌ WakeWordDetector not loaded');
             return;
         }
 
@@ -148,7 +139,6 @@ class PhoenixOrb {
 
         // Handle wake word detection
         this.wakeWordDetector.onWakeWord((detection) => {
-            console.log(`🔥 Wake word detected: "${detection.transcript}"`);
 
             // Expand panel if not expanded
             if (!this.isExpanded) {
@@ -168,7 +158,6 @@ class PhoenixOrb {
         // Handle sleep word detection (if method exists)
         if (typeof this.wakeWordDetector.onSleepWord === 'function') {
             this.wakeWordDetector.onSleepWord((detection) => {
-                console.log(`💤 Sleep word detected: "${detection.transcript}"`);
 
                 // Show sleep notification
                 this.showSleepNotification();
@@ -181,8 +170,6 @@ class PhoenixOrb {
         // Start wake word detection
         this.wakeWordDetector.start();
 
-        console.log('🎤 Wake word detection started');
-        console.log('💬 Say "Hey Phoenix" to activate or "Sleep Phoenix" to stop listening');
     }
 
     /**
@@ -228,13 +215,11 @@ class PhoenixOrb {
      * Start voice interaction when clicking the center orb (like Siri)
      */
     startVoiceFromOrb() {
-        console.log('🎤 Orb clicked - starting voice interaction');
 
         const orb = document.querySelector('.phoenix-orb');
 
         // Check if system is sleeping - wake it up
         if (this.wakeWordDetector && this.wakeWordDetector.isSleeping) {
-            console.log('⏰ Waking Phoenix from sleep...');
             orb.classList.remove('sleeping');
             this.wakeWordDetector.wake();
             // Use cached audio for instant response
@@ -270,7 +255,6 @@ class PhoenixOrb {
      */
     async speak(text, options = {}) {
         if (!this.tts) {
-            console.log('🔇 TTS not available');
             return;
         }
 
@@ -285,7 +269,6 @@ class PhoenixOrb {
             // Remove speaking animation when done
             orb.classList.remove('speaking');
         } catch (error) {
-            console.error('TTS error:', error);
             // Remove animation even if error
             document.querySelector('.phoenix-orb')?.classList.remove('speaking');
         }
@@ -378,7 +361,6 @@ class PhoenixOrb {
      */
     initVoiceRecognition() {
         if (!('webkitSpeechRecognition' in window)) {
-            console.warn('Speech recognition not supported');
             return;
         }
 
@@ -414,7 +396,6 @@ class PhoenixOrb {
         };
 
         this.recognition.onerror = (event) => {
-            console.error('Speech recognition error:', event.error);
             this.stopVoice();
             this.logActivity('voice_error', { error: event.error });
         };
@@ -428,7 +409,6 @@ class PhoenixOrb {
      * Start Behavior Tracking - EVERYTHING
      */
     startBehaviorTracking() {
-        console.log('📊 Behavior tracking active - Phoenix is watching...');
 
         // Track all clicks
         document.addEventListener('click', (e) => {
@@ -512,7 +492,6 @@ class PhoenixOrb {
         // Disabled: backend endpoint doesn't exist yet
         // Activities are logged locally for now
         if (this.activityBatchQueue.length > 0) {
-            console.log(`📊 Logged ${this.activityBatchQueue.length} activities (local only)`);
             this.activityBatchQueue = []; // Clear queue
         }
     }
@@ -659,7 +638,6 @@ class PhoenixOrb {
      * Process Command via Universal NL
      */
     async processCommand(message, inputType) {
-        console.log(`💬 Processing command: "${message}" (${inputType})`);
 
         // Show processing state
         const orb = document.querySelector('.phoenix-orb');
@@ -716,15 +694,13 @@ class PhoenixOrb {
             }
 
             const result = await response.json();
-            if (DEBUG_MODE) console.log('🌟 Phoenix Companion Response:', result);
+            if (DEBUG_MODE)
 
             // Extract message from companion chat format
             const aiMessage = result.data?.message || result.message || 'Sorry, I didn\'t get a response';
             const confidence = result.data?.confidence || 0;
 
             if (DEBUG_MODE) {
-                console.log(`📊 Confidence: ${confidence}%`);
-                console.log(`💬 Response: ${aiMessage}`);
             }
 
             // ⭐ NEW: Show text IMMEDIATELY in conversation bubble
@@ -759,7 +735,6 @@ class PhoenixOrb {
             }
 
         } catch (error) {
-            console.error('❌ Command processing error:', error);
             orb.classList.remove('processing');
             this.clearStatusMessage();
 
@@ -903,14 +878,12 @@ class PhoenixOrb {
      */
     async speakAsync(text, options = {}) {
         if (!this.tts) {
-            console.log('🔇 TTS not available');
             return;
         }
 
         // Check cache first
         const cachedAudio = this.getCachedAudio(text);
         if (cachedAudio) {
-            console.log('🎵 Playing cached audio');
             this.playAudioBlob(cachedAudio);
             return;
         }
@@ -930,7 +903,6 @@ class PhoenixOrb {
             orb.classList.remove('generating-voice');
 
         } catch (error) {
-            console.error('TTS error:', error);
             this.clearStatusMessage();
             document.querySelector('.phoenix-orb')?.classList.remove('generating-voice');
         }
@@ -954,7 +926,6 @@ class PhoenixOrb {
                 }
                 return new Blob([ab], { type: 'audio/mpeg' });
             } catch (error) {
-                console.error('Cache read error:', error);
                 return null;
             }
         }
@@ -974,7 +945,6 @@ class PhoenixOrb {
             "Anything else I can help with?"
         ];
 
-        console.log('🎵 Caching common responses...');
 
         for (const phrase of commonPhrases) {
             const cacheKey = `phoenix_tts_${phrase.toLowerCase().trim()}`;
@@ -993,19 +963,16 @@ class PhoenixOrb {
                     reader.onloadend = () => {
                         const base64 = reader.result.split(',')[1];
                         localStorage.setItem(cacheKey, base64);
-                        console.log(`✅ Cached: "${phrase}"`);
                     };
                     reader.readAsDataURL(audioBlob);
                 }
             } catch (error) {
-                console.error(`Failed to cache "${phrase}":`, error);
             }
 
             // Small delay between requests
             await new Promise(resolve => setTimeout(resolve, 500));
         }
 
-        console.log('✅ Common responses cached');
     }
 
     /**
@@ -1029,7 +996,6 @@ class PhoenixOrb {
         };
 
         audio.play().catch(error => {
-            console.error('Audio playback error:', error);
             orb.classList.remove('speaking');
         });
     }
@@ -1084,11 +1050,9 @@ class PhoenixOrb {
         // ⭐ NEW: Check for navigation command from backend FIRST
         if (result.navigation) {
             const { target, planetName, action, metric, metricName } = result.navigation;
-            console.log(`🧭 Navigation command received: ${action} - ${target} (metric: ${metric || 'none'})`);
 
             // ⭐ METRIC SPOTLIGHT - Show specific metric modal
             if (action === 'spotlight_metric' && metric) {
-                console.log(`🎯 Spotlighting metric: ${metric}`);
 
                 // Trigger metric spotlight on current page
                 if (window.mercuryDashboard && typeof window.mercuryDashboard.spotlightMetric === 'function') {
@@ -1124,7 +1088,6 @@ class PhoenixOrb {
                 this.speak(announcement);
 
                 setTimeout(() => {
-                    console.log(`🚀 Auto-navigating to ${targetUrl}`);
                     // Store greeting flag for post-navigation
                     sessionStorage.setItem('phoenixNavigated', 'true');
                     sessionStorage.setItem('phoenixTargetPlanet', target);
@@ -1159,7 +1122,6 @@ class PhoenixOrb {
                 this.speak(announcement);
 
                 setTimeout(() => {
-                    console.log(`🚀 Auto-navigating to ${targetUrl}`);
                     // Store greeting flag for post-navigation
                     sessionStorage.setItem('phoenixNavigated', 'true');
                     sessionStorage.setItem('phoenixTargetPlanet', result.intent.planet);
@@ -1194,7 +1156,6 @@ class PhoenixOrb {
      * Handle SMS Intent
      */
     async handleSMSIntent(data) {
-        console.log('📱 Handling SMS intent:', data);
 
         if (!data.contact || !data.message) {
             this.speak('I need a contact and message to send a text');
@@ -1224,7 +1185,6 @@ class PhoenixOrb {
                 throw new Error('Failed to send SMS');
             }
         } catch (error) {
-            console.error('SMS error:', error);
             this.speak('Sorry, I couldn\'t send that text message');
             this.showResponse('error', 'Failed to send SMS', error.message);
         }
@@ -1244,7 +1204,6 @@ window.addEventListener('DOMContentLoaded', () => {
         if (window.PhoenixConfig) {
             phoenixOrb = new PhoenixOrb();
         } else {
-            console.error('❌ PhoenixConfig not found! Make sure config.js is loaded.');
         }
     }, 100);
 });

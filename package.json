@@ -52,6 +52,8 @@
   },
   "devDependencies": {
     "@capacitor/cli": "^5.5.1",
+    "chokidar": "^5.0.0",
+    "husky": "^9.1.7",
     "puppeteer": "^21.11.0",
     "typescript": "^5.9.3"
   },
