@@ -20,13 +20,10 @@ class JARVISEngine {
         this.activeInterventions = [];
         this.insights = [];
         this.recommendations = [];
-        
-        console.log('JARVIS Engine constructed');
     }
 
     getHeaders() {
         const token = localStorage.getItem('phoenixToken'); // FIXED: correct key
-        if (!token) console.warn('⚠️ No auth token - endpoints will return 401');
         return {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -36,7 +33,6 @@ class JARVISEngine {
     async checkAuth() {
         const token = localStorage.getItem('phoenixToken');
         if (!token) {
-            console.error('❌ No authentication token');
             return false;
         }
         
@@ -50,33 +46,28 @@ class JARVISEngine {
                 if (DEBUG_MODE) console.log('Authenticated:', data.user?.name);
                 return true;
             } else {
-                console.error('❌ Token invalid');
                 localStorage.removeItem('phoenixToken');
                 return false;
             }
         } catch (error) {
-            console.error('❌ Auth check failed:', error);
             return false;
         }
     }
 
     async init() {
-        console.log('⚡ Initializing JARVIS (optimized)...');
         const startTime = performance.now();
 
         const isAuth = await this.checkAuth();
         if (!isAuth) {
-            console.error('❌ No authentication - JARVIS limited mode');
             return;
         }
 
         try {
             // OPTIMIZATION: Load critical features in parallel (300-500ms instead of 3.5s!)
-            console.log('⚡ Loading features in parallel...');
             await Promise.all([
-                this.loadPersonality().catch(e => console.warn('Personality load failed:', e)),
-                this.loadChatHistory().catch(e => console.warn('Chat history load failed:', e)),
-                this.loadInsights().catch(e => console.warn('Insights load failed:', e))
+                this.loadPersonality().catch(e => {}),
+                this.loadChatHistory().catch(e => {}),
+                this.loadInsights().catch(e => {})
             ]);
 
             // OPTIMIZATION: Lazy load non-critical features in background
@@ -89,10 +80,10 @@ class JARVISEngine {
             setTimeout(() => this.startRealtimeMonitoring(), 2000);
 
             const loadTime = Math.round(performance.now() - startTime);
-            console.log(`✅ JARVIS initialized in ${loadTime}ms (optimized)`);
+            if (DEBUG_MODE) console.log(`✅ JARVIS initialized in ${loadTime}ms`);
             this.showWelcomeMessage();
         } catch (error) {
-            console.error('❌ Init error:', error);
+            if (DEBUG_MODE) console.error('Init error:', error);
         }
     }
 
