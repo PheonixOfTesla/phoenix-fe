@@ -37,8 +37,6 @@ const DEBUG_MODE = false; // Set to true to enable verbose debug logging
 
 class PhoenixOrchestrator {
     constructor() {
-        console.log('Phoenix Orchestrator initializing...');
-        
         // Core state management - prevents restarts
         this.state = {
             initialized: false,
@@ -157,12 +155,10 @@ class PhoenixOrchestrator {
     async initialize() {
         // Prevent multiple simultaneous initializations
         if (this.initPromise) {
-            console.log('Orchestrator already initializing, waiting...');
             return this.initPromise;
         }
 
         if (this.state.initialized) {
-            console.log('Orchestrator already initialized');
             return true;
         }
 
@@ -174,8 +170,7 @@ class PhoenixOrchestrator {
     async _performInitialization() {
         try {
             this.initAttempts++;
-            console.log(`🚀 Phoenix initialization attempt ${this.initAttempts}/${this.maxInitAttempts}`);
-            
+
             // Create session ID
             this.state.session.id = this.generateSessionId();
             this.state.session.startTime = Date.now();
@@ -232,17 +227,13 @@ class PhoenixOrchestrator {
             
             // Mark as initialized
             this.state.initialized = true;
-            
-            console.log(`✅ Phoenix initialized successfully in ${this.performanceMetrics.initDuration}ms`);
-            console.log(`📊 Performance: ${this.performanceMetrics.componentsLoaded} components, ${this.performanceMetrics.endpointsCalled} endpoints called, ${this.performanceMetrics.failedEndpoints} failures`);
-            
+
             // STEP 16: Dispatch ready event
             this.dispatchReadyEvent();
             
             return true;
             
         } catch (error) {
-            console.error('❌ Critical initialization failure:', error);
             this.handleInitializationError(error);
             return false;
         }
@@ -250,11 +241,8 @@ class PhoenixOrchestrator {
 
     async executeInitStep(stepName, stepFunction) {
         try {
-            console.log(`Initializing ${stepName}...`);
             await stepFunction();
-            console.log(`✅ ${stepName} ready`);
         } catch (error) {
-            console.error(`❌ ${stepName} failed:`, error);
             this.logError(`${stepName} initialization failed`, error);
             
             // Some steps are critical, others can fail
@@ -323,7 +311,6 @@ class PhoenixOrchestrator {
      * =============================================================================
      */
     async setupAuthentication() {
-        console.log('Setting up authentication...');
         
         try {
             // Check for existing token
@@ -331,7 +318,6 @@ class PhoenixOrchestrator {
             const storedUserId = localStorage.getItem('phoenix_user_id');
             
             if (storedToken && storedUserId) {
-                console.log('Found stored credentials, validating...');
                 
                 // ENDPOINT 1: GET /api/auth/me (validate token)
                 // Real-world: "Is this token still valid? Who is this user?"
@@ -347,7 +333,6 @@ class PhoenixOrchestrator {
                     return;
                 }
                 
-                if (DEBUG_MODE) console.log('Stored token invalid, attempting refresh...');
 
                 // Try to refresh token
                 const refreshed = await this.attemptTokenRefresh(storedToken);
@@ -361,7 +346,6 @@ class PhoenixOrchestrator {
             const currentPath = window.location.pathname;
             
             if (currentPath.includes('/login')) {
-                console.log('User on login page, waiting for login...');
                 this.state.health.auth = 'waiting_for_login';
                 
                 // ENDPOINT 2: POST /api/auth/login (will be called when user submits form)
