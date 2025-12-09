@@ -375,9 +375,50 @@ class PhoenixVoiceCommands {
     }
 
     /* ============================================
-       SPEECH RECOGNITION SETUP
+       SPEECH RECOGNITION SETUP (CAPACITOR NATIVE)
        ============================================ */
-    initSpeechRecognition() {
+    async initSpeechRecognition() {
+        console.log('[Voice] Initializing speech recognition...');
+
+        // Check if Capacitor platform helper exists
+        if (window.capacitorPlatform) {
+            try {
+                await window.capacitorPlatform.initialize({
+                    language: 'en-US',
+                    interimResults: true,
+                    continuous: false,
+                    maxAlternatives: 3
+                });
+
+                // Set up callbacks for native/web speech results
+                window.capacitorPlatform.onResultCallback = (result) => {
+                    this.handleSpeechResult(result.transcript, result.isFinal, result.confidence);
+                };
+
+                window.capacitorPlatform.onErrorCallback = (error) => {
+                    console.error('[Voice] Speech recognition error:', error);
+                    this.setOrbState('idle');
+                    this.isListening = false;
+                };
+
+                window.capacitorPlatform.onEndCallback = () => {
+                    console.log('[Voice] Recognition ended');
+                    this.isListening = false;
+                    if (!this.isProcessing && !this.isSpeaking) {
+                        this.setOrbState('idle');
+                    }
+                };
+
+                console.log('✅ Speech recognition initialized via Capacitor');
+                this.usesCapacitorSpeech = true;
+                return;
+
+            } catch (error) {
+                console.warn('[Voice] Capacitor speech init failed, falling back to Web Speech API:', error);
+            }
+        }
+
+        // Fallback to Web Speech API if Capacitor not available
         if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
             console.warn('Speech recognition not supported');
             return;
@@ -388,22 +429,11 @@ class PhoenixVoiceCommands {
 
         this.recognition.continuous = false;
         this.recognition.interimResults = true;
-        // Use generic 'en' instead of 'en-US' for better accent support across all English variants
-        // This handles US, UK, Australian, Indian, and other English accents better
         this.recognition.lang = 'en';
-        // Get top 3 alternatives to handle slang, accents, and ambiguous speech better
         this.recognition.maxAlternatives = 3;
 
-        // OPTIMIZATION: Silence detection (only on non-Apple devices)
-        // Apple devices use native Whisper which handles this automatically
-        if (!this.useNativeAPIs) {
-            this.lastSpeechTime = 0;
-            this.silenceThreshold = 300; // ms - ultra-fast response
-            this.silenceTimer = null;
-        }
-
         this.recognition.onstart = () => {
-            console.log('Voice recognition started');
+            console.log('[Voice] Web Speech API started');
             this.isListening = true;
             this.setOrbState('listening');
         };
@@ -413,10 +443,8 @@ class PhoenixVoiceCommands {
             let finalTranscript = '';
 
             for (let i = event.resultIndex; i < event.results.length; i++) {
-                // Get the best transcript (alternative 0)
                 const transcript = event.results[i][0].transcript;
 
-                // Log alternatives for debugging (helps understand accent/slang issues)
                 if (DEBUG_MODE && event.results[i].isFinal && event.results[i].length > 1) {
                     console.log('🎤 Alternatives:', Array.from(event.results[i]).map((alt, idx) =>
                         `${idx + 1}: "${alt.transcript}" (${Math.round(alt.confidence * 100)}%)`
@@ -430,38 +458,40 @@ class PhoenixVoiceCommands {
                 }
             }
 
-            this.currentTranscript = finalTranscript || interimTranscript;
-            console.log('Transcript:', this.currentTranscript);
-
-            // Apple devices: Process immediately (native Whisper is faster)
-            if (this.useNativeAPIs) {
-                if (finalTranscript) {
-                    this.processCommand(finalTranscript.trim().toLowerCase());
-                }
-                return;
-            }
-
-            // CRITICAL FIX: Only process final transcripts to prevent duplicates
-            // Interim transcripts cause multiple AI calls with slightly different text,
-            // resulting in overlapping audio responses
-            if (finalTranscript) {
-                this.processCommand(finalTranscript.trim().toLowerCase());
-            }
+            const transcript = finalTranscript || interimTranscript;
+            const isFinal = finalTranscript.length > 0;
+            this.handleSpeechResult(transcript, isFinal);
         };
 
         this.recognition.onerror = (event) => {
-            console.error('Speech recognition error:', event.error);
+            console.error('[Voice] Web Speech API error:', event.error);
             this.setOrbState('idle');
             this.isListening = false;
         };
 
         this.recognition.onend = () => {
-            console.log('Voice recognition ended');
+            console.log('[Voice] Web Speech API ended');
             this.isListening = false;
             if (!this.isProcessing && !this.isSpeaking) {
                 this.setOrbState('idle');
             }
         };
+
+        console.log('✅ Web Speech API initialized (fallback)');
+        this.usesCapacitorSpeech = false;
+    }
+
+    /**
+     * Handle speech result from either Capacitor or Web Speech API
+     */
+    handleSpeechResult(transcript, isFinal, confidence = 1.0) {
+        this.currentTranscript = transcript;
+        console.log('[Voice] Transcript:', transcript, isFinal ? '(final)' : '(interim)');
+
+        // Only process final transcripts to prevent duplicates
+        if (isFinal) {
+            this.processCommand(transcript.trim().toLowerCase());
+        }
     }
 
     /* ============================================
@@ -506,7 +536,7 @@ class PhoenixVoiceCommands {
        ============================================ */
     async startListening() {
         // PREVENT DOUBLE-CLICK: Check if request already in progress
-        if (!this.recognition || this.isListening || this.requestInProgress) {
+        if (this.isListening || this.requestInProgress) {
             if (this.requestInProgress) {
                 console.log('⚠️ Request already in progress - ignoring click');
             }
@@ -517,10 +547,8 @@ class PhoenixVoiceCommands {
         this.userInteracted = true;
 
         // CRITICAL FIX: Unlock audio context on first user interaction
-        // This ensures TTS autoplay will work
-        // DON'T await - must stay synchronous for speech recognition to work!
         if (!this.audioUnlocked) {
-            this.unlockAudioContext(); // Fire and forget - don't await!
+            this.unlockAudioContext(); // Fire and forget
         }
 
         // Stop any current audio playback
@@ -539,19 +567,36 @@ class PhoenixVoiceCommands {
                 this.requestInProgress = false;
             }, 30000);
 
-            this.recognition.start();
-            this.setOrbState('listening');
+            // Use Capacitor native API if available, otherwise Web Speech API
+            if (this.usesCapacitorSpeech && window.capacitorPlatform) {
+                await window.capacitorPlatform.startListening();
+                this.isListening = true;
+                this.setOrbState('listening');
+            } else if (this.recognition) {
+                this.recognition.start();
+                this.setOrbState('listening');
+            } else {
+                throw new Error('No speech recognition available');
+            }
         } catch (error) {
-            console.error('Could not start recognition:', error);
+            console.error('[Voice] Could not start recognition:', error);
             this.requestInProgress = false; // Release lock on error
         }
     }
 
-    stopListening() {
-        if (!this.recognition || !this.isListening) return;
+    async stopListening() {
+        if (!this.isListening) return;
 
-        this.recognition.stop();
-        this.isListening = false;
+        try {
+            if (this.usesCapacitorSpeech && window.capacitorPlatform) {
+                await window.capacitorPlatform.stopListening();
+            } else if (this.recognition) {
+                this.recognition.stop();
+            }
+            this.isListening = false;
+        } catch (error) {
+            console.error('[Voice] Could not stop recognition:', error);
+        }
     }
 
     /* ============================================
