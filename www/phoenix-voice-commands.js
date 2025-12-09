@@ -89,8 +89,8 @@ class PhoenixVoiceCommands {
         // Initialize speech recognition (optimized for platform)
         this.initSpeechRecognition();
 
-        // Set up wake word detection integration
-        this.setupWakeWordIntegration();
+        // 🔧 FIX: Wake word detection DISABLED - app uses tap-to-talk only
+        // this.setupWakeWordIntegration();
 
         // Initialize WebSocket connection for streaming
         this.initWebSocket();
