@@ -1602,8 +1602,12 @@ class PhoenixVoiceCommands {
 
             if (response.ok) {
                 const data = await response.json();
-                this.speak(data.response || data.message);
+                // Backend returns: { success: true, data: { message: "..." } }
+                const message = (data.data && data.data.message) || data.message || data.response || 'No response';
+                console.log('✅ Received AI response:', message.substring(0, 100));
+                this.speak(message);
             } else {
+                console.error('❌ AI request failed:', response.status, response.statusText);
                 this.speak('Sorry, I could not process that request');
             }
         } catch (error) {

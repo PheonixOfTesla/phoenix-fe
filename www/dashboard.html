@@ -470,6 +470,62 @@
             from { opacity: 0; transform: translateX(20px); }
             to { opacity: 1; transform: translateX(0); }
         }
+
+        /* ============================================
+           VOICE MODE - HIDE ALL UI EXCEPT PHOENIX ORB
+           Default: HIDE (voice mode is default on load)
+           Show ONLY in manual/desk modes
+           ============================================ */
+
+        /* HIDE by default (prevents flash of dashboard content) */
+        #dashboard-content,
+        #quick-actions-orb,
+        #settings-orb,
+        #quick-actions-menu,
+        #settings-menu,
+        #jarvis-quick-menu,
+        .planet-nav,
+        .sidebar,
+        #planet-nav-tab,
+        #planet-selection-panel,
+        #hud-tl,
+        #hud-bl,
+        button[onclick="window.history.back()"] {
+            display: none !important;
+        }
+
+        /* SHOW ONLY in manual/desk modes */
+        body[data-mode="manual"] #dashboard-content,
+        body[data-mode="manual"] #quick-actions-orb,
+        body[data-mode="manual"] #settings-orb,
+        body[data-mode="manual"] .planet-nav,
+        body[data-mode="manual"] .sidebar,
+        body[data-mode="manual"] #planet-nav-tab,
+        body[data-mode="manual"] #hud-tl,
+        body[data-mode="manual"] #hud-bl,
+        body[data-mode="manual"] button[onclick="window.history.back()"],
+        body[data-mode="desk"] #dashboard-content,
+        body[data-mode="desk"] #quick-actions-orb,
+        body[data-mode="desk"] #settings-orb,
+        body[data-mode="desk"] .planet-nav,
+        body[data-mode="desk"] .sidebar,
+        body[data-mode="desk"] #planet-nav-tab,
+        body[data-mode="desk"] #hud-tl,
+        body[data-mode="desk"] #hud-bl,
+        body[data-mode="desk"] button[onclick="window.history.back()"] {
+            display: block !important;
+        }
+
+        /* Flex items need display: flex */
+        body[data-mode="manual"] #planet-nav-tab,
+        body[data-mode="desk"] #planet-nav-tab {
+            display: flex !important;
+        }
+
+        /* Mode toggle always visible */
+        #mode-toggle-container {
+            display: flex !important;
+        }
     </style>
 
     <script>
@@ -4937,18 +4993,16 @@
         // Wait for phoenix-voice-commands.js to fully initialize
         document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
-                // Check if we're in voice-only mode
-                const isVoiceMode = document.body.getAttribute('data-mode') === 'voice';
-
-                if (isVoiceMode && window.phoenixVoiceCommands) {
-                    console.log('🎤 Voice-only mode detected - auto-starting voice listening...');
+                // Auto-start voice listening regardless of mode (always hot)
+                if (window.phoenixVoiceCommands) {
+                    console.log('🎤 Auto-starting voice listening (always hot)...');
 
                     // Auto-start voice listening
                     window.phoenixVoiceCommands.startListening();
 
                     console.log('✅ Voice listening auto-started - ready to receive commands');
                 } else {
-                    console.log('ℹ️ Manual mode - voice listening requires orb click');
+                    console.error('❌ phoenixVoiceCommands not available');
                 }
             }, 1000); // Wait 1s for voice commands to fully initialize
         });
