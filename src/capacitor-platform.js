@@ -54,9 +54,16 @@ class PlatformSpeechRecognition {
             if (this.isCapacitor && this.isNativeIOS) {
                 // Use Capacitor Speech Recognition Plugin
                 console.log('[Platform] Initializing Capacitor Speech Recognition for iOS');
+                console.log('[Platform] Capacitor:', this.isCapacitor);
+                console.log('[Platform] Native iOS:', this.isNativeIOS);
 
-                // Request permissions
-                const { SpeechRecognition } = await import('@capacitor-community/speech-recognition');
+                // Use Capacitor's plugin system instead of ES6 import
+                console.log('[Platform] Accessing SpeechRecognition via Capacitor.Plugins...');
+                const { SpeechRecognition } = window.Capacitor.Plugins;
+
+                if (!SpeechRecognition) {
+                    throw new Error('SpeechRecognition plugin not found in Capacitor.Plugins');
+                }
 
                 const permission = await SpeechRecognition.requestPermissions();
                 if (permission.speechRecognition !== 'granted') {
@@ -123,16 +130,26 @@ class PlatformSpeechRecognition {
 
     /**
      * Start listening (unified interface)
+     * RETRIES iOS native on every attempt for superior performance
      */
     async startListening(options = {}) {
-        if (!this.recognizer) {
+        // ALWAYS retry iOS native initialization on every start
+        // This ensures we use superior iOS native instead of Web Speech fallback
+        if (this.isCapacitor && this.isNativeIOS) {
+            try {
+                console.log('[Platform] Attempting iOS native speech (retry on every start)...');
+                await this.initialize(options);
+            } catch (error) {
+                console.error('[Platform] iOS native failed, will use Web Speech:', error);
+            }
+        } else if (!this.recognizer) {
             await this.initialize(options);
         }
 
         try {
-            if (this.isCapacitor && this.isNativeIOS) {
+            if (this.isCapacitor && this.isNativeIOS && this.recognizer) {
                 // Capacitor Speech Recognition
-                const { SpeechRecognition } = await import('@capacitor-community/speech-recognition');
+                const { SpeechRecognition } = window.Capacitor.Plugins;
 
                 await SpeechRecognition.start({
                     language: options.language || 'en-US',
@@ -181,11 +198,13 @@ class PlatformSpeechRecognition {
         if (!this.isListening) return;
 
         try {
-            if (this.isCapacitor && this.isNativeIOS) {
-                const { SpeechRecognition } = await import('@capacitor-community/speech-recognition');
-                await SpeechRecognition.stop();
-                console.log('[Platform] iOS listening stopped');
-            } else {
+            if (this.isCapacitor && this.isNativeIOS && this.recognizer) {
+                const { SpeechRecognition } = window.Capacitor.Plugins;
+                if (SpeechRecognition) {
+                    await SpeechRecognition.stop();
+                    console.log('[Platform] iOS listening stopped');
+                }
+            } else if (this.recognizer) {
                 this.recognizer.stop();
                 console.log('[Platform] Web Speech API listening stopped');
             }

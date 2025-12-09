@@ -517,18 +517,82 @@ class PhoenixVoiceCommands {
         // Add new state
         this.orbElement.classList.add(state);
 
-        // VISUAL FEEDBACK: Clear console messages for user
+        // VISUAL FEEDBACK: Floating status pills + console
         const stateMessages = {
-            'listening': '🎤 Listening...',
-            'thinking': '💭 Thinking...',
-            'speaking': '🗣️ Speaking...',
-            'generating-voice': '🎵 Generating voice...',
-            'processing': '⚙️ Processing...',
-            'idle': '⚪ Ready'
+            'idle': { icon: '⚪', text: 'Ready', color: '#00d9ff' },
+            'listening': { icon: '🎤', text: 'Listening...', color: '#00ff88' },
+            'thinking': { icon: '💭', text: 'Thinking...', color: '#ff9500' },
+            'speaking': { icon: '🗣️', text: 'Speaking...', color: '#00d9ff' },
+            'generating-voice': { icon: '🎵', text: 'Generating speech...', color: '#667eea' },
+            'processing': { icon: '🧠', text: 'Brainstorming...', color: '#f5576c' },
+            'user-speaking': { icon: '🎤', text: 'Listening...', color: '#00ff88' }
         };
 
-        const message = stateMessages[state] || `Orb state: ${state}`;
-        console.log(`%c${message}`, 'font-size: 14px; font-weight: bold;');
+        if (stateMessages[state]) {
+            // Console log
+            console.log(`%c${stateMessages[state].icon} ${stateMessages[state].text}`, 'font-size: 14px; font-weight: bold;');
+
+            // Floating status pill
+            this.showStatusPill(stateMessages[state]);
+        }
+    }
+
+    /**
+     * Show floating status pill widget (iOS-optimized)
+     */
+    showStatusPill(status) {
+        // Remove existing pill
+        const existing = document.getElementById('phoenix-status-pill');
+        if (existing) existing.remove();
+
+        // Don't show pill for idle state
+        if (status.text === 'Ready') return;
+
+        // Create new pill
+        const pill = document.createElement('div');
+        pill.id = 'phoenix-status-pill';
+        pill.style.cssText = `
+            position: fixed;
+            top: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid ${status.color};
+            border-radius: 30px;
+            padding: 12px 28px;
+            color: ${status.color};
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            z-index: 10001;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 20px ${status.color}40;
+            backdrop-filter: blur(10px);
+            animation: pillFadeIn 0.3s ease-out;
+            pointer-events: none;
+        `;
+        pill.innerHTML = `${status.icon} ${status.text}`;
+
+        document.body.appendChild(pill);
+
+        // Add fade-in animation
+        if (!document.getElementById('phoenix-status-pill-styles')) {
+            const style = document.createElement('style');
+            style.id = 'phoenix-status-pill-styles';
+            style.textContent = `
+                @keyframes pillFadeIn {
+                    from {
+                        opacity: 0;
+                        transform: translateX(-50%) translateY(-10px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateX(-50%) translateY(0);
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
     }
 
     /* ============================================
