@@ -1725,6 +1725,77 @@ class PhoenixAPI {
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
+    // GENESIS ROUTES (10 endpoints) - Self-Modification (God Account Only)
+    // Backend: routes/genesis.js
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    // POST /api/genesis/analyze - Analyze codebase for issues
+    async genesisAnalyze(path = null) {
+        return this.request('/genesis/analyze', 'POST', { path });
+    }
+
+    // POST /api/genesis/generate - Generate code from natural language
+    async genesisGenerate(description, type = 'feature', context = {}) {
+        return this.request('/genesis/generate', 'POST', { description, type, context });
+    }
+
+    // POST /api/genesis/optimize - Auto-optimize codebase
+    async genesisOptimize(path = null, auto = true) {
+        return this.request('/genesis/optimize', 'POST', { path, auto });
+    }
+
+    // POST /api/genesis/deploy - Deploy to production
+    async genesisDeploy(target = 'backend') {
+        return this.request('/genesis/deploy', 'POST', { target });
+    }
+
+    // POST /api/genesis/build - Build feature from description
+    async genesisBuild(description) {
+        return this.request('/genesis/build', 'POST', { description });
+    }
+
+    // GET /api/genesis/status - Get Genesis system status
+    async genesisGetStatus() {
+        return this.request('/genesis/status', 'GET', null, { cache: false });
+    }
+
+    // POST /api/genesis/autonomous/start - Enable autonomous mode
+    async genesisStartAutonomous(config = {}) {
+        return this.request('/genesis/autonomous/start', 'POST', config);
+    }
+
+    // POST /api/genesis/autonomous/stop - Disable autonomous mode
+    async genesisStopAutonomous() {
+        return this.request('/genesis/autonomous/stop', 'POST');
+    }
+
+    // GET /api/genesis/operations - Get operation history
+    async genesisGetOperations(filters = {}) {
+        const query = new URLSearchParams(filters).toString();
+        return this.request(`/genesis/operations?${query}`, 'GET');
+    }
+
+    // GET /api/genesis/operations/:id - Get specific operation
+    async genesisGetOperation(operationId) {
+        return this.request(`/genesis/operations/${operationId}`, 'GET');
+    }
+
+    // POST /api/genesis/rollback/:id - Rollback operation
+    async genesisRollback(operationId) {
+        return this.request(`/genesis/rollback/${operationId}`, 'POST');
+    }
+
+    // Helper: Check if current user is Genesis God
+    async isGenesisGod() {
+        try {
+            const userData = await this.getMe();
+            return userData?.user?.email === 'Digitalappleco@gmail.com';
+        } catch {
+            return false;
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
     // UTILITY METHODS
     // ═══════════════════════════════════════════════════════════════════════════
 

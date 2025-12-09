@@ -11,10 +11,10 @@ class VoiceTTS {
     constructor(options = {}) {
         this.phoenixAPI = options.phoenixAPI || window.API; // window.API is the global PhoenixAPI instance
         this.enabled = options.enabled !== false; // Default enabled
-        this.rate = options.rate || 1.25; // Speed (TESLA: 1.25x for snappy responses)
+        this.rate = options.rate || 1.0; // Speed (1.0x for natural speech)
         this.pitch = options.pitch || 1.0; // Pitch (not used by OpenAI TTS)
         this.volume = options.volume || 1.0; // Volume (0 to 1)
-        this.voice = options.voice || 'nova'; // TESLA: Nova voice (warm, confident female)
+        this.voice = options.voice || 'nova'; // Nova voice (warm, confident female)
 
         // State
         this.isSpeaking = false;

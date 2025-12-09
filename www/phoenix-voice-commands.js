@@ -1460,6 +1460,28 @@ class PhoenixVoiceCommands {
                 if (aiResponse.message || aiResponse.response) {
                     let responseText = aiResponse.message || aiResponse.response;
 
+                    // 🔧 FIX: Parse JSON-wrapped responses from backend
+                    // Backend sometimes returns: {"reply": "message", "confidence": 1.0}
+                    // Or with markdown code fences: ```json\n{"reply": "..."}\n```
+                    try {
+                        // Remove markdown code fences if present
+                        let jsonText = responseText.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+
+                        // Try to parse as JSON
+                        const parsed = JSON.parse(jsonText);
+
+                        // Extract the actual message from common JSON response formats
+                        if (parsed.reply) {
+                            responseText = parsed.reply;
+                        } else if (parsed.message) {
+                            responseText = parsed.message;
+                        } else if (parsed.response) {
+                            responseText = parsed.response;
+                        }
+                    } catch (e) {
+                        // Not JSON, use as-is (this is fine - most responses are plain text)
+                    }
+
                     // Strip any JSON metadata that might be appended to the response
                     responseText = responseText.replace(/\s*\{[^}]*"confidence_score"[^}]*\}\s*$/i, '').trim();
                     responseText = responseText.replace(/\s*\{[^}]*"mood"[^}]*\}\s*$/i, '').trim();
@@ -1584,6 +1606,10 @@ class PhoenixVoiceCommands {
                 ? window.PhoenixConfig.API_BASE_URL
                 : 'https://pal-backend-production.up.railway.app/api';
 
+            // ⏱️ TIMING: LLM Request Start
+            const t0 = Date.now();
+            console.log(`[LLM_REQUEST_START] ${t0}`);
+
             const response = await fetch(`${baseUrl}/phoenix/companion/chat`, {
                 method: 'POST',
                 headers: {
@@ -1601,10 +1627,19 @@ class PhoenixVoiceCommands {
             });
 
             if (response.ok) {
+                // ⏱️ TIMING: Response Received
+                const t1 = Date.now();
+                console.log(`[LLM_RESPONSE_COMPLETE] ${t1} (+${t1 - t0}ms)`);
+
                 const data = await response.json();
                 // Backend returns: { success: true, data: { message: "..." } }
                 const message = (data.data && data.data.message) || data.message || data.response || 'No response';
+
+                // ⏱️ TIMING: Response Parsed
+                const t2 = Date.now();
+                console.log(`[LLM_RESPONSE_PARSED] ${t2} (+${t2 - t1}ms)`);
                 console.log('✅ Received AI response:', message.substring(0, 100));
+
                 this.speak(message);
             } else {
                 console.error('❌ AI request failed:', response.status, response.statusText);
@@ -1673,6 +1708,10 @@ class PhoenixVoiceCommands {
     }
 
     async speak(text, skipStateChange = false) {
+        // ⏱️ TIMING: TTS Pipeline Start
+        const ttsStart = Date.now();
+        console.log(`[TTS_PIPELINE_START] ${ttsStart}`);
+
         // Strip JSON metadata before speaking
         text = text.replace(/\s*\{[\s\S]*?"confidence_score"[\s\S]*?\}\s*$/i, '').trim();
         text = text.replace(/\s*\{[\s\S]*?"mood"[\s\S]*?\}\s*$/i, '').trim();
@@ -1703,6 +1742,10 @@ class PhoenixVoiceCommands {
                 ? window.PhoenixConfig.API_BASE_URL
                 : 'https://pal-backend-production.up.railway.app/api';
 
+            // ⏱️ TIMING: TTS Request Start
+            const ttsStart = Date.now();
+            console.log(`[TTS_REQUEST_SENT] ${ttsStart} (+${ttsStart - window.lastTtsStart || 0}ms)`);
+
             // Request base64 format for iOS compatibility
             const response = await fetch(`${baseUrl}/tts/generate`, {
                 method: 'POST',
@@ -1722,6 +1765,10 @@ class PhoenixVoiceCommands {
             if (!response.ok) {
                 throw new Error('TTS generation failed');
             }
+
+            // ⏱️ TIMING: TTS Audio Received
+            const ttsReceived = Date.now();
+            console.log(`[TTS_AUDIO_RECEIVED] ${ttsReceived} (+${ttsReceived - ttsStart}ms)`);
 
             // Convert base64 to blob for iOS compatibility
             const data = await response.json();
@@ -1760,14 +1807,58 @@ class PhoenixVoiceCommands {
             // Safari requires this to maintain the user gesture context
             audio.load();
 
+            // 🔧 iOS FIX: Stop speech recognition before TTS playback
+            // iOS audio session can't handle simultaneous mic input + speaker output
+            const wasListening = this.isListening;
+            if (wasListening && this.recognition) {
+                try {
+                    this.recognition.stop();
+                    this.isListening = false;
+                    console.log('🎤 Paused speech recognition for TTS playback');
+                } catch (e) {
+                    // Already stopped
+                }
+            }
+
             // FIX AUTOPLAY: Now play() is called on element created during user gesture
             try {
                 const playPromise = audio.play();
                 if (playPromise !== undefined) {
                     await playPromise;
                 }
+
+                // ⏱️ TIMING: Audio Playback Started
+                const playbackStart = Date.now();
+                console.log(`[AUDIO_PLAYBACK_START] ${playbackStart} (+${playbackStart - ttsReceived}ms)`);
                 console.log('✅ Audio playing via OpenAI TTS');
+
+                // 🔧 iOS FIX: Resume speech recognition after TTS completes
+                if (wasListening) {
+                    audio.addEventListener('ended', () => {
+                        setTimeout(() => {
+                            if (!this.isListening && this.recognition) {
+                                try {
+                                    this.recognition.start();
+                                    this.isListening = true;
+                                    console.log('🎤 Resumed speech recognition after TTS');
+                                } catch (e) {
+                                    // Handle restart error
+                                }
+                            }
+                        }, 300); // Small delay to ensure audio session is released
+                    });
+                }
             } catch (playError) {
+                // 🔧 iOS FIX: Resume speech recognition on playback error
+                if (wasListening && this.recognition) {
+                    try {
+                        this.recognition.start();
+                        this.isListening = true;
+                    } catch (e) {
+                        // Handle restart error
+                    }
+                }
+
                 if (playError.name === 'NotAllowedError') {
                     console.warn('⚠️ Autoplay blocked by browser - using fallback speech synthesis');
                     // User hasn't interacted yet, fallback to Web Speech API
