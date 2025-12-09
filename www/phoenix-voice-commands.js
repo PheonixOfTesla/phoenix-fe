@@ -531,6 +531,14 @@ class PhoenixVoiceCommands {
 
         try {
             this.requestInProgress = true; // Lock to prevent double-click
+
+            // 🔧 FIX: Auto-reset lock after 30s if stuck
+            if (this.requestTimeout) clearTimeout(this.requestTimeout);
+            this.requestTimeout = setTimeout(() => {
+                console.log('[VOICE] Request timeout - resetting lock');
+                this.requestInProgress = false;
+            }, 30000);
+
             this.recognition.start();
             this.setOrbState('listening');
         } catch (error) {
@@ -582,6 +590,33 @@ class PhoenixVoiceCommands {
                 }
             }
             // ========== END WORKSPACE INTERCEPT ==========
+
+            // ========== REFLEX LAYER - INSTANT RESPONSES (NO LLM) ==========
+            const REFLEX_RESPONSES = {
+                'hey': "Hey! What's up?",
+                'hello': "Hello! How can I help?",
+                'hi': "Hi there! What do you need?",
+                'hey phoenix': "I'm here. What do you need?",
+                'hi phoenix': "Hey! What can I do for you?",
+                'what time is it': () => `It's ${new Date().toLocaleTimeString([], {hour: 'numeric', minute:'2-digit'})}`,
+                "what's the time": () => `It's ${new Date().toLocaleTimeString([], {hour: 'numeric', minute:'2-digit'})}`,
+                'good morning': () => `Good morning! Ready to conquer the day?`,
+                'good night': "Good night! Rest well.",
+                'good evening': "Good evening! How can I help?",
+                'thank you': "You're welcome!",
+                'thanks': "Anytime!",
+            };
+
+            const normalizedQuery = transcript.toLowerCase().trim();
+            const reflexResponse = REFLEX_RESPONSES[normalizedQuery];
+            if (reflexResponse) {
+                const response = typeof reflexResponse === 'function' ? reflexResponse() : reflexResponse;
+                console.log('[REFLEX] ⚡ Instant response (no LLM):', response);
+                this.showTextBubble(response);
+                this.speak(response);
+                return; // SKIP LLM ENTIRELY - saves 1-2 seconds!
+            }
+            // ========== END REFLEX LAYER ==========
 
             // ========== HEALTH/FITNESS INTERCEPT ==========
             if (msg.includes('health') || msg.includes('recovery') || msg.includes('hrv') ||
@@ -712,6 +747,12 @@ class PhoenixVoiceCommands {
             // Release lock when done processing
             this.isProcessing = false;
             this.requestInProgress = false; // Allow new requests now
+
+            // Clear request timeout
+            if (this.requestTimeout) {
+                clearTimeout(this.requestTimeout);
+                this.requestTimeout = null;
+            }
 
             if (!this.isSpeaking) {
                 this.setOrbState('idle');
@@ -2192,10 +2233,39 @@ class PhoenixVoiceCommands {
 // Initialize on page load
 let phoenixVoiceCommands;
 
-function initPhoenixVoiceCommands() {
+async function initPhoenixVoiceCommands() {
     phoenixVoiceCommands = new PhoenixVoiceCommands();
     window.phoenixVoiceCommands = phoenixVoiceCommands;
     console.log('✅ Phoenix Voice Commands loaded and initialized');
+
+    // 🔧 FIX: Pre-warm AI backend on page load for faster first response
+    try {
+        const token = localStorage.getItem('authToken');
+        if (token) {
+            const baseUrl = (window.PhoenixConfig && window.PhoenixConfig.API_BASE_URL)
+                ? window.PhoenixConfig.API_BASE_URL
+                : 'https://pal-backend-production.up.railway.app/api';
+
+            // Fire and forget - don't block initialization
+            fetch(`${baseUrl}/interface/orchestrate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    query: 'Phoenix ready',
+                    context: 'warmup'
+                })
+            }).then(() => {
+                console.log('🔥 [WARMUP] AI backend pre-warmed - ready for instant responses');
+            }).catch(() => {
+                console.log('⚠️ [WARMUP] Pre-warm failed - will be cold start on first query');
+            });
+        }
+    } catch (e) {
+        // Silent fail - not critical
+    }
 }
 
 // Check if DOM is already loaded
