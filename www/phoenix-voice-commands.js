@@ -2021,12 +2021,13 @@ class PhoenixVoiceCommands {
         // Clean up multiple spaces/newlines created by removals
         text = text.replace(/\s+/g, ' ').trim();
 
-        // 🎯 TESLA RULE: Maximum 15 words (unless it's critical medical/safety info)
+        // 🎯 OPTIMIZED: Allow full responses up to 150 words for natural conversation
+        // Only truncate extremely long responses to prevent TTS timeout
         const words = text.split(' ');
-        if (words.length > 20) {
-            // Take first 15 words and add period
-            text = words.slice(0, 15).join(' ') + '.';
-            console.log(`⚠️ Truncated to 15 words (was ${words.length})`);
+        if (words.length > 150) {
+            // Take first 150 words and add period
+            text = words.slice(0, 150).join(' ') + '.';
+            console.log(`⚠️ Truncated to 150 words (was ${words.length})`);
         }
 
         console.log('🗣️ Speaking (sanitized):', text);
