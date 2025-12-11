@@ -2317,7 +2317,7 @@ class PhoenixVoiceCommands {
     /* ============================================
        TEXT BUBBLE DISPLAY
        ============================================ */
-    showTextBubble(text, sender = 'phoenix') {
+    showTextBubble(text, sender = 'phoenix', progressive = true) {
         // Strip JSON metadata before displaying
         text = text.replace(/\s*\{[\s\S]*?"confidence_score"[\s\S]*?\}\s*$/i, '').trim();
         text = text.replace(/\s*\{[\s\S]*?"mood"[\s\S]*?\}\s*$/i, '').trim();
@@ -2344,6 +2344,7 @@ class PhoenixVoiceCommands {
                 flex-direction: column;
                 gap: 12px;
                 pointer-events: none;
+                scroll-behavior: smooth;
             `;
             document.body.appendChild(conversationEl);
             console.log('✅ Conversation container created');
@@ -2365,10 +2366,17 @@ class PhoenixVoiceCommands {
             align-self: ${sender === 'phoenix' ? 'flex-start' : 'flex-end'};
             max-width: 80%;
         `;
-        bubble.textContent = text;
 
         conversationEl.appendChild(bubble);
-        conversationEl.scrollTop = conversationEl.scrollHeight;
+
+        // 🎬 PROGRESSIVE DISPLAY: Show sentences one at a time like Spotify lyrics
+        if (progressive && sender === 'phoenix') {
+            this.displayTextProgressively(bubble, text, conversationEl);
+        } else {
+            // Immediate display for user messages
+            bubble.textContent = text;
+            conversationEl.scrollTop = conversationEl.scrollHeight;
+        }
 
         // Remove old bubbles (keep last 5)
         const bubbles = conversationEl.querySelectorAll('.phoenix-bubble');
@@ -2384,6 +2392,48 @@ class PhoenixVoiceCommands {
                 setTimeout(() => bubble.remove(), 500);
             }
         }, 30000);
+    }
+
+    /**
+     * 🎬 Display text progressively sentence-by-sentence (Spotify lyrics style)
+     */
+    displayTextProgressively(bubble, fullText, container) {
+        const sentences = this.splitIntoSentences(fullText);
+        const wordsPerSecond = 2.5; // ~150 words/min average speaking rate
+        let delay = 0;
+        let displayedText = '';
+
+        console.log(`🎬 Progressive display: ${sentences.length} sentences`);
+
+        sentences.forEach((sentence, index) => {
+            const wordCount = sentence.split(/\s+/).length;
+            const duration = (wordCount / wordsPerSecond) * 1000;
+
+            setTimeout(() => {
+                displayedText += (index > 0 ? ' ' : '') + sentence;
+                bubble.textContent = displayedText;
+
+                // Auto-scroll to keep new text visible
+                container.scrollTop = container.scrollHeight;
+
+                if (DEBUG_MODE) console.log(`📝 Sentence ${index + 1}/${sentences.length}: "${sentence}"`);
+            }, delay);
+
+            delay += duration;
+        });
+    }
+
+    /**
+     * Split text into sentences for progressive display
+     */
+    splitIntoSentences(text) {
+        // Split on sentence boundaries (. ! ?) but keep the punctuation
+        const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+
+        // Clean up and filter out empty sentences
+        return sentences
+            .map(s => s.trim())
+            .filter(s => s.length > 0);
     }
 
     /* ============================================
