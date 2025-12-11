@@ -7,9 +7,13 @@
     "dev": "python3 -m http.server 8000",
     "cap:init": "npx cap init",
     "cap:add:ios": "npx cap add ios",
-    "cap:sync": "npx cap sync",
+    "cap:sync": "npx cap sync ios",
+    "cap:copy": "npx cap copy ios",
     "cap:open:ios": "npx cap open ios",
     "cap:build": "npx cap copy && npx cap sync",
+    "watch:ios": "node scripts/watch-sync.js",
+    "dev:ios": "npm run watch:ios",
+    "build:ios": "npx cap sync ios && npx cap build ios",
     "test": "node test-full-flow.js"
   },
   "dependencies": {
@@ -24,13 +28,13 @@
     "@capacitor/browser": "^5.2.1",
     "@capacitor/camera": "^5.0.10",
     "@capacitor/clipboard": "^5.0.8",
-    "@capacitor/core": "^5.5.1",
+    "@capacitor/core": "^5.7.8",
     "@capacitor/device": "^5.0.8",
     "@capacitor/dialog": "^5.0.8",
     "@capacitor/filesystem": "^5.2.2",
     "@capacitor/geolocation": "^5.0.8",
     "@capacitor/haptics": "^5.0.8",
-    "@capacitor/ios": "^5.5.1",
+    "@capacitor/ios": "^5.7.8",
     "@capacitor/keyboard": "^5.0.9",
     "@capacitor/local-notifications": "^5.0.8",
     "@capacitor/motion": "^5.0.8",
@@ -51,7 +55,7 @@
     "capacitor-video-player": "^6.0.2"
   },
   "devDependencies": {
-    "@capacitor/cli": "^5.5.1",
+    "@capacitor/cli": "^5.7.8",
     "chokidar": "^5.0.0",
     "husky": "^9.1.7",
     "puppeteer": "^21.11.0",
@@ -60,7 +64,7 @@
   "capacitor": {
     "appId": "com.phoenix.ai",
     "appName": "Phoenix AI",
-    "webDir": ".",
+    "webDir": "www",
     "bundledWebRuntime": false
   }
 }

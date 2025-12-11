@@ -379,51 +379,76 @@ class PhoenixVoiceCommands {
        ============================================ */
     async initSpeechRecognition() {
         console.log('[Voice] Initializing speech recognition...');
+        console.log('[Voice] Checking for capacitorPlatform:', !!window.capacitorPlatform);
 
         // Check if Capacitor platform helper exists
         if (window.capacitorPlatform) {
             try {
-                await window.capacitorPlatform.initialize({
+                console.log('[Voice] 🎯 Attempting iOS native speech recognition...');
+
+                const initResult = await window.capacitorPlatform.initialize({
                     language: 'en-US',
                     interimResults: true,
                     continuous: false,
                     maxAlternatives: 3
                 });
 
-                // Set up callbacks for native/web speech results
-                window.capacitorPlatform.onResultCallback = (result) => {
-                    this.handleSpeechResult(result.transcript, result.isFinal, result.confidence);
-                };
+                console.log('[Voice] ✅ iOS native initialization result:', initResult);
 
-                window.capacitorPlatform.onErrorCallback = (error) => {
-                    console.error('[Voice] Speech recognition error:', error);
+                // Set up callbacks for native/web speech results
+                window.capacitorPlatform.onResult((result) => {
+                    console.log('[Voice] 📥 iOS native result:', result);
+                    this.handleSpeechResult(result.transcript, result.isFinal, result.confidence);
+                });
+
+                window.capacitorPlatform.onError((error) => {
+                    console.error('[Voice] ❌ Speech error:', error);
                     this.setOrbState('idle');
                     this.isListening = false;
-                };
+                    this.requestInProgress = false; // Clear lock on error
 
-                window.capacitorPlatform.onEndCallback = () => {
-                    console.log('[Voice] Recognition ended');
+                    // Show platform-specific error message
+                    let errorMessage;
+                    if (typeof error === 'object' && error.platform) {
+                        // New format with platform info
+                        errorMessage = error.message || error.error;
+                        console.log(`[Voice] Error from ${error.platform}: ${error.error}`);
+                    } else {
+                        // Legacy format (iOS native) or string
+                        errorMessage = typeof error === 'string' ? error : error.message || 'Unknown error';
+                        console.log('[Voice] iOS native error (legacy format)');
+                    }
+
+                    this.showErrorMessage(errorMessage);
+                });
+
+                window.capacitorPlatform.onEnd(() => {
+                    console.log('[Voice] 🛑 iOS native recognition ended');
                     this.isListening = false;
                     if (!this.isProcessing && !this.isSpeaking) {
                         this.setOrbState('idle');
                     }
-                };
+                });
 
-                console.log('✅ Speech recognition initialized via Capacitor');
+                console.log('✅ Speech recognition initialized via iOS native (SFSpeechRecognizer)');
                 this.usesCapacitorSpeech = true;
                 return;
 
             } catch (error) {
-                console.warn('[Voice] Capacitor speech init failed, falling back to Web Speech API:', error);
+                console.error('[Voice] ❌ iOS native init FAILED, falling back to Web Speech API:', error);
+                console.error('[Voice] Error details:', error.message, error.stack);
             }
+        } else {
+            console.warn('[Voice] ⚠️ window.capacitorPlatform not found - using Web Speech API');
         }
 
         // Fallback to Web Speech API if Capacitor not available
         if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-            console.warn('Speech recognition not supported');
+            console.error('[Voice] ❌ Speech recognition not supported in this browser');
             return;
         }
 
+        console.log('[Voice] 🌐 Using Web Speech API (fallback)');
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         this.recognition = new SpeechRecognition();
 
@@ -467,6 +492,10 @@ class PhoenixVoiceCommands {
             console.error('[Voice] Web Speech API error:', event.error);
             this.setOrbState('idle');
             this.isListening = false;
+            this.requestInProgress = false; // Clear lock on error
+
+            // Show prominent error message
+            this.showErrorMessage(`Web Speech Error: ${event.error}`);
         };
 
         this.recognition.onend = () => {
@@ -512,20 +541,21 @@ class PhoenixVoiceCommands {
         if (!this.orbElement) return;
 
         // Remove all state classes
-        this.orbElement.classList.remove('idle', 'listening', 'thinking', 'speaking', 'generating-voice', 'user-speaking', 'processing');
+        this.orbElement.classList.remove('idle', 'listening', 'thinking', 'speaking', 'generating-voice', 'user-speaking', 'processing', 'initializing');
 
         // Add new state
         this.orbElement.classList.add(state);
 
-        // VISUAL FEEDBACK: Floating status pills + console
+        // VISUAL FEEDBACK: Floating status pills + console (using SVG icons, not emoji)
         const stateMessages = {
-            'idle': { icon: '⚪', text: 'Ready', color: '#00d9ff' },
-            'listening': { icon: '🎤', text: 'Listening...', color: '#00ff88' },
-            'thinking': { icon: '💭', text: 'Thinking...', color: '#ff9500' },
-            'speaking': { icon: '🗣️', text: 'Speaking...', color: '#00d9ff' },
-            'generating-voice': { icon: '🎵', text: 'Generating speech...', color: '#667eea' },
-            'processing': { icon: '🧠', text: 'Brainstorming...', color: '#f5576c' },
-            'user-speaking': { icon: '🎤', text: 'Listening...', color: '#00ff88' }
+            'idle': { icon: '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>', text: 'Ready', color: '#00d9ff' },
+            'initializing': { icon: '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>', text: 'Initializing...', color: '#667eea' },
+            'listening': { icon: '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>', text: 'Listening...', color: '#00ff88' },
+            'thinking': { icon: '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>', text: 'Thinking...', color: '#ff9500' },
+            'speaking': { icon: '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>', text: 'Speaking...', color: '#00d9ff' },
+            'generating-voice': { icon: '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>', text: 'Generating speech...', color: '#667eea' },
+            'processing': { icon: '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>', text: 'Brainstorming...', color: '#f5576c' },
+            'user-speaking': { icon: '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>', text: 'Listening...', color: '#00ff88' }
         };
 
         if (stateMessages[state]) {
@@ -548,34 +578,51 @@ class PhoenixVoiceCommands {
         // Don't show pill for idle state
         if (status.text === 'Ready') return;
 
-        // Create new pill
+        // Detect which speech system is being used
+        let systemBadge = '';
+        if (this.usesCapacitorSpeech && window.capacitorPlatform) {
+            const platformInfo = window.capacitorPlatform.getPlatformInfo();
+            if (platformInfo.isNativeIOS) {
+                systemBadge = '<div style="margin-top: 8px; font-size: 11px; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px;">iOS Native • SFSpeechRecognizer</div>';
+            }
+        } else {
+            systemBadge = '<div style="margin-top: 8px; font-size: 11px; opacity: 0.6; text-transform: uppercase; letter-spacing: 1px;">⚠️ Web Speech API (Fallback)</div>';
+        }
+
+        // Create new pill - Below mode buttons, compact
         const pill = document.createElement('div');
         pill.id = 'phoenix-status-pill';
         pill.style.cssText = `
             position: fixed;
-            top: 120px;
+            top: 280px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.95);
-            border: 2px solid ${status.color};
-            border-radius: 30px;
-            padding: 12px 28px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid ${status.color};
+            border-radius: 16px;
+            padding: 8px 16px;
             color: ${status.color};
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            font-size: 16px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            z-index: 10001;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 20px ${status.color}40;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            z-index: 9999;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6), 0 0 20px ${status.color}30;
             backdrop-filter: blur(10px);
             animation: pillFadeIn 0.3s ease-out;
             pointer-events: none;
+            text-align: center;
+            min-width: 140px;
         `;
-        pill.innerHTML = `${status.icon} ${status.text}`;
+        pill.innerHTML = `
+            <div style="margin-bottom: 8px; display: flex; justify-content: center; align-items: center; width: 32px; height: 32px; margin-left: auto; margin-right: auto;">${status.icon.replace('width="48" height="48"', 'width="32" height="32"')}</div>
+            <div>${status.text}</div>
+            ${systemBadge}
+        `;
 
         document.body.appendChild(pill);
 
-        // Add fade-in animation
+        // Add animations
         if (!document.getElementById('phoenix-status-pill-styles')) {
             const style = document.createElement('style');
             style.id = 'phoenix-status-pill-styles';
@@ -583,16 +630,90 @@ class PhoenixVoiceCommands {
                 @keyframes pillFadeIn {
                     from {
                         opacity: 0;
-                        transform: translateX(-50%) translateY(-10px);
+                        transform: translateX(-50%) translateY(-20px) scale(0.9);
                     }
                     to {
                         opacity: 1;
-                        transform: translateX(-50%) translateY(0);
+                        transform: translateX(-50%) translateY(0) scale(1);
+                    }
+                }
+                @keyframes pillPulse {
+                    0%, 100% {
+                        box-shadow: 0 12px 48px rgba(0, 0, 0, 0.9), 0 0 40px ${status.color}60;
+                    }
+                    50% {
+                        box-shadow: 0 12px 48px rgba(0, 0, 0, 0.9), 0 0 60px ${status.color}80;
                     }
                 }
             `;
             document.head.appendChild(style);
         }
+    }
+
+    /**
+     * Show prominent error message that you can't miss
+     */
+    showErrorMessage(message) {
+        // Remove existing error
+        const existing = document.getElementById('phoenix-error-message');
+        if (existing) existing.remove();
+
+        // Create compact error message
+        const errorBox = document.createElement('div');
+        errorBox.id = 'phoenix-error-message';
+        errorBox.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(220, 38, 38, 0.95);
+            border: 2px solid #ff0000;
+            border-radius: 16px;
+            padding: 20px 30px;
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            z-index: 100000;
+            box-shadow: 0 10px 40px rgba(220, 38, 38, 0.5);
+            text-align: center;
+            max-width: 400px;
+            animation: errorShake 0.5s ease-in-out;
+        `;
+        errorBox.innerHTML = `
+            <div style="margin-bottom: 12px; display: flex; justify-content: center;">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+            </div>
+            <div style="margin-bottom: 12px;">${message}</div>
+            <div style="font-size: 12px; opacity: 0.8;">
+                Tap to dismiss
+            </div>
+        `;
+
+        // Add shake animation
+        if (!document.getElementById('phoenix-error-styles')) {
+            const style = document.createElement('style');
+            style.id = 'phoenix-error-styles';
+            style.textContent = `
+                @keyframes errorShake {
+                    0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+                    25% { transform: translate(-50%, -50%) rotate(-2deg); }
+                    75% { transform: translate(-50%, -50%) rotate(2deg); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        document.body.appendChild(errorBox);
+
+        // Auto-dismiss on click or after 8 seconds
+        const dismiss = () => errorBox.remove();
+        errorBox.addEventListener('click', dismiss);
+        setTimeout(dismiss, 8000);
     }
 
     /* ============================================
@@ -624,11 +745,17 @@ class PhoenixVoiceCommands {
         try {
             this.requestInProgress = true; // Lock to prevent double-click
 
+            // Show "Initializing..." pill on first click if speech not yet ready
+            if (!this.usesCapacitorSpeech && !this.recognition) {
+                this.setOrbState('initializing');
+            }
+
             // 🔧 FIX: Auto-reset lock after 30s if stuck
             if (this.requestTimeout) clearTimeout(this.requestTimeout);
             this.requestTimeout = setTimeout(() => {
                 console.log('[VOICE] Request timeout - resetting lock');
                 this.requestInProgress = false;
+                this.setOrbState('idle');
             }, 30000);
 
             // Use Capacitor native API if available, otherwise Web Speech API
@@ -645,6 +772,10 @@ class PhoenixVoiceCommands {
         } catch (error) {
             console.error('[Voice] Could not start recognition:', error);
             this.requestInProgress = false; // Release lock on error
+            this.setOrbState('idle');
+
+            // Show prominent error message
+            this.showErrorMessage(`Cannot start speech recognition: ${error.message}`);
         }
     }
 
@@ -1527,7 +1658,7 @@ class PhoenixVoiceCommands {
             if (workspaceResult) {
                 console.log('📂 Workspace command handled locally');
                 this.showTextBubble(workspaceResult.response);
-                this.speakAsync(workspaceResult.response);
+                this.speak(workspaceResult.response);
                 this.setOrbState('idle');
                 return;
             }
@@ -1645,7 +1776,8 @@ class PhoenixVoiceCommands {
                     // ⭐ NEW: Generate audio in parallel (non-blocking)
                     // CRITICAL: Call speak() immediately to preserve user gesture for autoplay
                     // Don't use setTimeout as it breaks the gesture chain
-                    this.speakAsync(responseText);
+                    // Using speak() with Tesla voice sanitizer (strips [BRACKETS], enforces 15-word limit)
+                    this.speak(responseText);
                     console.timeEnd('⚡ Total Response Time');
                 }
 
@@ -1867,7 +1999,37 @@ class PhoenixVoiceCommands {
         text = text.replace(/\s*\{[\s\S]*?"mood"[\s\S]*?\}\s*$/i, '').trim();
         text = text.replace(/\s*\{[\s\S]*?"action_taken"[\s\S]*?\}\s*$/i, '').trim();
 
-        console.log('🗣️ Speaking:', text);
+        // 🎤 TESLA VOICE SANITIZER - Convert UI formatting to natural speech
+        // Remove [BRACKETS] and formatting markers that shouldn't be spoken
+        text = text.replace(/\[.*?\]/g, ''); // Remove [PERSONAL OPTIMIZATION DASHBOARD], etc.
+        text = text.replace(/━+/g, ''); // Remove visual separators
+        text = text.replace(/▪️|•/g, ''); // Remove bullet points
+
+        // Convert CAPS_HEADERS to normal speech
+        text = text.replace(/([A-Z_]{3,})/g, (match) => {
+            // Convert "CURRENT_STATUS" to "current status"
+            return match.toLowerCase().replace(/_/g, ' ');
+        });
+
+        // Remove common UI jargon that sounds robotic
+        text = text.replace(/PROTOCOL INITIATED/gi, '');
+        text = text.replace(/USER ENGAGEMENT/gi, '');
+        text = text.replace(/SYSTEM STATUS/gi, '');
+        text = text.replace(/PRIMARY DOMAINS:/gi, '');
+        text = text.replace(/CURRENT STATUS:/gi, '');
+
+        // Clean up multiple spaces/newlines created by removals
+        text = text.replace(/\s+/g, ' ').trim();
+
+        // 🎯 TESLA RULE: Maximum 15 words (unless it's critical medical/safety info)
+        const words = text.split(' ');
+        if (words.length > 20) {
+            // Take first 15 words and add period
+            text = words.slice(0, 15).join(' ') + '.';
+            console.log(`⚠️ Truncated to 15 words (was ${words.length})`);
+        }
+
+        console.log('🗣️ Speaking (sanitized):', text);
 
         // Stop any current audio
         if (this.audioElement) {
@@ -1939,6 +2101,7 @@ class PhoenixVoiceCommands {
                 URL.revokeObjectURL(audioUrl); // Clean up
                 this.isSpeaking = false;
                 this.audioElement = null;
+                this.requestInProgress = false; // Clear lock when audio completes
                 console.log('✅ Audio playback complete');
                 if (!this.isListening && !this.isProcessing) {
                     this.setOrbState('idle');
@@ -1949,12 +2112,14 @@ class PhoenixVoiceCommands {
                 URL.revokeObjectURL(audioUrl);
                 this.isSpeaking = false;
                 this.audioElement = null;
+                this.requestInProgress = false; // Clear lock on audio error
                 this.setOrbState('idle');
                 console.error('❌ Audio playback error');
             };
 
             // CRITICAL: Call load() to prepare the audio, then play
             // Safari requires this to maintain the user gesture context
+            console.log('[TTS] Loading audio blob, size:', audioBlob.size, 'bytes');
             audio.load();
 
             // 🔧 iOS FIX: Stop speech recognition before TTS playback
@@ -1972,9 +2137,17 @@ class PhoenixVoiceCommands {
 
             // FIX AUTOPLAY: Now play() is called on element created during user gesture
             try {
+                console.log('[TTS] Audio element ready state:', audio.readyState);
+                console.log('[TTS] Audio element src:', audio.src ? audio.src.substring(0, 50) + '...' : 'NO SRC');
+                console.log('[TTS] Audio element duration:', audio.duration);
+                console.log('[TTS] Attempting to play audio...');
+
                 const playPromise = audio.play();
+                console.log('[TTS] play() returned:', playPromise ? 'Promise' : 'undefined');
+
                 if (playPromise !== undefined) {
                     await playPromise;
+                    console.log('[TTS] play() promise resolved successfully');
                 }
 
                 // ⏱️ TIMING: Audio Playback Started
@@ -1999,6 +2172,10 @@ class PhoenixVoiceCommands {
                     });
                 }
             } catch (playError) {
+                console.error('❌ [TTS] Audio play() failed:', playError);
+                console.error('   Error name:', playError.name);
+                console.error('   Error message:', playError.message);
+
                 // 🔧 iOS FIX: Resume speech recognition on playback error
                 if (wasListening && this.recognition) {
                     try {
@@ -2011,6 +2188,7 @@ class PhoenixVoiceCommands {
 
                 if (playError.name === 'NotAllowedError') {
                     console.warn('⚠️ Autoplay blocked by browser - using fallback speech synthesis');
+                    this.showErrorMessage('Audio playback blocked. Click to enable sound.');
                     // User hasn't interacted yet, fallback to Web Speech API
                     throw playError; // Let outer catch handle fallback
                 }
@@ -2020,7 +2198,9 @@ class PhoenixVoiceCommands {
         } catch (error) {
             console.error('❌ TTS Error:', error);
             console.error('   Error details:', error.message);
+            console.error('   Error stack:', error.stack);
             this.isSpeaking = false;
+            this.requestInProgress = false; // Clear lock on TTS error
             this.setOrbState('idle');
 
             // No fallback - OpenAI TTS only

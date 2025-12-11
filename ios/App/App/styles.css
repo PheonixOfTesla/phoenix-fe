@@ -1284,8 +1284,8 @@ button:focus,
     }
     
     body {
-        background: white;
-        color: black;
+        background: #000000 !important;
+        color: white;
     }
     
     .metric-card,

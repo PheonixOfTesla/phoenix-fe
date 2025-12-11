@@ -108,16 +108,7 @@ class PlatformSpeechRecognition {
                 this.recognizer.onerror = (event) => {
                     console.error('[Platform] Web Speech API error:', event.error);
                     if (this.onErrorCallback) {
-                        // Create platform-specific error message
-                        let errorMessage = event.error;
-                        if (event.error === 'not-allowed') {
-                            errorMessage = 'Microphone permission denied. Please allow microphone access in Safari Settings → Privacy & Security → Microphone.';
-                        } else if (event.error === 'no-speech') {
-                            errorMessage = 'No speech detected. Please try again.';
-                        } else if (event.error === 'audio-capture') {
-                            errorMessage = 'Microphone not available. Please check your device settings.';
-                        }
-                        this.onErrorCallback({ platform: 'web', error: event.error, message: errorMessage });
+                        this.onErrorCallback(event.error);
                     }
                 };
 
