@@ -177,13 +177,14 @@ class PhoenixVoiceCommands {
         const wsUrl = baseUrl.replace('https://', 'wss://').replace('http://', 'ws://').replace('/api', '');
         const wsEndpoint = `${wsUrl}/phoenix-stream?token=${token}`;
 
-        console.log('🔌 Connecting to WebSocket:', wsEndpoint);
+        // WebSocket is non-critical - only log in debug mode
+        if (DEBUG_MODE) console.log('🔌 Connecting to WebSocket:', wsEndpoint);
 
         try {
             this.ws = new WebSocket(wsEndpoint);
 
             this.ws.onopen = () => {
-                console.log('✅ WebSocket connected for streaming');
+                if (DEBUG_MODE) console.log('✅ WebSocket connected for streaming');
                 this.wsReconnectAttempts = 0;
             };
 
@@ -197,12 +198,14 @@ class PhoenixVoiceCommands {
             };
 
             this.ws.onerror = (error) => {
-                console.error('❌ WebSocket error:', error);
+                // WebSocket is non-critical - fail silently
+                if (DEBUG_MODE) console.warn('⚠️ WebSocket error (non-critical):', error.type);
             };
 
             this.ws.onclose = () => {
-                console.log('🔌 WebSocket disconnected');
-                // Auto-reconnect with exponential backoff
+                // WebSocket is non-critical - fail silently
+                if (DEBUG_MODE) console.log('🔌 WebSocket disconnected (non-critical feature)');
+                // Auto-reconnect disabled (wsMaxReconnectAttempts = 0)
                 if (this.wsReconnectAttempts < this.wsMaxReconnectAttempts) {
                     const delay = Math.min(1000 * Math.pow(2, this.wsReconnectAttempts), 30000);
                     console.log(`🔄 Reconnecting in ${delay}ms...`);
@@ -214,7 +217,8 @@ class PhoenixVoiceCommands {
             };
 
         } catch (error) {
-            console.error('❌ WebSocket connection failed:', error);
+            // WebSocket is non-critical - fail silently
+            if (DEBUG_MODE) console.warn('⚠️ WebSocket connection failed (non-critical):', error.message);
         }
     }
 
