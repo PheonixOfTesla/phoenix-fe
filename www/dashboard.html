@@ -1933,12 +1933,17 @@
         // Fix: Aggressively clean any quotes/escapes that might have been added
         if (token) {
             const originalToken = token;
-            // Remove all outer quotes and unescape any internal quotes
+            // Remove all outer quotes (handle multiple layers)
             while (token.startsWith('"') && token.endsWith('"')) {
                 token = token.slice(1, -1);
             }
-            // Remove escaped quotes and backslashes
-            token = token.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+            while (token.startsWith("'") && token.endsWith("'")) {
+                token = token.slice(1, -1);
+            }
+            // Remove escaped characters using split/join (more reliable than regex)
+            token = token.split('\\"').join('"');
+            token = token.split("\\'").join("'");
+            token = token.split('\\\\').join('\\');
 
             if (token !== originalToken) {
                 console.log('⚠️ Detected malformed token, cleaning...');
@@ -2048,12 +2053,11 @@
         
         const getAuthHeaders = () => {
             let token = localStorage.getItem('phoenixToken');
-            // Clean token
+            // Clean token (same logic as auth check)
             if (token) {
-                while (token.startsWith('"') && token.endsWith('"')) {
-                    token = token.slice(1, -1);
-                }
-                token = token.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+                while (token.startsWith('"') && token.endsWith('"')) token = token.slice(1, -1);
+                while (token.startsWith("'") && token.endsWith("'")) token = token.slice(1, -1);
+                token = token.split('\\"').join('"').split("\\'").join("'").split('\\\\').join('\\');
             }
             return {
                 'Content-Type': 'application/json',
@@ -2131,10 +2135,9 @@
 
             // Clean token if needed (same logic as auth check)
             if (token) {
-                while (token.startsWith('"') && token.endsWith('"')) {
-                    token = token.slice(1, -1);
-                }
-                token = token.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+                while (token.startsWith('"') && token.endsWith('"')) token = token.slice(1, -1);
+                while (token.startsWith("'") && token.endsWith("'")) token = token.slice(1, -1);
+                token = token.split('\\"').join('"').split("\\'").join("'").split('\\\\').join('\\');
             }
 
             // ✅ CHECK TOKEN EXPIRATION - If truly expired, redirect to login
