@@ -1938,9 +1938,9 @@
             console.log('🔐 [Dashboard Auth Check] Token parts count:', token.split('.').length);
         }
 
-        // If user just logged in (token exists and is valid JWT), don't redirect
-        if (token && token.startsWith('eyJ')) {
-            console.log('✅ Valid JWT token found - proceeding to dashboard');
+        // If user just logged in (token exists and is valid JWT or guest token), don't redirect
+        if (token && (token.startsWith('eyJ') || token.startsWith('guest_'))) {
+            console.log('✅ Valid token found - proceeding to dashboard');
             return; // Exit early, page will continue loading normally
         }
 
