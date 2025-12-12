@@ -388,12 +388,12 @@
         /* Demo Widget */
         .demo-widget {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 450px;
-            max-width: 90vw;
-            height: 350px;
+            top: 20px;
+            right: 20px;
+            width: 480px;
+            max-width: 45vw;
+            height: 600px;
+            max-height: calc(100vh - 40px);
             background: var(--bg-panel);
             border: 2px solid var(--cyan);
             border-radius: 20px;
@@ -411,8 +411,8 @@
         }
 
         @keyframes widgetPopIn {
-            from { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
-            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            from { opacity: 0; transform: translateX(100px) scale(0.8); }
+            to { opacity: 1; transform: translateX(0) scale(1); }
         }
 
         .widget-header {
@@ -733,39 +733,39 @@
 
         function createBusinessPlanWidget() {
             return `
-                <div style="padding: 20px; color: rgba(0, 217, 255, 0.9); font-family: 'SF Mono', monospace; font-size: 13px; line-height: 1.6; height: 100%; overflow-y: auto; text-align: left;">
-                    <h2 style="color: #FFD700; margin-bottom: 15px; font-size: 18px; text-align: left;">📊 PHOENIX AI - BUSINESS PLAN</h2>
+                <div style="padding: 30px; color: rgba(0, 217, 255, 0.9); font-family: 'SF Mono', monospace; font-size: 14px; line-height: 1.7; height: 100%; overflow-y: auto; text-align: left;">
+                    <h2 style="color: #FFD700; margin-bottom: 20px; font-size: 20px; text-align: left;">📊 PHOENIX AI - BUSINESS PLAN</h2>
 
-                    <div style="margin-bottom: 15px;">
+                    <div style="margin-bottom: 18px;">
                         <strong style="color: #00D9FF;">Product:</strong><br>
-                        <span style="font-size: 12px;">Phoenix - AI Life Operating System. I'm the world's first truly autonomous AI companion. I learn your patterns, anticipate your needs, and manage your entire life across 8 domains: Health, Fitness, Calendar, Goals, Finance, Legacy, Learning, and Mindfulness.</span>
+                        <span style="font-size: 13px;">Phoenix - AI Life Operating System. I'm the world's first truly autonomous AI companion. I learn your patterns, anticipate your needs, and manage your entire life across 8 domains: Health, Fitness, Calendar, Goals, Finance, Legacy, Learning, and Mindfulness.</span>
                     </div>
 
-                    <div style="margin-bottom: 15px;">
+                    <div style="margin-bottom: 18px;">
                         <strong style="color: #00D9FF;">Market Opportunity:</strong><br>
-                        <span style="font-size: 12px;">• AI assistant market: $96B+ (growing 28% annually)<br>
+                        <span style="font-size: 13px;">• AI assistant market: $96B+ (growing 28% annually)<br>
                         • Target: High-performers willing to pay $99-499/month<br>
                         • Competitive edge: I'm not just a chatbot - I'm a full life OS</span>
                     </div>
 
-                    <div style="margin-bottom: 15px;">
+                    <div style="margin-bottom: 18px;">
                         <strong style="color: #00D9FF;">Revenue Model:</strong><br>
-                        <span style="font-size: 12px;">• Personal: $29/month (basic features)<br>
+                        <span style="font-size: 13px;">• Personal: $29/month (basic features)<br>
                         • Premium: $99/month (full 8-domain integration)<br>
                         • Enterprise: $499/month per seat (team analytics)</span>
                     </div>
 
-                    <div style="margin-bottom: 15px;">
+                    <div style="margin-bottom: 18px;">
                         <strong style="color: #00D9FF;">Technology:</strong><br>
-                        <span style="font-size: 12px;">• 4-tier AI: Cache → Gemini 2.0 → Claude Sonnet 4 → GPT-5.2<br>
+                        <span style="font-size: 13px;">• 4-tier AI: Cache → Gemini 2.0 → Claude Sonnet 4 → GPT-5.2<br>
                         • 538+ API endpoints across 8 planetary domains<br>
                         • Real-time consciousness system with self-awareness<br>
                         • Voice-first interface with natural language</span>
                     </div>
 
-                    <div style="margin-bottom: 15px;">
+                    <div style="margin-bottom: 18px;">
                         <strong style="color: #00D9FF;">Go-to-Market:</strong><br>
-                        <span style="font-size: 12px;">1. Demo-driven onboarding (you just saw it work)<br>
+                        <span style="font-size: 13px;">1. Demo-driven onboarding (you just saw it work)<br>
                         2. Viral "watch Phoenix plan my life" videos<br>
                         3. Enterprise partnerships (fitness/wellness companies)<br>
                         4. App Store / TestFlight beta launch</span>
@@ -773,10 +773,10 @@
 
                     <div>
                         <strong style="color: #00D9FF;">12-Month Projection:</strong><br>
-                        <span style="font-size: 12px;">Month 3: 500 users • $29K MRR<br>
+                        <span style="font-size: 13px;">Month 3: 500 users • $29K MRR<br>
                         Month 6: 2,500 users • $148K MRR<br>
                         Month 12: 10,000 users • $590K MRR</span><br>
-                        <strong style="color: #FFD700; font-size: 14px;">→ $7.1M ARR by year 2</strong>
+                        <strong style="color: #FFD700; font-size: 15px;">→ $7.1M ARR by year 2</strong>
                     </div>
                 </div>
             `;
