@@ -451,6 +451,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            cursor: move;
+            user-select: none;
         }
 
         .widget-title {
@@ -473,6 +475,50 @@
 
         .widget-btn.minimize { background: var(--gold); }
         .widget-btn.close { background: #ff4444; }
+
+        /* Widget minimized state */
+        .demo-widget.minimized,
+        .music-widget.minimized {
+            display: none !important;
+        }
+
+        /* Minimized tabs bar */
+        .minimized-tabs {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 3000;
+        }
+
+        .minimized-tab {
+            padding: 12px 20px;
+            background: var(--bg-panel);
+            border: 2px solid var(--cyan);
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 30px rgba(0, 217, 255, 0.3);
+        }
+
+        .minimized-tab.gold-border {
+            border-color: var(--gold);
+            box-shadow: 0 8px 30px rgba(255, 215, 0, 0.3);
+        }
+
+        .minimized-tab:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0, 217, 255, 0.5);
+        }
+
+        .minimized-tab.gold-border:hover {
+            box-shadow: 0 12px 40px rgba(255, 215, 0, 0.5);
+        }
 
         .widget-content {
             flex: 1;
@@ -668,11 +714,11 @@
 
     <!-- Demo Widget (Business Plan - Right Side) -->
     <div class="demo-widget" id="demoWidget">
-        <div class="widget-header">
+        <div class="widget-header" id="demoWidgetHeader">
             <div class="widget-title">Business Plan</div>
             <div class="widget-controls">
-                <div class="widget-btn minimize" onclick="closeDemoWidget()"></div>
-                <div class="widget-btn close" onclick="closeDemoWidget()"></div>
+                <div class="widget-btn minimize" onclick="minimizeWidget('demoWidget')"></div>
+                <div class="widget-btn close" onclick="closeWidget('demoWidget')"></div>
             </div>
         </div>
         <div class="widget-content">
@@ -682,17 +728,20 @@
 
     <!-- Music Widget (Left Side) -->
     <div class="music-widget" id="musicWidget">
-        <div class="widget-header">
+        <div class="widget-header" id="musicWidgetHeader">
             <div class="widget-title" style="color: #FFD700;">🎵 Music Player</div>
             <div class="widget-controls">
-                <div class="widget-btn minimize" onclick="closeMusicWidget()"></div>
-                <div class="widget-btn close" onclick="closeMusicWidget()"></div>
+                <div class="widget-btn minimize" onclick="minimizeWidget('musicWidget')"></div>
+                <div class="widget-btn close" onclick="closeWidget('musicWidget')"></div>
             </div>
         </div>
         <div class="widget-content">
             <iframe src="https://www.youtube.com/embed/videoseries?list=PLFgquLnL59alCl_2TQvOiD5Vgm1hCaGSI" width="100%" height="100%" frameborder="0" allow="autoplay" allowfullscreen></iframe>
         </div>
     </div>
+
+    <!-- Minimized Tabs Bar -->
+    <div class="minimized-tabs" id="minimizedTabs"></div>
 
     <script>
         console.log('🚀 Phoenix Cinematic Onboarding - The 30-Second Miracle');
@@ -1081,12 +1130,105 @@
             }, 3000);
         }
 
-        function closeDemoWidget() {
-            document.getElementById('demoWidget').classList.remove('active');
+        // ============================================
+        // WIDGET DRAG & MINIMIZE FUNCTIONALITY
+        // ============================================
+
+        // Make widgets draggable
+        function makeDraggable(widgetId, headerId) {
+            const widget = document.getElementById(widgetId);
+            const header = document.getElementById(headerId);
+
+            let isDragging = false;
+            let currentX;
+            let currentY;
+            let initialX;
+            let initialY;
+
+            header.addEventListener('mousedown', dragStart);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', dragEnd);
+
+            function dragStart(e) {
+                if (e.target.classList.contains('widget-btn')) return; // Don't drag when clicking buttons
+
+                initialX = e.clientX - (widget.offsetLeft || 0);
+                initialY = e.clientY - (widget.offsetTop || 0);
+
+                isDragging = true;
+                widget.style.transition = 'none';
+            }
+
+            function drag(e) {
+                if (!isDragging) return;
+
+                e.preventDefault();
+                currentX = e.clientX - initialX;
+                currentY = e.clientY - initialY;
+
+                widget.style.left = currentX + 'px';
+                widget.style.top = currentY + 'px';
+                widget.style.right = 'auto';
+                widget.style.transform = 'none';
+            }
+
+            function dragEnd() {
+                isDragging = false;
+                widget.style.transition = '';
+            }
         }
 
-        function closeMusicWidget() {
-            document.getElementById('musicWidget').classList.remove('active');
+        // Initialize dragging for both widgets
+        setTimeout(() => {
+            makeDraggable('demoWidget', 'demoWidgetHeader');
+            makeDraggable('musicWidget', 'musicWidgetHeader');
+        }, 1000);
+
+        // Minimize widget to tab bar
+        function minimizeWidget(widgetId) {
+            const widget = document.getElementById(widgetId);
+            const tabsContainer = document.getElementById('minimizedTabs');
+
+            // Hide widget
+            widget.classList.add('minimized');
+
+            // Get widget title and color
+            const titleEl = widget.querySelector('.widget-title');
+            const title = titleEl.textContent;
+            const isGold = widgetId === 'musicWidget';
+
+            // Create minimized tab if it doesn't exist
+            if (!document.getElementById(`tab-${widgetId}`)) {
+                const tab = document.createElement('div');
+                tab.id = `tab-${widgetId}`;
+                tab.className = `minimized-tab ${isGold ? 'gold-border' : ''}`;
+                tab.textContent = title;
+                tab.style.color = isGold ? '#FFD700' : '#00D9FF';
+                tab.onclick = () => restoreWidget(widgetId);
+                tabsContainer.appendChild(tab);
+            }
+        }
+
+        // Restore widget from minimized
+        function restoreWidget(widgetId) {
+            const widget = document.getElementById(widgetId);
+            const tab = document.getElementById(`tab-${widgetId}`);
+
+            // Show widget
+            widget.classList.remove('minimized');
+
+            // Remove tab
+            if (tab) tab.remove();
+        }
+
+        // Close widget completely
+        function closeWidget(widgetId) {
+            const widget = document.getElementById(widgetId);
+            const tab = document.getElementById(`tab-${widgetId}`);
+
+            widget.classList.remove('active');
+            widget.classList.remove('minimized');
+            if (tab) tab.remove();
         }
 
         async function submitName() {
