@@ -1092,6 +1092,9 @@
         async function skipToApp() {
             userData.skipAccount = true;
             localStorage.setItem('phoenixName', userData.name);
+            // Generate guest token so dashboard.html doesn't redirect to index.html
+            const guestToken = 'guest_' + Date.now() + '_' + Math.random().toString(36).substring(7);
+            localStorage.setItem('phoenixToken', guestToken);
 
             goToPhase('phase-success');
             document.getElementById('successMessage').textContent = 'Starting Phoenix...';
