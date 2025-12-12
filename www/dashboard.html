@@ -67,7 +67,7 @@
     <!-- ============================================ -->
     <!-- BACK BUTTON FOR NAVIGATION -->
     <!-- ============================================ -->
-    <button onclick="window.history.back()" style="position:fixed;top:15px;right:15px;z-index:10002;padding:14px 20px;min-height:44px;min-width:44px;background:rgba(0,10,20,0.85);border:1.5px solid rgba(0, 217, 255,0.3);color:rgba(0, 217, 255,0.7);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;border-radius:6px;backdrop-filter:blur(10px);transition:all 0.3s;pointer-events:auto" onmouseover="this.style.borderColor='rgba(0, 217, 255,0.8)';this.style.background='rgba(0,10,20,0.95)';this.style.color='#00ff88'" onmouseout="this.style.borderColor='rgba(0, 217, 255,0.3)';this.style.background='rgba(0,10,20,0.85)';this.style.color='rgba(0, 217, 255,0.7)'">
+    <button onclick="window.history.back()" style="position:fixed;top:15px;right:15px;z-index:10002;padding:14px 20px;min-height:44px;min-width:44px;background:rgba(0,10,20,0.85);border:1.5px solid rgba(0, 217, 255,0.3);color:rgba(0, 217, 255,0.7);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;border-radius:6px;backdrop-filter:blur(10px);transition:all 0.3s;pointer-events:auto" onmouseover="this.style.borderColor='rgba(0, 217, 255,0.8)';this.style.background='rgba(0,10,20,0.95)';this.style.color='#00D9FF'" onmouseout="this.style.borderColor='rgba(0, 217, 255,0.3)';this.style.background='rgba(0,10,20,0.85)';this.style.color='rgba(0, 217, 255,0.7)'">
         ← BACK
     </button>
 
@@ -104,8 +104,8 @@
     <!-- LOADING SCREEN -->
     <!-- ============================================ -->
     <div id="loading" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10000;transition:opacity 1s">
-        <div style="font-size:64px;color:#00ff88;text-shadow:0 0 30px rgba(0, 217, 255,1);letter-spacing:12px;margin-bottom:30px;animation:pulse 2s infinite">PHOENIX</div>
-        <div style="width:60px;height:60px;border:3px solid rgba(0, 217, 255,0.2);border-top-color:#00ff88;border-radius:50%;animation:spin 1s linear infinite"></div>
+        <div style="font-size:64px;color:#00D9FF;text-shadow:0 0 30px rgba(0, 217, 255,1);letter-spacing:12px;margin-bottom:30px;animation:pulse 2s infinite">PHOENIX</div>
+        <div style="width:60px;height:60px;border:3px solid rgba(0, 217, 255,0.2);border-top-color:#00D9FF;border-radius:50%;animation:spin 1s linear infinite"></div>
         <div style="margin-top:30px;color:rgba(0, 217, 255,0.7);font-size:14px;letter-spacing:2px" data-i18n="dashboard.initializing">INITIALIZING AI SYSTEMS...</div>
     </div>
 
@@ -114,7 +114,7 @@
     <!-- ============================================ -->
     <div id="sync-prompt" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.98);z-index:9500;display:none;align-items:center;justify-content:center;flex-direction:column">
         <div style="max-width:700px;padding:40px;text-align:center;width:100%">
-            <div style="font-size:32px;color:#00ff88;margin-bottom:20px;text-shadow:0 0 20px rgba(0, 217, 255,1);letter-spacing:4px" data-i18n="dashboard.syncYourLife">SYNC YOUR LIFE</div>
+            <div style="font-size:32px;color:#00D9FF;margin-bottom:20px;text-shadow:0 0 20px rgba(0, 217, 255,1);letter-spacing:4px" data-i18n="dashboard.syncYourLife">SYNC YOUR LIFE</div>
             <div style="font-size:16px;color:rgba(0, 217, 255,0.7);line-height:1.8;margin-bottom:30px;max-width:600px;margin-left:auto;margin-right:auto" data-i18n="dashboard.syncDescription">
                 Connect your devices, calendars, banks, and goals to unlock Phoenix's full potential.
                 The more data I have, the smarter I become.
@@ -123,7 +123,7 @@
                 <!-- Dynamically populated -->
             </div>
             <div style="display:flex;gap:15px;justify-content:center">
-                <button onclick="startFullSync()" style="padding:15px 40px;background:rgba(0, 217, 255,0.2);border:2px solid #00ff88;color:#00ff88;font-family:inherit;font-size:14px;cursor:pointer;border-radius:8px;letter-spacing:2px;font-weight:bold" data-i18n="dashboard.startSync">
+                <button onclick="startFullSync()" style="padding:15px 40px;background:rgba(0, 217, 255,0.2);border:2px solid #00D9FF;color:#00D9FF;font-family:inherit;font-size:14px;cursor:pointer;border-radius:8px;letter-spacing:2px;font-weight:bold" data-i18n="dashboard.startSync">
                     START SYNC
                 </button>
                 <button onclick="skipSync()" style="padding:15px 40px;background:transparent;border:1px solid rgba(0, 217, 255,0.3);color:rgba(0, 217, 255,0.6);font-family:inherit;font-size:14px;cursor:pointer;border-radius:8px;letter-spacing:2px" data-i18n="dashboard.skipForNow">
@@ -148,7 +148,7 @@
     <!-- PERSONALIZED GREETING -->
     <!-- ============================================ -->
     <div id="greeting" style="position:fixed;top:20%;left:50%;transform:translateX(-50%);text-align:center;z-index:500;opacity:0;animation:fadeIn 1s 1s forwards;pointer-events:none">
-        <div class="greeting-main" style="font-size:36px;color:#00ff88;margin-bottom:10px;text-shadow:0 0 20px rgba(0, 217, 255,1)" data-i18n="dashboard.welcomeBack">Welcome Back</div>
+        <div class="greeting-main" style="font-size:36px;color:#00D9FF;margin-bottom:10px;text-shadow:0 0 20px rgba(0, 217, 255,1)" data-i18n="dashboard.welcomeBack">Welcome Back</div>
         <div class="greeting-sub" style="font-size:14px;color:rgba(0, 217, 255,0.6)" data-i18n="dashboard.allSystemsOperational">All systems operational</div>
     </div>
     <script>
@@ -200,15 +200,15 @@
     <div id="hud-tl" style="position:fixed;top:20px;left:20px;z-index:1000;pointer-events:none;padding:15px;background:rgba(0,10,20,0.9);border:1px solid rgba(0, 217, 255,0.3);backdrop-filter:blur(10px);border-radius:8px;min-width:240px">
         <!-- Time Display -->
         <div style="font-size:9px;color:rgba(0, 217, 255,0.5);letter-spacing:1px">LOCAL TIME</div>
-        <div id="time-display" style="font-size:20px;color:#00ff88;font-weight:bold;text-shadow:0 0 10px rgba(0, 217, 255,0.8);margin-bottom:12px">--:--</div>
+        <div id="time-display" style="font-size:20px;color:#00D9FF;font-weight:bold;text-shadow:0 0 10px rgba(0, 217, 255,0.8);margin-bottom:12px">--:--</div>
         
         <!-- Date Display -->
         <div style="font-size:9px;color:rgba(0, 217, 255,0.5);letter-spacing:1px">DATE</div>
-        <div id="date-display" style="font-size:12px;color:#00ff88;margin-bottom:12px">---</div>
+        <div id="date-display" style="font-size:12px;color:#00D9FF;margin-bottom:12px">---</div>
         
         <!-- Location (IP Geolocation) -->
         <div style="font-size:9px;color:rgba(0, 217, 255,0.5);letter-spacing:1px">LOCATION</div>
-        <div id="location-display" style="font-size:11px;color:#00ff88;margin-bottom:5px">
+        <div id="location-display" style="font-size:11px;color:#00D9FF;margin-bottom:5px">
             <span id="location-text">Detecting...</span>
         </div>
 
@@ -217,7 +217,7 @@
         <div id="weather-display" style="display:flex;align-items:center;gap:10px;margin-top:6px;padding:8px;background:rgba(0, 217, 255,0.05);border-radius:6px">
             <div id="weather-icon" style="font-size:24px;min-width:30px;text-align:center">☀️</div>
             <div style="flex:1">
-                <div id="weather-temp" style="font-size:16px;color:#00ff88;font-weight:bold">--°F</div>
+                <div id="weather-temp" style="font-size:16px;color:#00D9FF;font-weight:bold">--°F</div>
                 <div id="weather-condition" style="font-size:10px;color:rgba(0, 217, 255,0.7)">Loading...</div>
             </div>
         </div>
@@ -236,25 +236,25 @@
         <svg width="84" height="84" viewBox="0 0 84 84" style="filter:drop-shadow(0 0 10px rgba(0, 217, 255,0.8))">
             <g id="waveform-bars" transform="translate(42, 42)">
                 <!-- Center bar -->
-                <rect x="-2" y="-20" width="4" height="40" fill="#00ff88" opacity="0.9" rx="2">
+                <rect x="-2" y="-20" width="4" height="40" fill="#00D9FF" opacity="0.9" rx="2">
                     <animate attributeName="height" values="40;60;40" dur="0.8s" repeatCount="indefinite"/>
                     <animate attributeName="y" values="-20;-30;-20" dur="0.8s" repeatCount="indefinite"/>
                 </rect>
                 <!-- Left bars -->
-                <rect x="-12" y="-15" width="4" height="30" fill="#00ff88" opacity="0.7" rx="2">
+                <rect x="-12" y="-15" width="4" height="30" fill="#00D9FF" opacity="0.7" rx="2">
                     <animate attributeName="height" values="30;50;30" dur="0.6s" begin="0.1s" repeatCount="indefinite"/>
                     <animate attributeName="y" values="-15;-25;-15" dur="0.6s" begin="0.1s" repeatCount="indefinite"/>
                 </rect>
-                <rect x="-22" y="-10" width="4" height="20" fill="#00ff88" opacity="0.5" rx="2">
+                <rect x="-22" y="-10" width="4" height="20" fill="#00D9FF" opacity="0.5" rx="2">
                     <animate attributeName="height" values="20;40;20" dur="0.7s" begin="0.2s" repeatCount="indefinite"/>
                     <animate attributeName="y" values="-10;-20;-10" dur="0.7s" begin="0.2s" repeatCount="indefinite"/>
                 </rect>
                 <!-- Right bars -->
-                <rect x="8" y="-15" width="4" height="30" fill="#00ff88" opacity="0.7" rx="2">
+                <rect x="8" y="-15" width="4" height="30" fill="#00D9FF" opacity="0.7" rx="2">
                     <animate attributeName="height" values="30;50;30" dur="0.6s" begin="0.15s" repeatCount="indefinite"/>
                     <animate attributeName="y" values="-15;-25;-15" dur="0.6s" begin="0.15s" repeatCount="indefinite"/>
                 </rect>
-                <rect x="18" y="-10" width="4" height="20" fill="#00ff88" opacity="0.5" rx="2">
+                <rect x="18" y="-10" width="4" height="20" fill="#00D9FF" opacity="0.5" rx="2">
                     <animate attributeName="height" values="20;40;20" dur="0.7s" begin="0.25s" repeatCount="indefinite"/>
                     <animate attributeName="y" values="-10;-20;-10" dur="0.7s" begin="0.25s" repeatCount="indefinite"/>
                 </rect>
@@ -309,24 +309,24 @@
     <div id="jarvis-quick-menu" style="display:none !important;">
         <div onclick="openJarvisHub('recovery')" style="cursor:pointer;padding:12px 18px;background:rgba(0,10,20,0.95);border:2px solid rgba(0, 217, 255,0.5);border-radius:30px;backdrop-filter:blur(15px);transition:all 0.3s;box-shadow:0 0 20px rgba(0, 217, 255,0.3);display:flex;align-items:center;gap:12px;min-width:160px" onmouseover="this.style.borderColor='rgba(0, 217, 255,0.9)';this.style.boxShadow='0 0 30px rgba(0, 217, 255,0.6)';this.style.transform='translateX(-5px)'" onmouseout="this.style.borderColor='rgba(0, 217, 255,0.5)';this.style.boxShadow='0 0 20px rgba(0, 217, 255,0.3)';this.style.transform='translateX(0)'">
             <svg width="24" height="24" viewBox="0 0 24 24" style="flex-shrink:0">
-                <path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z" fill="none" stroke="#00ff88" stroke-width="1.5"/>
-                <circle cx="12" cy="12" r="3" fill="#00ff88" opacity="0.6"/>
+                <path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z" fill="none" stroke="#00D9FF" stroke-width="1.5"/>
+                <circle cx="12" cy="12" r="3" fill="#00D9FF" opacity="0.6"/>
             </svg>
             <div>
                 <div style="font-size:10px;color:rgba(0, 217, 255,0.6);letter-spacing:1px">RECOVERY</div>
-                <div id="recovery-value" style="font-size:14px;color:#00ff88;font-weight:bold">0%</div>
+                <div id="recovery-value" style="font-size:14px;color:#00D9FF;font-weight:bold">0%</div>
             </div>
         </div>
 
         <div onclick="openJarvisHub('optimization')" style="cursor:pointer;padding:12px 18px;background:rgba(0,10,20,0.95);border:2px solid rgba(0, 217, 255,0.5);border-radius:30px;backdrop-filter:blur(15px);transition:all 0.3s;box-shadow:0 0 20px rgba(0, 217, 255,0.3);display:flex;align-items:center;gap:12px;min-width:160px" onmouseover="this.style.borderColor='rgba(0, 217, 255,0.9)';this.style.boxShadow='0 0 30px rgba(0, 217, 255,0.6)';this.style.transform='translateX(-5px)'" onmouseout="this.style.borderColor='rgba(0, 217, 255,0.5)';this.style.boxShadow='0 0 20px rgba(0, 217, 255,0.3)';this.style.transform='translateX(0)'">
             <svg width="24" height="24" viewBox="0 0 24 24" style="flex-shrink:0">
-                <polygon points="12,2 4,12 12,22 20,12" fill="none" stroke="#00ff88" stroke-width="1.5"/>
-                <circle id="opt-progress-circle" cx="12" cy="12" r="4" fill="none" stroke="#00ff88" stroke-width="1.5" style="stroke-dasharray: 377; stroke-dashoffset: 377; transition: stroke-dashoffset 0.5s ease, stroke 0.5s ease;"/>
-                <path d="M12 8 L12 16" stroke="#00ff88" stroke-width="2"/>
+                <polygon points="12,2 4,12 12,22 20,12" fill="none" stroke="#00D9FF" stroke-width="1.5"/>
+                <circle id="opt-progress-circle" cx="12" cy="12" r="4" fill="none" stroke="#00D9FF" stroke-width="1.5" style="stroke-dasharray: 377; stroke-dashoffset: 377; transition: stroke-dashoffset 0.5s ease, stroke 0.5s ease;"/>
+                <path d="M12 8 L12 16" stroke="#00D9FF" stroke-width="2"/>
             </svg>
             <div>
                 <div style="font-size:10px;color:rgba(0, 217, 255,0.6);letter-spacing:1px"></div>
-                <div id="opt-score-text" style="font-size:14px;color:#00ff88;font-weight:bold">0%</div>
+                <div id="opt-score-text" style="font-size:14px;color:#00D9FF;font-weight:bold">0%</div>
             </div>
         </div>
 
@@ -344,11 +344,11 @@
 
         <div onclick="openJarvisHub('tiers')" style="cursor:pointer;padding:12px 18px;background:rgba(0,10,20,0.95);border:2px solid rgba(0, 217, 255,0.5);border-radius:30px;backdrop-filter:blur(15px);transition:all 0.3s;box-shadow:0 0 20px rgba(0, 217, 255,0.3);display:flex;align-items:center;gap:12px;min-width:160px" onmouseover="this.style.borderColor='rgba(0, 217, 255,0.9)';this.style.boxShadow='0 0 30px rgba(0, 217, 255,0.6)';this.style.transform='translateX(-5px)'" onmouseout="this.style.borderColor='rgba(0, 217, 255,0.5)';this.style.boxShadow='0 0 20px rgba(0, 217, 255,0.3)';this.style.transform='translateX(0)'">
             <svg width="24" height="24" viewBox="0 0 24 24" style="flex-shrink:0">
-                <path d="M12 2 L15 9 L22 10 L17 15 L18 22 L12 18 L6 22 L7 15 L2 10 L9 9 Z" fill="none" stroke="#00ff88" stroke-width="1.5"/>
+                <path d="M12 2 L15 9 L22 10 L17 15 L18 22 L12 18 L6 22 L7 15 L2 10 L9 9 Z" fill="none" stroke="#00D9FF" stroke-width="1.5"/>
             </svg>
             <div>
                 <div style="font-size:10px;color:rgba(0, 217, 255,0.6);letter-spacing:1px">TIER</div>
-                <div id="opt-tier-name" style="font-size:11px;color:#00ff88;font-weight:bold">BASIC</div>
+                <div id="opt-tier-name" style="font-size:11px;color:#00D9FF;font-weight:bold">BASIC</div>
                 <div id="opt-tier-desc" style="font-size:9px;color:rgba(0, 217, 255,0.4);margin-top:2px">Starting level</div>
             </div>
         </div>
@@ -743,8 +743,8 @@
     <!-- ============================================ -->
     <div id="hud-bl" style="position:fixed;bottom:20px;left:20px;z-index:1000;pointer-events:none;padding:15px;background:rgba(0,10,20,0.9);border:1px solid rgba(0, 217, 255,0.3);backdrop-filter:blur(10px);border-radius:8px;min-width:200px">
         <div style="font-size:9px;color:rgba(0, 217, 255,0.5);letter-spacing:1px">SYSTEM STATUS</div>
-        <div id="status-display" style="font-size:13px;color:#00ff88;font-weight:bold;margin:5px 0;display:flex;align-items:center;gap:8px">
-            <span style="width:8px;height:8px;background:#00ff88;border-radius:50%;box-shadow:0 0 10px #00ff88;animation:pulse 2s infinite"></span>
+        <div id="status-display" style="font-size:13px;color:#00D9FF;font-weight:bold;margin:5px 0;display:flex;align-items:center;gap:8px">
+            <span style="width:8px;height:8px;background:#00D9FF;border-radius:50%;box-shadow:0 0 10px #00D9FF;animation:pulse 2s infinite"></span>
             ONLINE
         </div>
         
@@ -759,8 +759,8 @@
         <!-- AI Processing -->
         <div id="ai-processing" style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(0, 217, 255,0.2);display:none">
             <div style="font-size:9px;color:rgba(0, 217, 255,0.5);letter-spacing:1px;margin-bottom:6px">AI PROCESSING</div>
-            <div style="font-size:10px;color:#00ff88;display:flex;align-items:center;gap:6px">
-                <div style="width:12px;height:12px;border:2px solid rgba(0, 217, 255,0.3);border-top-color:#00ff88;border-radius:50%;animation:spin 1s linear infinite"></div>
+            <div style="font-size:10px;color:#00D9FF;display:flex;align-items:center;gap:6px">
+                <div style="width:12px;height:12px;border:2px solid rgba(0, 217, 255,0.3);border-top-color:#00D9FF;border-radius:50%;animation:spin 1s linear infinite"></div>
                 <span id="ai-status-text">Analyzing...</span>
             </div>
         </div>
@@ -771,7 +771,7 @@
     <!-- ============================================ -->
     <div id="optimization-indicator" onclick="openJarvisHub('optimization')" style="position:fixed;bottom:20px;right:20px;z-index:1000;pointer-events:auto;width:120px;height:120px;background:radial-gradient(circle, rgba(0, 217, 255,0.1), rgba(0,10,20,0.95));border:3px solid rgba(0, 217, 255,0.4);border-radius:50%;backdrop-filter:blur(15px);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:all 0.3s;box-shadow:0 0 30px rgba(0, 217, 255,0.3),inset 0 0 25px rgba(0, 217, 255,0.1);animation:jarvisPulse 3s infinite" onmouseover="this.style.transform='scale(1.05)';this.style.boxShadow='0 0 40px rgba(0, 217, 255,0.6),inset 0 0 30px rgba(0, 217, 255,0.2)'" onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 0 30px rgba(0, 217, 255,0.3),inset 0 0 25px rgba(0, 217, 255,0.1)'">
         <!-- Percentage Display -->
-        <div id="opt-percentage" style="font-size:28px;color:#00ff88;font-weight:bold;text-shadow:0 0 15px rgba(0, 217, 255,0.9);margin-bottom:5px">0%</div>
+        <div id="opt-percentage" style="font-size:28px;color:#00D9FF;font-weight:bold;text-shadow:0 0 15px rgba(0, 217, 255,0.9);margin-bottom:5px">0%</div>
 
         <!-- Label -->
         <div style="font-size:9px;color:rgba(0, 217, 255,0.7);letter-spacing:1.5px;font-weight:bold">OPTIMIZATION</div>
@@ -782,7 +782,7 @@
         <!-- Circular Progress SVG -->
         <svg style="position:absolute;top:0;left:0;width:100%;height:100%;transform:rotate(-90deg)">
             <circle cx="60" cy="60" r="56" fill="none" stroke="rgba(0, 217, 255,0.1)" stroke-width="3"/>
-            <circle id="opt-progress-ring" cx="60" cy="60" r="56" fill="none" stroke="#00ff88" stroke-width="3" stroke-linecap="round" style="stroke-dasharray:351.68;stroke-dashoffset:351.68;transition:stroke-dashoffset 1s ease,stroke 0.3s"/>
+            <circle id="opt-progress-ring" cx="60" cy="60" r="56" fill="none" stroke="#00D9FF" stroke-width="3" stroke-linecap="round" style="stroke-dasharray:351.68;stroke-dashoffset:351.68;transition:stroke-dashoffset 1s ease,stroke 0.3s"/>
         </svg>
     </div>
 
@@ -795,7 +795,7 @@
 
         <!-- Status Text -->
         <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
-            <div id="waveform-status" style="font-size:12px;color:#00ff88;font-weight:bold">Listening...</div>
+            <div id="waveform-status" style="font-size:12px;color:#00D9FF;font-weight:bold">Listening...</div>
             <div id="waveform-subtitle" style="font-size:10px;color:rgba(0, 217, 255,0.6)">Say "Hey Phoenix"</div>
         </div>
     </div>
@@ -820,13 +820,13 @@
             <!-- Header -->
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:40px">
                 <div>
-                    <div style="font-size:36px;color:#00ff88;text-shadow:0 0 20px rgba(0, 217, 255,1);letter-spacing:4px;margin-bottom:10px">SYNC CENTER</div>
+                    <div style="font-size:36px;color:#00D9FF;text-shadow:0 0 20px rgba(0, 217, 255,1);letter-spacing:4px;margin-bottom:10px">SYNC CENTER</div>
                     <div style="font-size:14px;color:rgba(0, 217, 255,0.6)">Connect all your life systems • <span id="sync-count">0</span> of 6 Planets Connected</div>
                 </div>
             </div>
 
             <!-- Sync All Button -->
-            <button id="sync-all-btn" onclick="syncAllPlanets()" style="width:100%;padding:20px;background:linear-gradient(135deg, rgba(0, 217, 255,0.2), rgba(0,255,136,0.2));border:2px solid #00ff88;color:#00ff88;font-family:inherit;font-size:16px;cursor:pointer;border-radius:8px;letter-spacing:2px;font-weight:bold;margin-bottom:40px;box-shadow:0 0 30px rgba(0, 217, 255,0.3);transition:all 0.3s">
+            <button id="sync-all-btn" onclick="syncAllPlanets()" style="width:100%;padding:20px;background:linear-gradient(135deg, rgba(0, 217, 255,0.2), rgba(0,217,255,0.2));border:2px solid #00D9FF;color:#00D9FF;font-family:inherit;font-size:16px;cursor:pointer;border-radius:8px;letter-spacing:2px;font-weight:bold;margin-bottom:40px;box-shadow:0 0 30px rgba(0, 217, 255,0.3);transition:all 0.3s">
                 🔄 SYNC ALL PLANETS NOW
             </button>
 
@@ -840,7 +840,7 @@
                             <div class="planet-card-heading" style="color:#ff6b35">HEALTH & RECOVERY</div>
                             <div class="planet-card-subtitle" style="color:rgba(255,107,53,0.7)">Wearables • Biometrics • Sleep • Recovery</div>
                         </div>
-                        <div id="mercury-status" class="status-badge" style="background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.5);color:#00ff88">
+                        <div id="mercury-status" class="status-badge" style="background:rgba(0,217,255,0.1);border:1px solid rgba(0,217,255,0.5);color:#00D9FF">
                             ✓ ACTIVE
                         </div>
                     </div>
@@ -858,8 +858,8 @@
                 <div class="sync-card" data-planet="venus">
                     <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:15px">
                         <div>
-                            <div class="planet-card-title" style="color:#00ff88">🍽️ VENUS</div>
-                            <div class="planet-card-heading" style="color:#00ff88">FITNESS & NUTRITION</div>
+                            <div class="planet-card-title" style="color:#00D9FF">🍽️ VENUS</div>
+                            <div class="planet-card-heading" style="color:#00D9FF">FITNESS & NUTRITION</div>
                             <div class="planet-card-subtitle" style="color:rgba(0, 217, 255,0.7)">Workouts • Meals • Macros • AI Planning</div>
                         </div>
                         <div id="venus-status" class="status-badge">
@@ -867,7 +867,7 @@
                         </div>
                     </div>
 
-                    <button onclick="setupVenus()" class="planet-card-btn" style="background:rgba(0, 217, 255,0.1);border:1px solid rgba(0, 217, 255,0.3);color:#00ff88">
+                    <button onclick="setupVenus()" class="planet-card-btn" style="background:rgba(0, 217, 255,0.1);border:1px solid rgba(0, 217, 255,0.3);color:#00D9FF">
                         SETUP NUTRITION & FITNESS
                     </button>
 
@@ -880,9 +880,9 @@
                 <div class="sync-card" data-planet="earth">
                     <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:15px">
                         <div>
-                            <div style="font-size:24px;color:#00ff88;margin-bottom:8px">🌍 EARTH</div>
-                            <div style="font-size:16px;color:#00ff88;font-weight:bold;margin-bottom:4px">TIME & ENERGY</div>
-                            <div style="font-size:11px;color:rgba(0,255,136,0.7)">Calendar • Energy Optimization • Scheduling</div>
+                            <div style="font-size:24px;color:#00D9FF;margin-bottom:8px">🌍 EARTH</div>
+                            <div style="font-size:16px;color:#00D9FF;font-weight:bold;margin-bottom:4px">TIME & ENERGY</div>
+                            <div style="font-size:11px;color:rgba(0,217,255,0.7)">Calendar • Energy Optimization • Scheduling</div>
                         </div>
                         <div id="earth-status" class="status-badge">
                             NOT CONNECTED
@@ -896,7 +896,7 @@
                         </div>
                     </div>
                     
-                    <div style="font-size:10px;color:rgba(0,255,136,0.6);line-height:1.6;margin-top:12px">
+                    <div style="font-size:10px;color:rgba(0,217,255,0.6);line-height:1.6;margin-top:12px">
                         <strong>11 endpoints:</strong> Calendar Sync, Energy Mapping, Conflict Detection, Optimal Meeting Times, Energy Prediction, Schedule Optimization
                     </div>
                 </div>
@@ -978,19 +978,19 @@
     <div id="planet-nav-tab" onclick="togglePlanetPanel()" style="position:fixed;left:0;top:50%;transform:translateY(-50%);width:60px;height:200px;background:radial-gradient(circle at left, rgba(0, 217, 255,0.2), rgba(0,10,20,0.98));border:2px solid rgba(0, 217, 255,0.5);border-left:none;border-radius:0 30px 30px 0;backdrop-filter:blur(15px);cursor:pointer;z-index:9500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;transition:all 0.4s;box-shadow:0 0 40px rgba(0, 217, 255,0.4),inset 0 0 20px rgba(0, 217, 255,0.1);will-change:transform" onmouseover="this.style.width='70px';this.style.boxShadow='0 0 50px rgba(0, 217, 255,0.6),inset 0 0 30px rgba(0, 217, 255,0.2)'" onmouseout="this.style.width='60px';this.style.boxShadow='0 0 40px rgba(0, 217, 255,0.4),inset 0 0 20px rgba(0, 217, 255,0.1)'">
         <!-- Solar System Icon -->
         <svg width="36" height="36" viewBox="0 0 24 24" style="flex-shrink:0">
-            <circle cx="12" cy="12" r="3" fill="#00ff88"/>
-            <ellipse cx="12" cy="12" rx="10" ry="4" fill="none" stroke="#00ff88" stroke-width="1"/>
-            <ellipse cx="12" cy="12" rx="4" ry="10" fill="none" stroke="#00ff88" stroke-width="1"/>
-            <circle cx="18" cy="12" r="1.5" fill="#00ff88"/>
-            <circle cx="12" cy="6" r="1.5" fill="#00ff88"/>
-            <circle cx="6" cy="12" r="1.5" fill="#00ff88"/>
+            <circle cx="12" cy="12" r="3" fill="#00D9FF"/>
+            <ellipse cx="12" cy="12" rx="10" ry="4" fill="none" stroke="#00D9FF" stroke-width="1"/>
+            <ellipse cx="12" cy="12" rx="4" ry="10" fill="none" stroke="#00D9FF" stroke-width="1"/>
+            <circle cx="18" cy="12" r="1.5" fill="#00D9FF"/>
+            <circle cx="12" cy="6" r="1.5" fill="#00D9FF"/>
+            <circle cx="6" cy="12" r="1.5" fill="#00D9FF"/>
         </svg>
-        <div style="font-size:8px;color:#00ff88;letter-spacing:1px;writing-mode:vertical-rl;text-orientation:upright">PLANETS</div>
+        <div style="font-size:8px;color:#00D9FF;letter-spacing:1px;writing-mode:vertical-rl;text-orientation:upright">PLANETS</div>
     </div>
 
     <!-- Planet Selection Panel (Slides from Left) -->
     <div id="planet-selection-panel" style="position:fixed;left:-400px;top:0;width:400px;height:100%;background:rgba(0,10,20,0.98);border-right:3px solid rgba(0, 217, 255,0.5);backdrop-filter:blur(20px);z-index:9499;padding:80px 30px;overflow-y:auto;transition:left 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);box-shadow:5px 0 50px rgba(0, 217, 255,0.3);will-change:left">
-        <h2 style="font-size:28px;color:#00ff88;text-align:center;margin-bottom:10px;text-shadow:0 0 20px rgba(0, 217, 255,0.8)">PLANET NAVIGATION</h2>
+        <h2 style="font-size:28px;color:#00D9FF;text-align:center;margin-bottom:10px;text-shadow:0 0 20px rgba(0, 217, 255,0.8)">PLANET NAVIGATION</h2>
         <p style="text-align:center;color:rgba(0, 217, 255,0.6);font-size:12px;margin-bottom:40px;letter-spacing:1px">SELECT A PLANET TO EXPLORE</p>
 
         <!-- MARS - Fitness/Workout -->
@@ -1128,7 +1128,7 @@
         </div>
         
         <div style="padding:40px;text-align:center">
-            <div id="detail-title" style="font-size:36px;color:#00ff88;text-shadow:0 0 20px rgba(0, 217, 255,1);margin-bottom:10px">LOADING...</div>
+            <div id="detail-title" style="font-size:36px;color:#00D9FF;text-shadow:0 0 20px rgba(0, 217, 255,1);margin-bottom:10px">LOADING...</div>
             <div id="detail-subtitle" style="font-size:14px;color:rgba(0, 217, 255,0.6);margin-bottom:30px">Fetching data...</div>
         </div>
         
@@ -1181,7 +1181,7 @@
         </button>
 
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
-            <div style="font-size:18px;color:#00ff88;font-weight:bold;text-shadow:0 0 10px rgba(0, 217, 255,0.8)">
+            <div style="font-size:18px;color:#00D9FF;font-weight:bold;text-shadow:0 0 10px rgba(0, 217, 255,0.8)">
                 💬 Conversation
             </div>
         </div>
@@ -1204,8 +1204,8 @@
         
         <!-- Text Input Alternative to Voice -->
         <div style="display:flex;gap:8px;border-top:1px solid rgba(0, 217, 255,0.3);padding-top:15px">
-            <input type="text" id="text-input" placeholder="Type or use voice..." onkeypress="if(event.key==='Enter' && this.value.trim()) { sendMessage(this.value); this.value=''; }" style="flex:1;padding:10px;background:rgba(0, 217, 255,0.1);border:1px solid rgba(0, 217, 255,0.3);color:#00ff88;border-radius:6px;outline:none;font-size:12px">
-            <button onclick="const input = document.getElementById('text-input'); if(input.value.trim()) { sendMessage(input.value); input.value=''; }" style="padding:10px 20px;background:rgba(0, 217, 255,0.2);border:1px solid rgba(0, 217, 255,0.5);color:#00ff88;border-radius:6px;cursor:pointer;font-size:12px;font-weight:bold">
+            <input type="text" id="text-input" placeholder="Type or use voice..." onkeypress="if(event.key==='Enter' && this.value.trim()) { sendMessage(this.value); this.value=''; }" style="flex:1;padding:10px;background:rgba(0, 217, 255,0.1);border:1px solid rgba(0, 217, 255,0.3);color:#00D9FF;border-radius:6px;outline:none;font-size:12px">
+            <button onclick="const input = document.getElementById('text-input'); if(input.value.trim()) { sendMessage(input.value); input.value=''; }" style="padding:10px 20px;background:rgba(0, 217, 255,0.2);border:1px solid rgba(0, 217, 255,0.5);color:#00D9FF;border-radius:6px;cursor:pointer;font-size:12px;font-weight:bold">
                 SEND
             </button>
         </div>
@@ -1222,7 +1222,7 @@
             </svg>
         </button>
 
-        <div style="font-size:18px;color:#00ff88;margin-bottom:8px;font-weight:bold;text-shadow:0 0 10px rgba(0, 217, 255,0.8)">
+        <div style="font-size:18px;color:#00D9FF;margin-bottom:8px;font-weight:bold;text-shadow:0 0 10px rgba(0, 217, 255,0.8)">
             🤵 Butler Actions
         </div>
         <div style="font-size:11px;color:rgba(0, 217, 255,0.6);margin-bottom:20px">
@@ -1282,13 +1282,13 @@
         <div style="width:200px;height:100px;margin-bottom:30px">
             <canvas id="waveform-canvas" width="200" height="100" style="will-change:transform;transform:translateZ(0)"></canvas>
         </div>
-        <div id="voice-text" style="color:#00ff88;font-size:18px;text-align:center;padding:20px;max-width:80%;margin-bottom:20px;min-height:60px">
+        <div id="voice-text" style="color:#00D9FF;font-size:18px;text-align:center;padding:20px;max-width:80%;margin-bottom:20px;min-height:60px">
             Listening...
         </div>
-        <div id="voice-transcript" style="color:#00ff88;font-size:14px;text-align:center;padding:10px;max-width:80%;margin:0 auto 10px;min-height:30px;max-height:120px;overflow-y:auto;overflow-x:hidden;word-wrap:break-word;white-space:normal;opacity:0.7;line-height:1.4">
+        <div id="voice-transcript" style="color:#00D9FF;font-size:14px;text-align:center;padding:10px;max-width:80%;margin:0 auto 10px;min-height:30px;max-height:120px;overflow-y:auto;overflow-x:hidden;word-wrap:break-word;white-space:normal;opacity:0.7;line-height:1.4">
             <!-- Real-time transcript appears here -->
         </div>
-        <div id="voice-response" style="color:#00ff88;font-size:16px;text-align:center;padding:20px;max-width:80%;margin-bottom:20px;min-height:40px;background:rgba(0,255,136,0.1);border-radius:8px">
+        <div id="voice-response" style="color:#00D9FF;font-size:16px;text-align:center;padding:20px;max-width:80%;margin-bottom:20px;min-height:40px;background:rgba(0,217,255,0.1);border-radius:8px">
             <!-- AI response appears here -->
         </div>
         <button onclick="window.phoenixAI?.stopListening()" style="margin-top:30px;padding:12px 30px;background:rgba(255,68,68,0.2);border:1px solid rgba(255,68,68,0.5);color:#ff4444;cursor:pointer;border-radius:6px;font-size:12px">
@@ -1303,7 +1303,7 @@
         <div style="background:linear-gradient(135deg, rgba(0,10,20,0.95), rgba(0,10,20,0.9));border:2px solid rgba(0, 217, 255,0.5);border-radius:12px;padding:40px;max-width:800px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 0 50px rgba(0, 217, 255,0.3)">
             <!-- Header -->
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;padding-bottom:20px;border-bottom:1px solid rgba(0, 217, 255,0.3)">
-                <div style="font-size:28px;color:#00ff88;text-shadow:0 0 20px rgba(0, 217, 255,1);letter-spacing:3px">LOG WORKOUT</div>
+                <div style="font-size:28px;color:#00D9FF;text-shadow:0 0 20px rgba(0, 217, 255,1);letter-spacing:3px">LOG WORKOUT</div>
                 <button onclick="closeWorkoutModal()" style="width:50px;height:50px;background:radial-gradient(circle, rgba(255,68,68,0.15), rgba(0,10,20,0.95));border:3px solid rgba(255,68,68,0.6);border-radius:50%;backdrop-filter:blur(15px);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s;box-shadow:0 0 25px rgba(255,68,68,0.5);pointer-events:auto" onmouseover="this.style.transform='scale(1.1) rotate(90deg)'" onmouseout="this.style.transform='scale(1) rotate(0deg)'">
                     <svg width="20" height="20" viewBox="0 0 20 20">
                         <path d="M5 5 L15 15 M15 5 L5 15" stroke="rgba(255,68,68,0.9)" stroke-width="2.5" stroke-linecap="round"/>
@@ -1317,7 +1317,7 @@
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:25px">
                     <div>
                         <label style="display:block;font-size:12px;color:rgba(0, 217, 255,0.7);letter-spacing:1px;margin-bottom:8px">WORKOUT TYPE</label>
-                        <select id="workout-type" required style="width:100%;padding:12px 15px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:6px;color:#00ff88;font-family:inherit;font-size:14px">
+                        <select id="workout-type" required style="width:100%;padding:12px 15px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:6px;color:#00D9FF;font-family:inherit;font-size:14px">
                             <option value="strength">💪 Strength Training</option>
                             <option value="cardio">🏃 Cardio</option>
                             <option value="hiit">⚡ HIIT</option>
@@ -1328,7 +1328,7 @@
                     </div>
                     <div>
                         <label style="display:block;font-size:12px;color:rgba(0, 217, 255,0.7);letter-spacing:1px;margin-bottom:8px">TOTAL DURATION (min)</label>
-                        <input type="number" id="workout-duration" min="1" placeholder="45" required style="width:100%;padding:12px 15px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:6px;color:#00ff88;font-family:inherit;font-size:14px">
+                        <input type="number" id="workout-duration" min="1" placeholder="45" required style="width:100%;padding:12px 15px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:6px;color:#00D9FF;font-family:inherit;font-size:14px">
                     </div>
                 </div>
 
@@ -1338,26 +1338,26 @@
                 </div>
 
                 <!-- Add Exercise Button -->
-                <button type="button" onclick="addExercise()" style="width:100%;padding:15px;background:rgba(0, 217, 255,0.1);border:2px dashed rgba(0, 217, 255,0.3);border-radius:8px;color:#00ff88;cursor:pointer;font-family:inherit;font-size:14px;letter-spacing:2px;margin-bottom:20px">
+                <button type="button" onclick="addExercise()" style="width:100%;padding:15px;background:rgba(0, 217, 255,0.1);border:2px dashed rgba(0, 217, 255,0.3);border-radius:8px;color:#00D9FF;cursor:pointer;font-family:inherit;font-size:14px;letter-spacing:2px;margin-bottom:20px">
                     ➕ ADD ANOTHER EXERCISE
                 </button>
 
                 <!-- Overall Workout Notes -->
                 <div style="margin-bottom:25px">
                     <label style="display:block;font-size:12px;color:rgba(0, 217, 255,0.7);letter-spacing:1px;margin-bottom:8px">OVERALL NOTES (Optional)</label>
-                    <textarea id="workout-notes" placeholder="How was the workout overall?" rows="3" style="width:100%;padding:12px 15px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:6px;color:#00ff88;font-family:inherit;font-size:14px;resize:vertical"></textarea>
+                    <textarea id="workout-notes" placeholder="How was the workout overall?" rows="3" style="width:100%;padding:12px 15px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:6px;color:#00D9FF;font-family:inherit;font-size:14px;resize:vertical"></textarea>
                 </div>
 
                 <!-- Submit Button -->
-                <button type="submit" style="width:100%;padding:15px;background:linear-gradient(135deg, rgba(0, 217, 255,0.2), rgba(0,255,136,0.2));border:2px solid #00ff88;color:#00ff88;font-family:inherit;font-size:16px;cursor:pointer;border-radius:8px;letter-spacing:2px;font-weight:bold">
+                <button type="submit" style="width:100%;padding:15px;background:linear-gradient(135deg, rgba(0, 217, 255,0.2), rgba(0,217,255,0.2));border:2px solid #00D9FF;color:#00D9FF;font-family:inherit;font-size:16px;cursor:pointer;border-radius:8px;letter-spacing:2px;font-weight:bold">
                     💪 LOG WORKOUT
                 </button>
             </form>
 
             <!-- Loading State -->
             <div id="workout-loading" style="display:none;text-align:center;padding:20px">
-                <div style="width:40px;height:40px;border:3px solid rgba(0, 217, 255,0.2);border-top-color:#00ff88;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 15px"></div>
-                <div style="color:#00ff88">Logging workout...</div>
+                <div style="width:40px;height:40px;border:3px solid rgba(0, 217, 255,0.2);border-top-color:#00D9FF;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 15px"></div>
+                <div style="color:#00D9FF">Logging workout...</div>
             </div>
         </div>
     </div>
@@ -1379,7 +1379,7 @@
         <div style="background:linear-gradient(135deg, rgba(0,10,20,0.95), rgba(0,10,20,0.9));border:2px solid rgba(0, 217, 255,0.5);border-radius:12px;padding:40px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 0 50px rgba(0, 217, 255,0.3)">
             <!-- Header -->
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;padding-bottom:20px;border-bottom:1px solid rgba(0, 217, 255,0.3)">
-                <div style="font-size:28px;color:#00ff88;text-shadow:0 0 20px rgba(0, 217, 255,1);letter-spacing:3px">LOG MEAL</div>
+                <div style="font-size:28px;color:#00D9FF;text-shadow:0 0 20px rgba(0, 217, 255,1);letter-spacing:3px">LOG MEAL</div>
                 <button onclick="closeMealModal()" style="width:50px;height:50px;background:radial-gradient(circle, rgba(255,68,68,0.15), rgba(0,10,20,0.95));border:3px solid rgba(255,68,68,0.6);border-radius:50%;backdrop-filter:blur(15px);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s;box-shadow:0 0 25px rgba(255,68,68,0.5);pointer-events:auto" onmouseover="this.style.transform='scale(1.1) rotate(90deg)'" onmouseout="this.style.transform='scale(1) rotate(0deg)'">
                     <svg width="20" height="20" viewBox="0 0 20 20">
                         <path d="M5 5 L15 15 M15 5 L5 15" stroke="rgba(255,68,68,0.9)" stroke-width="2.5" stroke-linecap="round"/>
@@ -1392,7 +1392,7 @@
                 <!-- Meal Type -->
                 <div style="margin-bottom:25px">
                     <label style="display:block;font-size:12px;color:rgba(0, 217, 255,0.7);letter-spacing:1px;margin-bottom:8px">MEAL TYPE</label>
-                    <select id="meal-type" required style="width:100%;padding:12px 15px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:6px;color:#00ff88;font-family:inherit;font-size:14px">
+                    <select id="meal-type" required style="width:100%;padding:12px 15px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:6px;color:#00D9FF;font-family:inherit;font-size:14px">
                         <option value="breakfast">🌅 Breakfast</option>
                         <option value="lunch">🌞 Lunch</option>
                         <option value="dinner">🌙 Dinner</option>
@@ -1404,47 +1404,47 @@
                 <!-- Meal Name -->
                 <div style="margin-bottom:25px">
                     <label style="display:block;font-size:12px;color:rgba(0, 217, 255,0.7);letter-spacing:1px;margin-bottom:8px">WHAT DID YOU EAT?</label>
-                    <input type="text" id="meal-name" required placeholder="e.g., Chicken Breast with Rice and Broccoli" style="width:100%;padding:12px 15px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:6px;color:#00ff88;font-family:inherit;font-size:14px">
+                    <input type="text" id="meal-name" required placeholder="e.g., Chicken Breast with Rice and Broccoli" style="width:100%;padding:12px 15px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:6px;color:#00D9FF;font-family:inherit;font-size:14px">
                 </div>
 
                 <!-- Macros -->
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:25px">
                     <div>
                         <label style="display:block;font-size:11px;color:rgba(0, 217, 255,0.7);letter-spacing:1px;margin-bottom:8px">PROTEIN (g)</label>
-                        <input type="number" id="meal-protein" min="0" placeholder="40" style="width:100%;padding:12px 10px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:6px;color:#00ff88;font-family:inherit;font-size:14px">
+                        <input type="number" id="meal-protein" min="0" placeholder="40" style="width:100%;padding:12px 10px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:6px;color:#00D9FF;font-family:inherit;font-size:14px">
                     </div>
                     <div>
                         <label style="display:block;font-size:11px;color:rgba(0, 217, 255,0.7);letter-spacing:1px;margin-bottom:8px">CARBS (g)</label>
-                        <input type="number" id="meal-carbs" min="0" placeholder="50" style="width:100%;padding:12px 10px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:6px;color:#00ff88;font-family:inherit;font-size:14px">
+                        <input type="number" id="meal-carbs" min="0" placeholder="50" style="width:100%;padding:12px 10px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:6px;color:#00D9FF;font-family:inherit;font-size:14px">
                     </div>
                     <div>
                         <label style="display:block;font-size:11px;color:rgba(0, 217, 255,0.7);letter-spacing:1px;margin-bottom:8px">FATS (g)</label>
-                        <input type="number" id="meal-fats" min="0" placeholder="15" style="width:100%;padding:12px 10px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:6px;color:#00ff88;font-family:inherit;font-size:14px">
+                        <input type="number" id="meal-fats" min="0" placeholder="15" style="width:100%;padding:12px 10px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:6px;color:#00D9FF;font-family:inherit;font-size:14px">
                     </div>
                 </div>
 
                 <!-- Calories -->
                 <div style="margin-bottom:25px">
                     <label style="display:block;font-size:12px;color:rgba(0, 217, 255,0.7);letter-spacing:1px;margin-bottom:8px">CALORIES</label>
-                    <input type="number" id="meal-calories" min="0" placeholder="500" style="width:100%;padding:12px 15px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:6px;color:#00ff88;font-family:inherit;font-size:14px">
+                    <input type="number" id="meal-calories" min="0" placeholder="500" style="width:100%;padding:12px 15px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:6px;color:#00D9FF;font-family:inherit;font-size:14px">
                 </div>
 
                 <!-- Notes -->
                 <div style="margin-bottom:25px">
                     <label style="display:block;font-size:12px;color:rgba(0, 217, 255,0.7);letter-spacing:1px;margin-bottom:8px">NOTES (Optional)</label>
-                    <textarea id="meal-notes" placeholder="How did you feel after eating? Where did you eat?" rows="3" style="width:100%;padding:12px 15px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:6px;color:#00ff88;font-family:inherit;font-size:14px;resize:vertical"></textarea>
+                    <textarea id="meal-notes" placeholder="How did you feel after eating? Where did you eat?" rows="3" style="width:100%;padding:12px 15px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:6px;color:#00D9FF;font-family:inherit;font-size:14px;resize:vertical"></textarea>
                 </div>
 
                 <!-- Submit Button -->
-                <button type="submit" style="width:100%;padding:15px;background:linear-gradient(135deg, rgba(0, 217, 255,0.2), rgba(0,255,136,0.2));border:2px solid #00ff88;color:#00ff88;font-family:inherit;font-size:16px;cursor:pointer;border-radius:8px;letter-spacing:2px;font-weight:bold;transition:all 0.3s">
+                <button type="submit" style="width:100%;padding:15px;background:linear-gradient(135deg, rgba(0, 217, 255,0.2), rgba(0,217,255,0.2));border:2px solid #00D9FF;color:#00D9FF;font-family:inherit;font-size:16px;cursor:pointer;border-radius:8px;letter-spacing:2px;font-weight:bold;transition:all 0.3s">
                     🍽️ LOG MEAL
                 </button>
             </form>
 
             <!-- Loading State -->
             <div id="meal-loading" style="display:none;text-align:center;padding:20px">
-                <div style="width:40px;height:40px;border:3px solid rgba(0, 217, 255,0.2);border-top-color:#00ff88;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 15px"></div>
-                <div style="color:#00ff88">Logging meal...</div>
+                <div style="width:40px;height:40px;border:3px solid rgba(0, 217, 255,0.2);border-top-color:#00D9FF;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 15px"></div>
+                <div style="color:#00D9FF">Logging meal...</div>
             </div>
         </div>
     </div>
@@ -1489,7 +1489,7 @@
             padding: 6px 12px;
             background: rgba(0, 217, 255,0.1);
             border: 1px solid rgba(0, 217, 255,0.3);
-            color: #00ff88;
+            color: #00D9FF;
             font-family: inherit;
             font-size: 10px;
             cursor: pointer;
@@ -1500,13 +1500,13 @@
         
         .connect-btn:hover {
             background: rgba(0, 217, 255,0.2);
-            border-color: #00ff88;
+            border-color: #00D9FF;
         }
         
         .connect-btn.connected {
-            background: rgba(0,255,136,0.2);
-            border-color: #00ff88;
-            color: #00ff88;
+            background: rgba(0,217,255,0.2);
+            border-color: #00D9FF;
+            color: #00D9FF;
         }
         
         .status-badge {
@@ -1521,9 +1521,9 @@
         }
         
         .status-badge.connected {
-            background: rgba(0,255,136,0.2);
-            border-color: #00ff88;
-            color: #00ff88;
+            background: rgba(0,217,255,0.2);
+            border-color: #00D9FF;
+            color: #00D9FF;
         }
 
         /* Butler Quick Button Styles */
@@ -1535,7 +1535,7 @@
             background: rgba(0, 217, 255,0.1);
             border: 1px solid rgba(0, 217, 255,0.3);
             border-radius: 8px;
-            color: #00ff88;
+            color: #00D9FF;
             font-family: inherit;
             font-size: 14px;
             cursor: pointer;
@@ -1546,7 +1546,7 @@
         
         .butler-quick-btn:hover {
             background: rgba(0, 217, 255,0.2);
-            border-color: #00ff88;
+            border-color: #00D9FF;
             transform: translateX(5px);
             box-shadow: 0 0 20px rgba(0, 217, 255,0.4);
         }
@@ -1556,7 +1556,7 @@
             padding: 12px 24px;
             background: rgba(0,10,20,0.9);
             border: 1px solid rgba(0, 217, 255,0.3);
-            color: #00ff88;
+            color: #00D9FF;
             font-family: inherit;
             font-size: 12px;
             cursor: pointer;
@@ -1568,7 +1568,7 @@
         
         .quick-action-btn:hover {
             background: rgba(0, 217, 255,0.2);
-            border-color: #00ff88;
+            border-color: #00D9FF;
             box-shadow: 0 0 20px rgba(0, 217, 255,0.4);
             transform: translateY(-2px);
         }
@@ -1576,7 +1576,7 @@
         /* Circular Action Button Hover */
         .action-button-circular:hover {
             background: rgba(0, 217, 255,0.2);
-            border-color: #00ff88;
+            border-color: #00D9FF;
             transform: scale(1.15);
             box-shadow: 0 0 30px rgba(0, 217, 255,0.6);
         }
@@ -1589,7 +1589,7 @@
             border: 1px solid rgba(0, 217, 255,0.3);
             border-radius: 4px;
             font-size: 9px;
-            color: #00ff88;
+            color: #00D9FF;
             letter-spacing: 1px;
         }
 
@@ -1743,7 +1743,7 @@
         <!-- Content -->
         <div style="max-width:1400px;margin:0 auto;padding:40px">
             <div style="text-align:center;margin-bottom:40px">
-                <h1 style="font-size:48px;color:#00ff88;font-weight:bold;text-shadow:0 0 30px rgba(0, 217, 255,0.8);margin-bottom:10px">RECOVERY COMMAND CENTER</h1>
+                <h1 style="font-size:48px;color:#00D9FF;font-weight:bold;text-shadow:0 0 30px rgba(0, 217, 255,0.8);margin-bottom:10px">RECOVERY COMMAND CENTER</h1>
                 <p style="color:rgba(0, 217, 255,0.6);font-size:14px">Monitor and optimize your recovery metrics</p>
             </div>
 
@@ -1752,29 +1752,29 @@
                 <!-- Current Recovery Score -->
                 <div style="background:rgba(0,10,20,0.9);border:2px solid rgba(0, 217, 255,0.5);border-radius:12px;padding:25px;box-shadow:0 0 25px rgba(0, 217, 255,0.3)">
                     <div style="font-size:11px;color:rgba(0, 217, 255,0.5);letter-spacing:1px;margin-bottom:10px">CURRENT SCORE</div>
-                    <div id="recovery-hub-score" style="font-size:48px;color:#00ff88;font-weight:bold;text-shadow:0 0 20px rgba(0, 217, 255,0.8)"></div>
+                    <div id="recovery-hub-score" style="font-size:48px;color:#00D9FF;font-weight:bold;text-shadow:0 0 20px rgba(0, 217, 255,0.8)"></div>
                     <div style="font-size:12px;color:rgba(0, 217, 255,0.6);margin-top:5px">Out of 100</div>
                 </div>
 
                 <!-- Recovery Status -->
                 <div style="background:rgba(0,10,20,0.9);border:2px solid rgba(0, 217, 255,0.5);border-radius:12px;padding:25px">
                     <div style="font-size:11px;color:rgba(0, 217, 255,0.5);letter-spacing:1px;margin-bottom:10px">STATUS</div>
-                    <div id="recovery-hub-status" style="font-size:24px;color:#00ff88;font-weight:bold"></div>
+                    <div id="recovery-hub-status" style="font-size:24px;color:#00D9FF;font-weight:bold"></div>
                     <div id="recovery-hub-status-detail" style="font-size:12px;color:rgba(0, 217, 255,0.6);margin-top:5px"></div>
                 </div>
 
                 <!-- Last Synced -->
                 <div style="background:rgba(0,10,20,0.9);border:2px solid rgba(0, 217, 255,0.5);border-radius:12px;padding:25px">
                     <div style="font-size:11px;color:rgba(0, 217, 255,0.5);letter-spacing:1px;margin-bottom:10px">LAST SYNCED</div>
-                    <div id="recovery-hub-sync" style="font-size:18px;color:#00ff88;font-weight:bold"></div>
+                    <div id="recovery-hub-sync" style="font-size:18px;color:#00D9FF;font-weight:bold"></div>
                     <div id="recovery-hub-devices" style="font-size:12px;color:rgba(0, 217, 255,0.6);margin-top:5px"></div>
                 </div>
             </div>
 
             <!-- Sync Devices -->
             <div style="background:rgba(0,10,20,0.9);border:2px solid rgba(0, 217, 255,0.5);border-radius:12px;padding:30px;text-align:center">
-                <h3 style="font-size:18px;color:#00ff88;margin-bottom:20px;letter-spacing:1px">⚡ CONNECT WEARABLES</h3>
-                <button onclick="window.location.href='mercury.html'" style="padding:15px 30px;background:linear-gradient(135deg,rgba(0, 217, 255,0.2),rgba(0,255,136,0.2));border:2px solid #00ff88;color:#00ff88;font-family:inherit;font-size:13px;cursor:pointer;border-radius:8px;letter-spacing:1px;font-weight:bold;transition:all 0.3s;box-shadow:0 0 15px rgba(0, 217, 255,0.3)" onmouseover="this.style.transform='scale(1.05)';this.style.boxShadow='0 0 25px rgba(0, 217, 255,0.5)'" onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 0 15px rgba(0, 217, 255,0.3)'">⌚ Go to Mercury - Connect Devices</button>
+                <h3 style="font-size:18px;color:#00D9FF;margin-bottom:20px;letter-spacing:1px">⚡ CONNECT WEARABLES</h3>
+                <button onclick="window.location.href='mercury.html'" style="padding:15px 30px;background:linear-gradient(135deg,rgba(0, 217, 255,0.2),rgba(0,217,255,0.2));border:2px solid #00D9FF;color:#00D9FF;font-family:inherit;font-size:13px;cursor:pointer;border-radius:8px;letter-spacing:1px;font-weight:bold;transition:all 0.3s;box-shadow:0 0 15px rgba(0, 217, 255,0.3)" onmouseover="this.style.transform='scale(1.05)';this.style.boxShadow='0 0 25px rgba(0, 217, 255,0.5)'" onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 0 15px rgba(0, 217, 255,0.3)'">⌚ Go to Mercury - Connect Devices</button>
                 <div style="font-size:12px;color:rgba(0, 217, 255,0.6);margin-top:15px">Connect Fitbit, Polar, and other health devices in Mercury to track recovery metrics automatically</div>
             </div>
         </div>
@@ -1785,28 +1785,28 @@
         <!-- Content -->
         <div style="max-width:1400px;margin:0 auto;padding:100px 40px 40px 40px">
             <div style="text-align:center;margin-bottom:40px">
-                <h1 style="font-size:48px;color:#00ff88;font-weight:bold;text-shadow:0 0 30px rgba(0, 217, 255,0.8);margin-bottom:10px">OPTIMIZATION COMMAND CENTER</h1>
+                <h1 style="font-size:48px;color:#00D9FF;font-weight:bold;text-shadow:0 0 30px rgba(0, 217, 255,0.8);margin-bottom:10px">OPTIMIZATION COMMAND CENTER</h1>
                 <p style="color:rgba(0, 217, 255,0.6);font-size:14px">Maximize your Phoenix optimization score</p>
             </div>
 
             <!-- Optimization Score Big Display -->
             <div style="background:rgba(0,10,20,0.9);border:2px solid rgba(0, 217, 255,0.5);border-radius:12px;padding:40px;text-align:center;margin-bottom:40px;box-shadow:0 0 40px rgba(0, 217, 255,0.3)">
                 <div style="font-size:11px;color:rgba(0, 217, 255,0.5);letter-spacing:2px;margin-bottom:15px">OPTIMIZATION SCORE</div>
-                <div id="opt-hub-score" style="font-size:96px;color:#00ff88;font-weight:bold;text-shadow:0 0 40px rgba(0, 217, 255,0.9)"></div>
-                <div id="opt-hub-tier" style="font-size:24px;color:#00ff88;font-weight:bold;margin-top:15px"></div>
+                <div id="opt-hub-score" style="font-size:96px;color:#00D9FF;font-weight:bold;text-shadow:0 0 40px rgba(0, 217, 255,0.9)"></div>
+                <div id="opt-hub-tier" style="font-size:24px;color:#00D9FF;font-weight:bold;margin-top:15px"></div>
             </div>
 
             <!-- Integration Grid -->
             <div style="background:rgba(0,10,20,0.9);border:2px solid rgba(0, 217, 255,0.5);border-radius:12px;padding:30px;margin-bottom:40px">
-                <h3 style="font-size:18px;color:#00ff88;margin-bottom:20px;letter-spacing:1px">🔌 INTEGRATION STATUS</h3>
+                <h3 style="font-size:18px;color:#00D9FF;margin-bottom:20px;letter-spacing:1px">🔌 INTEGRATION STATUS</h3>
                 <div id="integration-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:15px">
                 </div>
             </div>
 
             <!-- Sync Integrations -->
             <div style="background:rgba(0,10,20,0.9);border:2px solid rgba(0, 217, 255,0.5);border-radius:12px;padding:30px;text-align:center">
-                <h3 style="font-size:18px;color:#00ff88;margin-bottom:20px;letter-spacing:1px">⚡ BOOST YOUR SCORE</h3>
-                <button onclick="switchJarvisHub('integrations')" style="padding:15px 30px;background:linear-gradient(135deg,rgba(0, 217, 255,0.2),rgba(0,255,136,0.2));border:2px solid #00ff88;color:#00ff88;font-family:inherit;font-size:13px;cursor:pointer;border-radius:8px;letter-spacing:1px;font-weight:bold;transition:all 0.3s;box-shadow:0 0 15px rgba(0, 217, 255,0.3)" onmouseover="this.style.transform='scale(1.05)';this.style.boxShadow='0 0 25px rgba(0, 217, 255,0.5)'" onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 0 15px rgba(0, 217, 255,0.3)'">🔌 Add Integrations</button>
+                <h3 style="font-size:18px;color:#00D9FF;margin-bottom:20px;letter-spacing:1px">⚡ BOOST YOUR SCORE</h3>
+                <button onclick="switchJarvisHub('integrations')" style="padding:15px 30px;background:linear-gradient(135deg,rgba(0, 217, 255,0.2),rgba(0,217,255,0.2));border:2px solid #00D9FF;color:#00D9FF;font-family:inherit;font-size:13px;cursor:pointer;border-radius:8px;letter-spacing:1px;font-weight:bold;transition:all 0.3s;box-shadow:0 0 15px rgba(0, 217, 255,0.3)" onmouseover="this.style.transform='scale(1.05)';this.style.boxShadow='0 0 25px rgba(0, 217, 255,0.5)'" onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 0 15px rgba(0, 217, 255,0.3)'">🔌 Add Integrations</button>
                 <div style="font-size:12px;color:rgba(0, 217, 255,0.6);margin-top:15px">Connect more services to reach 100% optimization</div>
             </div>
         </div>
@@ -1817,7 +1817,7 @@
         <!-- Content -->
         <div style="max-width:1400px;margin:0 auto;padding:100px 40px 40px 40px">
             <div style="text-align:center;margin-bottom:40px">
-                <h1 style="font-size:48px;color:#00ff88;font-weight:bold;text-shadow:0 0 30px rgba(0, 217, 255,0.8);margin-bottom:10px">INTEGRATION MARKETPLACE</h1>
+                <h1 style="font-size:48px;color:#00D9FF;font-weight:bold;text-shadow:0 0 30px rgba(0, 217, 255,0.8);margin-bottom:10px">INTEGRATION MARKETPLACE</h1>
                 <p style="color:rgba(0, 217, 255,0.6);font-size:14px">Connect services to unlock Phoenix's full potential</p>
             </div>
 
@@ -1839,17 +1839,17 @@
         <!-- Content -->
         <div style="max-width:1400px;margin:0 auto;padding:100px 40px 40px 40px">
             <div style="text-align:center;margin-bottom:40px">
-                <h1 style="font-size:48px;color:#00ff88;font-weight:bold;text-shadow:0 0 30px rgba(0, 217, 255,0.8);margin-bottom:10px">TIER PROGRESSION VAULT</h1>
+                <h1 style="font-size:48px;color:#00D9FF;font-weight:bold;text-shadow:0 0 30px rgba(0, 217, 255,0.8);margin-bottom:10px">TIER PROGRESSION VAULT</h1>
                 <p style="color:rgba(0, 217, 255,0.6);font-size:14px">Your path to unlocking Phoenix's ultimate capabilities</p>
             </div>
 
             <!-- Current Tier Showcase -->
             <div style="background:rgba(0,10,20,0.9);border:2px solid rgba(0, 217, 255,0.5);border-radius:12px;padding:40px;text-align:center;margin-bottom:40px;box-shadow:0 0 40px rgba(0, 217, 255,0.3)">
                 <div style="font-size:11px;color:rgba(0, 217, 255,0.5);letter-spacing:2px;margin-bottom:15px">CURRENT TIER</div>
-                <div id="tier-hub-name" style="font-size:48px;color:#00ff88;font-weight:bold;margin-bottom:10px"></div>
+                <div id="tier-hub-name" style="font-size:48px;color:#00D9FF;font-weight:bold;margin-bottom:10px"></div>
                 <div id="tier-hub-description" style="font-size:14px;color:rgba(0, 217, 255,0.6);margin-bottom:20px"></div>
                 <div style="width:100%;max-width:500px;height:12px;background:rgba(0, 217, 255,0.1);margin:20px auto;border-radius:6px;overflow:hidden">
-                    <div id="tier-progress-bar" style="width:0%;height:100%;background:linear-gradient(90deg,#00ff88,#00ff88);transition:width 1s ease;box-shadow:0 0 15px rgba(0, 217, 255,0.6)"></div>
+                    <div id="tier-progress-bar" style="width:0%;height:100%;background:linear-gradient(90deg,#00D9FF,#00D9FF);transition:width 1s ease;box-shadow:0 0 15px rgba(0, 217, 255,0.6)"></div>
                 </div>
                 <div id="tier-hub-next" style="font-size:12px;color:rgba(0, 217, 255,0.6)"></div>
             </div>
@@ -1857,10 +1857,10 @@
             <!-- Tier Roadmap -->
             <div style="display:flex;flex-direction:column;gap:20px">
                 <!-- Basic Phoenix (Current) -->
-                <div style="background:rgba(0, 217, 255,0.1);border:2px solid #00ff88;border-radius:12px;padding:25px">
+                <div style="background:rgba(0, 217, 255,0.1);border:2px solid #00D9FF;border-radius:12px;padding:25px">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
-                        <h3 style="font-size:24px;color:#00ff88;font-weight:bold">BASIC PHOENIX</h3>
-                        <span style="padding:8px 16px;background:#00ff88;color:#000;border-radius:20px;font-size:11px;font-weight:bold">ACTIVE</span>
+                        <h3 style="font-size:24px;color:#00D9FF;font-weight:bold">BASIC PHOENIX</h3>
+                        <span style="padding:8px 16px;background:#00D9FF;color:#000;border-radius:20px;font-size:11px;font-weight:bold">ACTIVE</span>
                     </div>
                     <div style="font-size:14px;color:rgba(0, 217, 255,0.8);line-height:1.6">
                         ✅ Core dashboard access<br>
@@ -1872,8 +1872,8 @@
                 <!-- JARVIS MODE (Locked) -->
                 <div style="background:rgba(0,10,20,0.9);border:2px solid rgba(0, 217, 255,0.3);border-radius:12px;padding:25px;opacity:0.7">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
-                        <h3 style="font-size:24px;color:#00ff88;font-weight:bold">JARVIS MODE</h3>
-                        <span style="padding:8px 16px;background:rgba(0, 217, 255,0.2);color:#00ff88;border:2px solid rgba(0, 217, 255,0.5);border-radius:20px;font-size:11px;font-weight:bold">80% REQUIRED</span>
+                        <h3 style="font-size:24px;color:#00D9FF;font-weight:bold">JARVIS MODE</h3>
+                        <span style="padding:8px 16px;background:rgba(0, 217, 255,0.2);color:#00D9FF;border:2px solid rgba(0, 217, 255,0.5);border-radius:20px;font-size:11px;font-weight:bold">80% REQUIRED</span>
                     </div>
                     <div style="font-size:14px;color:rgba(0, 217, 255,0.6);line-height:1.6">
                         🔒 AI voice assistant<br>
@@ -1886,7 +1886,7 @@
                 <!-- ULTIMATE PHOENIX (Locked) -->
                 <div style="background:rgba(0,10,20,0.9);border:2px solid rgba(0, 217, 255,0.2);border-radius:12px;padding:25px;opacity:0.5">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
-                        <h3 style="font-size:24px;color:#00ff88;font-weight:bold">ULTIMATE PHOENIX</h3>
+                        <h3 style="font-size:24px;color:#00D9FF;font-weight:bold">ULTIMATE PHOENIX</h3>
                         <span style="padding:8px 16px;background:rgba(0, 217, 255,0.1);color:rgba(0, 217, 255,0.5);border:2px solid rgba(0, 217, 255,0.3);border-radius:20px;font-size:11px;font-weight:bold">100% REQUIRED</span>
                     </div>
                     <div style="font-size:14px;color:rgba(0, 217, 255,0.5);line-height:1.6">
@@ -2578,8 +2578,8 @@
                     const syncText = document.getElementById('sync-text');
                     if (connected === total) {
                         syncText.textContent = 'ALL SYNCED';
-                        syncBtn.style.borderColor = 'rgba(0,255,136,0.5)';
-                        syncBtn.style.background = 'rgba(0,255,136,0.1)';
+                        syncBtn.style.borderColor = 'rgba(0,217,255,0.5)';
+                        syncBtn.style.background = 'rgba(0,217,255,0.1)';
                     } else {
                         syncText.textContent = `SYNC (${connected}/${total})`;
                     }
@@ -2624,7 +2624,7 @@
                         <div style="display:flex;align-items:center;gap:12px;padding:10px;opacity:${opacity}">
                             <span style="font-size:20px">${checkmark}</span>
                             <div style="flex:1">
-                                <div style="font-size:13px;color:#00ff88;font-weight:bold">${p.label}</div>
+                                <div style="font-size:13px;color:#00D9FF;font-weight:bold">${p.label}</div>
                                 <div style="font-size:10px;color:rgba(0, 217, 255,0.6)">${p.description}</div>
                             </div>
                         </div>
@@ -2735,7 +2735,7 @@
                 }
 
                 // Show loading state while waiting for planetSystem
-                planetContent.innerHTML = '<div style="text-align:center;padding:60px"><div style="font-size:48px;margin-bottom:20px">⏳</div><div style="font-size:24px;color:#00ff88">Loading planet system...</div></div>';
+                planetContent.innerHTML = '<div style="text-align:center;padding:60px"><div style="font-size:48px;margin-bottom:20px">⏳</div><div style="font-size:24px;color:#00D9FF">Loading planet system...</div></div>';
 
                 setTimeout(() => {
                     if (window.planetSystem) {
@@ -3138,7 +3138,7 @@
             showNotification(title, message) {
                 const notification = document.createElement('div');
                 notification.style.cssText = 'position:fixed;top:100px;right:30px;background:rgba(0,10,20,0.95);border:2px solid rgba(0, 217, 255,0.5);padding:20px;max-width:300px;z-index:10000;animation:slideIn 0.3s;box-shadow:0 0 30px rgba(0, 217, 255,0.3);border-radius:8px';
-                notification.innerHTML = '<div style="font-size:14px;font-weight:bold;color:#00ff88;margin-bottom:10px">' + title + '</div><div style="font-size:12px;color:rgba(0, 217, 255,0.7)">' + message + '</div>';
+                notification.innerHTML = '<div style="font-size:14px;font-weight:bold;color:#00D9FF;margin-bottom:10px">' + title + '</div><div style="font-size:12px;color:rgba(0, 217, 255,0.7)">' + message + '</div>';
                 
                 document.body.appendChild(notification);
                 
@@ -3321,13 +3321,13 @@
             const html = `
                 <div class="exercise-container" id="exercise-${exerciseId}" style="background:rgba(0, 217, 255,0.03);border:1px solid rgba(0, 217, 255,0.2);border-radius:8px;padding:20px;margin-bottom:20px">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
-                        <div style="font-size:16px;color:#00ff88;letter-spacing:1px">EXERCISE ${exerciseNum}</div>
+                        <div style="font-size:16px;color:#00D9FF;letter-spacing:1px">EXERCISE ${exerciseNum}</div>
                         ${exerciseNum > 1 ? `<button type="button" onclick="removeExercise(${exerciseId})" style="padding:6px 12px;background:rgba(255,68,68,0.2);border:1px solid rgba(255,68,68,0.5);border-radius:4px;color:#ff4444;cursor:pointer;font-size:12px">REMOVE</button>` : ''}
                     </div>
                     
                     <div style="margin-bottom:15px">
                         <label style="display:block;font-size:11px;color:rgba(0, 217, 255,0.7);letter-spacing:1px;margin-bottom:6px">EXERCISE NAME</label>
-                        <input type="text" class="exercise-name" required placeholder="e.g., Bench Press" style="width:100%;padding:10px 12px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:6px;color:#00ff88;font-family:inherit;font-size:14px">
+                        <input type="text" class="exercise-name" required placeholder="e.g., Bench Press" style="width:100%;padding:10px 12px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:6px;color:#00D9FF;font-family:inherit;font-size:14px">
                     </div>
                     
                     <div style="margin-bottom:10px">
@@ -3343,19 +3343,19 @@
                             <div class="sets-container" data-set-count="1">
                                 <div class="set-row" data-set-number="1" style="display:grid;grid-template-columns:40px 1fr 1fr 1fr 40px;gap:8px;margin-bottom:6px;align-items:center">
                                     <div style="font-size:13px;color:rgba(0, 217, 255,0.6);text-align:center;font-weight:bold">1</div>
-                                    <input type="number" class="set-reps" min="1" placeholder="10" required style="padding:8px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:4px;color:#00ff88;font-family:inherit;font-size:13px;text-align:center">
-                                    <input type="number" class="set-weight" min="0" step="0.5" placeholder="135" style="padding:8px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:4px;color:#00ff88;font-family:inherit;font-size:13px;text-align:center">
-                                    <input type="number" class="set-rpe" min="1" max="10" placeholder="8" style="padding:8px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:4px;color:#00ff88;font-family:inherit;font-size:13px;text-align:center">
+                                    <input type="number" class="set-reps" min="1" placeholder="10" required style="padding:8px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:4px;color:#00D9FF;font-family:inherit;font-size:13px;text-align:center">
+                                    <input type="number" class="set-weight" min="0" step="0.5" placeholder="135" style="padding:8px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:4px;color:#00D9FF;font-family:inherit;font-size:13px;text-align:center">
+                                    <input type="number" class="set-rpe" min="1" max="10" placeholder="8" style="padding:8px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:4px;color:#00D9FF;font-family:inherit;font-size:13px;text-align:center">
                                     <button type="button" onclick="removeSet(this)" style="visibility:hidden;padding:6px;background:rgba(255,68,68,0.2);border:1px solid rgba(255,68,68,0.5);border-radius:4px;color:#ff4444;cursor:pointer;font-size:11px">✕</button>
                                 </div>
                             </div>
-                            <button type="button" onclick="addSet(${exerciseId})" style="width:100%;padding:8px;background:rgba(0, 217, 255,0.1);border:1px solid rgba(0, 217, 255,0.3);border-radius:4px;color:#00ff88;cursor:pointer;font-size:11px;letter-spacing:1px;margin-top:8px">+ ADD SET</button>
+                            <button type="button" onclick="addSet(${exerciseId})" style="width:100%;padding:8px;background:rgba(0, 217, 255,0.1);border:1px solid rgba(0, 217, 255,0.3);border-radius:4px;color:#00D9FF;cursor:pointer;font-size:11px;letter-spacing:1px;margin-top:8px">+ ADD SET</button>
                         </div>
                     </div>
                     
                     <div style="margin-top:15px">
                         <label style="display:block;font-size:11px;color:rgba(0, 217, 255,0.7);letter-spacing:1px;margin-bottom:6px">NOTES (Optional)</label>
-                        <textarea class="exercise-notes" placeholder="How did this feel?" rows="2" style="width:100%;padding:10px 12px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:6px;color:#00ff88;font-family:inherit;font-size:13px;resize:vertical"></textarea>
+                        <textarea class="exercise-notes" placeholder="How did this feel?" rows="2" style="width:100%;padding:10px 12px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:6px;color:#00D9FF;font-family:inherit;font-size:13px;resize:vertical"></textarea>
                     </div>
                 </div>
             `;
@@ -3372,9 +3372,9 @@
             const html = `
                 <div class="set-row" data-set-number="${newSetNumber}" style="display:grid;grid-template-columns:40px 1fr 1fr 1fr 40px;gap:8px;margin-bottom:6px;align-items:center">
                     <div style="font-size:13px;color:rgba(0, 217, 255,0.6);text-align:center;font-weight:bold">${newSetNumber}</div>
-                    <input type="number" class="set-reps" min="1" placeholder="10" required style="padding:8px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:4px;color:#00ff88;font-family:inherit;font-size:13px;text-align:center">
-                    <input type="number" class="set-weight" min="0" step="0.5" placeholder="135" style="padding:8px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:4px;color:#00ff88;font-family:inherit;font-size:13px;text-align:center">
-                    <input type="number" class="set-rpe" min="1" max="10" placeholder="8" style="padding:8px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:4px;color:#00ff88;font-family:inherit;font-size:13px;text-align:center">
+                    <input type="number" class="set-reps" min="1" placeholder="10" required style="padding:8px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:4px;color:#00D9FF;font-family:inherit;font-size:13px;text-align:center">
+                    <input type="number" class="set-weight" min="0" step="0.5" placeholder="135" style="padding:8px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:4px;color:#00D9FF;font-family:inherit;font-size:13px;text-align:center">
+                    <input type="number" class="set-rpe" min="1" max="10" placeholder="8" style="padding:8px;background:rgba(0, 217, 255,0.05);border:1px solid rgba(0, 217, 255,0.3);border-radius:4px;color:#00D9FF;font-family:inherit;font-size:13px;text-align:center">
                     <button type="button" onclick="removeSet(this)" style="padding:6px;background:rgba(255,68,68,0.2);border:1px solid rgba(255,68,68,0.5);border-radius:4px;color:#ff4444;cursor:pointer;font-size:11px">✕</button>
                 </div>
             `;
@@ -3777,8 +3777,8 @@
 
         function showOptimizationToast(message, type = 'info') {
             const colors = {
-                info: '#00ff88',
-                success: '#00ff88',
+                info: '#00D9FF',
+                success: '#00D9FF',
                 achievement: '#ffaa00'
             };
 
@@ -4921,10 +4921,10 @@
             if (statusEl && app.recoveryScore !== undefined) {
                 if (app.recoveryScore >= 80) {
                     statusEl.textContent = 'Optimal';
-                    statusEl.style.color = '#00ff88';
+                    statusEl.style.color = '#00D9FF';
                 } else if (app.recoveryScore >= 60) {
                     statusEl.textContent = 'Good';
-                    statusEl.style.color = '#00ff88';
+                    statusEl.style.color = '#00D9FF';
                 } else if (app.recoveryScore >= 40) {
                     statusEl.textContent = 'Fair';
                     statusEl.style.color = '#ffaa00';
