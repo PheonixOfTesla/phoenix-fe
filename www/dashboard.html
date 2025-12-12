@@ -1930,6 +1930,16 @@
         // Check localStorage for existing token
         let token = localStorage.getItem('phoenixToken');
 
+        // ULTRA DEBUG: Show EVERYTHING in localStorage
+        console.log('═══════════════════════════════════════════');
+        console.log('🔍 ULTRA DEBUG - localStorage contents:');
+        console.log('   phoenixToken:', token);
+        console.log('   phoenixToken (type):', typeof token);
+        console.log('   phoenixToken (length):', token ? token.length : 'N/A');
+        console.log('   phoenixName:', localStorage.getItem('phoenixName'));
+        console.log('   All keys:', Object.keys(localStorage));
+        console.log('═══════════════════════════════════════════');
+
         // Fix: Aggressively clean any quotes/escapes that might have been added
         if (token) {
             const originalToken = token;

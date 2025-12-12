@@ -1476,11 +1476,23 @@
             const guestToken = 'guest_' + Date.now() + '_' + Math.random().toString(36).substring(7);
             localStorage.setItem('phoenixToken', guestToken);
 
+            // ULTRA DEBUG: Verify token was saved
+            console.log('═══════════════════════════════════════════');
+            console.log('🔍 [ONBOARDING] Guest token generated and saved:');
+            console.log('   Generated token:', guestToken);
+            console.log('   Saved to localStorage as phoenixToken');
+            console.log('   Verification - reading back:', localStorage.getItem('phoenixToken'));
+            console.log('   Match:', localStorage.getItem('phoenixToken') === guestToken);
+            console.log('   Will redirect to: dashboard.html');
+            console.log('═══════════════════════════════════════════');
+
             goToPhase('phase-success');
             document.getElementById('successMessage').textContent = 'Starting Phoenix...';
             await speak("Let's begin. Welcome to Phoenix.");
 
             setTimeout(() => {
+                console.log('🚀 [ONBOARDING] Redirecting to dashboard.html NOW...');
+                console.log('   Final token check before redirect:', localStorage.getItem('phoenixToken'));
                 window.location.href = 'dashboard.html';
             }, 2000);
         }
