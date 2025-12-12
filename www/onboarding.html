@@ -447,9 +447,10 @@
         .widget-content {
             flex: 1;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            align-items: flex-start;
+            justify-content: flex-start;
+            padding: 0;
+            overflow-y: auto;
         }
 
         .widget-content iframe {
@@ -457,6 +458,14 @@
             height: 100%;
             border: none;
             border-radius: 12px;
+            margin: auto;
+        }
+
+        /* For iframe widgets, center them */
+        .widget-content:has(iframe) {
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
 
         /* Voice Button */
@@ -733,7 +742,7 @@
 
         function createBusinessPlanWidget() {
             return `
-                <div style="padding: 30px; color: rgba(0, 217, 255, 0.9); font-family: 'SF Mono', monospace; font-size: 14px; line-height: 1.7; height: 100%; overflow-y: auto; text-align: left;">
+                <div style="padding: 30px; color: rgba(0, 217, 255, 0.9); font-family: 'SF Mono', monospace; font-size: 14px; line-height: 1.7; width: 100%; height: auto; min-height: 100%; text-align: left;">
                     <h2 style="color: #FFD700; margin-bottom: 20px; font-size: 20px; text-align: left;">📊 PHOENIX AI - BUSINESS PLAN</h2>
 
                     <div style="margin-bottom: 18px;">
@@ -970,23 +979,30 @@
             const widgetContent = document.getElementById('demoWidget').querySelector('.widget-content');
             widgetContent.innerHTML = widget.content;
 
-            // Show dock with icon
-            const dock = document.getElementById('demoDock');
-            const arrow = document.getElementById('readyArrow');
-            dock.classList.add('active');
+            // For business plan, auto-open widget immediately (no dock needed)
+            if (widget.type === 'business') {
+                await speak("Done.");
+                await sleep(500);
+                openDemoWidget();
+            } else {
+                // For other widgets, show dock with icon
+                const dock = document.getElementById('demoDock');
+                const arrow = document.getElementById('readyArrow');
+                dock.classList.add('active');
 
-            await sleep(500);
+                await sleep(500);
 
-            // Blink arrow
-            arrow.classList.add('blink');
-            await speak("Done. Click it.");
+                // Blink arrow
+                arrow.classList.add('blink');
+                await speak("Done. Click it.");
 
-            // Wait for user to click icon (auto-click after 5s for demo)
-            setTimeout(() => {
-                if (!document.getElementById('demoWidget').classList.contains('active')) {
-                    openDemoWidget();
-                }
-            }, 5000);
+                // Wait for user to click icon (auto-click after 5s for demo)
+                setTimeout(() => {
+                    if (!document.getElementById('demoWidget').classList.contains('active')) {
+                        openDemoWidget();
+                    }
+                }, 5000);
+            }
         }
 
         function openDemoWidget() {
