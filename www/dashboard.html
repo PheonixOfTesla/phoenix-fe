@@ -1930,12 +1930,23 @@
         // Check localStorage for existing token
         let token = localStorage.getItem('phoenixToken');
 
-        // Fix: Remove any extra quotes that might have been added during storage
-        if (token && token.startsWith('"') && token.endsWith('"')) {
-            console.log('⚠️ Detected quoted token, cleaning...');
-            token = token.slice(1, -1).replace(/\\"/g, '"');
-            localStorage.setItem('phoenixToken', token); // Save cleaned version
-            console.log('✅ Token cleaned and saved');
+        // Fix: Aggressively clean any quotes/escapes that might have been added
+        if (token) {
+            const originalToken = token;
+            // Remove all outer quotes and unescape any internal quotes
+            while (token.startsWith('"') && token.endsWith('"')) {
+                token = token.slice(1, -1);
+            }
+            // Remove escaped quotes and backslashes
+            token = token.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+
+            if (token !== originalToken) {
+                console.log('⚠️ Detected malformed token, cleaning...');
+                console.log('   Before:', originalToken);
+                console.log('   After:', token);
+                localStorage.setItem('phoenixToken', token); // Save cleaned version
+                console.log('✅ Token cleaned and saved');
+            }
         }
 
         console.log('🔐 [Dashboard Auth Check] Token:', token ? token.substring(0, 20) + '...' : 'NONE');
@@ -2036,7 +2047,14 @@
             : 'https://pal-backend-production.up.railway.app/api';
         
         const getAuthHeaders = () => {
-            const token = localStorage.getItem('phoenixToken');
+            let token = localStorage.getItem('phoenixToken');
+            // Clean token
+            if (token) {
+                while (token.startsWith('"') && token.endsWith('"')) {
+                    token = token.slice(1, -1);
+                }
+                token = token.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+            }
             return {
                 'Content-Type': 'application/json',
                 'Authorization': token ? `Bearer ${token}` : ''
@@ -2110,6 +2128,14 @@
          */
         async function apiRequest(endpoint, options = {}) {
             let token = localStorage.getItem('phoenixToken');
+
+            // Clean token if needed (same logic as auth check)
+            if (token) {
+                while (token.startsWith('"') && token.endsWith('"')) {
+                    token = token.slice(1, -1);
+                }
+                token = token.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+            }
 
             // ✅ CHECK TOKEN EXPIRATION - If truly expired, redirect to login
             if (token && isTokenExpired(token)) {
