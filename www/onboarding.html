@@ -526,6 +526,12 @@
         <div id="phase-intro" class="phase active">
             <div class="phoenix-orb" id="orb"></div>
             <div class="title">PHOENIX</div>
+            <div class="subtitle" style="margin-top: 20px; font-size: 14px; color: rgba(0, 217, 255, 0.6); letter-spacing: 1px;">
+                DEMONSTRATION MODE
+            </div>
+            <button class="btn btn-primary" id="startBtn" onclick="beginDemo()" style="margin-top: 40px; padding: 18px 50px; font-size: 18px;">
+                START →
+            </button>
         </div>
 
         <!-- PHASE 2: HOOK (10 seconds) -->
@@ -1109,9 +1115,20 @@
         // ============================================
         // INITIALIZE
         // ============================================
+        // Begin demo when user clicks START button
+        async function beginDemo() {
+            // Hide start button
+            document.getElementById('startBtn').style.display = 'none';
+            document.querySelector('#phase-intro .subtitle').style.display = 'none';
+
+            // Start onboarding sequence
+            await startOnboarding();
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             console.log('✅ Onboarding loaded');
-            startOnboarding();
+            initStarfield();
+            // Wait for user to click START button (beginDemo)
         });
     </script>
 </body>
