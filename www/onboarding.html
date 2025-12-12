@@ -848,7 +848,7 @@
                     body: JSON.stringify({
                         text: text,
                         voice: 'nova',
-                        speed: 1.0,
+                        speed: 0.8,
                         format: 'base64'
                     })
                 });
@@ -877,6 +877,7 @@
 
                 ttsAudio = new Audio(audioUrl);
                 ttsAudio.volume = 0.8;
+                ttsAudio.playbackRate = 1.0; // Explicitly set to normal playback
 
                 return new Promise((resolve) => {
                     ttsAudio.onended = () => {
