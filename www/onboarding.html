@@ -534,20 +534,12 @@
             </button>
         </div>
 
-        <!-- PHASE 2: HOOK (10 seconds) -->
+        <!-- PHASE 2: HOOK (3 seconds) -->
         <div id="phase-hook" class="phase">
-            <div class="phoenix-orb listening" id="orb-hook"></div>
+            <div class="phoenix-orb processing" id="orb-hook"></div>
             <div class="message large">
-                I'm Phoenix. I can create anything you describe.<br>
-                Try me. Tell me something you want.
+                Watch this.
             </div>
-            <div class="input-container">
-                <input type="text" id="createInput" placeholder="Create me a..." />
-            </div>
-            <div class="voice-btn" id="voiceBtn">
-                <i class="fa-solid fa-microphone"></i>
-            </div>
-            <div class="status">Type or speak anything</div>
         </div>
 
         <!-- PHASE 3: MIRACLE (15 seconds) -->
@@ -565,8 +557,9 @@
             <div class="phoenix-orb" id="orb-realization"></div>
             <div class="message">
                 I can create anything.<br>
-                Spotify. YouTube. Gmail. Weather.<br>
-                Or anything custom you describe.<br><br>
+                That business plan took 2.5 seconds.<br><br>
+                Music players, weather dashboards, maps,<br>
+                or anything custom you describe.<br><br>
                 I learn from everything you do.<br>
                 I'll track your health, workouts, goals.<br>
                 I'll plan your day, manage your life.<br><br>
@@ -922,22 +915,13 @@
             await speak("Hello.");
             await sleep(2000);
 
-            // PHASE 2: HOOK (10 seconds)
+            // PHASE 2: HOOK (3 seconds) - Pure Jobs/Einstein: Show, don't tell
             goToPhase('phase-hook');
-            await speak("I'm Phoenix. I can create anything you describe. Try me. Tell me something you want.");
+            await speak("Watch this.");
+            await sleep(1000);
 
-            // Setup input listener
-            const input = document.getElementById('createInput');
-            input.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter' && input.value.trim()) {
-                    handleCreateRequest(input.value.trim());
-                }
-            });
-
-            // Setup voice button (simplified for demo)
-            document.getElementById('voiceBtn').addEventListener('click', () => {
-                handleCreateRequest('spotify music player');
-            });
+            // Auto-create business plan (most impressive demo)
+            handleCreateRequest('million dollar business plan');
         }
 
         async function handleCreateRequest(userInput) {
@@ -1000,7 +984,7 @@
             // After 3 seconds, continue to realization
             setTimeout(async () => {
                 goToPhase('phase-realization');
-                await speak("I can create anything. Spotify. YouTube. Gmail. Weather. Or anything custom you describe. I learn from everything you do. I'll track your health, workouts, goals. I'll plan your day, manage your life. I'm your companion. For life. What's your name?");
+                await speak("I can create anything. That business plan took 2.5 seconds. Music players, weather dashboards, maps, or anything custom you describe. I learn from everything you do. I'll track your health, workouts, goals. I'll plan your day, manage your life. I'm your companion. For life. What's your name?");
 
                 // Move to name phase
                 setTimeout(() => {
