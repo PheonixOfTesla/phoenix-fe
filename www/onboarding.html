@@ -520,6 +520,79 @@
             box-shadow: 0 12px 40px rgba(255, 215, 0, 0.5);
         }
 
+        /* Resize handles */
+        .resize-handle {
+            position: absolute;
+            background: transparent;
+            z-index: 10;
+        }
+
+        /* Edge handles */
+        .resize-handle.top {
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            cursor: ns-resize;
+        }
+
+        .resize-handle.right {
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 5px;
+            cursor: ew-resize;
+        }
+
+        .resize-handle.bottom {
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            cursor: ns-resize;
+        }
+
+        .resize-handle.left {
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 5px;
+            cursor: ew-resize;
+        }
+
+        /* Corner handles */
+        .resize-handle.top-left {
+            top: 0;
+            left: 0;
+            width: 10px;
+            height: 10px;
+            cursor: nwse-resize;
+        }
+
+        .resize-handle.top-right {
+            top: 0;
+            right: 0;
+            width: 10px;
+            height: 10px;
+            cursor: nesw-resize;
+        }
+
+        .resize-handle.bottom-left {
+            bottom: 0;
+            left: 0;
+            width: 10px;
+            height: 10px;
+            cursor: nesw-resize;
+        }
+
+        .resize-handle.bottom-right {
+            bottom: 0;
+            right: 0;
+            width: 10px;
+            height: 10px;
+            cursor: nwse-resize;
+        }
+
         .widget-content {
             flex: 1;
             display: flex;
@@ -714,6 +787,16 @@
 
     <!-- Demo Widget (Business Plan - Right Side) -->
     <div class="demo-widget" id="demoWidget">
+        <!-- Resize handles -->
+        <div class="resize-handle top" data-direction="top"></div>
+        <div class="resize-handle right" data-direction="right"></div>
+        <div class="resize-handle bottom" data-direction="bottom"></div>
+        <div class="resize-handle left" data-direction="left"></div>
+        <div class="resize-handle top-left" data-direction="top-left"></div>
+        <div class="resize-handle top-right" data-direction="top-right"></div>
+        <div class="resize-handle bottom-left" data-direction="bottom-left"></div>
+        <div class="resize-handle bottom-right" data-direction="bottom-right"></div>
+
         <div class="widget-header" id="demoWidgetHeader">
             <div class="widget-title">Business Plan</div>
             <div class="widget-controls">
@@ -728,6 +811,16 @@
 
     <!-- Music Widget (Left Side) -->
     <div class="music-widget" id="musicWidget">
+        <!-- Resize handles -->
+        <div class="resize-handle top" data-direction="top"></div>
+        <div class="resize-handle right" data-direction="right"></div>
+        <div class="resize-handle bottom" data-direction="bottom"></div>
+        <div class="resize-handle left" data-direction="left"></div>
+        <div class="resize-handle top-left" data-direction="top-left"></div>
+        <div class="resize-handle top-right" data-direction="top-right"></div>
+        <div class="resize-handle bottom-left" data-direction="bottom-left"></div>
+        <div class="resize-handle bottom-right" data-direction="bottom-right"></div>
+
         <div class="widget-header" id="musicWidgetHeader">
             <div class="widget-title" style="color: #FFD700;">🎵 Music Player</div>
             <div class="widget-controls">
@@ -1178,10 +1271,76 @@
             }
         }
 
-        // Initialize dragging for both widgets
+        // Make widgets resizable
+        function makeResizable(widgetId) {
+            const widget = document.getElementById(widgetId);
+            const handles = widget.querySelectorAll('.resize-handle');
+
+            handles.forEach(handle => {
+                let isResizing = false;
+                let direction = handle.dataset.direction;
+                let startX, startY, startWidth, startHeight, startLeft, startTop;
+
+                handle.addEventListener('mousedown', resizeStart);
+
+                function resizeStart(e) {
+                    e.stopPropagation(); // Prevent dragging while resizing
+                    isResizing = true;
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    startWidth = parseInt(getComputedStyle(widget).width, 10);
+                    startHeight = parseInt(getComputedStyle(widget).height, 10);
+                    startLeft = widget.offsetLeft;
+                    startTop = widget.offsetTop;
+
+                    widget.style.transition = 'none';
+
+                    document.addEventListener('mousemove', resize);
+                    document.addEventListener('mouseup', resizeEnd);
+                }
+
+                function resize(e) {
+                    if (!isResizing) return;
+
+                    const dx = e.clientX - startX;
+                    const dy = e.clientY - startY;
+
+                    // Handle different resize directions
+                    if (direction.includes('right')) {
+                        widget.style.width = (startWidth + dx) + 'px';
+                    }
+                    if (direction.includes('left')) {
+                        widget.style.width = (startWidth - dx) + 'px';
+                        widget.style.left = (startLeft + dx) + 'px';
+                    }
+                    if (direction.includes('bottom')) {
+                        widget.style.height = (startHeight + dy) + 'px';
+                    }
+                    if (direction.includes('top')) {
+                        widget.style.height = (startHeight - dy) + 'px';
+                        widget.style.top = (startTop + dy) + 'px';
+                    }
+
+                    // Clear max constraints during resize
+                    widget.style.maxWidth = 'none';
+                    widget.style.maxHeight = 'none';
+                }
+
+                function resizeEnd() {
+                    isResizing = false;
+                    widget.style.transition = '';
+                    document.removeEventListener('mousemove', resize);
+                    document.removeEventListener('mouseup', resizeEnd);
+                }
+            });
+        }
+
+        // Initialize dragging and resizing for both widgets
         setTimeout(() => {
             makeDraggable('demoWidget', 'demoWidgetHeader');
             makeDraggable('musicWidget', 'musicWidgetHeader');
+            makeResizable('demoWidget');
+            makeResizable('musicWidget');
         }, 1000);
 
         // Minimize widget to tab bar
