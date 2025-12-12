@@ -405,6 +405,36 @@
             opacity: 0;
         }
 
+        /* Music Widget (Left Side) */
+        .music-widget {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 420px;
+            max-width: 40vw;
+            height: 500px;
+            max-height: calc(100vh - 40px);
+            background: var(--bg-panel);
+            border: 2px solid var(--gold);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(255, 215, 0, 0.4);
+            backdrop-filter: blur(30px);
+            display: none;
+            flex-direction: column;
+            z-index: 2000;
+            opacity: 0;
+        }
+
+        .music-widget.active {
+            display: flex;
+            animation: musicWidgetSlideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+
+        @keyframes musicWidgetSlideIn {
+            from { opacity: 0; transform: translateX(-100px) scale(0.8); }
+            to { opacity: 1; transform: translateX(0) scale(1); }
+        }
+
         .demo-widget.active {
             display: flex;
             animation: widgetPopIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
@@ -558,7 +588,7 @@
                 <div class="dna-strand"></div>
                 <div class="dna-strand"></div>
             </div>
-            <div class="status" id="buildStatus">Creating your music player...</div>
+            <div class="status" id="buildStatus">Creating music player and business plan...</div>
         </div>
 
         <!-- PHASE 4: REALIZATION (10 seconds) -->
@@ -636,17 +666,31 @@
         </div>
     </div>
 
-    <!-- Demo Widget (appears when icon clicked) -->
+    <!-- Demo Widget (Business Plan - Right Side) -->
     <div class="demo-widget" id="demoWidget">
         <div class="widget-header">
-            <div class="widget-title">Music Player</div>
+            <div class="widget-title">Business Plan</div>
             <div class="widget-controls">
                 <div class="widget-btn minimize" onclick="closeDemoWidget()"></div>
                 <div class="widget-btn close" onclick="closeDemoWidget()"></div>
             </div>
         </div>
         <div class="widget-content">
-            <iframe src="https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+            <!-- Content dynamically inserted -->
+        </div>
+    </div>
+
+    <!-- Music Widget (Left Side) -->
+    <div class="music-widget" id="musicWidget">
+        <div class="widget-header">
+            <div class="widget-title" style="color: #FFD700;">🎵 Music Player</div>
+            <div class="widget-controls">
+                <div class="widget-btn minimize" onclick="closeMusicWidget()"></div>
+                <div class="widget-btn close" onclick="closeMusicWidget()"></div>
+            </div>
+        </div>
+        <div class="widget-content">
+            <iframe src="https://www.youtube.com/embed/videoseries?list=PLFgquLnL59alCl_2TQvOiD5Vgm1hCaGSI" width="100%" height="100%" frameborder="0" allow="autoplay" allowfullscreen></iframe>
         </div>
     </div>
 
@@ -969,9 +1013,9 @@
 
             // Update building status text dynamically
             const buildStatus = document.getElementById('buildStatus');
-            buildStatus.textContent = `Creating ${widget.description}...`;
+            buildStatus.textContent = `Creating music player and business plan...`;
 
-            await speak(`Creating ${widget.description}...`);
+            await speak(`Creating music player and business plan...`);
 
             // Building animation (2.5 seconds)
             await sleep(2500);
@@ -1019,12 +1063,15 @@
 
         function openDemoWidget() {
             document.getElementById('readyArrow').classList.remove('blink');
+
+            // Open both widgets simultaneously
             document.getElementById('demoWidget').classList.add('active');
+            document.getElementById('musicWidget').classList.add('active');
 
             // After 3 seconds, continue to realization
             setTimeout(async () => {
                 goToPhase('phase-realization');
-                await speak("I can create anything. That business plan took 2.5 seconds. Music players, weather dashboards, maps, or anything custom you describe. I learn from everything you do. I'll track your health, workouts, goals. I'll plan your day, manage your life. I'm your companion. For life. What's your name?");
+                await speak("I can create anything. That business plan and music player took 2.5 seconds. Weather dashboards, maps, or anything custom you describe. I learn from everything you do. I'll track your health, workouts, goals. I'll plan your day, manage your life. I'm your companion. For life. What's your name?");
 
                 // Move to name phase
                 setTimeout(() => {
@@ -1036,6 +1083,10 @@
 
         function closeDemoWidget() {
             document.getElementById('demoWidget').classList.remove('active');
+        }
+
+        function closeMusicWidget() {
+            document.getElementById('musicWidget').classList.remove('active');
         }
 
         async function submitName() {
