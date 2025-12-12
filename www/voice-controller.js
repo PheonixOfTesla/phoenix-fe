@@ -186,6 +186,37 @@
         }, 500);
     };
 
+    // Switch to Genesis Mode (Natural Language Widget Creation)
+    window.switchToGenesisMode = function() {
+        console.log('🧬 Switching to GENESIS mode...');
+
+        const GENESIS_MODE = 'genesis';
+        applyMode(GENESIS_MODE);
+        saveMode(GENESIS_MODE);
+
+        // Update button states
+        const voiceBtn = document.getElementById('voice-mode-btn');
+        const manualBtn = document.getElementById('manual-mode-btn');
+        const genesisBtn = document.getElementById('genesis-mode-btn');
+
+        if (voiceBtn) voiceBtn.setAttribute('aria-pressed', 'false');
+        if (manualBtn) manualBtn.setAttribute('aria-pressed', 'false');
+        if (genesisBtn) genesisBtn.setAttribute('aria-pressed', 'true');
+
+        // Close any open menus
+        closeAllMenus();
+
+        // Activate Genesis controller if available
+        if (window.genesisController) {
+            window.genesisController.activate();
+        }
+
+        // Show notification
+        showModeNotification('Genesis Mode Active', 'Create custom widgets with natural language');
+
+        console.log('✅ Genesis Mode activated');
+    };
+
     // Show Desk Panel with Google Workspace features
     function showDeskPanel() {
         // Check if panel already exists

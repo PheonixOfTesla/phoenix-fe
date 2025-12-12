@@ -23,6 +23,7 @@ class PhoenixOrb {
         // NEW: Wake Word Detection & TTS
         this.wakeWordDetector = null;
         this.tts = null;
+        this.captions = null; // NEW: Caption-style dialogue
         this.userName = null; // User's name for personalization
 
         // Initialize
@@ -59,6 +60,9 @@ class PhoenixOrb {
 
         // NEW: Initialize TTS (Text-to-Speech)
         this.initTTS();
+
+        // NEW: Initialize Caption-Style Dialogue
+        this.initCaptions();
 
         // NEW: Initialize Wake Word Detection
         this.initWakeWordDetection();
@@ -117,10 +121,26 @@ class PhoenixOrb {
         this.tts = new VoiceTTS({
             phoenixAPI: window.API,
             voice: 'nova', // OpenAI nova voice
-            rate: 1.4, // Slightly faster for responsiveness (1.0-2.0)
+            rate: 1.25, // Slightly faster for responsiveness (1.0-2.0)
             volume: 0.8
         });
 
+    }
+
+    /**
+     * Initialize Caption-Style Dialogue
+     */
+    initCaptions() {
+        if (typeof PhoenixCaptions === 'undefined') {
+            console.warn('⚠️  PhoenixCaptions not loaded');
+            return;
+        }
+
+        this.captions = new PhoenixCaptions({
+            tts: this.tts
+        });
+
+        console.log('✅ Caption-style dialogue initialized');
     }
 
     /**
@@ -337,8 +357,8 @@ class PhoenixOrb {
                         </button>
                     </div>
 
-                    <!-- Response Area -->
-                    <div class="phoenix-response" id="phoenixResponse" style="display:none;">
+                    <!-- Response Area - DEPRECATED: Now using caption-style dialogue -->
+                    <div class="phoenix-response" id="phoenixResponse" style="display:none !important;">
                         <!-- Intent badge hidden - was showing debug info like "CLARIFIED_CAPABILITY | action (98%)" -->
                         <div class="phoenix-intent-badge" id="phoenixIntent" style="display:none;"></div>
                         <div class="phoenix-response-text" id="phoenixResponseText"></div>
@@ -1004,23 +1024,35 @@ class PhoenixOrb {
      * Show Response
      */
     showResponse(intent, response, data) {
-        const responseEl = document.getElementById('phoenixResponse');
-        const intentEl = document.getElementById('phoenixIntent');
-        const responseTextEl = document.getElementById('phoenixResponseText');
-
-        if (typeof intent === 'object') {
-            intentEl.textContent = `${intent.planet} | ${intent.action} (${Math.round(intent.confidence * 100)}%)`;
-        } else {
-            intentEl.textContent = intent;
-        }
-
         // Add personalization to response
         const personalizedResponse = this.personalizeResponse(response);
-        responseTextEl.textContent = personalizedResponse;
-        responseEl.style.display = 'block';
 
-        // Speak response using TTS
-        this.speak(personalizedResponse);
+        // NEW: Use caption-style dialogue instead of big box
+        if (this.captions) {
+            this.captions.display(personalizedResponse, {
+                speak: true, // Will auto-speak via TTS
+                rate: 1.25
+            });
+        } else {
+            // Fallback to old method if captions not loaded
+            const responseEl = document.getElementById('phoenixResponse');
+            const intentEl = document.getElementById('phoenixIntent');
+            const responseTextEl = document.getElementById('phoenixResponseText');
+
+            if (responseEl && intentEl && responseTextEl) {
+                if (typeof intent === 'object') {
+                    intentEl.textContent = `${intent.planet} | ${intent.action} (${Math.round(intent.confidence * 100)}%)`;
+                } else {
+                    intentEl.textContent = intent;
+                }
+
+                responseTextEl.textContent = personalizedResponse;
+                responseEl.style.display = 'block';
+            }
+
+            // Speak response using TTS
+            this.speak(personalizedResponse);
+        }
     }
 
     /**

@@ -1330,12 +1330,15 @@ class PhoenixVoiceCommands {
         }
 
         // MODE SWITCHING
-        if (t.match(/switch to|change to|go to/)) {
+        if (t.match(/switch to|change to|go to|open|activate/)) {
             if (t.includes('voice mode')) {
                 return { type: 'mode', target: 'voice' };
             }
             if (t.includes('manual mode')) {
                 return { type: 'mode', target: 'manual' };
+            }
+            if (t.includes('genesis mode') || t.includes('genesis')) {
+                return { type: 'mode', target: 'genesis' };
             }
         }
 
@@ -1596,6 +1599,9 @@ class PhoenixVoiceCommands {
         } else if (mode === 'manual' && window.switchToManualMode) {
             window.switchToManualMode();
             this.speak('Switched to manual mode');
+        } else if (mode === 'genesis' && window.switchToGenesisMode) {
+            window.switchToGenesisMode();
+            this.speak('Genesis mode activated. Create custom widgets with natural language.');
         }
     }
 

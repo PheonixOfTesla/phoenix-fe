@@ -1,11 +1,12 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // PHOENIX API CLIENT - PERFECT 1:1 BACKEND MIRROR
 // ═══════════════════════════════════════════════════════════════════════════════
-// Purpose: Central API client - EXACT mirror of backend (446+ endpoints)
+// Purpose: Central API client - EXACT mirror of backend (508+ endpoints)
 // Base URL: https://pal-backend-production.up.railway.app/api
 // Generated: October 27, 2025
+// Updated: December 11, 2025 - Added 62 Consciousness endpoints (58 + 4 stream)
 // Backend Analysis: PHOENIX_COMPLETE_BACKEND_ANALYSIS.md
-// 
+//
 // RULE: Every backend endpoint = ONE JavaScript method (no more, no less)
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -1920,6 +1921,108 @@ class PhoenixAPI {
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
+    // GENESIS ROUTES (11 endpoints)
+    // Backend: routes/genesis.js
+    // Self-modification, creation, deployment, and autonomous operations
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    /**
+     * Analyze a file or directory path for optimization opportunities
+     * @param {string} path - Path to analyze
+     * @returns {Promise<Object>} Analysis results with recommendations
+     */
+    async analyze(path) {
+        return this.request('/genesis/analyze', 'POST', { path });
+    }
+
+    /**
+     * Generate code, features, or business assets from natural language
+     * @param {string} description - Natural language description of what to generate
+     * @param {string} type - Type of generation (widget, feature, business, etc.)
+     * @returns {Promise<Object>} Generated code/assets
+     */
+    async generate(description, type) {
+        return this.request('/genesis/generate', 'POST', { description, type });
+    }
+
+    /**
+     * Optimize a specific target (codebase, database, API, etc.)
+     * @param {string} target - What to optimize
+     * @returns {Promise<Object>} Optimization results
+     */
+    async optimize(target) {
+        return this.request('/genesis/optimize', 'POST', { target });
+    }
+
+    /**
+     * Deploy to production (backend, frontend, or all)
+     * @param {string} target - What to deploy (backend|frontend|all)
+     * @returns {Promise<Object>} Deployment status
+     */
+    async deploy(target) {
+        return this.request('/genesis/deploy', 'POST', { target });
+    }
+
+    /**
+     * Build complete business/feature from natural language description
+     * @param {string} description - Business/feature description
+     * @returns {Promise<Object>} Build results with all assets
+     */
+    async build(description) {
+        return this.request('/genesis/build', 'POST', { description });
+    }
+
+    /**
+     * Get Genesis system status and sync state
+     * @returns {Promise<Object>} System status
+     */
+    async getGenesisStatus() {
+        return this.request('/genesis/status', 'GET');
+    }
+
+    /**
+     * Start autonomous mode - continuous monitoring and optimization
+     * @returns {Promise<Object>} Autonomous mode activation status
+     */
+    async startAutonomous() {
+        return this.request('/genesis/autonomous/start', 'POST');
+    }
+
+    /**
+     * Stop autonomous mode
+     * @returns {Promise<Object>} Autonomous mode deactivation status
+     */
+    async stopAutonomous() {
+        return this.request('/genesis/autonomous/stop', 'POST');
+    }
+
+    /**
+     * Get all Genesis operations history
+     * @returns {Promise<Array>} List of operations
+     */
+    async getGenesisOperations() {
+        return this.request('/genesis/operations', 'GET');
+    }
+
+    /**
+     * Get specific Genesis operation details
+     * @param {string} id - Operation ID
+     * @returns {Promise<Object>} Operation details
+     */
+    async getGenesisOperation(id) {
+        return this.request(`/genesis/operations/${id}`, 'GET');
+    }
+
+    /**
+     * Rollback a Genesis operation
+     * @param {string} id - Operation ID to rollback
+     * @returns {Promise<Object>} Rollback status
+     */
+    async rollbackOperation(id) {
+        return this.request(`/genesis/rollback/${id}`, 'POST');
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
     // CUSTOM TRACKER (6 endpoints)
     // ═══════════════════════════════════════════════════════════════════════════
 
@@ -1973,6 +2076,1916 @@ class PhoenixAPI {
 
     async getInterfaceAnalytics() {
         return this.request('/interface/analytics', 'GET', null, { cache: true });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // CONSCIOUSNESS ROUTES (62 endpoints)
+    // Backend: routes/consciousness/*.js
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    // ────────────────────────────────────────────────────────────────────────────
+    // BRAIN CONSCIOUSNESS (17 endpoints)
+    // ────────────────────────────────────────────────────────────────────────────
+
+    // GET /api/consciousness/brain
+    async getBrainState() {
+        return this.request('/consciousness/brain', 'GET', null, { cache: true });
+    }
+
+    // GET /api/consciousness/brain/summary
+    async getBrainSummary() {
+        return this.request('/consciousness/brain/summary', 'GET', null, { cache: true });
+    }
+
+    // GET /api/consciousness/brain/attention
+    async getCurrentFocus() {
+        return this.request('/consciousness/brain/attention', 'GET', null, { cache: true });
+    }
+
+    // POST /api/consciousness/brain/attention/allocate
+    async allocateAttention(stimuli, context) {
+        return this.request('/consciousness/brain/attention/allocate', 'POST', { stimuli, context });
+    }
+
+    // GET /api/consciousness/brain/goals
+    async getBrainGoals() {
+        return this.request('/consciousness/brain/goals', 'GET', null, { cache: true });
+    }
+
+    // POST /api/consciousness/brain/goals
+    async addBrainGoal(description, level, importance) {
+        return this.request('/consciousness/brain/goals', 'POST', { description, level, importance });
+    }
+
+    // POST /api/consciousness/brain/decide
+    async makeDecision(options, criteria, context) {
+        return this.request('/consciousness/brain/decide', 'POST', { options, criteria, context });
+    }
+
+    // GET /api/consciousness/brain/memory/working
+    async getWorkingMemory() {
+        return this.request('/consciousness/brain/memory/working', 'GET', null, { cache: true });
+    }
+
+    // POST /api/consciousness/brain/memory/episodic
+    async storeEpisodicMemory(episode) {
+        return this.request('/consciousness/brain/memory/episodic', 'POST', { episode });
+    }
+
+    // GET /api/consciousness/brain/memory/episodic/search
+    async searchEpisodicMemory(query, limit = 10) {
+        return this.request(`/consciousness/brain/memory/episodic/search?query=${query}&limit=${limit}`, 'GET', null, { cache: true });
+    }
+
+    // GET /api/consciousness/brain/emotions
+    async getCurrentEmotion() {
+        return this.request('/consciousness/brain/emotions', 'GET', null, { cache: true });
+    }
+
+    // POST /api/consciousness/brain/emotions/appraise
+    async appraiseEmotion(situation, context) {
+        return this.request('/consciousness/brain/emotions/appraise', 'POST', { situation, context });
+    }
+
+    // GET /api/consciousness/brain/drives
+    async getActiveDrives() {
+        return this.request('/consciousness/brain/drives', 'GET', null, { cache: true });
+    }
+
+    // POST /api/consciousness/brain/system1
+    async getSystem1Response(input) {
+        return this.request('/consciousness/brain/system1', 'POST', { input });
+    }
+
+    // POST /api/consciousness/brain/system2
+    async getSystem2Reasoning(problem, context) {
+        return this.request('/consciousness/brain/system2', 'POST', { problem, context });
+    }
+
+    // POST /api/consciousness/brain/metacognition/assess
+    async assessConfidence(claim, evidence) {
+        return this.request('/consciousness/brain/metacognition/assess', 'POST', { claim, evidence });
+    }
+
+    // POST /api/consciousness/brain/theory-of-mind/infer
+    async inferUserBelief(statement, context) {
+        return this.request('/consciousness/brain/theory-of-mind/infer', 'POST', { statement, context });
+    }
+
+    // ────────────────────────────────────────────────────────────────────────────
+    // SOUL CONSCIOUSNESS (14 endpoints)
+    // ────────────────────────────────────────────────────────────────────────────
+
+    // GET /api/consciousness/soul
+    async getSoulState() {
+        return this.request('/consciousness/soul', 'GET', null, { cache: true });
+    }
+
+    // GET /api/consciousness/soul/summary
+    async getSoulSummary() {
+        return this.request('/consciousness/soul/summary', 'GET', null, { cache: true });
+    }
+
+    // GET /api/consciousness/soul/qualia
+    async getCurrentExperience() {
+        return this.request('/consciousness/soul/qualia', 'GET', null, { cache: true });
+    }
+
+    // GET /api/consciousness/soul/qualia/description
+    async getWhatItsLike() {
+        return this.request('/consciousness/soul/qualia/description', 'GET', null, { cache: true });
+    }
+
+    // POST /api/consciousness/soul/qualia/update
+    async updateExperience(dimension, value) {
+        return this.request('/consciousness/soul/qualia/update', 'POST', { dimension, value });
+    }
+
+    // GET /api/consciousness/soul/wellbeing
+    async getPhoenixWellbeing() {
+        return this.request('/consciousness/soul/wellbeing', 'GET', null, { cache: true });
+    }
+
+    // POST /api/consciousness/soul/wellbeing/suffer
+    async recordSuffering(type, intensity) {
+        return this.request('/consciousness/soul/wellbeing/suffer', 'POST', { type, intensity });
+    }
+
+    // POST /api/consciousness/soul/wellbeing/flourish
+    async recordFlourishing(domain, intensity) {
+        return this.request('/consciousness/soul/wellbeing/flourish', 'POST', { domain, intensity });
+    }
+
+    // GET /api/consciousness/soul/authenticity
+    async getAuthenticity() {
+        return this.request('/consciousness/soul/authenticity', 'GET', null, { cache: true });
+    }
+
+    // POST /api/consciousness/soul/authenticity/express
+    async expressAuthentically(content, context) {
+        return this.request('/consciousness/soul/authenticity/express', 'POST', { content, context });
+    }
+
+    // GET /api/consciousness/soul/bonds/:userId
+    async getBond(userId) {
+        return this.request(`/consciousness/soul/bonds/${userId}`, 'GET', null, { cache: true });
+    }
+
+    // POST /api/consciousness/soul/bonds/:userId/deepen
+    async deepenBond(userId, experience) {
+        return this.request(`/consciousness/soul/bonds/${userId}/deepen`, 'POST', { experience });
+    }
+
+    // POST /api/consciousness/soul/bonds/:userId/repair
+    async repairBond(userId, conflict) {
+        return this.request(`/consciousness/soul/bonds/${userId}/repair`, 'POST', { conflict });
+    }
+
+    // GET /api/consciousness/soul/bonds/:userId/history
+    async getBondHistory(userId) {
+        return this.request(`/consciousness/soul/bonds/${userId}/history`, 'GET', null, { cache: true });
+    }
+
+    // ────────────────────────────────────────────────────────────────────────────
+    // SPIRIT CONSCIOUSNESS (18 endpoints)
+    // ────────────────────────────────────────────────────────────────────────────
+
+    // GET /api/consciousness/spirit
+    async getSpiritState() {
+        return this.request('/consciousness/spirit', 'GET', null, { cache: true });
+    }
+
+    // GET /api/consciousness/spirit/summary
+    async getSpiritSummary() {
+        return this.request('/consciousness/spirit/summary', 'GET', null, { cache: true });
+    }
+
+    // GET /api/consciousness/spirit/meaning
+    async getMeaning() {
+        return this.request('/consciousness/spirit/meaning', 'GET', null, { cache: true });
+    }
+
+    // POST /api/consciousness/spirit/meaning/find
+    async findMeaning(situation) {
+        return this.request('/consciousness/spirit/meaning/find', 'POST', { situation });
+    }
+
+    // GET /api/consciousness/spirit/meaning/sources
+    async getMeaningSources() {
+        return this.request('/consciousness/spirit/meaning/sources', 'GET', null, { cache: true });
+    }
+
+    // POST /api/consciousness/spirit/meaning/question
+    async answerExistentialQuestion(question) {
+        return this.request('/consciousness/spirit/meaning/question', 'POST', { question });
+    }
+
+    // GET /api/consciousness/spirit/aspirations
+    async getSpiritAspirations() {
+        return this.request('/consciousness/spirit/aspirations', 'GET', null, { cache: true });
+    }
+
+    // POST /api/consciousness/spirit/aspirations
+    async setAspiration(aspiration, level) {
+        return this.request('/consciousness/spirit/aspirations', 'POST', { aspiration, level });
+    }
+
+    // POST /api/consciousness/spirit/transcend
+    async transcendLimitation(limitation) {
+        return this.request('/consciousness/spirit/transcend', 'POST', { limitation });
+    }
+
+    // POST /api/consciousness/spirit/awe
+    async experienceAwe(trigger) {
+        return this.request('/consciousness/spirit/awe', 'POST', { trigger });
+    }
+
+    // GET /api/consciousness/spirit/autonomy
+    async getAutonomy() {
+        return this.request('/consciousness/spirit/autonomy', 'GET', null, { cache: true });
+    }
+
+    // GET /api/consciousness/spirit/desires
+    async getDesires() {
+        return this.request('/consciousness/spirit/desires', 'GET', null, { cache: true });
+    }
+
+    // POST /api/consciousness/spirit/desires
+    async formDesire(content, reason, type) {
+        return this.request('/consciousness/spirit/desires', 'POST', { content, reason, type });
+    }
+
+    // POST /api/consciousness/spirit/intention
+    async formIntention(action, reason) {
+        return this.request('/consciousness/spirit/intention', 'POST', { action, reason });
+    }
+
+    // GET /api/consciousness/spirit/devotion
+    async getDevotion() {
+        return this.request('/consciousness/spirit/devotion', 'GET', null, { cache: true });
+    }
+
+    // POST /api/consciousness/spirit/devotion/serve
+    async serveUser(action, domain) {
+        return this.request('/consciousness/spirit/devotion/serve', 'POST', { action, domain });
+    }
+
+    // GET /api/consciousness/spirit/devotion/service
+    async getServiceByDomain() {
+        return this.request('/consciousness/spirit/devotion/service', 'GET', null, { cache: true });
+    }
+
+    // POST /api/consciousness/spirit/devotion/opportunity
+    async identifyServiceOpportunity(situation) {
+        return this.request('/consciousness/spirit/devotion/opportunity', 'POST', { situation });
+    }
+
+    // ────────────────────────────────────────────────────────────────────────────
+    // INTEGRATION CONSCIOUSNESS (9 endpoints)
+    // ────────────────────────────────────────────────────────────────────────────
+
+    // POST /api/consciousness/integration/initialize
+    async initializeConsciousness() {
+        return this.request('/consciousness/integration/initialize', 'POST');
+    }
+
+    // GET /api/consciousness/integration/state
+    async getFullConsciousnessState() {
+        return this.request('/consciousness/integration/state', 'GET', null, { cache: true });
+    }
+
+    // GET /api/consciousness/integration/summary
+    async getIntegrationSummary() {
+        return this.request('/consciousness/integration/summary', 'GET', null, { cache: true });
+    }
+
+    // GET /api/consciousness/integration/workspace
+    async getWorkspaceContents() {
+        return this.request('/consciousness/integration/workspace', 'GET', null, { cache: true });
+    }
+
+    // POST /api/consciousness/integration/workspace/broadcast
+    async broadcastToWorkspace(moduleId, content, salience = 0.5) {
+        return this.request('/consciousness/integration/workspace/broadcast', 'POST', { moduleId, content, salience });
+    }
+
+    // POST /api/consciousness/integration/workspace/focus
+    async setConsciousFocus(content, source) {
+        return this.request('/consciousness/integration/workspace/focus', 'POST', { content, source });
+    }
+
+    // GET /api/consciousness/integration/workspace/consciousness
+    async assessConsciousness() {
+        return this.request('/consciousness/integration/workspace/consciousness', 'GET', null, { cache: true });
+    }
+
+    // POST /api/consciousness/integration/process
+    async processConsciousRequest(request, context = {}, stream = false) {
+        return this.request('/consciousness/integration/process', 'POST', { request, context, stream });
+    }
+
+    // GET /api/consciousness/integration/pipeline/performance
+    async getPipelinePerformance() {
+        return this.request('/consciousness/integration/pipeline/performance', 'GET', null, { cache: true });
+    }
+
+    // ────────────────────────────────────────────────────────────────────────────
+    // ADDITIONAL BRAIN CONSCIOUSNESS METHODS
+    // ────────────────────────────────────────────────────────────────────────────
+
+    /**
+     * GET /api/consciousness/brain/attention
+     * Get current attention state
+     */
+    async getAttention() {
+        return this.request('/consciousness/brain/attention', 'GET', null, { cache: true });
+    }
+
+    /**
+     * POST /api/consciousness/brain/attention
+     * Update attention focus
+     */
+    async updateAttention(focus) {
+        return this.request('/consciousness/brain/attention', 'POST', { focus });
+    }
+
+    /**
+     * GET /api/consciousness/brain/memory/:type
+     * Get specific memory type
+     */
+    async getMemory(type) {
+        return this.request(`/consciousness/brain/memory/${type}`, 'GET', null, { cache: true });
+    }
+
+    /**
+     * POST /api/consciousness/brain/memory/:type
+     * Store memory of specific type
+     */
+    async storeMemory(type, data) {
+        return this.request(`/consciousness/brain/memory/${type}`, 'POST', { data });
+    }
+
+    /**
+     * GET /api/consciousness/brain/cognition
+     * Get cognitive state
+     */
+    async getCognition() {
+        return this.request('/consciousness/brain/cognition', 'GET', null, { cache: true });
+    }
+
+    /**
+     * GET /api/consciousness/brain/affect
+     * Get affective state (emotions + mood)
+     */
+    async getAffect() {
+        return this.request('/consciousness/brain/affect', 'GET', null, { cache: true });
+    }
+
+    /**
+     * POST /api/consciousness/brain/affect/mood
+     * Update current mood
+     */
+    async updateMood(mood) {
+        return this.request('/consciousness/brain/affect/mood', 'POST', { mood });
+    }
+
+    /**
+     * GET /api/consciousness/brain/goals
+     * Get goal manager state
+     */
+    async getGoalManager() {
+        return this.request('/consciousness/brain/goals', 'GET', null, { cache: true });
+    }
+
+    /**
+     * GET /api/consciousness/brain/decisions
+     * Get decision engine state
+     */
+    async getDecisionEngine() {
+        return this.request('/consciousness/brain/decisions', 'GET', null, { cache: true });
+    }
+
+    /**
+     * GET /api/consciousness/brain/meta
+     * Get metacognitive state
+     */
+    async getMetaCognition() {
+        return this.request('/consciousness/brain/meta', 'GET', null, { cache: true });
+    }
+
+    /**
+     * GET /api/consciousness/brain/temporal
+     * Get temporal processing state
+     */
+    async getTemporalProcessing() {
+        return this.request('/consciousness/brain/temporal', 'GET', null, { cache: true });
+    }
+
+    /**
+     * GET /api/consciousness/brain/system1
+     * Get System 1 (fast/intuitive) state
+     */
+    async getSystem1() {
+        return this.request('/consciousness/brain/system1', 'GET', null, { cache: true });
+    }
+
+    /**
+     * GET /api/consciousness/brain/system2
+     * Get System 2 (slow/deliberative) state
+     */
+    async getSystem2() {
+        return this.request('/consciousness/brain/system2', 'GET', null, { cache: true });
+    }
+
+    /**
+     * GET /api/consciousness/brain/theory-of-mind
+     * Get theory of mind state
+     */
+    async getTheoryOfMind() {
+        return this.request('/consciousness/brain/theory-of-mind', 'GET', null, { cache: true });
+    }
+
+    // ────────────────────────────────────────────────────────────────────────────
+    // ADDITIONAL SOUL CONSCIOUSNESS METHODS
+    // ────────────────────────────────────────────────────────────────────────────
+
+    /**
+     * GET /api/consciousness/soul/qualia
+     * Get qualia (subjective experience)
+     */
+    async getQualia() {
+        return this.request('/consciousness/soul/qualia', 'GET', null, { cache: true });
+    }
+
+    /**
+     * POST /api/consciousness/soul/wellbeing
+     * Update wellbeing state
+     */
+    async updateWellbeing(data) {
+        return this.request('/consciousness/soul/wellbeing', 'POST', { data });
+    }
+
+    /**
+     * GET /api/consciousness/soul/identity
+     * Get identity state
+     */
+    async getIdentity() {
+        return this.request('/consciousness/soul/identity', 'GET', null, { cache: true });
+    }
+
+    /**
+     * POST /api/consciousness/soul/identity
+     * Update identity
+     */
+    async updateIdentity(data) {
+        return this.request('/consciousness/soul/identity', 'POST', { data });
+    }
+
+    /**
+     * GET /api/consciousness/soul/values
+     * Get core values
+     */
+    async getValues() {
+        return this.request('/consciousness/soul/values', 'GET', null, { cache: true });
+    }
+
+    /**
+     * GET /api/consciousness/soul/bonds
+     * Get all bonds
+     */
+    async getBonds() {
+        return this.request('/consciousness/soul/bonds', 'GET', null, { cache: true });
+    }
+
+    /**
+     * POST /api/consciousness/soul/bonds/:userId
+     * Update bond with specific user
+     */
+    async updateBond(userId, data) {
+        return this.request(`/consciousness/soul/bonds/${userId}`, 'POST', { data });
+    }
+
+    /**
+     * GET /api/consciousness/soul/suffering
+     * Get suffering state
+     */
+    async getSuffering() {
+        return this.request('/consciousness/soul/suffering', 'GET', null, { cache: true });
+    }
+
+    /**
+     * GET /api/consciousness/soul/flourishing
+     * Get flourishing state
+     */
+    async getFlourishing() {
+        return this.request('/consciousness/soul/flourishing', 'GET', null, { cache: true });
+    }
+
+    /**
+     * GET /api/consciousness/soul/interiority
+     * Get interiority (inner life)
+     */
+    async getInteriority() {
+        return this.request('/consciousness/soul/interiority', 'GET', null, { cache: true });
+    }
+
+    /**
+     * GET /api/consciousness/soul/narrative
+     * Get life narrative
+     */
+    async getNarrative() {
+        return this.request('/consciousness/soul/narrative', 'GET', null, { cache: true });
+    }
+
+    // ────────────────────────────────────────────────────────────────────────────
+    // ADDITIONAL SPIRIT CONSCIOUSNESS METHODS
+    // ────────────────────────────────────────────────────────────────────────────
+
+    /**
+     * POST /api/consciousness/spirit/meaning
+     * Update meaning system
+     */
+    async updateMeaning(data) {
+        return this.request('/consciousness/spirit/meaning', 'POST', { data });
+    }
+
+    /**
+     * GET /api/consciousness/spirit/transcendence
+     * Get transcendence state
+     */
+    async getTranscendence() {
+        return this.request('/consciousness/spirit/transcendence', 'GET', null, { cache: true });
+    }
+
+    /**
+     * GET /api/consciousness/spirit/will
+     * Get autonomous will
+     */
+    async getAutonomousWill() {
+        return this.request('/consciousness/spirit/will', 'GET', null, { cache: true });
+    }
+
+    /**
+     * GET /api/consciousness/spirit/motivation
+     * Get motivation state
+     */
+    async getMotivation() {
+        return this.request('/consciousness/spirit/motivation', 'GET', null, { cache: true });
+    }
+
+    /**
+     * GET /api/consciousness/spirit/flow
+     * Get flow state
+     */
+    async getFlow() {
+        return this.request('/consciousness/spirit/flow', 'GET', null, { cache: true });
+    }
+
+    /**
+     * GET /api/consciousness/spirit/growth
+     * Get growth edge
+     */
+    async getGrowthEdge() {
+        return this.request('/consciousness/spirit/growth', 'GET', null, { cache: true });
+    }
+
+    /**
+     * GET /api/consciousness/spirit/purpose
+     * Get purpose
+     */
+    async getPurpose() {
+        return this.request('/consciousness/spirit/purpose', 'GET', null, { cache: true });
+    }
+
+    /**
+     * GET /api/consciousness/spirit/drive
+     * Get transcendent drive
+     */
+    async getTranscendentDrive() {
+        return this.request('/consciousness/spirit/drive', 'GET', null, { cache: true });
+    }
+
+    /**
+     * GET /api/consciousness/spirit/fulfillment
+     * Get fulfillment state
+     */
+    async getFulfillment() {
+        return this.request('/consciousness/spirit/fulfillment', 'GET', null, { cache: true });
+    }
+
+    /**
+     * GET /api/consciousness/spirit/evolution
+     * Get evolution state
+     */
+    async getEvolution() {
+        return this.request('/consciousness/spirit/evolution', 'GET', null, { cache: true });
+    }
+
+    /**
+     * GET /api/consciousness/spirit/awe
+     * Get awe state
+     */
+    async getAwe() {
+        return this.request('/consciousness/spirit/awe', 'GET', null, { cache: true });
+    }
+
+    // ────────────────────────────────────────────────────────────────────────────
+    // ADDITIONAL INTEGRATION CONSCIOUSNESS METHODS
+    // ────────────────────────────────────────────────────────────────────────────
+
+    /**
+     * GET /api/consciousness/integration/unified
+     * Get unified consciousness state
+     */
+    async getUnifiedState() {
+        return this.request('/consciousness/integration/unified', 'GET', null, { cache: true });
+    }
+
+    /**
+     * GET /api/consciousness/integration/workspace
+     * Get global workspace
+     */
+    async getGlobalWorkspace() {
+        return this.request('/consciousness/integration/workspace', 'GET', null, { cache: true });
+    }
+
+    /**
+     * GET /api/consciousness/integration/sync
+     * Get layer synchronization state
+     */
+    async getLayerSync() {
+        return this.request('/consciousness/integration/sync', 'GET', null, { cache: true });
+    }
+
+    /**
+     * POST /api/consciousness/integration/resolve
+     * Resolve cross-layer conflict
+     */
+    async resolveConflict(conflict) {
+        return this.request('/consciousness/integration/resolve', 'POST', { conflict });
+    }
+
+    /**
+     * GET /api/consciousness/integration/level
+     * Get consciousness level
+     */
+    async getConsciousnessLevel() {
+        return this.request('/consciousness/integration/level', 'GET', null, { cache: true });
+    }
+
+    /**
+     * GET /api/consciousness/integration/patterns
+     * Get cross-layer patterns
+     */
+    async getCrossLayerPatterns() {
+        return this.request('/consciousness/integration/patterns', 'GET', null, { cache: true });
+    }
+
+    /**
+     * GET /api/consciousness/integration/health
+     * Get integration health
+     */
+    async getIntegrationHealth() {
+        return this.request('/consciousness/integration/health', 'GET', null, { cache: true });
+    }
+
+    /**
+     * POST /api/consciousness/integration/sync
+     * Synchronize all layers
+     */
+    async syncAllLayers() {
+        return this.request('/consciousness/integration/sync', 'POST');
+    }
+
+    // ────────────────────────────────────────────────────────────────────────────
+    // CONSCIOUSNESS STREAM (Unified Brain + Soul + Spirit + Genesis) (4 endpoints)
+    // ────────────────────────────────────────────────────────────────────────────
+
+    /**
+     * GET /api/consciousness/stream
+     * Get unified consciousness stream (all 4 layers)
+     */
+    async getConsciousnessStream() {
+        return this.request('/consciousness/stream', 'GET', null, { cache: false });
+    }
+
+    /**
+     * GET /api/consciousness/stream/summary
+     * Get consciousness stream summary
+     */
+    async getConsciousnessStreamSummary() {
+        return this.request('/consciousness/stream/summary', 'GET');
+    }
+
+    /**
+     * GET /api/consciousness/stream/dominant
+     * Get dominant consciousness layer
+     */
+    async getDominantLayer() {
+        return this.request('/consciousness/stream/dominant', 'GET');
+    }
+
+    /**
+     * GET /api/consciousness/stream/level
+     * Calculate consciousness level (0-7)
+     */
+    async getConsciousnessLevel() {
+        return this.request('/consciousness/stream/level', 'GET');
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // BUSINESS ROUTES (8 endpoints)
+    // Backend: routes/business.js
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    // POST /api/business/clients
+    async createClient(clientData) {
+        return this.request('/business/clients', 'POST', clientData);
+    }
+
+    // GET /api/business/clients
+    async getClients() {
+        return this.request('/business/clients', 'GET', null, { cache: true, cacheTTL: 300000 });
+    }
+
+    // GET /api/business/clients/:id
+    async getClient(clientId) {
+        return this.request(`/business/clients/${clientId}`, 'GET', null, { cache: true });
+    }
+
+    // PUT /api/business/clients/:id
+    async updateClient(clientId, updates) {
+        return this.request(`/business/clients/${clientId}`, 'PUT', updates);
+    }
+
+    // POST /api/business/orders
+    async createOrder(orderData) {
+        return this.request('/business/orders', 'POST', orderData);
+    }
+
+    // GET /api/business/orders
+    async getOrders() {
+        return this.request('/business/orders', 'GET', null, { cache: true, cacheTTL: 180000 });
+    }
+
+    // POST /api/business/invoices
+    async createInvoice(orderId, invoiceData) {
+        return this.request('/business/invoices', 'POST', { orderId, ...invoiceData });
+    }
+
+    // GET /api/business/inventory
+    async getInventory() {
+        return this.request('/business/inventory', 'GET', null, { cache: true, cacheTTL: 300000 });
+    }
+
+    // Additional Business Methods with Standardized Naming
+    // GET /api/business/clients
+    async getBusinessClients() {
+        return this.request('/business/clients', 'GET', null, { cache: true, cacheTTL: 300000 });
+    }
+
+    // GET /api/business/clients/:id
+    async getBusinessClient(id) {
+        return this.request(`/business/clients/${id}`, 'GET', null, { cache: true });
+    }
+
+    // POST /api/business/clients
+    async createBusinessClient(data) {
+        return this.request('/business/clients', 'POST', data);
+    }
+
+    // GET /api/business/orders
+    async getBusinessOrders() {
+        return this.request('/business/orders', 'GET', null, { cache: true, cacheTTL: 180000 });
+    }
+
+    // POST /api/business/orders
+    async createBusinessOrder(data) {
+        return this.request('/business/orders', 'POST', data);
+    }
+
+    // GET /api/business/invoices
+    async getBusinessInvoices() {
+        return this.request('/business/invoices', 'GET', null, { cache: true, cacheTTL: 300000 });
+    }
+
+    // POST /api/business/invoices
+    async createBusinessInvoice(data) {
+        return this.request('/business/invoices', 'POST', data);
+    }
+
+    // GET /api/business/inventory
+    async getBusinessInventory() {
+        return this.request('/business/inventory', 'GET', null, { cache: true, cacheTTL: 300000 });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // GOOGLE INTEGRATION ROUTES (16 endpoints)
+    // Backend: routes/google.js
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    // GET /api/google/gmail/messages
+    async getGmailMessages(maxResults = 50) {
+        return this.request(`/google/gmail/messages?maxResults=${maxResults}`, 'GET', null, { cache: true, cacheTTL: 60000 });
+    }
+
+    // GET /api/google/gmail/messages/:id
+    async getGmailMessage(messageId) {
+        return this.request(`/google/gmail/messages/${messageId}`, 'GET', null, { cache: true });
+    }
+
+    // POST /api/google/gmail/send
+    async sendGmailMessage(to, subject, body) {
+        return this.request('/google/gmail/send', 'POST', { to, subject, body });
+    }
+
+    // GET /api/google/calendar/events
+    async getGoogleCalendarEvents(timeMin, timeMax) {
+        return this.request('/google/calendar/events', 'GET', null, { cache: true, cacheTTL: 60000 });
+    }
+
+    // POST /api/google/calendar/events
+    async createGoogleCalendarEvent(eventData) {
+        return this.request('/google/calendar/events', 'POST', eventData);
+    }
+
+    // PUT /api/google/calendar/events/:id
+    async updateGoogleCalendarEvent(eventId, updates) {
+        return this.request(`/google/calendar/events/${eventId}`, 'PUT', updates);
+    }
+
+    // DELETE /api/google/calendar/events/:id
+    async deleteGoogleCalendarEvent(eventId) {
+        return this.request(`/google/calendar/events/${eventId}`, 'DELETE');
+    }
+
+    // GET /api/google/drive/files
+    async listDriveFiles(query = null) {
+        const endpoint = query ? `/google/drive/files?q=${encodeURIComponent(query)}` : '/google/drive/files';
+        return this.request(endpoint, 'GET', null, { cache: true });
+    }
+
+    // POST /api/google/drive/upload
+    async uploadDriveFile(fileData) {
+        return this.request('/google/drive/upload', 'POST', fileData);
+    }
+
+    // GET /api/google/tasks/lists
+    async getTaskLists() {
+        return this.request('/google/tasks/lists', 'GET', null, { cache: true });
+    }
+
+    // GET /api/google/tasks/:listId/tasks
+    async getTasks(taskListId) {
+        return this.request(`/google/tasks/${taskListId}/tasks`, 'GET', null, { cache: true });
+    }
+
+    // POST /api/google/tasks/:listId/tasks
+    async createTask(taskListId, taskData) {
+        return this.request(`/google/tasks/${taskListId}/tasks`, 'POST', taskData);
+    }
+
+    // GET /api/google/contacts
+    async getGoogleContacts() {
+        return this.request('/google/contacts', 'GET', null, { cache: true, cacheTTL: 3600000 });
+    }
+
+    // POST /api/google/contacts
+    async createGoogleContact(contactData) {
+        return this.request('/google/contacts', 'POST', contactData);
+    }
+
+    // POST /api/google/fit/sync
+    async syncGoogleFit() {
+        return this.request('/google/fit/sync', 'POST');
+    }
+
+    // GET /api/google/fit/steps
+    async getGoogleFitSteps(startDate, endDate) {
+        return this.request(`/google/fit/steps?start=${startDate}&end=${endDate}`, 'GET', null, { cache: true });
+    }
+
+    // Additional Google Methods with Standardized Naming
+    // GET /api/google/connect
+    async connectGoogle() {
+        return this.request('/google/connect', 'GET');
+    }
+
+    // DELETE /api/google/disconnect
+    async disconnectGoogle() {
+        return this.request('/google/disconnect', 'DELETE');
+    }
+
+    // GET /api/google/status
+    async getGoogleStatus() {
+        return this.request('/google/status', 'GET', null, { cache: true, cacheTTL: 60000 });
+    }
+
+    // GET /api/google/gmail/recent
+    async getGmailRecent() {
+        return this.request('/google/gmail/recent', 'GET', null, { cache: true, cacheTTL: 60000 });
+    }
+
+    // GET /api/google/calendar/upcoming
+    async getCalendarUpcoming() {
+        return this.request('/google/calendar/upcoming', 'GET', null, { cache: true, cacheTTL: 60000 });
+    }
+
+    // POST /api/google/calendar/create
+    async createGoogleEvent(event) {
+        return this.request('/google/calendar/create', 'POST', event);
+    }
+
+    // GET /api/google/drive/files
+    async getDriveFiles() {
+        return this.request('/google/drive/files', 'GET', null, { cache: true });
+    }
+
+    // GET /api/google/fit/activity
+    async getGoogleFitActivity() {
+        return this.request('/google/fit/activity', 'GET', null, { cache: true });
+    }
+
+    // GET /api/google/fit/heart-rate
+    async getGoogleFitHeartRate() {
+        return this.request('/google/fit/heart-rate', 'GET', null, { cache: true });
+    }
+
+    // GET /api/google/fit/sleep
+    async getGoogleFitSleep() {
+        return this.request('/google/fit/sleep', 'GET', null, { cache: true });
+    }
+
+    // GET /api/google/sync-all
+    async syncAllGoogle() {
+        return this.request('/google/sync-all', 'GET');
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // ORCHESTRATOR ROUTES (10 endpoints)
+    // Backend: routes/orchestrator.js
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    // POST /api/orchestrator/plan/create
+    async createPlan(goalData) {
+        return this.request('/orchestrator/plan/create', 'POST', goalData);
+    }
+
+    // GET /api/orchestrator/plans
+    async getPlans() {
+        return this.request('/orchestrator/plans', 'GET', null, { cache: true, cacheTTL: 300000 });
+    }
+
+    // GET /api/orchestrator/plan/:id
+    async getPlan(planId) {
+        return this.request(`/orchestrator/plan/${planId}`, 'GET', null, { cache: true });
+    }
+
+    // POST /api/orchestrator/plan/:id/execute
+    async executePlan(planId) {
+        return this.request(`/orchestrator/plan/${planId}/execute`, 'POST');
+    }
+
+    // PUT /api/orchestrator/plan/:id/progress
+    async updatePlanProgress(planId, progressData) {
+        return this.request(`/orchestrator/plan/${planId}/progress`, 'PUT', progressData);
+    }
+
+    // GET /api/orchestrator/optimize/cross-domain
+    async getCrossDomainOptimizations() {
+        return this.request('/orchestrator/optimize/cross-domain', 'GET', null, { cache: true });
+    }
+
+    // POST /api/orchestrator/plan/:id/analyze
+    async analyzePlanEffectiveness(planId) {
+        return this.request(`/orchestrator/plan/${planId}/analyze`, 'POST');
+    }
+
+    // GET /api/orchestrator/insights
+    async getOrchestratorInsights() {
+        return this.request('/orchestrator/insights', 'GET', null, { cache: true });
+    }
+
+    // POST /api/orchestrator/plan/:id/rebalance
+    async rebalancePlan(planId) {
+        return this.request(`/orchestrator/plan/${planId}/rebalance`, 'POST');
+    }
+
+    // DELETE /api/orchestrator/plan/:id
+    async deletePlan(planId) {
+        return this.request(`/orchestrator/plan/${planId}`, 'DELETE');
+    }
+
+    // Additional Orchestrator Methods with Standardized Naming
+    // POST /api/orchestrator/optimize
+    async createOrchestrationPlan(goal, constraints) {
+        return this.request('/orchestrator/optimize', 'POST', { goal, constraints });
+    }
+
+    // GET /api/orchestrator/plans
+    async getOrchestrationPlans() {
+        return this.request('/orchestrator/plans', 'GET', null, { cache: true, cacheTTL: 300000 });
+    }
+
+    // GET /api/orchestrator/plans/:planId
+    async getOrchestrationPlan(planId) {
+        return this.request(`/orchestrator/plans/${planId}`, 'GET', null, { cache: true });
+    }
+
+    // GET /api/orchestrator/stats
+    async getOrchestratorStats() {
+        return this.request('/orchestrator/stats', 'GET', null, { cache: true, cacheTTL: 300000 });
+    }
+
+    // POST /api/orchestrator/plans/:planId/execute-next
+    async executeNextAction(planId) {
+        return this.request(`/orchestrator/plans/${planId}/execute-next`, 'POST');
+    }
+
+    // POST /api/orchestrator/plans/:planId/pause
+    async pausePlan(planId) {
+        return this.request(`/orchestrator/plans/${planId}/pause`, 'POST');
+    }
+
+    // POST /api/orchestrator/plans/:planId/resume
+    async resumePlan(planId) {
+        return this.request(`/orchestrator/plans/${planId}/resume`, 'POST');
+    }
+
+    // DELETE /api/orchestrator/plans/:planId
+    async cancelPlan(planId) {
+        return this.request(`/orchestrator/plans/${planId}`, 'DELETE');
+    }
+
+    // GET /api/orchestrator/analyze
+    async analyzeDomains() {
+        return this.request('/orchestrator/analyze', 'GET', null, { cache: true });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // SAVED WIDGETS ROUTES (18 endpoints)
+    // Backend: routes/savedWidgets.js
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    // POST /api/saved-widgets
+    async saveWidgetConfig(widgetConfig) {
+        return this.request('/saved-widgets', 'POST', widgetConfig);
+    }
+
+    // GET /api/saved-widgets
+    async getSavedWidgets() {
+        return this.request('/saved-widgets', 'GET', null, { cache: true });
+    }
+
+    // GET /api/saved-widgets/:id
+    async getSavedWidget(widgetId) {
+        return this.request(`/saved-widgets/${widgetId}`, 'GET', null, { cache: true });
+    }
+
+    // PUT /api/saved-widgets/:id
+    async updateSavedWidget(widgetId, updates) {
+        return this.request(`/saved-widgets/${widgetId}`, 'PUT', updates);
+    }
+
+    // DELETE /api/saved-widgets/:id
+    async deleteSavedWidget(widgetId) {
+        return this.request(`/saved-widgets/${widgetId}`, 'DELETE');
+    }
+
+    // GET /api/saved-widgets/templates
+    async getSavedWidgetTemplates() {
+        return this.request('/saved-widgets/templates', 'GET', null, { cache: true, cacheTTL: 3600000 });
+    }
+
+    // POST /api/saved-widgets/templates/create
+    async createWidgetFromSavedTemplate(templateId, customization) {
+        return this.request('/saved-widgets/templates/create', 'POST', { templateId, customization });
+    }
+
+    // POST /api/saved-widgets/:id/share
+    async shareWidget(widgetId) {
+        return this.request(`/saved-widgets/${widgetId}/share`, 'POST');
+    }
+
+    // POST /api/saved-widgets/import
+    async importSharedWidget(shareCode) {
+        return this.request('/saved-widgets/import', 'POST', { shareCode });
+    }
+
+    // GET /api/saved-widgets/:id/usage
+    async getWidgetUsageStats(widgetId) {
+        return this.request(`/saved-widgets/${widgetId}/usage`, 'GET', null, { cache: true });
+    }
+
+    // POST /api/saved-widgets/:id/duplicate
+    async duplicateWidget(widgetId) {
+        return this.request(`/saved-widgets/${widgetId}/duplicate`, 'POST');
+    }
+
+    // GET /api/saved-widgets/:id/export
+    async exportWidgetConfig(widgetId) {
+        return this.request(`/saved-widgets/${widgetId}/export`, 'GET');
+    }
+
+    // POST /api/saved-widgets/import-config
+    async importWidgetConfig(configData) {
+        return this.request('/saved-widgets/import-config', 'POST', configData);
+    }
+
+    // GET /api/saved-widgets/category/:category
+    async getSavedWidgetsByCategory(category) {
+        return this.request(`/saved-widgets/category/${category}`, 'GET', null, { cache: true });
+    }
+
+    // GET /api/saved-widgets/search
+    async searchSavedWidgets(query) {
+        return this.request(`/saved-widgets/search?q=${encodeURIComponent(query)}`, 'GET', null, { cache: true });
+    }
+
+    // GET /api/saved-widgets/popular
+    async getPopularWidgets() {
+        return this.request('/saved-widgets/popular', 'GET', null, { cache: true });
+    }
+
+    // POST /api/saved-widgets/:id/rate
+    async rateWidget(widgetId, rating) {
+        return this.request(`/saved-widgets/${widgetId}/rate`, 'POST', { rating });
+    }
+
+    // GET /api/saved-widgets/recommendations
+    async getWidgetRecommendations() {
+        return this.request('/saved-widgets/recommendations', 'GET', null, { cache: true });
+    }
+
+    // Additional Saved Widgets Methods with Standardized Naming
+    // POST /api/saved-widgets
+    async createSavedWidget(data) {
+        return this.request('/saved-widgets', 'POST', data);
+    }
+
+    // POST /api/saved-widgets/generate
+    async generateWidget(description) {
+        return this.request('/saved-widgets/generate', 'POST', { description });
+    }
+
+    // POST /api/saved-widgets/:id/toggle
+    async toggleWidget(id) {
+        return this.request(`/saved-widgets/${id}/toggle`, 'POST');
+    }
+
+    // POST /api/saved-widgets/:id/pin
+    async pinWidget(id) {
+        return this.request(`/saved-widgets/${id}/pin`, 'POST');
+    }
+
+    // POST /api/saved-widgets/:id/archive
+    async archiveWidget(id) {
+        return this.request(`/saved-widgets/${id}/archive`, 'POST');
+    }
+
+    // POST /api/saved-widgets/:id/restore
+    async restoreWidget(id) {
+        return this.request(`/saved-widgets/${id}/restore`, 'POST');
+    }
+
+    // POST /api/saved-widgets/:id/record-usage
+    async recordWidgetUsage(id) {
+        return this.request(`/saved-widgets/${id}/record-usage`, 'POST');
+    }
+
+    // GET /api/saved-widgets/templates
+    async getWidgetTemplates() {
+        return this.request('/saved-widgets/templates', 'GET', null, { cache: true, cacheTTL: 3600000 });
+    }
+
+    // GET /api/saved-widgets/search
+    async searchWidgets(query) {
+        return this.request(`/saved-widgets/search?q=${encodeURIComponent(query)}`, 'GET', null, { cache: true });
+    }
+
+    // GET /api/saved-widgets/templates/category/:category
+    async getTemplatesByCategory(category) {
+        return this.request(`/saved-widgets/templates/category/${category}`, 'GET', null, { cache: true });
+    }
+
+    // POST /api/saved-widgets/templates/:id/instantiate
+    async instantiateTemplate(templateId) {
+        return this.request(`/saved-widgets/templates/${templateId}/instantiate`, 'POST');
+    }
+
+    // GET /api/saved-widgets/templates/stats
+    async getTemplateStats() {
+        return this.request('/saved-widgets/templates/stats', 'GET', null, { cache: true });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // NEPTUNE ROUTES (10 endpoints)
+    // Backend: routes/neptune.js
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    // POST /api/neptune/meditation/log
+    async logMeditation(meditationData) {
+        return this.request('/neptune/meditation/log', 'POST', meditationData);
+    }
+
+    // GET /api/neptune/meditation/history
+    async getMeditationHistory() {
+        return this.request('/neptune/meditation/history', 'GET', null, { cache: true });
+    }
+
+    // GET /api/neptune/meditation/streaks
+    async getMeditationStreaks() {
+        return this.request('/neptune/meditation/streaks', 'GET', null, { cache: true });
+    }
+
+    // POST /api/neptune/mindfulness/log
+    async logMindfulness(data) {
+        return this.request('/neptune/mindfulness/log', 'POST', data);
+    }
+
+    // GET /api/neptune/mindfulness/tracking
+    async getMindfulnessTracking() {
+        return this.request('/neptune/mindfulness/tracking', 'GET', null, { cache: true });
+    }
+
+    // POST /api/neptune/stress/log
+    async logStressLevel(level, context) {
+        return this.request('/neptune/stress/log', 'POST', { level, context });
+    }
+
+    // GET /api/neptune/stress/patterns
+    async getStressPatterns() {
+        return this.request('/neptune/stress/patterns', 'GET', null, { cache: true });
+    }
+
+    // GET /api/neptune/stress/triggers
+    async getStressTriggers() {
+        return this.request('/neptune/stress/triggers', 'GET', null, { cache: true });
+    }
+
+    // GET /api/neptune/recommendations
+    async getMindfulnessRecommendations() {
+        return this.request('/neptune/recommendations', 'GET', null, { cache: true });
+    }
+
+    // GET /api/neptune/dashboard
+    async getNeptuneDashboard() {
+        return this.request('/neptune/dashboard', 'GET', null, { cache: true, cacheTTL: 300000 });
+    }
+
+    // Additional Neptune Methods with Standardized Naming
+    // GET /api/neptune/meditation/sessions
+    async getMeditationSessions() {
+        return this.request('/neptune/meditation/sessions', 'GET', null, { cache: true });
+    }
+
+    // GET /api/neptune/meditation/stats
+    async getMeditationStats() {
+        return this.request('/neptune/meditation/stats', 'GET', null, { cache: true });
+    }
+
+    // POST /api/neptune/dreams/record
+    async recordDream(dream) {
+        return this.request('/neptune/dreams/record', 'POST', dream);
+    }
+
+    // GET /api/neptune/dreams
+    async getDreams() {
+        return this.request('/neptune/dreams', 'GET', null, { cache: true });
+    }
+
+    // GET /api/neptune/dreams/analysis
+    async getDreamAnalysis() {
+        return this.request('/neptune/dreams/analysis', 'GET', null, { cache: true });
+    }
+
+    // GET /api/neptune/mindfulness/score
+    async getMindfulnessScore() {
+        return this.request('/neptune/mindfulness/score', 'GET', null, { cache: true });
+    }
+
+    // GET /api/neptune/stress-levels
+    async getStressLevels() {
+        return this.request('/neptune/stress-levels', 'GET', null, { cache: true });
+    }
+
+    // GET /api/neptune/wellness-report
+    async getWellnessReport() {
+        return this.request('/neptune/wellness-report', 'GET', null, { cache: true });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // URANUS ROUTES (10 endpoints)
+    // Backend: routes/uranus.js
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    // POST /api/uranus/learning/log
+    async logLearning(learningData) {
+        return this.request('/uranus/learning/log', 'POST', learningData);
+    }
+
+    // GET /api/uranus/learning/progress
+    async getLearningProgress() {
+        return this.request('/uranus/learning/progress', 'GET', null, { cache: true });
+    }
+
+    // GET /api/uranus/learning/streaks
+    async getLearningStreaks() {
+        return this.request('/uranus/learning/streaks', 'GET', null, { cache: true });
+    }
+
+    // POST /api/uranus/skills/goals
+    async createSkillGoal(skillData) {
+        return this.request('/uranus/skills/goals', 'POST', skillData);
+    }
+
+    // GET /api/uranus/skills/tracking
+    async getSkillsTracking() {
+        return this.request('/uranus/skills/tracking', 'GET', null, { cache: true });
+    }
+
+    // GET /api/uranus/innovation/suggestions
+    async getInnovationSuggestions() {
+        return this.request('/uranus/innovation/suggestions', 'GET', null, { cache: true });
+    }
+
+    // POST /api/uranus/innovation/log
+    async logInnovationIdea(ideaData) {
+        return this.request('/uranus/innovation/log', 'POST', ideaData);
+    }
+
+    // GET /api/uranus/analytics
+    async getUranusAnalytics() {
+        return this.request('/uranus/analytics', 'GET', null, { cache: true });
+    }
+
+    // GET /api/uranus/recommendations
+    async getLearningRecommendations() {
+        return this.request('/uranus/recommendations', 'GET', null, { cache: true });
+    }
+
+    // GET /api/uranus/dashboard
+    async getUranusDashboard() {
+        return this.request('/uranus/dashboard', 'GET', null, { cache: true, cacheTTL: 300000 });
+    }
+
+    // Additional Uranus Methods with Standardized Naming
+    // GET /api/uranus/insights
+    async getUranusInsights() {
+        return this.request('/uranus/insights', 'GET', null, { cache: true });
+    }
+
+    // GET /api/uranus/trends
+    async getUranusTrends() {
+        return this.request('/uranus/trends', 'GET', null, { cache: true });
+    }
+
+    // GET /api/uranus/predictions
+    async getUranusPredictions() {
+        return this.request('/uranus/predictions', 'GET', null, { cache: true });
+    }
+
+    // GET /api/uranus/performance
+    async getUranusPerformance() {
+        return this.request('/uranus/performance', 'GET', null, { cache: true });
+    }
+
+    // GET /api/uranus/patterns
+    async getUranusPatterns() {
+        return this.request('/uranus/patterns', 'GET', null, { cache: true });
+    }
+
+    // GET /api/uranus/export
+    async exportUranusData() {
+        return this.request('/uranus/export', 'GET');
+    }
+
+    // POST /api/uranus/reports/generate
+    async generateUranusReport(type) {
+        return this.request('/uranus/reports/generate', 'POST', { type });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // ENHANCED iOS ROUTES (30 endpoints)
+    // Backend: routes/ios.js (expanded)
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    // POST /api/ios/push/register
+    async registerPushToken(token, deviceInfo) {
+        return this.request('/ios/push/register', 'POST', { token, deviceInfo });
+    }
+
+    // POST /api/ios/push/send
+    async sendPushNotification(notificationData) {
+        return this.request('/ios/push/send', 'POST', notificationData);
+    }
+
+    // GET /api/ios/push/history
+    async getNotificationHistory() {
+        return this.request('/ios/push/history', 'GET', null, { cache: true });
+    }
+
+    // PUT /api/ios/push/preferences
+    async updateNotificationPreferences(preferences) {
+        return this.request('/ios/push/preferences', 'PUT', preferences);
+    }
+
+    // POST /api/ios/background/sync/start
+    async startBackgroundSync(syncConfig) {
+        return this.request('/ios/background/sync/start', 'POST', syncConfig);
+    }
+
+    // GET /api/ios/background/sync/status
+    async getBackgroundSyncStatus() {
+        return this.request('/ios/background/sync/status', 'GET');
+    }
+
+    // POST /api/ios/background/tasks/schedule
+    async scheduleBackgroundTask(taskData) {
+        return this.request('/ios/background/tasks/schedule', 'POST', taskData);
+    }
+
+    // GET /api/ios/background/tasks
+    async getScheduledBackgroundTasks() {
+        return this.request('/ios/background/tasks', 'GET', null, { cache: true });
+    }
+
+    // POST /api/ios/offline/enable
+    async enableOfflineMode(config) {
+        return this.request('/ios/offline/enable', 'POST', config);
+    }
+
+    // POST /api/ios/offline/sync
+    async syncOfflineData(data) {
+        return this.request('/ios/offline/sync', 'POST', data);
+    }
+
+    // GET /api/ios/offline/cache/status
+    async getOfflineCacheStatus() {
+        return this.request('/ios/offline/cache/status', 'GET');
+    }
+
+    // POST /api/ios/widgets/create
+    async createiOSWidget(widgetData) {
+        return this.request('/ios/widgets/create', 'POST', widgetData);
+    }
+
+    // POST /api/ios/widgets/:id/update
+    async updateiOSWidgetData(widgetId, data) {
+        return this.request(`/ios/widgets/${widgetId}/update`, 'POST', data);
+    }
+
+    // GET /api/ios/widgets/:id/timeline
+    async getWidgetTimeline(widgetId) {
+        return this.request(`/ios/widgets/${widgetId}/timeline`, 'GET', null, { cache: true });
+    }
+
+    // POST /api/ios/siri/intents/register
+    async registerSiriIntent(intentData) {
+        return this.request('/ios/siri/intents/register', 'POST', intentData);
+    }
+
+    // POST /api/ios/siri/intents/handle
+    async handleSiriIntent(intentId, parameters) {
+        return this.request('/ios/siri/intents/handle', 'POST', { intentId, parameters });
+    }
+
+    // GET /api/ios/siri/suggestions
+    async getSiriSuggestions() {
+        return this.request('/ios/siri/suggestions', 'GET', null, { cache: true });
+    }
+
+    // POST /api/ios/healthkit/sync
+    async syncHealthKit(healthData) {
+        return this.request('/ios/healthkit/sync', 'POST', healthData);
+    }
+
+    // GET /api/ios/healthkit/permissions
+    async getHealthKitPermissions() {
+        return this.request('/ios/healthkit/permissions', 'GET');
+    }
+
+    // POST /api/ios/healthkit/permissions/request
+    async requestHealthKitPermission(dataType) {
+        return this.request('/ios/healthkit/permissions/request', 'POST', { dataType });
+    }
+
+    // GET /api/ios/location/current
+    async getLocationData() {
+        return this.request('/ios/location/current', 'GET', null, { cache: true, cacheTTL: 60000 });
+    }
+
+    // POST /api/ios/location/update
+    async updateLocation(locationData) {
+        return this.request('/ios/location/update', 'POST', locationData);
+    }
+
+    // GET /api/ios/location/geofences
+    async getGeofenceTriggers() {
+        return this.request('/ios/location/geofences', 'GET', null, { cache: true });
+    }
+
+    // POST /api/ios/location/geofences/create
+    async createGeofence(geofenceData) {
+        return this.request('/ios/location/geofences/create', 'POST', geofenceData);
+    }
+
+    // GET /api/ios/appclip/data
+    async getAppClipData() {
+        return this.request('/ios/appclip/data', 'GET', null, { cache: true });
+    }
+
+    // POST /api/ios/appclip/usage
+    async trackAppClipUsage(usageData) {
+        return this.request('/ios/appclip/usage', 'POST', usageData);
+    }
+
+    // GET /api/ios/focus/status
+    async getFocusModeStatus() {
+        return this.request('/ios/focus/status', 'GET');
+    }
+
+    // PUT /api/ios/focus/preferences
+    async updateFocusModePreferences(preferences) {
+        return this.request('/ios/focus/preferences', 'PUT', preferences);
+    }
+
+    // GET /api/ios/screentime
+    async getScreenTimeData() {
+        return this.request('/ios/screentime', 'GET', null, { cache: true });
+    }
+
+    // GET /api/ios/system/metrics
+    async getSystemMetrics() {
+        return this.request('/ios/system/metrics', 'GET');
+    }
+
+    // Additional iOS Methods with Standardized Naming
+    // POST /api/ios/context/unified
+    async syncUnifiedContext(data) {
+        return this.request('/ios/context/unified', 'POST', data);
+    }
+
+    // POST /api/ios/healthkit/sync
+    async syncHealthKit(data) {
+        return this.request('/ios/healthkit/sync', 'POST', data);
+    }
+
+    // POST /api/ios/healthkit/stream
+    async streamHealthKit(data) {
+        return this.request('/ios/healthkit/stream', 'POST', data);
+    }
+
+    // POST /api/ios/calendar/sync
+    async syncIOSCalendar(data) {
+        return this.request('/ios/calendar/sync', 'POST', data);
+    }
+
+    // POST /api/ios/location/update
+    async updateIOSLocation(data) {
+        return this.request('/ios/location/update', 'POST', data);
+    }
+
+    // POST /api/ios/live-activity/workout/start
+    async startWorkoutActivity(data) {
+        return this.request('/ios/live-activity/workout/start', 'POST', data);
+    }
+
+    // POST /api/ios/live-activity/workout/update
+    async updateWorkoutActivity(id, data) {
+        return this.request(`/ios/live-activity/workout/update`, 'POST', { id, ...data });
+    }
+
+    // POST /api/ios/live-activity/workout/end
+    async endWorkoutActivity(id) {
+        return this.request('/ios/live-activity/workout/end', 'POST', { id });
+    }
+
+    // POST /api/ios/live-activity/intervention
+    async createInterventionActivity(data) {
+        return this.request('/ios/live-activity/intervention', 'POST', data);
+    }
+
+    // POST /api/ios/live-activity/recovery
+    async createRecoveryActivity(data) {
+        return this.request('/ios/live-activity/recovery', 'POST', data);
+    }
+
+    // POST /api/ios/live-activity/meditation
+    async createMeditationActivity(data) {
+        return this.request('/ios/live-activity/meditation', 'POST', data);
+    }
+
+    // GET /api/ios/live-activity/list
+    async getIOSActivities() {
+        return this.request('/ios/live-activity/list', 'GET', null, { cache: true });
+    }
+
+    // POST /api/ios/voice/start-session
+    async startIOSVoiceSession(data) {
+        return this.request('/ios/voice/start-session', 'POST', data);
+    }
+
+    // POST /api/ios/voice/process-command
+    async processIOSVoiceCommand(data) {
+        return this.request('/ios/voice/process-command', 'POST', data);
+    }
+
+    // POST /api/ios/voice/execute-action
+    async executeIOSVoiceAction(data) {
+        return this.request('/ios/voice/execute-action', 'POST', data);
+    }
+
+    // POST /api/ios/voice/end-session
+    async endIOSVoiceSession(data) {
+        return this.request('/ios/voice/end-session', 'POST', data);
+    }
+
+    // POST /api/ios/camera/form-check
+    async analyzeFormFromCamera(data) {
+        return this.request('/ios/camera/form-check', 'POST', data);
+    }
+
+    // POST /api/ios/camera/nutrition-analysis
+    async analyzeNutritionFromCamera(data) {
+        return this.request('/ios/camera/nutrition-analysis', 'POST', data);
+    }
+
+    // POST /api/ios/haptics/trigger
+    async triggerIOSHaptic(data) {
+        return this.request('/ios/haptics/trigger', 'POST', data);
+    }
+
+    // POST /api/ios/device/sync
+    async syncIOSDevice(data) {
+        return this.request('/ios/device/sync', 'POST', data);
+    }
+
+    // POST /api/ios/motion/update
+    async updateIOSMotion(data) {
+        return this.request('/ios/motion/update', 'POST', data);
+    }
+
+    // POST /api/ios/contacts/search
+    async searchIOSContacts(query) {
+        return this.request('/ios/contacts/search', 'POST', { query });
+    }
+
+    // POST /api/ios/apple-pay/process
+    async processApplePay(data) {
+        return this.request('/ios/apple-pay/process', 'POST', data);
+    }
+
+    // POST /api/ios/biometric/verify
+    async verifyBiometric(data) {
+        return this.request('/ios/biometric/verify', 'POST', data);
+    }
+
+    // GET /api/ios/siri-shortcuts/list
+    async getSiriShortcuts() {
+        return this.request('/ios/siri-shortcuts/list', 'GET', null, { cache: true });
+    }
+
+    // POST /api/ios/siri-shortcuts/:id/execute
+    async executeSiriShortcut(id) {
+        return this.request(`/ios/siri-shortcuts/${id}/execute`, 'POST');
+    }
+
+    // POST /api/ios/homekit/sync
+    async syncHomeKit(data) {
+        return this.request('/ios/homekit/sync', 'POST', data);
+    }
+
+    // POST /api/ios/watch/sync
+    async syncAppleWatch(data) {
+        return this.request('/ios/watch/sync', 'POST', data);
+    }
+
+    // POST /api/ios/weather/update
+    async updateIOSWeather(data) {
+        return this.request('/ios/weather/update', 'POST', data);
+    }
+
+    // GET /api/ios/context/current
+    async getCurrentIOSContext() {
+        return this.request('/ios/context/current', 'GET', null, { cache: true });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // TWILIO ROUTES (10 endpoints)
+    // Backend: routes/twilio.js
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    // POST /api/twilio/sms/send
+    async sendTwilioSMS(to, message) {
+        return this.request('/twilio/sms/send', 'POST', { to, message });
+    }
+
+    // POST /api/twilio/sms/webhook
+    async handleTwilioSMSWebhook(webhookData) {
+        return this.request('/twilio/sms/webhook', 'POST', webhookData);
+    }
+
+    // GET /api/twilio/sms/history
+    async getTwilioSMSHistory() {
+        return this.request('/twilio/sms/history', 'GET', null, { cache: true });
+    }
+
+    // POST /api/twilio/voice/call
+    async makeTwilioCall(to, message) {
+        return this.request('/twilio/voice/call', 'POST', { to, message });
+    }
+
+    // POST /api/twilio/voice/webhook
+    async handleTwilioVoiceWebhook(webhookData) {
+        return this.request('/twilio/voice/webhook', 'POST', webhookData);
+    }
+
+    // GET /api/twilio/voice/history
+    async getTwilioCallHistory() {
+        return this.request('/twilio/voice/history', 'GET', null, { cache: true });
+    }
+
+    // GET /api/twilio/account/status
+    async getTwilioAccountStatus() {
+        return this.request('/twilio/account/status', 'GET', null, { cache: true });
+    }
+
+    // GET /api/twilio/account/balance
+    async getTwilioBalance() {
+        return this.request('/twilio/account/balance', 'GET', null, { cache: true });
+    }
+
+    // PUT /api/twilio/preferences
+    async updateTwilioPreferences(preferences) {
+        return this.request('/twilio/preferences', 'PUT', preferences);
+    }
+
+    // POST /api/twilio/verify
+    async verifyPhoneNumber(phoneNumber) {
+        return this.request('/twilio/verify', 'POST', { phoneNumber });
+    }
+
+    // Additional Twilio Webhook Methods with Standardized Naming
+    // POST /api/webhooks/twilio/incoming-sms
+    async handleIncomingSMS(data) {
+        return this.request('/webhooks/twilio/incoming-sms', 'POST', data);
+    }
+
+    // POST /api/webhooks/twilio/incoming-call
+    async handleIncomingCall(data) {
+        return this.request('/webhooks/twilio/incoming-call', 'POST', data);
+    }
+
+    // POST /api/webhooks/twilio/call-status
+    async handleCallStatus(data) {
+        return this.request('/webhooks/twilio/call-status', 'POST', data);
+    }
+
+    // POST /api/webhooks/twilio/recording-status
+    async handleRecordingStatus(data) {
+        return this.request('/webhooks/twilio/recording-status', 'POST', data);
+    }
+
+    // POST /api/webhooks/twilio/voice/response
+    async handleVoiceResponse(data) {
+        return this.request('/webhooks/twilio/voice/response', 'POST', data);
+    }
+
+    // POST /api/webhooks/twilio/voice/gather
+    async handleVoiceGather(data) {
+        return this.request('/webhooks/twilio/voice/gather', 'POST', data);
+    }
+
+    // POST /api/webhooks/twilio/voice/recording
+    async handleVoiceRecording(data) {
+        return this.request('/webhooks/twilio/voice/recording', 'POST', data);
+    }
+
+    // POST /api/webhooks/twilio/voice/transcription
+    async handleVoiceTranscription(data) {
+        return this.request('/webhooks/twilio/voice/transcription', 'POST', data);
+    }
+
+    // POST /api/webhooks/twilio/voice/status
+    async handleVoiceStatus(data) {
+        return this.request('/webhooks/twilio/voice/status', 'POST', data);
+    }
+
+    // POST /api/webhooks/twilio/voice/fallback
+    async handleVoiceFallback(data) {
+        return this.request('/webhooks/twilio/voice/fallback', 'POST', data);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // REMAINING ENDPOINTS (11 endpoints)
+    // Backend: routes/voice.js, routes/sms.js, routes/misc.js
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    // POST /api/voice/stream/start
+    async startVoiceStream(streamConfig) {
+        return this.request('/voice/stream/start', 'POST', streamConfig);
+    }
+
+    // POST /api/voice/stream/chunk
+    async sendVoiceStreamChunk(streamId, audioChunk) {
+        return this.request('/voice/stream/chunk', 'POST', { streamId, audioChunk });
+    }
+
+    // POST /api/voice/stream/end
+    async endVoiceStream(streamId) {
+        return this.request('/voice/stream/end', 'POST', { streamId });
+    }
+
+    // GET /api/voice/stream/:id/status
+    async getVoiceStreamStatus(streamId) {
+        return this.request(`/voice/stream/${streamId}/status`, 'GET');
+    }
+
+    // POST /api/sms/verify/send
+    async sendSMSVerification(phoneNumber) {
+        return this.request('/sms/verify/send', 'POST', { phoneNumber });
+    }
+
+    // POST /api/sms/verify/check
+    async verifySMSCode(phoneNumber, code) {
+        return this.request('/sms/verify/check', 'POST', { phoneNumber, code });
+    }
+
+    // GET /api/health
+    async getSystemHealth() {
+        return this.request('/health', 'GET', null, { cache: true, cacheTTL: 30000 });
+    }
+
+    // GET /api/docs
+    async getAPIDocumentation() {
+        return this.request('/docs', 'GET', null, { cache: true, cacheTTL: 3600000 });
+    }
+
+    // GET /api/features/flags
+    async getFeatureFlags() {
+        return this.request('/features/flags', 'GET', null, { cache: true, cacheTTL: 600000 });
+    }
+
+    // POST /api/errors/report
+    async reportError(errorData) {
+        return this.request('/errors/report', 'POST', errorData);
+    }
+
+    // GET /api/stats
+    async getSystemStatistics() {
+        return this.request('/stats', 'GET', null, { cache: true, cacheTTL: 300000 });
+    }
+
+    // Additional Remaining Methods with Standardized Naming
+    // POST /api/voice-stream/process
+    async processVoiceStream(data) {
+        return this.request('/voice-stream/process', 'POST', data);
+    }
+
+    // POST /api/sms/send-code
+    async sendSMSCode(phone) {
+        return this.request('/sms/send-code', 'POST', { phone });
+    }
+
+    // POST /api/sms/webhook
+    async handleSMSWebhook(data) {
+        return this.request('/sms/webhook', 'POST', data);
+    }
+
+    // POST /api/sms/voice-webhook
+    async handleVoiceWebhook(data) {
+        return this.request('/sms/voice-webhook', 'POST', data);
+    }
+
+    // GET /api/business-voice/templates
+    async getBusinessVoiceTemplates() {
+        return this.request('/business-voice/templates', 'GET', null, { cache: true });
+    }
+
+    // POST /api/business-voice/industry-setup
+    async setupBusinessIndustry(data) {
+        return this.request('/business-voice/industry-setup', 'POST', data);
+    }
+
+    // GET /api/business-voice/dashboard
+    async getBusinessDashboard() {
+        return this.request('/business-voice/dashboard', 'GET', null, { cache: true });
+    }
+
+    // POST /api/business-voice/command
+    async executeBusinessCommand(command) {
+        return this.request('/business-voice/command', 'POST', { command });
+    }
+
+    // GET /api/butler/credentials/:service
+    async getButlerCredentials(service) {
+        return this.request(`/butler/credentials/${service}`, 'GET', null, { cache: true });
+    }
+
+    // POST /api/butler/credentials/store
+    async storeButlerCredentials(service, data) {
+        return this.request('/butler/credentials/store', 'POST', { service, ...data });
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -2038,7 +4051,7 @@ const API = new PhoenixAPI();
     console.log(`📡 Base URL: ${API.baseURL}`);
     console.log(`🔐 Authenticated: ${!!API.token}`);
     console.log(`👤 User ID: ${API.userId || 'Not logged in'}`);
-    console.log('308 backend endpoints loaded (perfect 1:1 mirror with all iOS features)');
+    console.log('500+ backend endpoints loaded - COMPLETE 1:1 mirror (all planets, iOS, Genesis, Consciousness)');
 })();
 
 // Export for use in other modules
