@@ -2023,20 +2023,22 @@
                 return; // Prevent further execution until retry completes
             }
         } else if (!token) {
-            // Add redirect guard to prevent rapid bouncing
-            const lastRedirect = sessionStorage.getItem('last_dashboard_redirect');
-            const now = Date.now();
+            // NO TOKEN: Create guest token automatically instead of redirecting
+            console.log('ℹ️  No token found - creating guest session');
 
-            if (lastRedirect && (now - parseInt(lastRedirect)) < 2000) {
-                console.log('⚠️ Redirect loop detected - stopping');
-                document.body.innerHTML = '<div style="color: white; text-align: center; padding: 50px;">Authentication error. Please <a href="index.html" style="color: cyan;">log in again</a>.</div>';
-                return;
-            }
+            const guestToken = 'guest_' + Date.now() + '_' + Math.random().toString(36).substring(7);
+            localStorage.setItem('phoenixToken', guestToken);
+            localStorage.setItem('phoenixUser', JSON.stringify({
+                name: 'Guest',
+                email: 'guest@phoenix.ai',
+                isGuest: true
+            }));
 
-            sessionStorage.setItem('last_dashboard_redirect', now.toString());
-            console.log('❌ No token found on dashboard - redirecting to index.html');
-            window.location.href = 'index.html';
-            return;
+            console.log('✅ Guest token created:', guestToken);
+            console.log('💡 Access full features by clicking "Log In" in the menu');
+
+            // Continue loading dashboard in guest mode
+            token = guestToken;
         }
 
         console.log('✅ Authenticated - Token found');
