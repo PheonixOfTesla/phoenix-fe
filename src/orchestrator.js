@@ -1929,12 +1929,17 @@ return true; // Token is valid if this succeeds
             
             // Check auth status
             if (this.state.session.authToken) {
-                const authValid = await this.validateStoredToken(this.state.session.authToken);
-                this.state.health.auth = authValid ? 'healthy' : 'unhealthy';
-                
-                if (!authValid) {
-                    console.warn('⚠️ Auth token invalid, attempting refresh...');
-                    await this.attemptTokenRefresh(this.state.session.authToken);
+                // Skip validation for guest tokens - they don't need backend validation
+                if (this.state.session.authToken.startsWith('guest_')) {
+                    this.state.health.auth = 'guest';
+                } else {
+                    const authValid = await this.validateStoredToken(this.state.session.authToken);
+                    this.state.health.auth = authValid ? 'healthy' : 'unhealthy';
+
+                    if (!authValid) {
+                        console.warn('⚠️ Auth token invalid, attempting refresh...');
+                        await this.attemptTokenRefresh(this.state.session.authToken);
+                    }
                 }
             }
             
