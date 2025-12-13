@@ -578,6 +578,9 @@ class WidgetManager {
 
         // Make draggable
         this.makeDraggable(element);
+
+        // Make resizable
+        this.makeResizable(element);
     }
 
     /* ============================================
@@ -640,6 +643,75 @@ class WidgetManager {
         document.addEventListener('mouseup', onMouseUp);
 
         element.style.cursor = 'grab';
+    }
+
+    /* ============================================
+       MAKE ELEMENT RESIZABLE
+       ============================================ */
+    makeResizable(element) {
+        // Add resize handles
+        const handles = ['top', 'right', 'bottom', 'left', 'top-left', 'top-right', 'bottom-left', 'bottom-right'];
+
+        handles.forEach(direction => {
+            const handle = document.createElement('div');
+            handle.className = `resize-handle ${direction}`;
+            handle.dataset.direction = direction;
+            element.appendChild(handle);
+
+            let isResizing = false;
+            let startX, startY, startWidth, startHeight, startLeft, startTop;
+
+            handle.addEventListener('mousedown', (e) => {
+                e.stopPropagation(); // Prevent dragging while resizing
+                isResizing = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                startWidth = parseInt(getComputedStyle(element).width, 10);
+                startHeight = parseInt(getComputedStyle(element).height, 10);
+                startLeft = element.offsetLeft;
+                startTop = element.offsetTop;
+
+                element.style.transition = 'none';
+
+                document.addEventListener('mousemove', resize);
+                document.addEventListener('mouseup', resizeEnd);
+            });
+
+            const resize = (e) => {
+                if (!isResizing) return;
+
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+
+                // Handle different resize directions
+                if (direction.includes('right')) {
+                    element.style.width = (startWidth + dx) + 'px';
+                }
+                if (direction.includes('left')) {
+                    element.style.width = (startWidth - dx) + 'px';
+                    element.style.left = (startLeft + dx) + 'px';
+                }
+                if (direction.includes('bottom')) {
+                    element.style.height = (startHeight + dy) + 'px';
+                }
+                if (direction.includes('top')) {
+                    element.style.height = (startHeight - dy) + 'px';
+                    element.style.top = (startTop + dy) + 'px';
+                }
+
+                // Clear max constraints during resize
+                element.style.maxWidth = 'none';
+                element.style.maxHeight = 'none';
+            };
+
+            const resizeEnd = () => {
+                isResizing = false;
+                element.style.transition = '';
+                document.removeEventListener('mousemove', resize);
+                document.removeEventListener('mouseup', resizeEnd);
+                this.saveWidgetLayout();
+            };
+        });
     }
 
     /* ============================================
