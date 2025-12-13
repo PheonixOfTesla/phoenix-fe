@@ -2153,13 +2153,19 @@
                 token = token.split('\\"').join('"').split("\\'").join("'").split('\\\\').join('\\');
             }
 
-            // ✅ CHECK TOKEN EXPIRATION - If truly expired, redirect to login
+            // ✅ CHECK TOKEN EXPIRATION - If truly expired, create guest session
             if (token && isTokenExpired(token)) {
-                console.log('⚠️  Token expired - redirecting to login');
-                localStorage.removeItem('phoenixToken');
+                console.log('⚠️  Token expired - creating guest session');
+                const guestToken = 'guest_' + Date.now() + '_' + Math.random().toString(36).substring(7);
+                localStorage.setItem('phoenixToken', guestToken);
+                localStorage.setItem('phoenixUser', JSON.stringify({
+                    name: 'Guest',
+                    email: 'guest@phoenix.ai',
+                    isGuest: true
+                }));
                 sessionStorage.removeItem('phoenix_greeted');
-                window.location.href = 'index.html';
-                return;
+                console.log('✅ Guest token created after expiration:', guestToken);
+                throw new Error('Token expired - switched to guest mode, please retry');
             }
 
             const url = endpoint.startsWith('http') ? endpoint : `${API_BASE}${endpoint}`;
@@ -2212,11 +2218,17 @@
                         throw new Error('Unauthorized - guest mode has limited access');
                     }
 
-                    console.log('❌ 401 Unauthorized - session expired (non-guest user)');
-                    localStorage.removeItem('phoenixToken');
-                    sessionStorage.removeItem('phoenix_greeted');
-                    window.location.href = 'index.html';
-                    return;
+                    // NO VALID TOKEN: Create guest session instead of redirecting
+                    console.log('⚠️  401 Unauthorized - creating guest session');
+                    const guestToken = 'guest_' + Date.now() + '_' + Math.random().toString(36).substring(7);
+                    localStorage.setItem('phoenixToken', guestToken);
+                    localStorage.setItem('phoenixUser', JSON.stringify({
+                        name: 'Guest',
+                        email: 'guest@phoenix.ai',
+                        isGuest: true
+                    }));
+                    console.log('✅ Guest token created after 401:', guestToken);
+                    throw new Error('Unauthorized - switched to guest mode, please retry');
                 }
 
                 if (!response.ok) {
