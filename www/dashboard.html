@@ -2183,13 +2183,33 @@
                 // ✅ HANDLE 401 UNAUTHORIZED
                 if (response.status === 401) {
                     // Don't redirect guest users - they're expected to get 401s
-                    const currentToken = localStorage.getItem('phoenixToken');
+                    let currentToken = localStorage.getItem('phoenixToken');
+
+                    // ULTRA DEBUG: Log token check
+                    console.log('🔍 401 Error - Checking if guest token...');
+                    console.log('   Raw token:', currentToken);
+                    console.log('   Token type:', typeof currentToken);
+                    console.log('   Token exists:', !!currentToken);
+
+                    // Clean token (remove quotes/whitespace)
+                    if (currentToken) {
+                        currentToken = currentToken.trim();
+                        while (currentToken.startsWith('"') && currentToken.endsWith('"')) {
+                            currentToken = currentToken.slice(1, -1);
+                        }
+                        while (currentToken.startsWith("'") && currentToken.endsWith("'")) {
+                            currentToken = currentToken.slice(1, -1);
+                        }
+                        console.log('   Cleaned token:', currentToken);
+                        console.log('   Starts with guest_:', currentToken.startsWith('guest_'));
+                    }
+
                     if (currentToken && currentToken.startsWith('guest_')) {
                         console.log('⚠️  401 for guest user - expected, continuing in guest mode');
                         throw new Error('Unauthorized - guest mode has limited access');
                     }
 
-                    console.log('❌ 401 Unauthorized - session expired');
+                    console.log('❌ 401 Unauthorized - session expired (non-guest user)');
                     localStorage.removeItem('phoenixToken');
                     sessionStorage.removeItem('phoenix_greeted');
                     window.location.href = 'index.html';
