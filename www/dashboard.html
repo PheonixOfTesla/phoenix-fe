@@ -2846,9 +2846,22 @@
              */
             async authenticate() {
                 const token = localStorage.getItem('phoenixToken');
+                console.log('🔐 [authenticate()] Token check:', token ? `EXISTS (${token.substring(0,20)}...)` : 'MISSING');
+
                 if (!token) {
-                    console.log('❌ No token found in authenticate() - already handled by checkAuth()');
-                    return false;
+                    console.error('❌❌❌ CRITICAL: No token in authenticate() - guest token creation may have failed!');
+                    console.log('📦 localStorage dump:', JSON.stringify(localStorage));
+
+                    // EMERGENCY: Create guest token NOW
+                    console.log('🚨 Creating emergency guest token...');
+                    const guestToken = 'guest_' + Date.now() + '_' + Math.random().toString(36).substring(7);
+                    localStorage.setItem('phoenixToken', guestToken);
+                    localStorage.setItem('phoenixUser', JSON.stringify({
+                        name: 'Guest',
+                        email: 'guest@phoenix.ai',
+                        isGuest: true
+                    }));
+                    console.log('✅ Emergency guest token created:', guestToken);
                 }
 
                 // Token exists - proceed with dashboard load
