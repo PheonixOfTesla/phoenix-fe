@@ -2845,7 +2845,7 @@
              * AUTHENTICATION - SIMPLIFIED TO PREVENT REDIRECT LOOPS
              */
             async authenticate() {
-                const token = localStorage.getItem('phoenixToken');
+                let token = localStorage.getItem('phoenixToken');
                 console.log('🔐 [authenticate()] Token check:', token ? `EXISTS (${token.substring(0,20)}...)` : 'MISSING');
 
                 if (!token) {
@@ -2862,11 +2862,14 @@
                         isGuest: true
                     }));
                     console.log('✅ Emergency guest token created:', guestToken);
+
+                    // Re-read token after creating it
+                    token = localStorage.getItem('phoenixToken');
                 }
 
                 // Token exists - proceed with dashboard load
                 // Don't validate via API to avoid redirect loops from 401 errors
-                console.log('✅ Token found - loading dashboard');
+                console.log('✅ Token found - loading dashboard with token:', token.substring(0, 30) + '...');
 
                 // Try to get user info but don't fail if it errors
                 try {
