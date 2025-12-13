@@ -55,14 +55,17 @@
 
         const isMobile = isMobileDevice();
 
-        // FORCE VOICE MODE ON MOBILE
-        localStorage.setItem('phoenix_ui_mode', 'voice');
+        // Set UI mode preference (don't force override unless first visit or mobile)
+        const savedMode = localStorage.getItem('phoenix_ui_mode');
+        const finalMode = isMobile ? 'voice' : (savedMode || 'voice');
+
+        localStorage.setItem('phoenix_ui_mode', finalMode);
         localStorage.setItem('phoenix_is_mobile', isMobile ? 'true' : 'false');
 
-        // CRITICAL: Set data-mode attribute IMMEDIATELY (before any scripts run)
-        document.body.setAttribute('data-mode', 'voice');
+        // Set data-mode attribute based on saved preference
+        document.body.setAttribute('data-mode', finalMode);
 
-        console.log('🎤 Forcing voice mode on page load');
+        console.log(`🎤 UI Mode: ${finalMode} (${savedMode ? 'saved preference' : 'default'})`);
         console.log(isMobile ? '📱 Mobile device detected - VOICE MODE ONLY' : '🖥️ Desktop device - all modes available');
     </script>
     <!-- ============================================ -->
@@ -76,16 +79,16 @@
     <!-- VOICE/MANUAL MODE TOGGLE -->
     <!-- ============================================ -->
     <div id="mode-toggle-container" class="mode-toggle-container">
-        <button id="voice-mode-btn" onclick="switchToVoiceMode()" class="mode-toggle-btn mode-toggle-btn-active" data-i18n="dashboard.voiceMode">
+        <button id="voice-mode-btn" onclick="if(typeof switchToVoiceMode === 'function') switchToVoiceMode(); else console.warn('switchToVoiceMode not loaded yet')" class="mode-toggle-btn mode-toggle-btn-active" data-i18n="dashboard.voiceMode">
             VOICE
         </button>
-        <button id="manual-mode-btn" onclick="switchToManualMode()" class="mode-toggle-btn mode-hide-mobile" data-i18n="dashboard.manualMode">
+        <button id="manual-mode-btn" onclick="if(typeof switchToManualMode === 'function') switchToManualMode(); else console.warn('switchToManualMode not loaded yet')" class="mode-toggle-btn mode-hide-mobile" data-i18n="dashboard.manualMode">
             MANUAL
         </button>
-        <button id="desk-btn" onclick="openPhoenixDesk()" class="mode-toggle-btn mode-toggle-btn-desk">
+        <button id="desk-btn" onclick="if(typeof openPhoenixDesk === 'function') openPhoenixDesk(); else window.location.href='desk.html'" class="mode-toggle-btn mode-toggle-btn-desk">
             DESK
         </button>
-        <button id="genesis-mode-btn" onclick="switchToGenesisMode()" class="mode-toggle-btn">
+        <button id="genesis-mode-btn" onclick="if(typeof switchToGenesisMode === 'function') switchToGenesisMode(); else console.warn('switchToGenesisMode not loaded yet')" class="mode-toggle-btn">
             <svg width="20" height="20" viewBox="0 0 24 24" style="margin-right: 6px; vertical-align: middle;">
                 <!-- DNA Double Helix -->
                 <path d="M4 2 L4 22 M20 2 L20 22" stroke="currentColor" stroke-width="1.5" fill="none"/>
@@ -1908,6 +1911,18 @@
     (function checkAuth() {
         console.log('🔐 [Dashboard Auth Check] Starting...');
 
+        // PREVENT REDIRECT LOOPS: Check if we've already attempted auth this session
+        const authAttempts = parseInt(sessionStorage.getItem('phoenix_auth_attempts') || '0');
+        if (authAttempts > 2) {
+            console.error('🚨 Too many auth attempts - stopping redirect loop');
+            console.log('💡 Creating guest session to break loop');
+            const guestToken = 'guest_' + Date.now() + '_' + Math.random().toString(36).substring(7);
+            localStorage.setItem('phoenixToken', guestToken);
+            sessionStorage.removeItem('phoenix_auth_attempts');
+            return;
+        }
+        sessionStorage.setItem('phoenix_auth_attempts', (authAttempts + 1).toString());
+
         // CRITICAL: Check URL hash for token first (passed from login page)
         const hash = window.location.hash;
         if (hash && hash.includes('token=')) {
@@ -1976,6 +1991,7 @@
         // If user just logged in (token exists and is valid JWT or guest token), don't redirect
         if (token && (token.startsWith('eyJ') || token.startsWith('guest_'))) {
             console.log('✅ Valid token found - proceeding to dashboard');
+            sessionStorage.removeItem('phoenix_auth_attempts'); // Reset counter on success
             return; // Exit early, page will continue loading normally
         }
 
@@ -2871,15 +2887,22 @@
                 // Don't validate via API to avoid redirect loops from 401 errors
                 console.log('✅ Token found - loading dashboard with token:', token.substring(0, 30) + '...');
 
-                // FORCE HIDE LOADING SCREEN for guest users
+                // FORCE HIDE LOADING SCREEN after timeout to prevent infinite loading
                 setTimeout(() => {
                     const loadingEl = document.getElementById('loading');
                     if (loadingEl && loadingEl.style.display !== 'none') {
-                        console.log('⏱️  Force hiding loading screen after 3s timeout');
+                        console.log('⏱️  Force hiding loading screen after 10s timeout');
+                        console.log('💡 If systems didn\'t initialize, dashboard still loads in guest mode');
                         loadingEl.style.opacity = '0';
-                        setTimeout(() => loadingEl.style.display = 'none', 500);
+                        setTimeout(() => {
+                            loadingEl.style.display = 'none';
+                            // Show a subtle notification that systems may still be loading
+                            if (typeof showToast === 'function') {
+                                showToast('Dashboard loaded - some features may still be initializing', 'info');
+                            }
+                        }, 500);
                     }
-                }, 3000);
+                }, 10000);
 
                 // Try to get user info but don't fail if it errors
                 try {
