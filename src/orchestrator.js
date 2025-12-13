@@ -828,12 +828,25 @@ return true; // Token is valid if this succeeds
      */
     async loadUserProfile() {
         console.log('Loading user profile...');
-        
+
+        // Skip profile loading for guest users (they don't have a backend profile)
+        if (this.state.health.auth === 'guest') {
+            console.log('✅ Guest mode - skipping profile load (using guest profile)');
+            this.state.user = {
+                id: 'guest',
+                name: localStorage.getItem('phoenixName') || 'Guest',
+                email: 'guest@phoenix.ai',
+                isGuest: true
+            };
+            this.state.preferences = this.getDefaultPreferences();
+            return;
+        }
+
         try {
             if (!this.components.api || !this.components.api.getUserProfile) {
                 throw new Error('API client not ready');
             }
-            
+
             // ENDPOINT 1: GET /api/user/profile
             // Real-world: "Give me everything about this user"
             const profile = await this.components.api.getUserProfile();
@@ -958,12 +971,19 @@ return true; // Token is valid if this succeeds
      */
     async checkSubscription() {
         console.log('💳 Checking subscription status...');
-        
+
+        // Guest users don't have subscriptions
+        if (this.state.health.auth === 'guest') {
+            console.log('✅ Guest mode - skipping subscription check (using free tier)');
+            this.state.subscription = { active: false, plan: 'guest', features: [] };
+            return;
+        }
+
         try {
             if (!this.components.api || !this.components.api.getSubscriptionStatus) {
                 throw new Error('API client not ready');
             }
-            
+
             // ENDPOINT: GET /api/subscription/status
             // Real-world: "Does this user have access? What plan? When expires?"
             const subscription = await this.components.api.getSubscriptionStatus();
@@ -1091,7 +1111,13 @@ return true; // Token is valid if this succeeds
      */
     async loadInitialPlanetData() {
         console.log('🪐 Loading initial planet data...');
-        
+
+        // Guest users can't access planet data (requires backend profile)
+        if (this.state.health.auth === 'guest') {
+            console.log('✅ Guest mode - skipping planet data load (requires full account)');
+            return;
+        }
+
         const planetEndpoints = [
             { name: 'Mercury', method: 'getRecoveryDashboard', icon: '☿️' },
             { name: 'Venus', method: 'getWorkouts', icon: '♀️' },
@@ -1101,7 +1127,7 @@ return true; // Token is valid if this succeeds
             { name: 'Saturn', method: 'getVision', icon: '♄' },
             { name: 'Phoenix', method: 'getInsights', icon: '🤖' }
         ];
-        
+
         // Load all planets in parallel for speed
         const planetPromises = planetEndpoints.map(async (planet) => {
             try {
@@ -1186,7 +1212,13 @@ return true; // Token is valid if this succeeds
      */
     async setupAIContext() {
         console.log('🧠 Setting up AI context...');
-        
+
+        // Guest users get default AI context
+        if (this.state.health.auth === 'guest') {
+            console.log('✅ Guest mode - using default AI context');
+            return;
+        }
+
         try {
             // ENDPOINT 1: GET /api/phoenix/companion/personality
             const personality = await this.components.api.getPersonality();
