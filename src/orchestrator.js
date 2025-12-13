@@ -327,14 +327,25 @@ class PhoenixOrchestrator {
             // Check for existing token
             const storedToken = localStorage.getItem('phoenixToken');
             const storedUserId = localStorage.getItem('phoenix_user_id');
-            
+
+            // Guest token support - allow guest_* tokens without userId
+            if (storedToken && storedToken.startsWith('guest_')) {
+                console.log('✅ Guest token detected - using guest mode');
+                this.state.session.authToken = storedToken;
+                this.state.session.userId = 'guest';
+                this.state.authenticated = false; // Guest is not fully authenticated
+                this.state.health.auth = 'guest';
+                await this.useGuestMode();
+                return;
+            }
+
             if (storedToken && storedUserId) {
                 console.log('Found stored credentials, validating...');
-                
+
                 // ENDPOINT 1: GET /api/auth/me (validate token)
                 // Real-world: "Is this token still valid? Who is this user?"
                 const isValid = await this.validateStoredToken(storedToken);
-                
+
                 if (isValid) {
                     this.state.session.authToken = storedToken;
                     this.state.session.userId = storedUserId;
@@ -344,9 +355,9 @@ class PhoenixOrchestrator {
                     console.log(`✅ Token valid for user: ${this.state.user?.name || storedUserId}`);
                     return;
                 }
-                
+
                 console.log('Stored token invalid, attempting refresh...');
-                
+
                 // Try to refresh token
                 const refreshed = await this.attemptTokenRefresh(storedToken);
                 if (refreshed) {
@@ -384,14 +395,14 @@ class PhoenixOrchestrator {
             // User can still use basic features without full auth
 
             // Don't redirect if already on dashboard - prevents loops
-            if (currentPath.includes('index.html')) {
+            if (currentPath.includes('dashboard.html') || currentPath.includes('index.html')) {
                 console.log('✅ Already on dashboard - allowing degraded mode');
                 await this.useGuestMode();
                 return;
             }
 
             // Check if this is a public route that doesn't need auth
-            const publicRoutes = ['/', '/about', '/pricing', '/features', '/index.html'];
+            const publicRoutes = ['/', '/about', '/pricing', '/features', '/index.html', '/dashboard.html', '/dashboard'];
             if (publicRoutes.some(route => currentPath.includes(route))) {
                 console.log('ℹ️ Public route, using guest mode');
                 await this.useGuestMode();
