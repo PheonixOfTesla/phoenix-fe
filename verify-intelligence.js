@@ -89,7 +89,7 @@ async function verify() {
     text: 'Phoenix intelligence test',
     voice: 'echo',
     speed: 1.4,
-    model: 'tts-1'
+    model: 'gpt-4o-mini-tts'
   });
 
   const ttsTime = Date.now() - ttsStart;

@@ -1623,7 +1623,7 @@ class PhoenixVoiceCommands {
                     voice: this.voice,      // Use user's voice preference
                     speed: 1.0,             // Natural conversation pace (user feedback: 1.4 was too fast)
                     language: this.language, // Use user's language preference
-                    model: 'tts-1',
+                    model: 'gpt-4o-mini-tts',
                     format: 'base64'        // iOS compatibility
                 })
             });
@@ -1734,7 +1734,7 @@ class PhoenixVoiceCommands {
                     voice: this.voice,
                     speed: 1.0,
                     language: this.language,
-                    model: 'tts-1',
+                    model: 'gpt-4o-mini-tts',
                     format: 'base64'        // iOS compatibility
                 })
             });
