@@ -852,6 +852,7 @@
 
         let currentPhase = 0;
         let ttsAudio = null;
+        let selectedWidgets = null; // Store random widget selection
 
         // ============================================
         // WIDGET TYPE DETECTION
@@ -859,15 +860,35 @@
         function detectWidgetFromInput(userInput) {
             const input = userInput.toLowerCase().trim();
 
-            // Business / Finance
+            // Business / Finance - Multiple types
             if (input.includes('business') || input.includes('company') || input.includes('startup') || input.includes('plan')) {
-                return {
-                    type: 'business',
-                    icon: 'fa-solid fa-briefcase',
-                    title: 'Business Plan',
-                    description: 'your business plan',
-                    content: createBusinessPlanWidget()
-                };
+                // Detect specific business type
+                if (input.includes('athletic') || input.includes('clothing') || input.includes('apparel') || input.includes('fitness brand')) {
+                    return {
+                        type: 'business',
+                        icon: 'fa-solid fa-briefcase',
+                        title: 'Business Plan',
+                        description: 'your business plan',
+                        content: createAthleticBrandPlan()
+                    };
+                } else if (input.includes('bartending') || input.includes('mixology') || input.includes('mobile bar') || input.includes('miami')) {
+                    return {
+                        type: 'business',
+                        icon: 'fa-solid fa-briefcase',
+                        title: 'Business Plan',
+                        description: 'your business plan',
+                        content: createMobileBartendingPlan()
+                    };
+                } else {
+                    // Default to NutriFit
+                    return {
+                        type: 'business',
+                        icon: 'fa-solid fa-briefcase',
+                        title: 'Business Plan',
+                        description: 'your business plan',
+                        content: createBusinessPlanWidget()
+                    };
+                }
             }
 
             // Music
@@ -982,6 +1003,132 @@
                         Month 12: 25,000 users • $280K MRR<br>
                         Month 18: 75,000 users • $840K MRR</span><br>
                         <strong style="color: #FFD700; font-size: 15px;">→ $10M ARR by year 3 • Exit potential: $80-120M</strong>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createAthleticBrandPlan() {
+            return `
+                <div style="padding: 30px; color: rgba(0, 217, 255, 0.9); font-family: 'SF Mono', monospace; font-size: 14px; line-height: 1.7; width: 100%; height: auto; min-height: 100%; text-align: left;">
+                    <h2 style="color: #FFD700; margin-bottom: 20px; font-size: 20px; text-align: left;">👟 APEX ATHLETICS - BUSINESS PLAN</h2>
+
+                    <div style="margin-bottom: 18px;">
+                        <strong style="color: #00D9FF;">Executive Summary:</strong><br>
+                        <span style="font-size: 13px;">Apex Athletics is a premium fitness apparel brand targeting serious athletes and gym-goers. Using performance fabrics and data-driven fit technology, we create workout gear that enhances performance while looking elite.</span>
+                    </div>
+
+                    <div style="margin-bottom: 18px;">
+                        <strong style="color: #00D9FF;">Market Opportunity:</strong><br>
+                        <span style="font-size: 13px;">• Global activewear market: $353B by 2028 (8.9% CAGR)<br>
+                        • Premium segment growing 2x faster than mass market<br>
+                        • Target: Fitness enthusiasts 18-40, income $75K+<br>
+                        • 67% willing to pay premium for performance + style</span>
+                    </div>
+
+                    <div style="margin-bottom: 18px;">
+                        <strong style="color: #00D9FF;">Product Line:</strong><br>
+                        <span style="font-size: 13px;">• Performance tees ($45-65) - moisture-wicking, anti-odor<br>
+                        • Training shorts ($55-85) - 4-way stretch, phone pocket<br>
+                        • Compression gear ($70-120) - recovery enhancement<br>
+                        • Limited edition drops - collab with athletes<br>
+                        • Smart fabric integration - track movement patterns</span>
+                    </div>
+
+                    <div style="margin-bottom: 18px;">
+                        <strong style="color: #00D9FF;">Revenue Model:</strong><br>
+                        <span style="font-size: 13px;">• DTC Website: 70% of sales (60% margin)<br>
+                        • Amazon: 20% of sales (35% margin)<br>
+                        • Gym partnerships: 10% of sales (wholesale)<br>
+                        • Subscription box: $89/month (2 items + exclusive drops)</span>
+                    </div>
+
+                    <div style="margin-bottom: 18px;">
+                        <strong style="color: #00D9FF;">Go-to-Market Strategy:</strong><br>
+                        <span style="font-size: 13px;">1. Seed 50 fitness influencers (50K-500K followers)<br>
+                        2. Gym takeovers: Free samples at F45, CrossFit boxes<br>
+                        3. Instagram Reels + TikTok (workout transformation content)<br>
+                        4. Referral program: $20 off for referrer + referee<br>
+                        5. Pop-up shops at major fitness expos</span>
+                    </div>
+
+                    <div style="margin-bottom: 18px;">
+                        <strong style="color: #00D9FF;">Competitive Advantage:</strong><br>
+                        <span style="font-size: 13px;">• Proprietary fabric blend (lighter + more durable)<br>
+                        • Athlete-tested fit (not just fashion brand)<br>
+                        • Built-in wearable tech compatibility<br>
+                        • Lifetime warranty on defects</span>
+                    </div>
+
+                    <div>
+                        <strong style="color: #00D9FF;">Financial Projections:</strong><br>
+                        <span style="font-size: 13px;">Month 6: $120K revenue • 2,400 units sold<br>
+                        Month 12: $680K revenue • 40% repeat customer rate<br>
+                        Month 18: $1.8M revenue • Breakeven + profitability</span><br>
+                        <strong style="color: #FFD700; font-size: 15px;">→ $8M ARR by year 3 • Exit potential: $50-80M</strong>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createMobileBartendingPlan() {
+            return `
+                <div style="padding: 30px; color: rgba(0, 217, 255, 0.9); font-family: 'SF Mono', monospace; font-size: 14px; line-height: 1.7; width: 100%; height: auto; min-height: 100%; text-align: left;">
+                    <h2 style="color: #FFD700; margin-bottom: 20px; font-size: 20px; text-align: left;">🍹 MIAMI MIXOLOGY - BUSINESS PLAN</h2>
+
+                    <div style="margin-bottom: 18px;">
+                        <strong style="color: #00D9FF;">Executive Summary:</strong><br>
+                        <span style="font-size: 13px;">Miami Mixology provides premium mobile bartending for private events, yacht parties, and corporate functions across South Florida. Full-service cocktails, professional bartenders, and Instagram-worthy bar setups.</span>
+                    </div>
+
+                    <div style="margin-bottom: 18px;">
+                        <strong style="color: #00D9FF;">Market Opportunity:</strong><br>
+                        <span style="font-size: 13px;">• Miami event services market: $450M annually<br>
+                        • 35,000+ private events per year in Miami metro<br>
+                        • Target: Corporate events, weddings, yacht parties<br>
+                        • Average spend: $2,500-8,000 per event</span>
+                    </div>
+
+                    <div style="margin-bottom: 18px;">
+                        <strong style="color: #00D9FF;">Service Packages:</strong><br>
+                        <span style="font-size: 13px;">• Basic: 2 bartenders + standard bar ($1,200/4hrs)<br>
+                        • Premium: LED bar setup + signature cocktails ($2,800/4hrs)<br>
+                        • Luxury: Full mixology experience + ice sculptures ($5,500/4hrs)<br>
+                        • Add-ons: Flair bartending, liquid nitrogen cocktails<br>
+                        • Monthly retainers for corporate clients</span>
+                    </div>
+
+                    <div style="margin-bottom: 18px;">
+                        <strong style="color: #00D9FF;">Revenue Model:</strong><br>
+                        <span style="font-size: 13px;">• Private events: 60% of bookings<br>
+                        • Corporate: 25% of bookings (higher margins)<br>
+                        • Weddings: 15% of bookings (premium packages)<br>
+                        • Alcohol markup: 3x cost (optional full-service)</span>
+                    </div>
+
+                    <div style="margin-bottom: 18px;">
+                        <strong style="color: #00D9FF;">Go-to-Market Strategy:</strong><br>
+                        <span style="font-size: 13px;">1. Partner with 20 event planners (10% referral fee)<br>
+                        2. Instagram/TikTok: Viral cocktail videos<br>
+                        3. Marina partnerships: On-site at yacht clubs<br>
+                        4. Corporate happy hour demos at WeWork/tech startups<br>
+                        5. Wedding expos: South Florida bridal shows</span>
+                    </div>
+
+                    <div style="margin-bottom: 18px;">
+                        <strong style="color: #00D9FF;">Competitive Advantage:</strong><br>
+                        <span style="font-size: 13px;">• Certified mixologists (not just bartenders)<br>
+                        • 24/7 booking via app + instant quotes<br>
+                        • Bilingual staff (English/Spanish for Miami market)<br>
+                        • Full liability insurance + bartender certification</span>
+                    </div>
+
+                    <div>
+                        <strong style="color: #00D9FF;">Financial Projections:</strong><br>
+                        <span style="font-size: 13px;">Month 6: 40 events • $85K revenue • 3 staff<br>
+                        Month 12: 120 events • $340K revenue • 8 staff<br>
+                        Month 18: 200 events • $720K revenue • 12 staff</span><br>
+                        <strong style="color: #FFD700; font-size: 15px;">→ $2.5M ARR by year 3 • Scale to Fort Lauderdale + Palm Beach</strong>
                     </div>
                 </div>
             `;
@@ -1125,8 +1272,34 @@
         // ONBOARDING FLOW
         // ============================================
 
+        // Random widget selector - picks 1 music video and 1 business plan
+        function getRandomWidgets() {
+            const musicVideos = [
+                { id: 'videoseries?list=PLFgquLnL59alCl_2TQvOiD5Vgm1hCaGSI', title: 'Workout Mix' },
+                { id: 'GhlK-r2GKt0', title: 'We Belong Together' }, // Mariah Carey
+                { id: 'cimoNqiulUE', title: 'Headlines' } // Drake
+            ];
+
+            const businessPlans = ['nutrifit', 'athletic', 'bartending'];
+
+            return {
+                music: musicVideos[Math.floor(Math.random() * musicVideos.length)],
+                business: businessPlans[Math.floor(Math.random() * businessPlans.length)]
+            };
+        }
+
         async function startOnboarding() {
             initStarfield();
+
+            // Select random widgets at start
+            selectedWidgets = getRandomWidgets();
+            console.log('🎲 Random selection:', selectedWidgets);
+
+            // Update music widget iframe with random video
+            const musicIframe = document.querySelector('#musicWidget .widget-content iframe');
+            if (musicIframe) {
+                musicIframe.src = `https://www.youtube.com/embed/${selectedWidgets.music.id}`;
+            }
 
             // PHASE 1: INTRO (3 seconds)
             await speak("Hello.");
@@ -1137,8 +1310,9 @@
             await speak("Watch this.");
             await sleep(1000);
 
-            // Auto-create business plan (most impressive demo)
-            handleCreateRequest('million dollar business plan');
+            // Auto-create business plan with random type
+            const businessInput = `${selectedWidgets.business} business plan`;
+            handleCreateRequest(businessInput);
         }
 
         async function handleCreateRequest(userInput) {
