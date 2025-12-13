@@ -56,6 +56,34 @@
     opacity: 0.9;
 }
 
+/* Orb Hint */
+.phoenix-orb-hint {
+    position: absolute;
+    bottom: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 217, 255, 0.15);
+    border: 1px solid rgba(0, 217, 255, 0.3);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 11px;
+    color: #00d9ff;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.phoenix-orb:hover .phoenix-orb-hint {
+    opacity: 1;
+}
+
+/* Hide hint when orb is listening or panel is open */
+.phoenix-orb.listening .phoenix-orb-hint,
+#phoenixOrbContainer.expanded .phoenix-orb-hint {
+    opacity: 0;
+}
+
 /* Hover State */
 .phoenix-orb:hover {
     transform: scale(1.1);

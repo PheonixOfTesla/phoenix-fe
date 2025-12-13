@@ -328,17 +328,6 @@ class PhoenixOrchestrator {
             const storedToken = localStorage.getItem('phoenixToken');
             const storedUserId = localStorage.getItem('phoenix_user_id');
 
-            // Guest token support - allow guest_* tokens without userId
-            if (storedToken && storedToken.startsWith('guest_')) {
-                console.log('✅ Guest token detected - using guest mode');
-                this.state.session.authToken = storedToken;
-                this.state.session.userId = 'guest';
-                this.state.authenticated = false; // Guest is not fully authenticated
-                this.state.health.auth = 'guest';
-                await this.useGuestMode();
-                return;
-            }
-
             if (storedToken && storedUserId) {
                 console.log('Found stored credentials, validating...');
 
@@ -387,32 +376,19 @@ class PhoenixOrchestrator {
                 return;
             }
             
-            // Not authenticated and not on auth pages
-            console.log('⚠️  No valid authentication found - allowing guest mode');
+            // Not authenticated and not on auth pages - redirect to onboarding
+            console.log('⚠️  No valid authentication found - redirecting to onboarding');
 
-            // DISABLED: Aggressive redirect was causing loops
-            // Instead, allow dashboard to load and handle errors gracefully
-            // User can still use basic features without full auth
-
-            // Don't redirect if already on dashboard - prevents loops
-            if (currentPath.includes('dashboard.html') || currentPath.includes('index.html')) {
-                console.log('✅ Already on dashboard - allowing degraded mode');
-                await this.useGuestMode();
+            // Check if already on onboarding/index page to prevent redirect loops
+            if (currentPath.includes('onboarding.html') || currentPath.includes('index.html')) {
+                console.log('✅ Already on auth page - waiting for user to sign up/login');
+                this.state.health.auth = 'waiting_for_auth';
                 return;
             }
 
-            // Check if this is a public route that doesn't need auth
-            const publicRoutes = ['/', '/about', '/pricing', '/features', '/index.html', '/dashboard.html', '/dashboard'];
-            if (publicRoutes.some(route => currentPath.includes(route))) {
-                console.log('ℹ️ Public route, using guest mode');
-                await this.useGuestMode();
-                return;
-            }
-
-            // For any other protected route, use guest mode instead of redirecting
-            // This prevents redirect loops
-            console.log('⚠️  Protected route but using guest mode to prevent redirect loop');
-            await this.useGuestMode();
+            // Redirect to onboarding for all unauthenticated users
+            console.log('Redirecting to onboarding...');
+            window.location.href = 'index.html';
             
         } catch (error) {
             console.error('❌ Authentication setup failed:', error);
@@ -606,29 +582,6 @@ return true; // Token is valid if this succeeds
         });
     }
 
-    async useGuestMode() {
-        // CRITICAL: Check localStorage first - NEVER overwrite existing JWT token
-        const existingToken = localStorage.getItem('phoenixToken');
-        if (existingToken && existingToken.startsWith('eyJ')) {
-            console.log('✅ JWT token found in localStorage - using authenticated mode instead of guest');
-            this.state.session.authToken = existingToken;
-            this.state.authenticated = true;
-            this.state.health.auth = 'valid';
-            return;
-        }
-
-        console.log('Entering guest mode (limited features)...');
-
-        // Generate temporary guest credentials - but DON'T save to localStorage
-        // This prevents overwriting real tokens
-        this.state.session.authToken = 'guest_' + this.generateSessionId();
-        this.state.session.userId = 'guest_' + Date.now();
-        this.state.authenticated = false;
-        this.state.health.auth = 'guest';
-
-        // Guest users have limited access
-        console.log('Guest mode - sign up for full features');
-    }
 
     redirectToLogin() {
         // Save current path to return after login
@@ -829,19 +782,6 @@ return true; // Token is valid if this succeeds
     async loadUserProfile() {
         console.log('Loading user profile...');
 
-        // Skip profile loading for guest users (they don't have a backend profile)
-        if (this.state.health.auth === 'guest') {
-            console.log('✅ Guest mode - skipping profile load (using guest profile)');
-            this.state.user = {
-                id: 'guest',
-                name: localStorage.getItem('phoenixName') || 'Guest',
-                email: 'guest@phoenix.ai',
-                isGuest: true
-            };
-            this.state.preferences = this.getDefaultPreferences();
-            return;
-        }
-
         try {
             if (!this.components.api || !this.components.api.getUserProfile) {
                 throw new Error('API client not ready');
@@ -971,13 +911,6 @@ return true; // Token is valid if this succeeds
      */
     async checkSubscription() {
         console.log('💳 Checking subscription status...');
-
-        // Guest users don't have subscriptions
-        if (this.state.health.auth === 'guest') {
-            console.log('✅ Guest mode - skipping subscription check (using free tier)');
-            this.state.subscription = { active: false, plan: 'guest', features: [] };
-            return;
-        }
 
         try {
             if (!this.components.api || !this.components.api.getSubscriptionStatus) {
@@ -1112,12 +1045,6 @@ return true; // Token is valid if this succeeds
     async loadInitialPlanetData() {
         console.log('🪐 Loading initial planet data...');
 
-        // Guest users can't access planet data (requires backend profile)
-        if (this.state.health.auth === 'guest') {
-            console.log('✅ Guest mode - skipping planet data load (requires full account)');
-            return;
-        }
-
         const planetEndpoints = [
             { name: 'Mercury', method: 'getRecoveryDashboard', icon: '☿️' },
             { name: 'Venus', method: 'getWorkouts', icon: '♀️' },
@@ -1212,12 +1139,6 @@ return true; // Token is valid if this succeeds
      */
     async setupAIContext() {
         console.log('🧠 Setting up AI context...');
-
-        // Guest users get default AI context
-        if (this.state.health.auth === 'guest') {
-            console.log('✅ Guest mode - using default AI context');
-            return;
-        }
 
         try {
             // ENDPOINT 1: GET /api/phoenix/companion/personality
@@ -1929,17 +1850,12 @@ return true; // Token is valid if this succeeds
             
             // Check auth status
             if (this.state.session.authToken) {
-                // Skip validation for guest tokens - they don't need backend validation
-                if (this.state.session.authToken.startsWith('guest_')) {
-                    this.state.health.auth = 'guest';
-                } else {
-                    const authValid = await this.validateStoredToken(this.state.session.authToken);
-                    this.state.health.auth = authValid ? 'healthy' : 'unhealthy';
+                const authValid = await this.validateStoredToken(this.state.session.authToken);
+                this.state.health.auth = authValid ? 'healthy' : 'unhealthy';
 
-                    if (!authValid) {
-                        console.warn('⚠️ Auth token invalid, attempting refresh...');
-                        await this.attemptTokenRefresh(this.state.session.authToken);
-                    }
+                if (!authValid) {
+                    console.warn('⚠️ Auth token invalid, attempting refresh...');
+                    await this.attemptTokenRefresh(this.state.session.authToken);
                 }
             }
             

@@ -310,6 +310,7 @@ class PhoenixOrb {
                     <circle cx="12" cy="12" r="3" fill="currentColor"/>
                     <path d="M12 2 L12 6 M12 18 L12 22 M2 12 L6 12 M18 12 L22 12" stroke="currentColor" stroke-width="2"/>
                 </svg>
+                <div class="phoenix-orb-hint">Tap to communicate</div>
             </div>
 
             <!-- Expanded Panel -->

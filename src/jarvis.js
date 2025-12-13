@@ -38,12 +38,6 @@ class JARVISEngine {
             return false;
         }
 
-        // Guest tokens are valid but have limited access
-        if (token.startsWith('guest_')) {
-            console.log('✅ Guest token - limited mode');
-            return false; // Return false to indicate limited access, but DON'T remove token
-        }
-
         try {
             const response = await fetch(`${this.baseURL}/auth/me`, {
                 headers: this.getHeaders()

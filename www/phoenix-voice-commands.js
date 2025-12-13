@@ -736,8 +736,9 @@ class PhoenixVoiceCommands {
         this.userInteracted = true;
 
         // CRITICAL FIX: Unlock audio context on first user interaction
+        // MUST AWAIT to ensure audio is ready BEFORE starting recognition
         if (!this.audioUnlocked) {
-            this.unlockAudioContext(); // Fire and forget
+            await this.unlockAudioContext();
         }
 
         // Stop any current audio playback

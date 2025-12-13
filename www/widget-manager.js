@@ -46,6 +46,14 @@ class WidgetManager {
         this.loadWidgetLayout();
         // Make existing HUD elements manageable
         this.initializeHUDWidgets();
+
+        // Listen for restore events from Phoenix Dock
+        window.addEventListener('phoenix:restore-widget', (e) => {
+            if (e.detail && e.detail.widgetId) {
+                this.restoreWidget(e.detail.widgetId);
+            }
+        });
+
         console.log('Widget Manager initialized (optimized + drag/minimize)');
     }
 
@@ -721,21 +729,27 @@ class WidgetManager {
         const widget = document.getElementById(widgetId);
         if (!widget) return;
 
-        // Store widget info
-        this.minimizedWidgets.set(widgetId, {
-            name: widget.dataset.widgetName || widgetId,
-            icon: widget.dataset.widgetIcon || '📦'
-        });
+        // Gather widget data
+        const widgetData = {
+            title: widget.dataset.widgetName || widget.querySelector('.widget-header')?.textContent || widgetId,
+            icon: widget.dataset.widgetIcon || '📦',
+            color: widget.dataset.widgetColor || '#00d9ff',
+            html: widget.innerHTML,
+            style: widget.style.cssText
+        };
 
-        // Hide widget
+        // Hide widget (don't remove from DOM, just hide)
         widget.style.display = 'none';
+        widget.classList.add('minimized-to-dock');
 
-        // Add to dock
-        this.addToDock(widgetId);
-
-        // Show dock if hidden
-        this.dockBar.style.opacity = '1';
-        this.dockBar.style.pointerEvents = 'auto';
+        // Use new Phoenix Dock system
+        if (window.minimizeWidgetToDock) {
+            window.minimizeWidgetToDock(widgetId, widgetData);
+        } else {
+            // Fallback: use old dock system
+            this.minimizedWidgets.set(widgetId, widgetData);
+            this.addToDock(widgetId);
+        }
 
         this.saveWidgetLayout();
         console.log(`[WidgetManager] Minimized: ${widgetId}`);

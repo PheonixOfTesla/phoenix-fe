@@ -241,6 +241,14 @@ Genesis embeds ANYTHING - YouTube, Spotify, websites, or custom widgets."></text
             });
         });
 
+        // Quick widget icon clicks
+        document.querySelectorAll('.genesis-widget-icon').forEach(button => {
+            button.addEventListener('click', () => {
+                const widgetType = button.getAttribute('data-widget-type');
+                this.handleQuickWidget(widgetType);
+            });
+        });
+
         // Blueprint modal buttons
         const confirmBtn = this.getElement('blueprint-confirm');
         const editBtn = this.getElement('blueprint-edit');
@@ -301,6 +309,57 @@ Genesis embeds ANYTHING - YouTube, Spotify, websites, or custom widgets."></text
 
         } catch (error) {
             this.error('❌ Error generating blueprint:', error);
+            this.phoenixSpeak('I encountered an issue. Please try again.');
+        }
+    }
+
+    /**
+     * Handle quick widget button click
+     * Instantly creates predefined widgets without user input
+     */
+    async handleQuickWidget(widgetType) {
+        const widgetPrompts = {
+            'email': 'gmail email client with inbox view',
+            'spotify': 'spotify music player with green theme',
+            'youtube': 'youtube video player with red accents',
+            'weather': 'weather widget showing forecast with blue sky theme',
+            'news': 'news feed widget with orange borders',
+            'notes': 'quick notes panel with purple accents',
+            'timer': 'custom timer with blue theme',
+            'maps': 'maps widget showing location',
+            'todo': 'todo list widget with checkboxes',
+            'browser': 'browser panel for websites'
+        };
+
+        const prompt = widgetPrompts[widgetType];
+        if (!prompt) {
+            this.error(`Unknown widget type: ${widgetType}`);
+            return;
+        }
+
+        try {
+            this.phoenixSpeak(`Adding ${widgetType} widget...`);
+
+            // Parse the prompt
+            const parsed = this.parser.parse(prompt);
+            this.log('📝 Quick widget parsed:', parsed);
+
+            // Generate blueprint (try GPT-5.2 first, then local fallback)
+            const enhancedBlueprint = await this.generateWithGPT52(prompt, parsed);
+
+            if (enhancedBlueprint) {
+                this.currentBlueprint = enhancedBlueprint;
+                this.log('🎯 GPT-5.2 Enhanced Blueprint:', this.currentBlueprint);
+            } else {
+                this.currentBlueprint = this.blueprintGen.generate(parsed);
+                this.log('📋 Local Blueprint (fallback):', this.currentBlueprint);
+            }
+
+            // Auto-confirm for quick widgets (skip preview)
+            this.handleConfirm();
+
+        } catch (error) {
+            this.error('❌ Error creating quick widget:', error);
             this.phoenixSpeak('I encountered an issue. Please try again.');
         }
     }
