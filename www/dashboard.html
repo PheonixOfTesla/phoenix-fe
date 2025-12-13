@@ -2871,6 +2871,16 @@
                 // Don't validate via API to avoid redirect loops from 401 errors
                 console.log('✅ Token found - loading dashboard with token:', token.substring(0, 30) + '...');
 
+                // FORCE HIDE LOADING SCREEN for guest users
+                setTimeout(() => {
+                    const loadingEl = document.getElementById('loading');
+                    if (loadingEl && loadingEl.style.display !== 'none') {
+                        console.log('⏱️  Force hiding loading screen after 3s timeout');
+                        loadingEl.style.opacity = '0';
+                        setTimeout(() => loadingEl.style.display = 'none', 500);
+                    }
+                }, 3000);
+
                 // Try to get user info but don't fail if it errors
                 try {
                     const data = await fetchAPI('/users/profile');
