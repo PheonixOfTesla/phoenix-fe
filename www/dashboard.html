@@ -2182,6 +2182,13 @@
 
                 // ✅ HANDLE 401 UNAUTHORIZED
                 if (response.status === 401) {
+                    // Don't redirect guest users - they're expected to get 401s
+                    const currentToken = localStorage.getItem('phoenixToken');
+                    if (currentToken && currentToken.startsWith('guest_')) {
+                        console.log('⚠️  401 for guest user - expected, continuing in guest mode');
+                        throw new Error('Unauthorized - guest mode has limited access');
+                    }
+
                     console.log('❌ 401 Unauthorized - session expired');
                     localStorage.removeItem('phoenixToken');
                     sessionStorage.removeItem('phoenix_greeted');
